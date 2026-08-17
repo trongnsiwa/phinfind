@@ -1,20 +1,66 @@
+@import 'tailwindcss';
 @import 'leaflet/dist/leaflet.css';
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
-@layer base {
-  :root {
-    --font-inter: 'Inter', sans-serif;
-    --font-playfair: 'Playfair Display', serif;
-  }
+@theme {
+  --color-background: #FAF7F2;
+  --color-foreground: #2C1810;
+  --color-card: #FFFFFF;
+  --color-card-foreground: #2C1810;
+  --color-primary: #6F4E37;
+  --color-primary-foreground: #FFFFFF;
+  --color-primary-hover: #5A3E2E;
+  --color-secondary: #D48B5C;
+  --color-secondary-foreground: #FFFFFF;
+  --color-secondary-hover: #C47A4A;
+  --color-muted: #F5E6D3;
+  --color-muted-foreground: #6F4E37;
+  --color-accent: #D48B5C;
+  --color-accent-foreground: #FFFFFF;
+  --color-destructive: #C75B5B;
+  --color-destructive-foreground: #FFFFFF;
 
-  body {
-    background-color: #FAF7F2;
-    color: #2C1810;
-    font-family: var(--font-inter);
-    -webkit-tap-highlight-color: transparent;
+  --color-phin-50: #FAF7F2;
+  --color-phin-100: #F5E6D3;
+  --color-phin-200: #E8D5C0;
+  --color-phin-300: #D48B5C;
+  --color-phin-400: #C68E5C;
+  --color-phin-500: #8B6B4A;
+  --color-phin-600: #6F4E37;
+  --color-phin-700: #5A3E2E;
+  --color-phin-800: #4D3427;
+  --color-phin-900: #2C1810;
+  --color-phin-950: #1A0E0A;
+
+  --font-body: var(--font-inter), sans-serif;
+  --font-display: var(--font-playfair), serif;
+
+  --shadow-card: 0 2px 8px -2px rgba(44, 24, 16, 0.08), 0 1px 4px -1px rgba(44, 24, 16, 0.04);
+  --shadow-card-hover: 0 8px 16px -4px rgba(44, 24, 16, 0.12), 0 4px 8px -2px rgba(44, 24, 16, 0.06);
+
+  --animate-fade-in: fadeIn 0.2s ease-in-out;
+  --animate-slide-up: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-heart-pop: heartPop 0.3s ease-in-out;
+
+  @keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
   }
+  @keyframes slideUp {
+    0% { transform: translateY(10px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes heartPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.25); }
+    100% { transform: scale(1); }
+  }
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-body);
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Custom scrollbars for mobile friendliness */
