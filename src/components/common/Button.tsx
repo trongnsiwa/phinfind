@@ -1,9 +1,10 @@
 import React from 'react';
-import { cn } from '@/lib/utils/cn';
+import { Button as ShadcnButton, type ButtonProps as ShadcnButtonProps } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'outline' | 'danger';
-  size?: 'sm' | 'md' | 'lg' | 'icon';
+export interface ButtonProps extends Omit<ShadcnButtonProps, 'variant' | 'size'> {
+  variant?: 'primary' | 'secondary' | 'ghost' | 'outline' | 'danger' | 'destructive' | 'default' | 'link';
+  size?: 'sm' | 'md' | 'lg' | 'icon' | 'default';
   isLoading?: boolean;
 }
 
@@ -20,29 +21,23 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
-    const baseStyles =
-      'inline-flex items-center justify-center font-medium rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]';
+    // Map legacy variants to shadcn UI variants
+    const mappedVariant =
+      variant === 'primary' ? 'default' :
+      variant === 'danger' ? 'destructive' :
+      (variant as ShadcnButtonProps['variant']) || 'default';
 
-    const variants = {
-      primary: 'bg-primary text-white hover:bg-primary-hover shadow-sm',
-      secondary: 'bg-secondary text-white hover:bg-secondary-hover shadow-sm',
-      ghost: 'bg-transparent text-foreground hover:bg-phin-100',
-      outline: 'border border-phin-300 bg-white text-foreground hover:bg-phin-50',
-      danger: 'bg-destructive text-white hover:opacity-90',
-    };
-
-    const sizes = {
-      sm: 'px-3 py-1.5 text-xs gap-1.5',
-      md: 'px-4 py-2 text-sm gap-2',
-      lg: 'px-6 py-3 text-base gap-2.5',
-      icon: 'p-2 text-sm rounded-full',
-    };
+    const mappedSize =
+      size === 'md' ? 'default' :
+      (size as ShadcnButtonProps['size']) || 'default';
 
     return (
-      <button
+      <ShadcnButton
         ref={ref}
         disabled={disabled || isLoading}
-        className={cn(baseStyles, variants[variant], sizes[size], className)}
+        variant={mappedVariant}
+        size={mappedSize}
+        className={cn(className)}
         {...props}
       >
         {isLoading && (
@@ -67,9 +62,10 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           </svg>
         )}
         {children}
-      </button>
+      </ShadcnButton>
     );
   }
 );
 
 Button.displayName = 'Button';
+

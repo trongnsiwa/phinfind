@@ -6,8 +6,9 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { CoffeeShop } from '@/types/shop';
 import { LocationButton } from './LocationButton';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
-// Fix Leaflet default icon asset paths in Next.js
 const coffeeIcon = L.divIcon({
   className: 'custom-leaflet-marker',
   html: `<div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center shadow-lg border-2 border-white text-sm">☕</div>`,
@@ -57,7 +58,14 @@ export default function LeafletMapInner({
   onRecenter,
 }: LeafletMapInnerProps) {
   return (
-    <div className="relative w-full h-full min-h-[350px] rounded-2xl overflow-hidden shadow-card border border-phin-100">
+    <Card className="relative w-full h-full min-h-[350px] rounded-2xl overflow-hidden shadow-card border border-phin-100 p-0">
+      {/* Badge showing count of shops found */}
+      <div className="absolute top-4 left-4 z-[400]">
+        <Badge variant="secondary" className="bg-white/95 text-phin-900 shadow-md border border-phin-200 px-3 py-1 font-semibold text-xs">
+          ☕ {shops.length} shops nearby
+        </Badge>
+      </div>
+
       <MapContainer
         center={center}
         zoom={zoom}
@@ -105,6 +113,6 @@ export default function LeafletMapInner({
       </MapContainer>
 
       {onRecenter && <LocationButton onClick={onRecenter} />}
-    </div>
+    </Card>
   );
 }

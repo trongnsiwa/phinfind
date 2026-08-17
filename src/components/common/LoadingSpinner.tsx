@@ -1,5 +1,5 @@
 import { Coffee } from 'lucide-react';
-import { cn } from '@/lib/utils/cn';
+import { cn } from '@/lib/utils';
 
 interface LoadingSpinnerProps {
   size?: 'sm' | 'md' | 'lg';
@@ -26,7 +26,7 @@ export function LoadingSpinner({ size = 'md', text, className }: LoadingSpinnerP
         <div className="absolute inset-0 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
         <Coffee size={iconSizes[size]} className="animate-pulse text-primary" />
       </div>
-      {text && <p className="text-sm font-medium text-phin-700 animate-pulse">{text}</p>}
+      {text && <p className="text-sm font-medium text-phin-700 animate-pulse font-display">{text}</p>}
     </div>
   );
 }
