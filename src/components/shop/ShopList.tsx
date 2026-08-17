@@ -26,18 +26,18 @@ export function ShopList({
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {[1, 2, 3, 4].map((n) => (
-          <div key={n} className="p-4 rounded-xl border border-phin-100 bg-white space-y-3">
+          <div key={n} className="p-4 rounded-3xl border border-dark-border/80 bg-dark-roast/90 space-y-3 shadow-md">
             <div className="flex items-center justify-between">
-              <Skeleton className="h-5 w-1/2 bg-phin-100" />
-              <Skeleton className="h-6 w-16 rounded-full bg-phin-100" />
+              <Skeleton className="h-5 w-1/2 bg-dark-roast" />
+              <Skeleton className="h-6 w-16 rounded-full bg-dark-roast" />
             </div>
-            <Skeleton className="h-4 w-3/4 bg-phin-100" />
-            <Separator className="bg-phin-100" />
+            <Skeleton className="h-4 w-3/4 bg-dark-roast/60" />
+            <div className="h-px bg-dark-border/60" />
             <div className="flex items-center justify-between">
-              <Skeleton className="h-4 w-1/3 bg-phin-100" />
+              <Skeleton className="h-4 w-1/3 bg-dark-roast" />
               <div className="flex gap-2">
-                <Skeleton className="h-8 w-16 rounded-md bg-phin-100" />
-                <Skeleton className="h-8 w-16 rounded-md bg-phin-100" />
+                <Skeleton className="h-8 w-16 rounded-xl bg-dark-roast" />
+                <Skeleton className="h-8 w-16 rounded-xl bg-amber-gold/20" />
               </div>
             </div>
           </div>
@@ -48,10 +48,10 @@ export function ShopList({
 
   if (shops.length === 0) {
     return (
-      <div className="text-center py-12 px-4 rounded-2xl bg-white border border-phin-100 shadow-sm space-y-2">
+      <div className="text-center py-12 px-4 rounded-3xl bg-dark-roast/90 border border-dark-border/80 shadow-md space-y-2">
         <span className="text-4xl">☕</span>
-        <h3 className="text-lg font-bold text-phin-900 font-display">No Coffee Shops Found</h3>
-        <p className="text-sm text-phin-600 max-w-sm mx-auto">
+        <h3 className="text-lg font-bold text-cream-white font-sans">No Coffee Shops Found</h3>
+        <p className="text-sm text-soft-beige/80 max-w-sm mx-auto">
           Try expanding your search radius or clearing active filters to discover nearby spots.
         </p>
       </div>

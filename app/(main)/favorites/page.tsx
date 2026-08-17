@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { Heart, Trash2, Navigation, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
-import { Heart, Trash2, Navigation } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -43,17 +43,21 @@ export default function FavoritesPage() {
   };
 
   return (
-    <div className="space-y-4 max-w-4xl mx-auto">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 max-w-4xl mx-auto">
+      {/* Header Banner */}
+      <div className="flex items-center justify-between pb-2 border-b border-phin-200">
         <div>
-          <h2 className="font-display font-bold text-xl text-phin-900 flex items-center gap-2">
-            <Heart size={20} className="text-rose-500 fill-rose-500" />
+          <h2 className="font-sans font-bold text-2xl text-phin-900 flex items-center gap-2.5">
+            <Heart size={22} className="text-rose-500 fill-rose-500 animate-pulse" />
             Saved Coffee Shops
           </h2>
-          <p className="text-xs text-phin-600 mt-0.5">
-            Quick access to your favorite coffee spots ({favoriteShops.length})
+          <p className="text-xs text-phin-600 mt-1">
+            Bookmark your favorite coffee spots for quick offline access
           </p>
         </div>
+        <Badge variant="outline" className="bg-rose-50 text-rose-700 border-rose-200 font-bold text-xs px-3 py-1">
+          {favoriteShops.length} saved
+        </Badge>
       </div>
 
       {favoriteShops.length === 0 ? (
@@ -63,48 +67,54 @@ export default function FavoritesPage() {
           description="Tap the heart icon on any coffee shop card to bookmark it for easy access anytime."
           actionLabel="Discover Coffee Shops"
           onAction={() => router.push(APP_ROUTES.HOME)}
-          className="py-12"
+          className="py-16"
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {favoriteShops.map((shop) => (
-            <Card key={shop.id} className="p-4 bg-white border border-phin-100 shadow-sm hover:shadow-md transition-all">
-              <CardHeader className="p-0 space-y-1">
-                <div className="flex items-start justify-between">
-                  <CardTitle className="font-display font-bold text-base text-phin-900">
+            <Card
+              key={shop.id}
+              className="p-4 bg-white border border-phin-100 shadow-card hover:shadow-card-hover transition-all duration-300 rounded-2xl flex flex-col justify-between"
+            >
+              <CardHeader className="p-0 space-y-1.5">
+                <div className="flex items-start justify-between gap-2">
+                  <CardTitle className="font-sans font-bold text-base text-phin-900 line-clamp-1">
                     {shop.name}
                   </CardTitle>
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => setShopToRemove(shop)}
-                    className="h-8 w-8 text-phin-400 hover:text-rose-600 hover:bg-rose-50 rounded-full"
+                    className="h-8 w-8 text-phin-400 hover:text-rose-600 hover:bg-rose-50 rounded-full flex-shrink-0"
                     aria-label="Remove from favorites"
                   >
-                    <Trash2 size={16} />
+                    <Trash2 size={15} />
                   </Button>
                 </div>
                 <p className="text-xs text-phin-600 line-clamp-1">{shop.address}</p>
               </CardHeader>
 
-              <CardContent className="p-0 pt-3 flex items-center justify-between text-xs">
-                <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
+              <CardContent className="p-0 pt-4 flex items-center justify-between text-xs border-t border-phin-50 mt-3">
+                <Badge variant="outline" className="bg-amber-50 text-amber-800 border-amber-200 font-bold text-[11px]">
                   ⭐ {shop.rating.toFixed(1)} · {shop.distance_text}
                 </Badge>
 
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="h-8 text-xs border-phin-200" asChild>
+                <div className="flex gap-1.5">
+                  <Button variant="outline" size="sm" className="h-7 px-2.5 text-[11px] border-phin-200 rounded-lg" asChild>
                     <a
                       href={`https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lon}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <Navigation size={12} className="mr-1" />
-                      Directions
+                      <Navigation size={11} className="mr-1 text-primary" />
+                      Nav
                     </a>
                   </Button>
-                  <Button variant="default" size="sm" className="h-8 text-xs bg-phin-800 text-white" asChild>
-                    <Link href={APP_ROUTES.SHOP_DETAIL(shop.id)}>View</Link>
+                  <Button variant="default" size="sm" className="h-7 px-2.5 text-[11px] bg-phin-800 text-white hover:bg-phin-900 rounded-lg font-semibold" asChild>
+                    <Link href={APP_ROUTES.SHOP_DETAIL(shop.id)}>
+                      View
+                      <ExternalLink size={10} className="ml-1 opacity-70" />
+                    </Link>
                   </Button>
                 </div>
               </CardContent>
@@ -115,16 +125,16 @@ export default function FavoritesPage() {
 
       {/* Remove Confirmation Alert Dialog */}
       <AlertDialog open={!!shopToRemove} onOpenChange={(open) => !open && setShopToRemove(null)}>
-        <AlertDialogContent className="bg-white border-phin-200">
+        <AlertDialogContent className="bg-white border-phin-200 rounded-2xl">
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-display text-phin-900">Remove Favorite?</AlertDialogTitle>
+            <AlertDialogTitle className="font-sans text-phin-900">Remove Favorite?</AlertDialogTitle>
             <AlertDialogDescription className="text-xs text-phin-600">
               Are you sure you want to remove &quot;{shopToRemove?.name}&quot; from your saved favorites?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-phin-200 text-xs">Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmRemove} className="bg-rose-600 text-white hover:bg-rose-700 text-xs">
+            <AlertDialogCancel className="border-phin-200 text-xs rounded-xl">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmRemove} className="bg-rose-600 text-white hover:bg-rose-700 text-xs rounded-xl font-semibold">
               Remove
             </AlertDialogAction>
           </AlertDialogFooter>

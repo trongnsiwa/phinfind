@@ -22,11 +22,11 @@ export function LoadingSpinner({ size = 'md', text, className }: LoadingSpinnerP
 
   return (
     <div className={cn('flex flex-col items-center justify-center p-6 gap-3', className)}>
-      <div className={cn('relative flex items-center justify-center text-primary', sizeClasses[size])}>
-        <div className="absolute inset-0 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
-        <Coffee size={iconSizes[size]} className="animate-pulse text-primary" />
+      <div className={cn('relative flex items-center justify-center text-amber-gold', sizeClasses[size])}>
+        <div className="absolute inset-0 rounded-full border-2 border-amber-gold/20 border-t-amber-gold animate-spin" />
+        <Coffee size={iconSizes[size]} className="animate-pulse text-amber-gold" />
       </div>
-      {text && <p className="text-sm font-medium text-phin-700 animate-pulse font-display">{text}</p>}
+      {text && <p className="text-sm font-medium text-soft-beige/90 animate-pulse font-sans">{text}</p>}
     </div>
   );
 }

@@ -50,6 +50,16 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
 
+  /* Warm Amber Gold & Dark Theme Palette */
+  --color-amber-gold: #D4A057;
+  --color-amber-gold-hover: #E8B86D;
+  --color-dark-bg: #1A0F0A;
+  --color-dark-roast: #2C1810;
+  --color-dark-border: #3D2A1E;
+  --color-cream-white: #FAF7F2;
+  --color-soft-beige: #D4C4B8;
+  --color-warm-gray: #A8988E;
+
   --color-phin-50: #FAF7F2;
   --color-phin-100: #F5E6D3;
   --color-phin-200: #E8D5C0;
@@ -63,27 +73,33 @@
   --color-phin-950: #1A0E0A;
 
   --font-body: var(--font-inter), sans-serif;
-  --font-display: var(--font-playfair), serif;
+  --font-display: var(--font-inter), sans-serif;
+  --font-serif: var(--font-serif), Georgia, serif;
 
-  --shadow-card: 0 2px 8px -2px rgba(44, 24, 16, 0.08), 0 1px 4px -1px rgba(44, 24, 16, 0.04);
-  --shadow-card-hover: 0 8px 16px -4px rgba(44, 24, 16, 0.12), 0 4px 8px -2px rgba(44, 24, 16, 0.06);
+  --shadow-card: 0 4px 12px -2px rgba(44, 24, 16, 0.08), 0 2px 6px -1px rgba(44, 24, 16, 0.04);
+  --shadow-card-hover: 0 12px 24px -4px rgba(44, 24, 16, 0.14), 0 6px 12px -2px rgba(44, 24, 16, 0.08);
 
-  --animate-fade-in: fadeIn 0.2s ease-in-out;
-  --animate-slide-up: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  --animate-heart-pop: heartPop 0.3s ease-in-out;
+  --animate-float: float 3s ease-in-out infinite;
+  --animate-pulse-ring: pulse-ring 2s ease-out infinite;
+  --animate-slide-up: slide-up 0.4s ease-out;
+  --animate-heart-beat: heart-beat 0.3s ease;
 
-  @keyframes fadeIn {
-    0% { opacity: 0; }
-    100% { opacity: 1; }
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
   }
-  @keyframes slideUp {
-    0% { transform: translateY(10px); opacity: 0; }
-    100% { transform: translateY(0); opacity: 1; }
+  @keyframes pulse-ring {
+    0% { transform: scale(1); opacity: 0.7; }
+    100% { transform: scale(1.5); opacity: 0; }
   }
-  @keyframes heartPop {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.25); }
-    100% { transform: scale(1); }
+  @keyframes slide-up {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes heart-beat {
+    0%, 100% { transform: scale(1); }
+    25% { transform: scale(1.2); }
+    50% { transform: scale(1); }
   }
 }
 
@@ -92,6 +108,33 @@ body {
   color: var(--color-foreground);
   font-family: var(--font-body);
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Custom Utilities for Polish */
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+.animate-pulse-ring {
+  animation: pulse-ring 2s ease-out infinite;
+}
+.animate-slide-up {
+  animation: slide-up 0.4s ease-out;
+}
+.animate-heart-beat {
+  animation: heart-beat 0.3s ease;
+}
+
+/* Glassmorphism helpers */
+.glass-panel {
+  background: rgba(26, 15, 10, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.glass-card {
+  background: rgba(250, 247, 242, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 /* Custom scrollbars for mobile friendliness */
@@ -108,4 +151,61 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #D48B5C;
+}
+
+/* Subtle Perimeter Border Line Animation on Hover */
+@keyframes border-travel {
+  0% {
+    background-position: 0% 0%;
+  }
+  25% {
+    background-position: 100% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  75% {
+    background-position: 0% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+.card-glow-border {
+  position: relative !important;
+  border-radius: 1.5rem !important; /* rounded-3xl */
+  overflow: hidden !important;
+}
+
+.card-glow-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: linear-gradient(
+    135deg,
+    transparent 20%,
+    rgba(140, 94, 40, 0.4) 35%,
+    #D4A057 55%,
+    #FFF4E0 70%,
+    #D4A057 85%,
+    transparent 100%
+  );
+  background-size: 250% 250%;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-image: linear-gradient(#fff 0 0), linear-gradient(#fff 0 0);
+  mask-clip: content-box, border-box;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  z-index: 30;
+}
+
+.card-glow-border:hover::before {
+  opacity: 1;
+  animation: border-travel 2.2s linear infinite;
 }

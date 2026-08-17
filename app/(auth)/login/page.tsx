@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Eye, EyeOff, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -12,26 +13,32 @@ import { toast } from 'sonner';
 
 export default function LoginPage() {
   const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success('Welcome back!');
-    router.push('/');
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      toast.success('Welcome back!');
+      router.push('/');
+    }, 600);
   };
 
   return (
     <Card className="border-0 shadow-none bg-transparent p-0">
-      <CardHeader className="text-center p-0 mb-6 space-y-1">
-        <CardTitle className="font-display font-bold text-xl text-phin-900">Welcome Back</CardTitle>
+      <CardHeader className="p-0 mb-6 space-y-1 text-left">
+        <CardTitle className="font-sans font-bold text-2xl text-phin-900">Welcome Back</CardTitle>
         <CardDescription className="text-xs text-phin-600">
-          Sign in to access your saved coffee shops
+          Sign in to access your saved coffee shops and recommendations
         </CardDescription>
       </CardHeader>
 
       <CardContent className="p-0 space-y-6">
         <form className="space-y-4" onSubmit={handleLogin}>
           <div className="space-y-1.5">
-            <Label htmlFor="email" className="text-xs font-semibold text-phin-800">
+            <Label htmlFor="email" className="text-xs font-bold text-phin-900">
               Email address
             </Label>
             <Input
@@ -39,31 +46,61 @@ export default function LoginPage() {
               type="email"
               placeholder="you@example.com"
               required
-              className="h-10 text-xs bg-phin-50 border-phin-200 text-phin-900 focus-visible:ring-primary"
+              className="h-10 text-xs bg-phin-50/70 border-phin-200 text-phin-900 focus-visible:ring-primary rounded-xl"
             />
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="password" className="text-xs font-semibold text-phin-800">
-              Password
-            </Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              required
-              className="h-10 text-xs bg-phin-50 border-phin-200 text-phin-900 focus-visible:ring-primary"
-            />
+            <div className="flex justify-between items-center">
+              <Label htmlFor="password" className="text-xs font-bold text-phin-900">
+                Password
+              </Label>
+              <a href="#" className="text-[11px] text-primary font-semibold hover:underline">
+                Forgot?
+              </a>
+            </div>
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="••••••••"
+                required
+                className="h-10 text-xs bg-phin-50/70 border-phin-200 text-phin-900 focus-visible:ring-primary rounded-xl pr-10"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-phin-500 hover:text-phin-900"
+                aria-label="Toggle password visibility"
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </Button>
+            </div>
           </div>
 
-          <Button type="submit" variant="default" className="w-full h-10 bg-phin-800 text-white hover:bg-phin-900 font-semibold">
-            Sign In
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className="w-full h-11 bg-phin-800 text-white hover:bg-phin-900 font-semibold rounded-xl shadow-md text-xs"
+          >
+            {isLoading ? (
+              <span className="flex items-center gap-2">
+                <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                Signing in...
+              </span>
+            ) : (
+              <span className="flex items-center gap-2">
+                <LogIn size={15} /> Sign In
+              </span>
+            )}
           </Button>
         </form>
 
         <div className="relative flex items-center justify-center my-4">
           <Separator className="bg-phin-200 w-full" />
-          <span className="bg-white px-3 text-[11px] text-phin-500 font-medium uppercase tracking-wider absolute">
+          <span className="bg-white px-3 text-[10px] text-phin-500 font-bold uppercase tracking-wider absolute">
             Or
           </span>
         </div>
@@ -74,7 +111,7 @@ export default function LoginPage() {
             toast.success('Welcome back!');
             router.push('/');
           }}
-          className="w-full h-10 gap-2 border-phin-200 text-phin-800 hover:bg-phin-50 text-xs"
+          className="w-full h-10 gap-2 border-phin-200 text-phin-800 hover:bg-phin-50 text-xs font-semibold rounded-xl"
         >
           <svg className="w-4 h-4" viewBox="0 0 24 24">
             <path
@@ -100,7 +137,7 @@ export default function LoginPage() {
         <p className="text-center text-xs text-phin-600">
           Don&apos;t have an account?{' '}
           <Link href="/signup" className="text-primary font-bold hover:underline">
-            Sign up
+            Create one now
           </Link>
         </p>
       </CardContent>

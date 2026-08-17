@@ -87,7 +87,7 @@ export function ShopFilters() {
           </SheetTrigger>
           <SheetContent side="bottom" className="bg-white rounded-t-2xl border-t border-phin-200 p-6 space-y-6">
             <SheetHeader>
-              <SheetTitle className="font-display text-lg text-phin-900">Filter Coffee Shops</SheetTitle>
+              <SheetTitle className="font-sans text-lg text-phin-900">Filter Coffee Shops</SheetTitle>
               <SheetDescription className="text-xs text-phin-600">
                 Adjust search preferences and sorting options
               </SheetDescription>

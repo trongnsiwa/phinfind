@@ -1,10 +1,16 @@
 'use client';
 
-import { useMemo } from 'react';
-import { MapPin, Navigation, Star, Heart } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { ArrowUpDown, Heart, MapPin, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   Drawer,
   DrawerContent,
@@ -13,28 +19,34 @@ import {
   DrawerDescription,
   DrawerFooter,
 } from '@/components/ui/drawer';
-import { Map } from '@/components/map/Map';
-import { ShopFilters } from '@/components/shop/ShopFilters';
-import { ShopList } from '@/components/shop/ShopList';
+
+import { BentoGrid } from '@/components/bento/BentoGrid';
+import { SearchBar } from '@/components/bento/SearchBar';
+import { FilterChips } from '@/components/bento/FilterChips';
+import { ShopCardSmall } from '@/components/bento/ShopCardSmall';
+import { ShopCardMedium } from '@/components/bento/ShopCardMedium';
+import { ShopCardLarge } from '@/components/bento/ShopCardLarge';
+import { ShopCardFeatured } from '@/components/bento/ShopCardFeatured';
+import { InfiniteScroll } from '@/components/bento/InfiniteScroll';
+import { ListSkeleton } from '@/components/common/LoadingSkeleton';
+
 import { useLocation } from '@/hooks/useLocation';
 import { useNearbyShops } from '@/hooks/useShops';
 import { useShopStore } from '@/stores/useShopStore';
 import { useUIStore } from '@/stores/useUIStore';
+import { MOCK_VIETNAMESE_SHOPS } from '@/lib/mockShops';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import { APP_ROUTES } from '@/lib/utils/constants';
 
 export default function DiscoverPage() {
-  const { lat, lng, loading: locationLoading, isFallback, refetchLocation } = useLocation();
-  const { viewMode, filters } = useUIStore();
+  const { lat, lng } = useLocation();
+  const { filters, setFilters } = useUIStore();
   const { selectedShop, setSelectedShop, favorites, toggleFavorite } = useShopStore();
 
-  const { data: rawShops = [], isLoading: shopsLoading } = useNearbyShops(lat, lng);
+  const { data: apiShops = [], isLoading: shopsLoading } = useNearbyShops(lat, lng);
 
-  const handleRefetch = () => {
-    refetchLocation();
-    toast.info('Updating location...');
-  };
+  const [visibleCount, setVisibleCount] = useState(12);
 
   const handleToggleFav = (placeId: string) => {
     const isFav = favorites.includes(placeId);
@@ -46,9 +58,20 @@ export default function DiscoverPage() {
     }
   };
 
+  // Combine API shops with rich mock dataset for infinite bento scroll
+  const allShops = useMemo(() => {
+    const combined = [...apiShops];
+    MOCK_VIETNAMESE_SHOPS.forEach((mock) => {
+      if (!combined.some((s) => s.id === mock.id || s.name === mock.name)) {
+        combined.push(mock);
+      }
+    });
+    return combined;
+  }, [apiShops]);
+
   // Filter & sort shop results
   const filteredShops = useMemo(() => {
-    let result = [...rawShops];
+    let result = [...allShops];
 
     if (filters.openNowOnly) {
       result = result.filter((s) => s.opening_hours?.open_now);
@@ -74,127 +97,170 @@ export default function DiscoverPage() {
     }
 
     return result;
-  }, [rawShops, filters]);
+  }, [allShops, filters]);
+
+  const displayedShops = useMemo(() => {
+    return filteredShops.slice(0, visibleCount);
+  }, [filteredShops, visibleCount]);
+
+  const hasMore = visibleCount < filteredShops.length;
+
+  const loadMore = () => {
+    setVisibleCount((prev) => prev + 8);
+  };
 
   return (
-    <div className="space-y-4">
-      {/* Location Status Card */}
-      <Card className="bg-white p-3 rounded-2xl border border-phin-200 shadow-sm">
-        <CardContent className="p-0 flex items-center justify-between gap-2 text-xs">
-          <div className="flex items-center gap-2 text-phin-800">
-            <MapPin size={16} className="text-primary flex-shrink-0" />
-            <span className="font-medium">
-              {locationLoading
-                ? 'Detecting your location...'
-                : isFallback
-                ? 'Default Location: Hà Nội'
-                : 'Current GPS Location'}
-            </span>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleRefetch}
-            disabled={locationLoading}
-            className="text-xs h-7 px-2.5 text-primary hover:bg-phin-100 border border-phin-200 rounded-lg"
-          >
-            <Navigation size={12} className="mr-1" />
-            Relocate
-          </Button>
-        </CardContent>
-      </Card>
+    <div className="space-y-5 max-w-7xl mx-auto text-cream-white">
+      {/* Compact Premium Filter Card */}
+      <div className="bg-dark-bg/95 backdrop-blur-md rounded-3xl p-3.5 sm:p-4 border border-dark-border shadow-xl shadow-black/30 space-y-3">
+        {/* Row 1: Prominent Full-Width Search Bar */}
+        <SearchBar />
 
-      {/* Filter and View Controls */}
-      <ShopFilters />
-
-      {/* Main View Area */}
-      {viewMode === 'map' ? (
-        <div className="space-y-4">
-          <div className="h-[420px] md:h-[500px]">
-            <Map
-              center={[lat, lng]}
-              shops={filteredShops}
-              selectedShop={selectedShop}
-              onSelectShop={setSelectedShop}
-              onRecenter={handleRefetch}
-            />
+        {/* Row 2: Single Cohesive Controls Bar (Filter Chips + Results Count & Location + Sort Dropdown) */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1 border-t border-dark-border/60">
+          {/* Left: Scrollable Filter Chips */}
+          <div className="flex-1 min-w-0">
+            <FilterChips />
           </div>
 
-          <div className="pt-2">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-display font-bold text-sm text-phin-900 flex items-center gap-2">
-                Nearby Coffee Spots
-              </h3>
-              <Badge variant="outline" className="bg-phin-100 text-phin-800 border-phin-200">
-                {filteredShops.length} spots
+          {/* Right: Results Count, Location Badge, & Sort Selector */}
+          <div className="flex items-center justify-between sm:justify-end gap-3 text-xs flex-shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-dark-border/40">
+            <div className="flex items-center gap-1.5">
+              <span className="font-bold text-cream-white tracking-tight">{filteredShops.length} shops nearby</span>
+              <Badge variant="outline" className="bg-dark-roast text-soft-beige border-dark-border text-[10px] px-2 py-0.5 rounded-full font-medium">
+                Hà Nội
               </Badge>
             </div>
-            <ShopList
-              shops={filteredShops}
-              isLoading={shopsLoading}
-              selectedShop={selectedShop}
-              favorites={favorites}
-              onToggleFavorite={handleToggleFav}
-              onSelectShop={setSelectedShop}
-            />
+
+            <div className="flex items-center">
+              <Select
+                value={filters.sortBy}
+                onValueChange={(val) => setFilters({ sortBy: val as 'distance' | 'rating' | 'name' })}
+              >
+                <SelectTrigger
+                  aria-label="Sort coffee shops by"
+                  className="h-8 text-xs font-semibold bg-dark-roast text-cream-white border-dark-border rounded-xl focus:outline-none focus:ring-1 focus:ring-amber-gold/60 focus:ring-offset-0 focus:border-amber-gold/60 focus:scale-[1.01] hover:border-amber-gold/40 hover:text-amber-gold-hover hover:bg-white/10 transition-all duration-200 ease-out w-auto gap-2 px-3 group"
+                >
+                  <ArrowUpDown size={14} className="text-amber-gold flex-shrink-0 transition-colors duration-200 group-hover:text-amber-gold-hover group-focus-within:text-amber-gold-hover" />
+                  <SelectValue placeholder="Sort..." />
+                </SelectTrigger>
+                <SelectContent className="bg-dark-roast border-dark-border text-cream-white rounded-xl shadow-xl">
+                  <SelectItem value="distance" className="focus:bg-dark-bg focus:text-amber-gold text-xs transition-colors cursor-pointer">
+                    Distance
+                  </SelectItem>
+                  <SelectItem value="rating" className="focus:bg-dark-bg focus:text-amber-gold text-xs transition-colors cursor-pointer">
+                    Rating
+                  </SelectItem>
+                  <SelectItem value="name" className="focus:bg-dark-bg focus:text-amber-gold text-xs transition-colors cursor-pointer">
+                    Name
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
+      </div>
+
+      {/* Pure Coffee Bento Grid Area (Below Filter Area) */}
+      {shopsLoading ? (
+        <ListSkeleton count={8} />
       ) : (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-display font-bold text-sm text-phin-900">
-              Coffee Shop List
-            </h3>
-            <Badge variant="outline" className="bg-phin-100 text-phin-800 border-phin-200">
-              {filteredShops.length} spots
-            </Badge>
-          </div>
-          <ShopList
-            shops={filteredShops}
-            isLoading={shopsLoading}
-            selectedShop={selectedShop}
-            favorites={favorites}
-            onToggleFavorite={handleToggleFav}
-            onSelectShop={setSelectedShop}
-          />
-        </div>
+        <BentoGrid>
+          {displayedShops.map((shop, index) => {
+            const isFav = favorites.includes(shop.place_id);
+
+            // Bento Grid Card Size Assignment Logic:
+            // Every 15th card: Featured (3 columns × 2 rows)
+            // Every 10th card: Large (2 columns × 2 rows)
+            // Every 5th card: Medium (2 columns × 1 row)
+            // All others: Small (1 column × 1 row)
+            if (index % 15 === 14) {
+              return (
+                <ShopCardFeatured
+                  key={shop.id}
+                  shop={shop}
+                  isFavorite={isFav}
+                  onToggleFavorite={handleToggleFav}
+                  onSelect={setSelectedShop}
+                />
+              );
+            }
+
+            if (index % 10 === 9) {
+              return (
+                <ShopCardLarge
+                  key={shop.id}
+                  shop={shop}
+                  isFavorite={isFav}
+                  onToggleFavorite={handleToggleFav}
+                  onSelect={setSelectedShop}
+                />
+              );
+            }
+
+            if (index % 5 === 4) {
+              return (
+                <ShopCardMedium
+                  key={shop.id}
+                  shop={shop}
+                  isFavorite={isFav}
+                  onToggleFavorite={handleToggleFav}
+                  onSelect={setSelectedShop}
+                />
+              );
+            }
+
+            return (
+              <ShopCardSmall
+                key={shop.id}
+                shop={shop}
+                isFavorite={isFav}
+                onToggleFavorite={handleToggleFav}
+                onSelect={setSelectedShop}
+              />
+            );
+          })}
+
+          {/* Infinite Scroll Sentinel */}
+          <InfiniteScroll onLoadMore={loadMore} hasMore={hasMore} isLoading={false} />
+        </BentoGrid>
       )}
 
-      {/* Mobile Drawer for Selected Shop */}
+      {/* Mobile Drawer Preview Modal for Selected Shop */}
       {selectedShop && (
         <Drawer open={!!selectedShop} onOpenChange={(open) => !open && setSelectedShop(null)}>
-          <DrawerContent className="bg-white border-t border-phin-200 p-4 space-y-4">
-            <DrawerHeader className="p-0 text-left">
+          <DrawerContent className="bg-dark-bg text-cream-white border-t border-dark-border p-5 space-y-4 max-w-lg mx-auto rounded-t-3xl shadow-2xl">
+            <DrawerHeader className="p-0 text-left space-y-1">
               <div className="flex items-center justify-between">
-                <DrawerTitle className="font-display text-lg text-phin-900">{selectedShop.name}</DrawerTitle>
+                <DrawerTitle className="font-sans text-xl text-amber-gold">{selectedShop.name}</DrawerTitle>
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => handleToggleFav(selectedShop.place_id)}
-                  className="rounded-full"
+                  className="rounded-full hover:bg-dark-roast text-soft-beige"
                 >
                   <Heart
                     size={20}
-                    className={favorites.includes(selectedShop.place_id) ? 'fill-rose-500 text-rose-500' : ''}
+                    className={favorites.includes(selectedShop.place_id) ? 'fill-rose-500 text-rose-500' : 'text-warm-gray'}
                   />
                 </Button>
               </div>
-              <DrawerDescription className="text-xs text-phin-600 flex items-center gap-1 mt-1">
-                <MapPin size={14} className="text-phin-500" />
+              <DrawerDescription className="text-xs text-soft-beige flex items-center gap-1">
+                <MapPin size={14} className="text-amber-gold flex-shrink-0" />
                 {selectedShop.address}
               </DrawerDescription>
             </DrawerHeader>
 
             <div className="flex items-center gap-3 text-xs">
-              <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-200 flex items-center gap-1">
-                <Star size={12} className="fill-amber-400 text-amber-400" />
+              <Badge variant="outline" className="bg-dark-roast text-amber-gold border-dark-border flex items-center gap-1 font-bold">
+                <Star size={12} className="fill-amber-gold text-amber-gold" />
                 {selectedShop.rating.toFixed(1)} ({selectedShop.total_ratings})
               </Badge>
-              <span className="text-phin-600">📍 {selectedShop.distance_text}</span>
+              <span className="text-soft-beige font-medium">📍 {selectedShop.distance_text}</span>
             </div>
 
-            <DrawerFooter className="p-0 flex flex-row gap-2 pt-2">
-              <Button variant="outline" className="flex-1 border-phin-200" asChild>
+            <DrawerFooter className="p-0 flex flex-row gap-3 pt-3">
+              <Button variant="outline" className="flex-1 border-dark-border text-cream-white hover:bg-dark-roast rounded-xl" asChild>
                 <a
                   href={`https://www.google.com/maps/dir/?api=1&destination=${selectedShop.lat},${selectedShop.lon}`}
                   target="_blank"
@@ -203,7 +269,7 @@ export default function DiscoverPage() {
                   Get Directions
                 </a>
               </Button>
-              <Button variant="default" className="flex-1 bg-phin-800 text-white" asChild>
+              <Button variant="default" className="flex-1 bg-amber-gold text-dark-bg hover:bg-amber-gold-hover rounded-xl font-bold" asChild>
                 <Link href={APP_ROUTES.SHOP_DETAIL(selectedShop.id)}>View Details</Link>
               </Button>
             </DrawerFooter>
@@ -213,3 +279,4 @@ export default function DiscoverPage() {
     </div>
   );
 }
+
