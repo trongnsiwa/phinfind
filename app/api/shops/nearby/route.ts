@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createPublicClient } from '@/lib/supabase/server';
 import { DEFAULT_LOCATION } from '@/lib/utils/constants';
 import { mapDbShopToCoffeeShop } from '@/lib/supabase/shops';
 
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     : (page - 1) * limit;
 
   try {
-    const supabase = await createClient();
+    const supabase = await createPublicClient();
     const { data, error } = await supabase.from('shops').select('*');
 
     if (error) {

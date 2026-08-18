@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createPublicClient } from '@/lib/supabase/server';
 import { mapDbShopToCoffeeShop } from '@/lib/supabase/shops';
 
 export async function GET(request: NextRequest) {
@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const supabase = await createClient();
+    const supabase = await createPublicClient();
     const cleanQ = q.trim().replace(/[%_]/g, '');
     const { data, error } = await supabase
       .from('shops')
