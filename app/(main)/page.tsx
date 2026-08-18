@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowUpDown, Coffee, Heart, MapPin, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -23,6 +23,7 @@ import {
 import { BentoGrid } from '@/components/bento/BentoGrid';
 import { SearchBar } from '@/components/bento/SearchBar';
 import { FilterChips } from '@/components/bento/FilterChips';
+import { FloatingFilterBar } from '@/components/bento/FloatingFilterBar';
 import { ShopCardSmall } from '@/components/bento/ShopCardSmall';
 import { ShopCardMedium } from '@/components/bento/ShopCardMedium';
 import { ShopCardLarge } from '@/components/bento/ShopCardLarge';
@@ -52,6 +53,8 @@ export default function DiscoverPage() {
     isFallback
   );
 
+  const topFilterRef = useRef<HTMLDivElement>(null);
+  const [isFilterFloating, setIsFilterFloating] = useState(false);
   const [visibleCount, setVisibleCount] = useState(12);
 
   const handleToggleFav = (placeId: string) => {
@@ -107,17 +110,29 @@ export default function DiscoverPage() {
     setVisibleCount((prev) => prev + 12);
   };
 
-  // Debug logging
+  // IntersectionObserver to reveal sticky floating filter bar when top filter exits viewport
   useEffect(() => {
-    console.log(
-      `[DiscoverPage] apiShops: ${apiShops.length}, filteredShops: ${filteredShops.length}, displayedShops: ${displayedShops.length}, visibleCount: ${visibleCount}`
+    const target = topFilterRef.current;
+    if (!target) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsFilterFloating(!entry.isIntersecting);
+      },
+      { threshold: 0.05, rootMargin: '-60px 0px 0px 0px' }
     );
-  }, [apiShops.length, filteredShops.length, displayedShops.length, visibleCount]);
+
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <div className="space-y-5 max-w-7xl mx-auto text-cream-white">
-      {/* Compact Premium Filter Card */}
-      <div className="bg-dark-bg/95 backdrop-blur-md rounded-3xl p-3.5 sm:p-4 border border-dark-border shadow-xl shadow-black/30 space-y-3">
+      {/* Compact Premium Top Filter Card */}
+      <div
+        ref={topFilterRef}
+        className="bg-dark-bg/95 backdrop-blur-md rounded-3xl p-3.5 sm:p-4 border border-dark-border shadow-xl shadow-black/30 space-y-3"
+      >
         {/* Row 1: Prominent Full-Width Search Bar */}
         <SearchBar />
 
@@ -238,6 +253,9 @@ export default function DiscoverPage() {
           <InfiniteScroll onLoadMore={loadMore} hasMore={hasMore} isLoading={false} />
         </BentoGrid>
       )}
+
+      {/* Floating Sticky Quick Filter Bar */}
+      <FloatingFilterBar isVisible={isFilterFloating} shopCount={filteredShops.length} />
 
       {/* Mobile Drawer Preview Modal for Selected Shop */}
       {selectedShop && (
