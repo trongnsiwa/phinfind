@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Search, User, Heart, Settings, LogOut, LogIn, Compass, MapPin, X, Menu } from 'lucide-react';
+import { Search, User, Heart, Settings, LogOut, LogIn, Compass, MapPin, X, Menu, Star, Sparkles } from 'lucide-react';
 import { APP_ROUTES } from '@/lib/utils/constants';
 import { useUIStore } from '@/stores/useUIStore';
 import { useShopStore } from '@/stores/useShopStore';
@@ -29,9 +29,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useSearchShops } from '@/hooks/useShops';
+import { useLocation } from '@/hooks/useLocation';
 import { cn } from '@/lib/utils';
+import { CoffeeShop } from '@/types/shop';
 
 export function Header() {
   const pathname = usePathname();
@@ -39,9 +40,19 @@ export function Header() {
   const { searchQuery, setSearchQuery } = useUIStore();
   const { setSelectedShop } = useShopStore();
   const { user, profile, isAuthenticated, signOut } = useAuth();
-  const [searchModalOpen, setSearchModalOpen] = useState(false);
+  const { lat, lng } = useLocation();
 
-  const { data: searchResults = [], isLoading: isSearching } = useSearchShops(searchQuery);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Debounced search query to Supabase via useSearchShops
+  const { data: searchResults = [], isLoading: isSearching } = useSearchShops(
+    isSearchOpen ? searchQuery : '',
+    lat,
+    lng
+  );
 
   const displayName =
     profile?.full_name ||
@@ -50,463 +61,572 @@ export function Header() {
   const userEmail = profile?.email || user?.email;
   const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url;
 
-  // Keyboard shortcut listener (Cmd+K or Ctrl+K) to open search modal
+  // Auto-focus input when search expands
+  useEffect(() => {
+    if (isSearchOpen) {
+      const timer = setTimeout(() => {
+        inputRef.current?.focus();
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [isSearchOpen]);
+
+  // Keyboard shortcut listener (Cmd+K or Ctrl+K) to open inline search bar
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
-        setSearchModalOpen((prev) => !prev);
+        setIsSearchOpen((prev) => !prev);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  // Click outside listener to dismiss search bar & autocomplete dropdown
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+        setIsSearchOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleSelectShop = (shop: CoffeeShop) => {
+    setSelectedShop(shop);
+    setIsSearchOpen(false);
+    router.push(APP_ROUTES.SHOP_DETAIL(shop.id));
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Escape') {
+      setIsSearchOpen(false);
+      return;
+    }
+
+    if (searchResults.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedIndex((prev) => (prev < searchResults.length - 1 ? prev + 1 : 0));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedIndex((prev) => (prev > 0 ? prev - 1 : searchResults.length - 1));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (selectedIndex >= 0 && selectedIndex < searchResults.length) {
+        handleSelectShop(searchResults[selectedIndex]);
+      } else if (pathname !== APP_ROUTES.HOME) {
+        router.push(APP_ROUTES.HOME);
+        setIsSearchOpen(false);
+      }
+    }
+  };
+
+  const handleCloseSearch = () => {
+    setIsSearchOpen(false);
+    setSearchQuery('');
+    setSelectedIndex(-1);
+  };
+
   return (
-    <TooltipProvider>
-      <header className="sticky top-0 z-40 bg-dark-bg/90 backdrop-blur-md border-b border-dark-border text-cream-white shadow-lg px-4 py-3 transition-all duration-300">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-          {/* Left Side: Brand Logo + Desktop Nav Links */}
-          <div className="flex items-center gap-6 lg:gap-8 flex-shrink-0">
-            <Link
-              href={APP_ROUTES.HOME}
-              className="flex items-center gap-2.5 group rounded-2xl p-1 -m-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold transition-all duration-200"
-              aria-label="PhinFind Homepage"
+    <header className="sticky top-0 z-40 bg-dark-bg/95 backdrop-blur-md border-b border-dark-border text-cream-white shadow-lg px-3 sm:px-4 py-2.5 transition-all duration-300">
+      <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 sm:gap-4">
+        {/* Left Side: Brand Logo + Desktop Navigation Links */}
+        <div className="flex items-center gap-5 lg:gap-7 flex-shrink-0">
+          <Link
+            href={APP_ROUTES.HOME}
+            className="flex items-center gap-2 group rounded-2xl p-1 -m-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold transition-all duration-200"
+            aria-label="PhinFind Homepage"
+          >
+            <span className="w-8.5 h-8.5 sm:w-9 sm:h-9 rounded-2xl bg-gradient-to-br from-amber-gold to-phin-600 text-dark-bg flex items-center justify-center font-bold text-lg sm:text-xl shadow-md group-hover:scale-105 transition-transform duration-200">
+              ☕
+            </span>
+            <div>
+              <h1 className="font-sans font-bold text-lg sm:text-xl leading-none text-cream-white tracking-tight group-hover:text-amber-gold-hover transition-colors duration-200">
+                PhinFind
+              </h1>
+              <p className="text-[9px] text-soft-beige tracking-wider font-semibold uppercase mt-0.5 group-hover:text-cream-white transition-colors duration-200">
+                Coffee PWA
+              </p>
+            </div>
+          </Link>
+
+          {/* Desktop Navigation Links */}
+          <nav className="hidden md:flex items-center gap-1.5">
+            <Button
+              variant="ghost"
+              size="sm"
+              asChild
+              className={cn(
+                'relative group text-xs font-semibold px-3 h-8.5 rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold',
+                pathname === APP_ROUTES.HOME
+                  ? 'text-amber-gold bg-white/10 font-bold'
+                  : 'text-soft-beige hover:text-amber-gold-hover hover:bg-white/5'
+              )}
             >
-              <span className="w-9 h-9 rounded-2xl bg-gradient-to-br from-amber-gold to-phin-600 text-dark-bg flex items-center justify-center font-bold text-xl shadow-md group-hover:scale-105 transition-transform duration-200">
-                ☕
-              </span>
-              <div>
-                <h1 className="font-sans font-bold text-xl leading-none text-cream-white tracking-tight group-hover:text-amber-gold-hover transition-colors duration-200">
-                  PhinFind
-                </h1>
-                <p className="text-[9px] text-soft-beige tracking-wider font-semibold uppercase mt-0.5 group-hover:text-cream-white transition-colors duration-200">
-                  Coffee PWA
-                </p>
-              </div>
-            </Link>
+              <Link href={APP_ROUTES.HOME} className="flex items-center gap-1.5">
+                <Compass
+                  size={15}
+                  strokeWidth={2.2}
+                  className={cn(
+                    'transition-all duration-200 group-hover:scale-110 group-hover:text-amber-gold-hover',
+                    pathname === APP_ROUTES.HOME ? 'text-amber-gold' : 'text-warm-gray'
+                  )}
+                />
+                <span>Discover</span>
+                {pathname === APP_ROUTES.HOME && (
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-[2px] bg-amber-gold rounded-full" />
+                )}
+              </Link>
+            </Button>
 
-            {/* Desktop Navigation Links (Discover & Map) */}
-            <nav className="hidden md:flex items-center gap-1.5">
+            <Button
+              variant="ghost"
+              size="sm"
+              asChild
+              className={cn(
+                'relative group text-xs font-semibold px-3 h-8.5 rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold',
+                pathname === APP_ROUTES.MAP
+                  ? 'text-amber-gold bg-white/10 font-bold'
+                  : 'text-soft-beige hover:text-amber-gold-hover hover:bg-white/5'
+              )}
+            >
+              <Link href={APP_ROUTES.MAP} className="flex items-center gap-1.5">
+                <MapPin
+                  size={15}
+                  strokeWidth={2.2}
+                  className={cn(
+                    'transition-all duration-200 group-hover:scale-110 group-hover:text-amber-gold-hover',
+                    pathname === APP_ROUTES.MAP ? 'text-amber-gold' : 'text-warm-gray'
+                  )}
+                />
+                <span>Map</span>
+                {pathname === APP_ROUTES.MAP && (
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-[2px] bg-amber-gold rounded-full" />
+                )}
+              </Link>
+            </Button>
+          </nav>
+        </div>
+
+        {/* Right Side: Right-Anchored Search + Profile Avatar + Mobile Hamburger Menu */}
+        <div className="flex items-center gap-2 sm:gap-2.5 flex-shrink-0">
+          {/* Search container */}
+          <div ref={searchContainerRef} className="relative flex items-center">
+            {!isSearchOpen ? (
+              /* Closed state: Search icon button */
               <Button
                 variant="ghost"
-                size="sm"
-                asChild
-                className={cn(
-                  'relative group text-xs font-semibold px-3.5 h-8.5 rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold',
-                  pathname === APP_ROUTES.HOME
-                    ? 'text-amber-gold bg-white/10 font-bold'
-                    : 'text-soft-beige hover:text-amber-gold-hover hover:bg-white/5'
-                )}
+                size="icon"
+                onClick={() => setIsSearchOpen(true)}
+                aria-label="Search coffee shops (Cmd+K)"
+                className="h-9 w-9 rounded-full text-warm-gray hover:text-amber-gold hover:bg-white/5 border border-dark-border/60 hover:border-amber-gold/40 transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold flex-shrink-0"
               >
-                <Link href={APP_ROUTES.HOME} className="flex items-center gap-1.5">
-                  <Compass
-                    size={15}
-                    strokeWidth={2.2}
-                    className={cn(
-                      'transition-all duration-200 group-hover:scale-110 group-hover:text-amber-gold-hover',
-                      pathname === APP_ROUTES.HOME
-                        ? 'text-amber-gold'
-                        : 'text-warm-gray'
-                    )}
-                  />
-                  <span>Discover</span>
-                  {pathname === APP_ROUTES.HOME && (
-                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-5 h-[2px] bg-amber-gold rounded-full" />
-                  )}
-                </Link>
+                <Search size={16} className="text-amber-gold" />
               </Button>
-
-              <Button
-                variant="ghost"
-                size="sm"
-                asChild
-                className={cn(
-                  'relative group text-xs font-semibold px-3.5 h-8.5 rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold',
-                  pathname === APP_ROUTES.MAP
-                    ? 'text-amber-gold bg-white/10 font-bold'
-                    : 'text-soft-beige hover:text-amber-gold-hover hover:bg-white/5'
-                )}
-              >
-                <Link href={APP_ROUTES.MAP} className="flex items-center gap-1.5">
-                  <MapPin
+            ) : (
+              /* Open state: Clean slide-in search input stretching leftward */
+              <div className="flex items-center gap-1.5 animate-in fade-in slide-in-from-right-3 duration-200 ease-out">
+                <div className="relative flex items-center">
+                  <Search
                     size={15}
-                    strokeWidth={2.2}
-                    className={cn(
-                      'transition-all duration-200 group-hover:scale-110 group-hover:text-amber-gold-hover',
-                      pathname === APP_ROUTES.MAP
-                        ? 'text-amber-gold'
-                        : 'text-warm-gray'
-                    )}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-warm-gray pointer-events-none z-10"
+                    aria-hidden="true"
                   />
-                  <span>Map</span>
-                  {pathname === APP_ROUTES.MAP && (
-                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-5 h-[2px] bg-amber-gold rounded-full" />
+                  <Input
+                    ref={inputRef}
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      setSelectedIndex(-1);
+                    }}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Search shops, streets, areas..."
+                    aria-label="Search coffee shops"
+                    className="w-48 sm:w-64 h-9 pl-9 pr-8 text-xs sm:text-sm bg-dark-roast text-cream-white border-dark-border rounded-xl focus-visible:ring-1 focus-visible:ring-amber-gold placeholder:text-warm-gray shadow-inner"
+                  />
+                  {searchQuery && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => {
+                        setSearchQuery('');
+                        setSelectedIndex(-1);
+                        inputRef.current?.focus();
+                      }}
+                      aria-label="Clear search text"
+                      className="absolute right-1.5 top-1/2 -translate-y-1/2 h-6 w-6 text-warm-gray hover:text-cream-white hover:bg-dark-border/80 rounded-full p-0 transition-colors"
+                    >
+                      <X size={13} />
+                    </Button>
                   )}
-                </Link>
-              </Button>
-            </nav>
-          </div>
-
-          {/* Right Side: Search Button + Profile Avatar Dropdown + Mobile Menu */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Search Icon Button with Tooltip */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSearchModalOpen(true)}
-                  aria-label="Search coffee shops (Cmd+K)"
-                  className="h-9 px-3 text-xs bg-dark-roast/90 hover:bg-dark-border text-cream-white border border-dark-border rounded-2xl gap-2 backdrop-blur-md transition-all duration-200 hover:border-amber-gold/50 hover:text-amber-gold-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold shadow-sm"
-                >
-                  <Search size={15} className="text-amber-gold" />
-                  <span className="hidden sm:inline text-soft-beige">Search...</span>
-                  <kbd className="hidden lg:inline-flex items-center gap-0.5 text-[10px] text-warm-gray bg-dark-bg px-1.5 py-0.5 rounded-lg font-mono border border-dark-border">
-                    ⌘K
-                  </kbd>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent className="bg-dark-bg text-cream-white border-dark-border text-xs rounded-xl">
-                Search coffee shops (⌘K)
-              </TooltipContent>
-            </Tooltip>
-
-            {/* Profile Avatar Dropdown Menu */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+                </div>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="rounded-full p-0 border-0 transition-all duration-200 hover:scale-105 hover:shadow-[0_0_15px_rgba(212,160,87,0.15)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold/30"
-                  aria-label={isAuthenticated ? `User menu for ${displayName}` : 'Guest user menu'}
+                  onClick={handleCloseSearch}
+                  aria-label="Close search"
+                  className="h-9 w-9 text-warm-gray hover:text-cream-white hover:bg-dark-border/80 rounded-xl p-0 flex-shrink-0 transition-colors"
                 >
-                  <Avatar className="h-9 w-9 border-2 border-amber-gold">
-                    {avatarUrl && <AvatarImage src={avatarUrl} alt={displayName} className="object-cover" />}
-                    <AvatarFallback className="bg-dark-roast text-amber-gold font-bold text-xs">
-                      {isAuthenticated ? (
-                        displayName.charAt(0).toUpperCase() || <User size={16} />
-                      ) : (
-                        <User size={16} className="text-soft-beige" />
-                      )}
-                    </AvatarFallback>
-                  </Avatar>
+                  <X size={16} />
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="w-56 bg-dark-bg/95 backdrop-blur-md border border-dark-border text-cream-white shadow-2xl rounded-2xl p-1.5 space-y-1 z-[500]"
-              >
-                <DropdownMenuLabel className="font-sans px-2.5 py-2 select-none">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm">☕</span>
-                    <div className="flex flex-col min-w-0">
-                      <span className="text-xs font-bold text-amber-gold truncate">
-                        {isAuthenticated ? displayName : 'Guest'}
-                      </span>
-                      <span className="text-[10px] font-normal text-warm-gray truncate">
-                        {isAuthenticated ? (userEmail || 'Coffee Explorer') : 'Sign in to access all features'}
-                      </span>
-                    </div>
+              </div>
+            )}
+
+            {/* Autocomplete Suggestions Dropdown Attached Below Right-Aligned Search */}
+            {isSearchOpen && searchQuery.trim().length > 0 && (
+              <div className="absolute right-0 top-full mt-2 w-72 sm:w-80 md:w-96 bg-dark-bg/98 backdrop-blur-xl border border-dark-border/80 rounded-2xl shadow-[0_10px_35px_rgba(0,0,0,0.6)] shadow-amber-gold/5 p-2 z-[100] max-h-80 overflow-y-auto space-y-1 animate-in fade-in slide-in-from-top-1 duration-150 text-left">
+                {isSearching ? (
+                  <div className="py-6 text-center text-xs text-soft-beige/70 flex items-center justify-center gap-2 font-medium">
+                    <span className="w-3.5 h-3.5 rounded-full border-2 border-amber-gold border-t-transparent animate-spin" />
+                    Searching coffee spots...
                   </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator className="bg-dark-border my-1" />
+                ) : searchResults.length === 0 ? (
+                  <div className="py-6 text-center text-xs text-soft-beige/70">
+                    <p className="font-semibold text-cream-white mb-0.5">No coffee spots found</p>
+                    <p className="text-[11px]">Try searching by street or district name</p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="px-2.5 py-1 text-[10px] font-bold text-soft-beige/60 uppercase tracking-wider flex items-center justify-between border-b border-dark-border/40 mb-1">
+                      <span>Matching Coffee Spots</span>
+                      <span>{searchResults.length} results</span>
+                    </div>
+                    {searchResults.map((shop, index) => {
+                      const hasRating = typeof shop.rating === 'number' && shop.rating > 0;
+                      const isSelected = index === selectedIndex;
+
+                      return (
+                        <div
+                          key={shop.id}
+                          onMouseEnter={() => setSelectedIndex(index)}
+                          onClick={() => handleSelectShop(shop)}
+                          className={cn(
+                            'p-2.5 rounded-xl cursor-pointer flex items-center justify-between gap-2.5 transition-all duration-150',
+                            isSelected
+                              ? 'bg-dark-roast text-amber-gold border border-amber-gold/30 shadow-sm'
+                              : 'hover:bg-dark-roast/60 text-cream-white border border-transparent'
+                          )}
+                        >
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-1.5">
+                              <h4 className="font-sans font-bold text-xs truncate group-hover:text-amber-gold">
+                                {shop.name}
+                              </h4>
+                              {shop.opening_hours?.open_now && (
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#7CAE8E] flex-shrink-0" title="Open now" />
+                              )}
+                            </div>
+                            <p className="text-[11px] text-soft-beige/80 truncate flex items-center gap-1 mt-0.5">
+                              <MapPin size={10} className="text-amber-gold flex-shrink-0" />
+                              {shop.address || 'Address unavailable'}
+                            </p>
+                          </div>
+
+                          <div className="flex items-center gap-1.5 flex-shrink-0 text-[10px]">
+                            <Badge
+                              variant="outline"
+                              className={cn(
+                                'px-2 py-0.5 rounded-md font-bold text-[10px] border flex items-center gap-0.5',
+                                hasRating
+                                  ? 'bg-dark-bg/80 text-amber-gold border-amber-gold/30'
+                                  : 'bg-dark-bg/80 text-soft-beige border-dark-border'
+                              )}
+                            >
+                              {hasRating ? (
+                                <>
+                                  <Star size={9} className="fill-amber-gold text-amber-gold" />
+                                  {shop.rating.toFixed(1)}
+                                </>
+                              ) : (
+                                <>
+                                  <Sparkles size={9} className="text-amber-gold/60" />
+                                  New
+                                </>
+                              )}
+                            </Badge>
+                            {shop.distance_text && shop.distance_text !== '0 m' && (
+                              <span className="text-soft-beige/70 font-medium hidden sm:inline">
+                                {shop.distance_text}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Profile Avatar Dropdown Menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-full p-0 transition-all duration-200 hover:scale-105 hover:shadow-[0_0_15px_rgba(212,160,87,0.15)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold/30"
+                aria-label={isAuthenticated ? `User menu for ${displayName}` : 'Guest user menu'}
+              >
+                <Avatar className="h-9 w-9">
+                  {avatarUrl && <AvatarImage src={avatarUrl} alt={displayName} className="object-cover" />}
+                  <AvatarFallback className="bg-dark-roast text-amber-gold font-bold text-xs">
+                    {isAuthenticated ? (
+                      displayName.charAt(0).toUpperCase() || <User size={15} />
+                    ) : (
+                      <User size={15} className="text-soft-beige" />
+                    )}
+                  </AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="w-56 bg-dark-bg/95 backdrop-blur-md border border-dark-border text-cream-white shadow-2xl rounded-2xl p-1.5 space-y-1 z-[500]"
+            >
+              <DropdownMenuLabel className="font-sans px-2.5 py-2 select-none">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm">☕</span>
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-xs font-bold text-amber-gold truncate">
+                      {isAuthenticated ? displayName : 'Guest'}
+                    </span>
+                    <span className="text-[10px] font-normal text-warm-gray truncate">
+                      {isAuthenticated ? (userEmail || 'Coffee Explorer') : 'Sign in to access all features'}
+                    </span>
+                  </div>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-dark-border my-1" />
+              <DropdownMenuItem asChild>
+                <Link
+                  href={isAuthenticated ? APP_ROUTES.PROFILE : APP_ROUTES.LOGIN}
+                  className="cursor-pointer text-xs font-medium text-soft-beige hover:text-amber-gold focus:bg-dark-roast/60 focus:text-amber-gold rounded-xl px-2.5 py-2 transition-colors flex items-center justify-between group"
+                >
+                  <div className="flex items-center gap-2">
+                    <User size={15} className="text-warm-gray group-hover:text-amber-gold transition-colors" />
+                    <span>Profile</span>
+                  </div>
+                  {!isAuthenticated && (
+                    <span className="text-[10px] text-warm-gray/70 font-normal">Sign in</span>
+                  )}
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link
+                  href={isAuthenticated ? APP_ROUTES.FAVORITES : APP_ROUTES.LOGIN}
+                  className="cursor-pointer text-xs font-medium text-soft-beige hover:text-amber-gold focus:bg-dark-roast/60 focus:text-amber-gold rounded-xl px-2.5 py-2 transition-colors flex items-center justify-between group"
+                >
+                  <div className="flex items-center gap-2">
+                    <Heart size={15} className="text-rose-400 group-hover:scale-105 transition-transform" />
+                    <span>Favorites</span>
+                  </div>
+                  {!isAuthenticated && (
+                    <span className="text-[10px] text-warm-gray/70 font-normal">Sign in</span>
+                  )}
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link
+                  href={isAuthenticated ? APP_ROUTES.PROFILE : APP_ROUTES.LOGIN}
+                  className="cursor-pointer text-xs font-medium text-soft-beige hover:text-amber-gold focus:bg-dark-roast/60 focus:text-amber-gold rounded-xl px-2.5 py-2 transition-colors flex items-center justify-between group"
+                >
+                  <div className="flex items-center gap-2">
+                    <Settings size={15} className="text-warm-gray group-hover:text-amber-gold transition-colors" />
+                    <span>Settings</span>
+                  </div>
+                  {!isAuthenticated && (
+                    <span className="text-[10px] text-warm-gray/70 font-normal">Sign in</span>
+                  )}
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-dark-border my-1" />
+              {isAuthenticated ? (
+                <DropdownMenuItem
+                  onClick={async () => {
+                    await signOut();
+                    router.push(APP_ROUTES.LOGIN);
+                  }}
+                  className="cursor-pointer text-xs font-medium text-rose-400 hover:text-rose-300 focus:bg-rose-950/30 focus:text-rose-300 rounded-xl px-2.5 py-2 transition-colors flex items-center gap-2"
+                >
+                  <LogOut size={15} className="text-rose-400" />
+                  <span>Sign Out</span>
+                </DropdownMenuItem>
+              ) : (
                 <DropdownMenuItem asChild>
                   <Link
-                    href={isAuthenticated ? APP_ROUTES.PROFILE : APP_ROUTES.LOGIN}
-                    className="cursor-pointer text-xs font-medium text-soft-beige hover:text-amber-gold focus:bg-dark-roast/60 focus:text-amber-gold rounded-xl px-2.5 py-2 transition-colors flex items-center justify-between group"
+                    href={APP_ROUTES.LOGIN}
+                    className="cursor-pointer text-xs font-medium text-amber-gold hover:text-amber-gold-hover focus:bg-amber-500/10 focus:text-amber-gold-hover rounded-xl px-2.5 py-2 transition-colors flex items-center gap-2"
                   >
-                    <div className="flex items-center gap-2">
-                      <User size={15} className="text-warm-gray group-hover:text-amber-gold transition-colors" />
-                      <span>Profile</span>
-                    </div>
-                    {!isAuthenticated && (
-                      <span className="text-[10px] text-warm-gray/70 font-normal">Sign in</span>
-                    )}
+                    <LogIn size={15} className="text-amber-gold" />
+                    <span>Sign In</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Mobile Hamburger Navigation Sheet Button */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden h-9 w-9 text-soft-beige hover:text-amber-gold hover:bg-white/5 border border-transparent rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold"
+                aria-label="Toggle mobile menu"
+              >
+                <Menu size={18} />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="bg-dark-bg text-cream-white border-l border-dark-border p-6 w-72">
+              <SheetHeader className="text-left space-y-1 mb-6">
+                <SheetTitle className="font-sans font-bold text-lg text-amber-gold flex items-center gap-2">
+                  ☕ PhinFind Navigation
+                </SheetTitle>
+                <SheetDescription className="text-xs text-warm-gray">
+                  Explore Vietnamese coffee culture
+                </SheetDescription>
+              </SheetHeader>
+
+              <div className="flex flex-col gap-2">
+                <SheetClose asChild>
                   <Link
-                    href={isAuthenticated ? APP_ROUTES.FAVORITES : APP_ROUTES.LOGIN}
-                    className="cursor-pointer text-xs font-medium text-soft-beige hover:text-amber-gold focus:bg-dark-roast/60 focus:text-amber-gold rounded-xl px-2.5 py-2 transition-colors flex items-center justify-between group"
+                    href={APP_ROUTES.HOME}
+                    className={cn(
+                      'relative group flex items-center gap-2.5 p-2.5 rounded-xl text-xs transition-colors duration-200',
+                      pathname === APP_ROUTES.HOME
+                        ? 'text-amber-gold bg-white/10 font-bold'
+                        : 'text-soft-beige hover:text-amber-gold-hover hover:bg-white/5 font-semibold'
+                    )}
                   >
-                    <div className="flex items-center gap-2">
-                      <Heart size={15} className="text-rose-400 group-hover:scale-105 transition-transform" />
-                      <span>Favorites</span>
-                    </div>
-                    {!isAuthenticated && (
-                      <span className="text-[10px] text-warm-gray/70 font-normal">Sign in</span>
+                    <Compass
+                      size={16}
+                      strokeWidth={2.2}
+                      className={cn(
+                        'transition-all duration-200 group-hover:scale-110 group-hover:text-amber-gold-hover',
+                        pathname === APP_ROUTES.HOME ? 'text-amber-gold' : 'text-warm-gray'
+                      )}
+                    />
+                    <span>Discover</span>
+                    {pathname === APP_ROUTES.HOME && (
+                      <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-amber-gold rounded-r-full" />
                     )}
                   </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
+                </SheetClose>
+
+                <SheetClose asChild>
                   <Link
-                    href={isAuthenticated ? APP_ROUTES.PROFILE : APP_ROUTES.LOGIN}
-                    className="cursor-pointer text-xs font-medium text-soft-beige hover:text-amber-gold focus:bg-dark-roast/60 focus:text-amber-gold rounded-xl px-2.5 py-2 transition-colors flex items-center justify-between group"
+                    href={APP_ROUTES.MAP}
+                    className={cn(
+                      'relative group flex items-center gap-2.5 p-2.5 rounded-xl text-xs transition-colors duration-200',
+                      pathname === APP_ROUTES.MAP
+                        ? 'text-amber-gold bg-white/10 font-bold'
+                        : 'text-soft-beige hover:text-amber-gold-hover hover:bg-white/5 font-semibold'
+                    )}
                   >
-                    <div className="flex items-center gap-2">
-                      <Settings size={15} className="text-warm-gray group-hover:text-amber-gold transition-colors" />
-                      <span>Settings</span>
-                    </div>
-                    {!isAuthenticated && (
-                      <span className="text-[10px] text-warm-gray/70 font-normal">Sign in</span>
+                    <MapPin
+                      size={16}
+                      strokeWidth={2.2}
+                      className={cn(
+                        'transition-all duration-200 group-hover:scale-110 group-hover:text-amber-gold-hover',
+                        pathname === APP_ROUTES.MAP ? 'text-amber-gold' : 'text-warm-gray'
+                      )}
+                    />
+                    <span>Map View</span>
+                    {pathname === APP_ROUTES.MAP && (
+                      <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-amber-gold rounded-r-full" />
                     )}
                   </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-dark-border my-1" />
+                </SheetClose>
+
+                <SheetClose asChild>
+                  <Link
+                    href={APP_ROUTES.FAVORITES}
+                    className={cn(
+                      'relative group flex items-center gap-2.5 p-2.5 rounded-xl text-xs transition-colors duration-200',
+                      pathname === APP_ROUTES.FAVORITES
+                        ? 'text-amber-gold bg-white/10 font-bold'
+                        : 'text-soft-beige hover:text-amber-gold-hover hover:bg-white/5 font-semibold'
+                    )}
+                  >
+                    <Heart
+                      size={16}
+                      strokeWidth={2.2}
+                      className={cn(
+                        'transition-all duration-200 group-hover:scale-110 group-hover:text-amber-gold-hover',
+                        pathname === APP_ROUTES.FAVORITES ? 'text-amber-gold' : 'text-rose-400'
+                      )}
+                    />
+                    <span>Saved Favorites</span>
+                    {pathname === APP_ROUTES.FAVORITES && (
+                      <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-amber-gold rounded-r-full" />
+                    )}
+                  </Link>
+                </SheetClose>
+
+                <SheetClose asChild>
+                  <Link
+                    href={APP_ROUTES.PROFILE}
+                    className={cn(
+                      'relative group flex items-center gap-2.5 p-2.5 rounded-xl text-xs transition-colors duration-200',
+                      pathname === APP_ROUTES.PROFILE
+                        ? 'text-amber-gold bg-white/10 font-bold'
+                        : 'text-soft-beige hover:text-amber-gold-hover hover:bg-white/5 font-semibold'
+                    )}
+                  >
+                    <User
+                      size={16}
+                      strokeWidth={2.2}
+                      className={cn(
+                        'transition-all duration-200 group-hover:scale-110 group-hover:text-amber-gold-hover',
+                        pathname === APP_ROUTES.PROFILE ? 'text-amber-gold' : 'text-warm-gray'
+                      )}
+                    />
+                    <span>My Profile</span>
+                    {pathname === APP_ROUTES.PROFILE && (
+                      <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-amber-gold rounded-r-full" />
+                    )}
+                  </Link>
+                </SheetClose>
+
+                <div className="my-2 border-t border-dark-border" />
+
                 {isAuthenticated ? (
-                  <DropdownMenuItem
+                  <Button
+                    variant="ghost"
                     onClick={async () => {
                       await signOut();
                       router.push(APP_ROUTES.LOGIN);
                     }}
-                    className="cursor-pointer text-xs font-medium text-rose-400 hover:text-rose-300 focus:bg-rose-950/30 focus:text-rose-300 rounded-xl px-2.5 py-2 transition-colors flex items-center gap-2"
+                    className="justify-start p-2.5 h-auto rounded-xl text-xs font-medium text-rose-400 hover:text-rose-300 hover:bg-rose-950/30 gap-2.5 transition-colors duration-200"
                   >
-                    <LogOut size={15} className="text-rose-400" />
+                    <LogOut size={16} className="text-rose-400" />
                     <span>Sign Out</span>
-                  </DropdownMenuItem>
+                  </Button>
                 ) : (
-                  <DropdownMenuItem asChild>
+                  <SheetClose asChild>
                     <Link
                       href={APP_ROUTES.LOGIN}
-                      className="cursor-pointer text-xs font-medium text-amber-gold hover:text-amber-gold-hover focus:bg-amber-500/10 focus:text-amber-gold-hover rounded-xl px-2.5 py-2 transition-colors flex items-center gap-2"
+                      className="flex items-center gap-2.5 p-2.5 rounded-xl text-xs font-semibold text-amber-gold hover:text-amber-gold-hover hover:bg-amber-500/10 transition-colors duration-200"
                     >
-                      <LogIn size={15} className="text-amber-gold" />
+                      <LogIn size={16} className="text-amber-gold" />
                       <span>Sign In</span>
                     </Link>
-                  </DropdownMenuItem>
+                  </SheetClose>
                 )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Mobile Hamburger Navigation Sheet Button */}
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="md:hidden h-9 w-9 text-soft-beige hover:text-amber-gold hover:bg-white/5 border border-transparent rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold"
-                  aria-label="Toggle mobile menu"
-                >
-                  <Menu size={18} />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="bg-dark-bg text-cream-white border-l border-dark-border p-6 w-72">
-                <SheetHeader className="text-left space-y-1 mb-6">
-                  <SheetTitle className="font-sans font-bold text-lg text-amber-gold flex items-center gap-2">
-                    ☕ PhinFind Navigation
-                  </SheetTitle>
-                  <SheetDescription className="text-xs text-warm-gray">
-                    Explore Vietnamese coffee culture
-                  </SheetDescription>
-                </SheetHeader>
-
-                <div className="flex flex-col gap-2">
-                  <SheetClose asChild>
-                    <Link
-                      href={APP_ROUTES.HOME}
-                      className={cn(
-                        'relative group flex items-center gap-2.5 p-2.5 rounded-xl text-xs transition-colors duration-200',
-                        pathname === APP_ROUTES.HOME
-                          ? 'text-amber-gold bg-white/10 font-bold'
-                          : 'text-soft-beige hover:text-amber-gold-hover hover:bg-white/5 font-semibold'
-                      )}
-                    >
-                      <Compass
-                        size={16}
-                        strokeWidth={2.2}
-                        className={cn(
-                          'transition-all duration-200 group-hover:scale-110 group-hover:text-amber-gold-hover',
-                          pathname === APP_ROUTES.HOME
-                            ? 'text-amber-gold'
-                            : 'text-warm-gray'
-                        )}
-                      />
-                      <span>Discover</span>
-                      {pathname === APP_ROUTES.HOME && (
-                        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-amber-gold rounded-r-full" />
-                      )}
-                    </Link>
-                  </SheetClose>
-
-                  <SheetClose asChild>
-                    <Link
-                      href={APP_ROUTES.MAP}
-                      className={cn(
-                        'relative group flex items-center gap-2.5 p-2.5 rounded-xl text-xs transition-colors duration-200',
-                        pathname === APP_ROUTES.MAP
-                          ? 'text-amber-gold bg-white/10 font-bold'
-                          : 'text-soft-beige hover:text-amber-gold-hover hover:bg-white/5 font-semibold'
-                      )}
-                    >
-                      <MapPin
-                        size={16}
-                        strokeWidth={2.2}
-                        className={cn(
-                          'transition-all duration-200 group-hover:scale-110 group-hover:text-amber-gold-hover',
-                          pathname === APP_ROUTES.MAP
-                            ? 'text-amber-gold'
-                            : 'text-warm-gray'
-                        )}
-                      />
-                      <span>Map View</span>
-                      {pathname === APP_ROUTES.MAP && (
-                        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-amber-gold rounded-r-full" />
-                      )}
-                    </Link>
-                  </SheetClose>
-
-                  <SheetClose asChild>
-                    <Link
-                      href={APP_ROUTES.FAVORITES}
-                      className={cn(
-                        'relative group flex items-center gap-2.5 p-2.5 rounded-xl text-xs transition-colors duration-200',
-                        pathname === APP_ROUTES.FAVORITES
-                          ? 'text-amber-gold bg-white/10 font-bold'
-                          : 'text-soft-beige hover:text-amber-gold-hover hover:bg-white/5 font-semibold'
-                      )}
-                    >
-                      <Heart
-                        size={16}
-                        strokeWidth={2.2}
-                        className={cn(
-                          'transition-all duration-200 group-hover:scale-110 group-hover:text-amber-gold-hover',
-                          pathname === APP_ROUTES.FAVORITES
-                            ? 'text-amber-gold'
-                            : 'text-rose-400'
-                        )}
-                      />
-                      <span>Saved Favorites</span>
-                      {pathname === APP_ROUTES.FAVORITES && (
-                        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-amber-gold rounded-r-full" />
-                      )}
-                    </Link>
-                  </SheetClose>
-
-                  <SheetClose asChild>
-                    <Link
-                      href={APP_ROUTES.PROFILE}
-                      className={cn(
-                        'relative group flex items-center gap-2.5 p-2.5 rounded-xl text-xs transition-colors duration-200',
-                        pathname === APP_ROUTES.PROFILE
-                          ? 'text-amber-gold bg-white/10 font-bold'
-                          : 'text-soft-beige hover:text-amber-gold-hover hover:bg-white/5 font-semibold'
-                      )}
-                    >
-                      <User
-                        size={16}
-                        strokeWidth={2.2}
-                        className={cn(
-                          'transition-all duration-200 group-hover:scale-110 group-hover:text-amber-gold-hover',
-                          pathname === APP_ROUTES.PROFILE
-                            ? 'text-amber-gold'
-                            : 'text-warm-gray'
-                        )}
-                      />
-                      <span>My Profile</span>
-                      {pathname === APP_ROUTES.PROFILE && (
-                        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-amber-gold rounded-r-full" />
-                      )}
-                    </Link>
-                  </SheetClose>
-
-                  <div className="my-2 border-t border-dark-border" />
-
-                  {isAuthenticated ? (
-                    <Button
-                      variant="ghost"
-                      onClick={async () => {
-                        await signOut();
-                        router.push(APP_ROUTES.LOGIN);
-                      }}
-                      className="justify-start p-2.5 h-auto rounded-xl text-xs font-medium text-rose-400 hover:text-rose-300 hover:bg-rose-950/30 gap-2.5 transition-colors duration-200"
-                    >
-                      <LogOut size={16} className="text-rose-400" />
-                      <span>Sign Out</span>
-                    </Button>
-                  ) : (
-                    <SheetClose asChild>
-                      <Link
-                        href={APP_ROUTES.LOGIN}
-                        className="flex items-center gap-2.5 p-2.5 rounded-xl text-xs font-semibold text-amber-gold hover:text-amber-gold-hover hover:bg-amber-500/10 transition-colors duration-200"
-                      >
-                        <LogIn size={16} className="text-amber-gold" />
-                        <span>Sign In</span>
-                      </Link>
-                    </SheetClose>
-                  )}
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
-      </header>
-
-      {/* Search Sheet Overlay Modal */}
-      <Sheet open={searchModalOpen} onOpenChange={setSearchModalOpen}>
-        <SheetContent side="top" className="bg-dark-bg text-cream-white border-b border-dark-border p-6 max-w-3xl mx-auto rounded-b-3xl shadow-2xl z-[500]">
-          <SheetHeader className="text-left space-y-1 mb-4">
-            <SheetTitle className="font-sans font-bold text-xl text-amber-gold flex items-center gap-2">
-              <Search size={18} className="text-amber-gold" /> Search Coffee Shops
-            </SheetTitle>
-            <SheetDescription className="text-xs text-warm-gray">
-              Find shops by name, street, or neighborhood in Hanoi.
-            </SheetDescription>
-          </SheetHeader>
-
-          <div className="relative mb-4">
-            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-warm-gray" />
-            <Input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by shop name or location..."
-              autoFocus
-              className="h-11 pl-10 pr-10 text-sm bg-dark-roast text-cream-white border-dark-border rounded-2xl focus-visible:ring-amber-gold placeholder:text-warm-gray"
-            />
-            {searchQuery && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setSearchQuery('')}
-                className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 text-warm-gray hover:text-cream-white hover:bg-dark-border rounded-full"
-              >
-                <X size={14} />
-              </Button>
-            )}
-          </div>
-
-          {/* Instant Autocomplete Search Results */}
-          <div className="max-h-60 overflow-y-auto space-y-2 pr-1">
-            {isSearching ? (
-              <p className="text-xs text-warm-gray text-center py-6">Searching coffee shops...</p>
-            ) : searchQuery && searchResults.length === 0 ? (
-              <p className="text-xs text-warm-gray text-center py-6">No matching coffee shops found.</p>
-            ) : (
-              searchResults.map((shop) => (
-                <div
-                  key={shop.id}
-                  onClick={() => {
-                    setSelectedShop(shop);
-                    setSearchModalOpen(false);
-                    router.push(APP_ROUTES.SHOP_DETAIL(shop.id));
-                  }}
-                  className="p-3 bg-dark-roast/50 hover:bg-dark-roast rounded-2xl border border-dark-border hover:border-amber-gold/40 cursor-pointer flex items-center justify-between transition-colors"
-                >
-                  <div>
-                    <h4 className="font-sans font-bold text-xs text-amber-gold">{shop.name}</h4>
-                    <p className="text-[11px] text-soft-beige line-clamp-1">{shop.address}</p>
-                  </div>
-                  <Badge variant="outline" className="bg-amber-gold/20 text-amber-gold border-amber-gold/40 text-[10px]">
-                    ⭐ {shop.rating.toFixed(1)}
-                  </Badge>
-                </div>
-              ))
-            )}
-          </div>
-        </SheetContent>
-      </Sheet>
-    </TooltipProvider>
+      </div>
+    </header>
   );
 }
+
 
