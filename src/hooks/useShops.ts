@@ -5,13 +5,21 @@ import axios from 'axios';
 import { API_ENDPOINTS } from '@/lib/utils/constants';
 import { CoffeeShop } from '@/types/shop';
 
-export function useNearbyShops(lat: number, lng: number, radiusMeters: number = 3000) {
+export function useNearbyShops(
+  lat: number,
+  lng: number,
+  limit: number = 200,
+  offset: number = 0
+) {
   return useQuery({
-    queryKey: ['shops', 'nearby', lat, lng, radiusMeters],
+    queryKey: ['shops', 'nearby', lat, lng, limit, offset],
     queryFn: async () => {
-      const response = await axios.get<{ shops: CoffeeShop[] }>(API_ENDPOINTS.NEARBY_SHOPS, {
-        params: { lat, lng, radius: radiusMeters },
-      });
+      const response = await axios.get<{ shops: CoffeeShop[]; total: number }>(
+        API_ENDPOINTS.NEARBY_SHOPS,
+        {
+          params: { lat, lng, limit, offset },
+        }
+      );
       return response.data.shops;
     },
     staleTime: 60 * 1000, // 60s
@@ -30,5 +38,20 @@ export function useShopDetails(placeId: string) {
     },
     staleTime: 5 * 60 * 1000,
     enabled: Boolean(placeId),
+  });
+}
+
+export function useSearchShops(query: string, lat?: number, lng?: number) {
+  return useQuery({
+    queryKey: ['shops', 'search', query, lat, lng],
+    queryFn: async () => {
+      if (!query.trim()) return [];
+      const response = await axios.get<{ shops: CoffeeShop[] }>(API_ENDPOINTS.SEARCH_SHOPS, {
+        params: { q: query, lat, lng },
+      });
+      return response.data.shops;
+    },
+    staleTime: 30 * 1000,
+    enabled: Boolean(query.trim()),
   });
 }

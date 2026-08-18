@@ -78,7 +78,8 @@ The following environment variables are required in `.env.local`:
 | Variable | Description | Default / Example |
 | -------- | ----------- | ----------------- |
 | `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL | `https://xyz.supabase.co` |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase public anonymous API key | `eyJhbGciOi...` |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable API key | `sb_publishable_...` |
+| `SUPABASE_SECRET_KEY` | Supabase secret key (server / seeding) | `sb_secret_...` |
 | `NEXT_PUBLIC_GEOAPIFY_API_KEY` | Geoapify Places API key for map data | `your_geoapify_key` |
 | `NEXT_PUBLIC_APP_URL` | Application root URL | `http://localhost:3000` |
 
@@ -130,7 +131,7 @@ The easiest way to deploy PhinFind is using the Vercel Platform:
 
 1. Push your repository to GitHub / GitLab.
 2. Import your repository into [Vercel](https://vercel.com/new).
-3. Add the required environment variables (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_GEOAPIFY_API_KEY`).
+3. Add the required environment variables (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY`, `NEXT_PUBLIC_GEOAPIFY_API_KEY`).
 4. Click **Deploy**.
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/your-username/phinfind)
