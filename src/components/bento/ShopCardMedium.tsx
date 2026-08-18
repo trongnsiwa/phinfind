@@ -19,11 +19,11 @@ interface ShopCardMediumProps {
 
 export const ShopCardMedium = memo(function ShopCardMedium({
   shop,
-  size = 'small',
   isFavorite = false,
   onToggleFavorite,
   onSelect,
 }: ShopCardMediumProps) {
+  const hasOpenInfo = shop.opening_hours?.open_now !== undefined;
   const isOpen = shop.opening_hours?.open_now ?? true;
   const [isHeartAnimating, setIsHeartAnimating] = useState(false);
   const [imgError, setImgError] = useState(false);
@@ -40,8 +40,13 @@ export const ShopCardMedium = memo(function ShopCardMedium({
     'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=600&q=80',
     'https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&w=600&q=80',
   ];
-  const charCodeSum = shop.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const charCodeSum = (shop.id || shop.place_id || 'shop').split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const coverImage = shop.photos?.[0] || sampleImages[charCodeSum % sampleImages.length];
+
+  const hasRating = typeof shop.rating === 'number' && shop.rating > 0;
+  const hasTotalRatings = typeof shop.total_ratings === 'number' && shop.total_ratings > 0;
+  const distanceDisplay = shop.distance_text && shop.distance_text !== '0 m' ? shop.distance_text : 'Nearby';
+  const addressDisplay = shop.address?.trim() || 'Address unavailable';
 
   return (
     <Card
@@ -60,25 +65,27 @@ export const ShopCardMedium = memo(function ShopCardMedium({
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center bg-dark-roast/80 text-warm-gray gap-1.5 p-2">
             <Coffee size={24} className="text-amber-gold opacity-60" />
-            <span className="text-xs font-sans font-bold tracking-wider text-soft-beige">{shop.name.slice(0, 2).toUpperCase()}</span>
+            <span className="text-xs font-sans font-bold tracking-wider text-soft-beige">{(shop.name || 'Coffee').slice(0, 2).toUpperCase()}</span>
           </div>
         )}
 
         <div className="absolute inset-0 bg-gradient-to-t from-dark-bg/80 via-transparent to-black/20 pointer-events-none" />
 
         {/* Floating Status Pill */}
-        <Badge
-          variant="outline"
-          className={cn(
-            'absolute top-2.5 left-2.5 text-[9px] font-semibold px-2 py-0.5 rounded-full border backdrop-blur-md shadow-sm',
-            isOpen
-              ? 'bg-[#7CAE8E]/25 text-[#A3D9B1] border-[#7CAE8E]/30'
-              : 'bg-[#C97A7A]/25 text-[#E8A5A5] border-[#C97A7A]/30'
-          )}
-        >
-          <span className={cn('w-1.5 h-1.5 rounded-full mr-1', isOpen ? 'bg-[#7CAE8E] animate-pulse' : 'bg-[#C97A7A]')} />
-          {isOpen ? 'Open' : 'Closed'}
-        </Badge>
+        {hasOpenInfo && (
+          <Badge
+            variant="outline"
+            className={cn(
+              'absolute top-2.5 left-2.5 text-[9px] font-semibold px-2 py-0.5 rounded-full border backdrop-blur-md shadow-sm',
+              isOpen
+                ? 'bg-[#7CAE8E]/25 text-[#A3D9B1] border-[#7CAE8E]/30'
+                : 'bg-[#C97A7A]/25 text-[#E8A5A5] border-[#C97A7A]/30'
+            )}
+          >
+            <span className={cn('w-1.5 h-1.5 rounded-full mr-1', isOpen ? 'bg-[#7CAE8E] animate-pulse' : 'bg-[#C97A7A]')} />
+            {isOpen ? 'Open' : 'Closed'}
+          </Badge>
+        )}
       </div>
 
       {/* Right Content */}
@@ -107,7 +114,7 @@ export const ShopCardMedium = memo(function ShopCardMedium({
 
           <p className="text-xs text-soft-beige/80 flex items-center gap-1 line-clamp-1 mt-0.5">
             <MapPin size={11} className="text-amber-gold flex-shrink-0" />
-            {shop.address}
+            {addressDisplay}
           </p>
 
           <div className="flex items-center gap-1.5 text-[10px] text-soft-beige/70 mt-1 font-medium">
@@ -122,10 +129,22 @@ export const ShopCardMedium = memo(function ShopCardMedium({
         <div className="flex items-center justify-between text-xs pt-1.5 border-t border-dark-border/50">
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="bg-dark-bg/90 text-amber-gold border-dark-border font-bold text-[11px] py-0.5 px-2 rounded-lg flex items-center gap-1">
-              <Star size={11} className="fill-amber-gold text-amber-gold" /> {shop.rating.toFixed(1)}
+              {hasRating ? (
+                <>
+                  <Star size={11} className="fill-amber-gold text-amber-gold" /> {shop.rating.toFixed(1)}
+                  {hasTotalRatings && (
+                    <span className="text-[10px] text-warm-gray">({shop.total_ratings})</span>
+                  )}
+                </>
+              ) : (
+                <>
+                  <Star size={11} className="text-amber-gold/50" />
+                  <span>New</span>
+                </>
+              )}
             </Badge>
             <span className="text-soft-beige text-[11px] font-medium flex items-center gap-1">
-              <Footprints size={11} className="text-amber-gold/70" /> {shop.distance_text}
+              <Footprints size={11} className="text-amber-gold/70" /> {distanceDisplay}
             </span>
           </div>
 

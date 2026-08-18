@@ -85,27 +85,62 @@
   --animate-heart-beat: heart-beat 0.3s ease;
 
   @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
+
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+
+    50% {
+      transform: translateY(-10px);
+    }
   }
+
   @keyframes pulse-ring {
-    0% { transform: scale(1); opacity: 0.7; }
-    100% { transform: scale(1.5); opacity: 0; }
+    0% {
+      transform: scale(1);
+      opacity: 0.7;
+    }
+
+    100% {
+      transform: scale(1.5);
+      opacity: 0;
+    }
   }
+
   @keyframes slide-up {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
   }
+
   @keyframes heart-beat {
-    0%, 100% { transform: scale(1); }
-    25% { transform: scale(1.2); }
-    50% { transform: scale(1); }
+
+    0%,
+    100% {
+      transform: scale(1);
+    }
+
+    25% {
+      transform: scale(1.2);
+    }
+
+    50% {
+      transform: scale(1);
+    }
   }
 }
 
+html,
 body {
-  background-color: var(--color-background);
-  color: var(--color-foreground);
+  background-color: #1A0F0A;
+  color: #FAF7F2;
   font-family: var(--font-body);
   -webkit-tap-highlight-color: transparent;
 }
@@ -123,53 +158,86 @@ body {
   color: #FAF7F2;
 }
 
-/* Custom Utilities for Polish */
-.animate-float {
-  animation: float 3s ease-in-out infinite;
-}
-.animate-pulse-ring {
-  animation: pulse-ring 2s ease-out infinite;
-}
-.animate-slide-up {
-  animation: slide-up 0.4s ease-out;
-}
-.animate-heart-beat {
-  animation: heart-beat 0.3s ease;
+html[data-scroll-locked][data-scroll-locked],
+body[data-scroll-locked][data-scroll-locked] {
+  overflow: visible !important;
+  margin-right: 0 !important;
+  padding-right: 0 !important;
+  --removed-body-scroll-bar-size: 0 !important;
 }
 
-/* Glassmorphism helpers */
-.glass-panel {
-  background: rgba(26, 15, 10, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+html {
+  scrollbar-gutter: stable;
 }
 
-.glass-card {
-  background: rgba(250, 247, 242, 0.75);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-
-/* Firefox & Standard Scrollbar */
+/* Firefox & Standard Scrollbar for html, body, and all elements */
+html,
+body,
 * {
-  scrollbar-color: rgba(212, 160, 87, 0.4) #2C1810;
+  scrollbar-color: rgba(212, 160, 87, 0.4) #1A0F0A;
   scrollbar-width: thin;
 }
 
 /* Custom scrollbars for WebKit-based browsers (Chrome, Safari, Edge) */
-::-webkit-scrollbar {
+::-webkit-scrollbar,
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
-::-webkit-scrollbar-track {
-  background: #1A0F0A;
+
+::-webkit-scrollbar-track,
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track {
+  background: #1A0F0A !important;
 }
-::-webkit-scrollbar-thumb {
+
+::-webkit-scrollbar-thumb,
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb {
+  background: rgba(212, 160, 87, 0.4) !important;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover,
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 160, 87, 0.65) !important;
+}
+
+/* Radix UI Select & Popover Dropdown Scrollbars */
+[data-radix-select-content],
+[data-radix-popper-content-wrapper],
+[data-radix-select-viewport] {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(212, 160, 87, 0.4) #2C1810;
+}
+
+[data-radix-select-content]::-webkit-scrollbar,
+[data-radix-popper-content-wrapper]::-webkit-scrollbar,
+[data-radix-select-viewport]::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+[data-radix-select-content]::-webkit-scrollbar-track,
+[data-radix-popper-content-wrapper]::-webkit-scrollbar-track,
+[data-radix-select-viewport]::-webkit-scrollbar-track {
+  background: #2C1810;
+  border-radius: 4px;
+}
+
+[data-radix-select-content]::-webkit-scrollbar-thumb,
+[data-radix-popper-content-wrapper]::-webkit-scrollbar-thumb,
+[data-radix-select-viewport]::-webkit-scrollbar-thumb {
   background: rgba(212, 160, 87, 0.4);
   border-radius: 9999px;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(212, 160, 87, 0.65);
+
+[data-radix-select-content]::-webkit-scrollbar-thumb:hover,
+[data-radix-popper-content-wrapper]::-webkit-scrollbar-thumb:hover,
+[data-radix-select-viewport]::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 160, 87, 0.7);
 }
 
 /* Subtle Perimeter Border Line Animation on Hover */
@@ -177,15 +245,19 @@ body {
   0% {
     background-position: 0% 0%;
   }
+
   25% {
     background-position: 100% 0%;
   }
+
   50% {
     background-position: 100% 100%;
   }
+
   75% {
     background-position: 0% 100%;
   }
+
   100% {
     background-position: 0% 0%;
   }
@@ -193,7 +265,8 @@ body {
 
 .card-glow-border {
   position: relative !important;
-  border-radius: 1.5rem !important; /* rounded-3xl */
+  border-radius: 1.5rem !important;
+  /* rounded-3xl */
   overflow: hidden !important;
 }
 
@@ -203,15 +276,13 @@ body {
   inset: 0;
   border-radius: inherit;
   padding: 1.5px;
-  background: linear-gradient(
-    135deg,
-    transparent 20%,
-    rgba(140, 94, 40, 0.4) 35%,
-    #D4A057 55%,
-    #FFF4E0 70%,
-    #D4A057 85%,
-    transparent 100%
-  );
+  background: linear-gradient(135deg,
+      transparent 20%,
+      rgba(140, 94, 40, 0.4) 35%,
+      #D4A057 55%,
+      #FFF4E0 70%,
+      #D4A057 85%,
+      transparent 100%);
   background-size: 250% 250%;
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;

@@ -13,9 +13,9 @@ interface CardSkeletonProps {
 export function CardSkeleton({ size = 'small', className }: CardSkeletonProps) {
   if (size === 'featured') {
     return (
-      <Card className={cn("col-span-2 md:col-span-3 row-span-2 p-0 bg-gradient-to-br from-dark-roast via-[#25140d] to-dark-bg rounded-3xl border border-dark-border/80 shadow-md flex flex-col justify-between overflow-hidden", className)}>
+      <Card className={cn("col-span-1 sm:col-span-2 lg:col-span-3 row-span-2 p-0 bg-gradient-to-br from-dark-roast via-[#25140d] to-dark-bg rounded-3xl border border-dark-border/80 shadow-md flex flex-col justify-between overflow-hidden", className)}>
         {/* 2-Column Gallery Skeleton Header */}
-        <div className="w-full h-56 sm:h-64 p-1.5 flex gap-1.5 bg-dark-bg/60 border-b border-dark-border/60">
+        <div className="w-full h-52 sm:h-60 p-1.5 flex gap-1.5 bg-dark-bg/60 border-b border-dark-border/60">
           <Skeleton className="w-[60%] h-full rounded-2xl bg-dark-roast/90 border border-dark-border/40" />
           <div className="w-[40%] h-full flex flex-col gap-1.5">
             <Skeleton className="h-1/2 rounded-xl bg-dark-roast/90 border border-dark-border/40" />
@@ -47,9 +47,9 @@ export function CardSkeleton({ size = 'small', className }: CardSkeletonProps) {
 
   if (size === 'large') {
     return (
-      <Card className={cn("col-span-2 row-span-2 p-0 bg-gradient-to-b from-dark-roast via-[#25140d] to-dark-bg rounded-3xl border border-dark-border/80 shadow-md flex flex-col justify-between overflow-hidden", className)}>
+      <Card className={cn("col-span-1 sm:col-span-2 row-span-2 p-0 bg-gradient-to-b from-dark-roast via-[#25140d] to-dark-bg rounded-3xl border border-dark-border/80 shadow-md flex flex-col justify-between overflow-hidden", className)}>
         {/* 2-Column Gallery Skeleton Header */}
-        <div className="w-full h-56 sm:h-64 p-1.5 flex gap-1.5 bg-dark-bg/60 border-b border-dark-border/60">
+        <div className="w-full h-52 sm:h-60 p-1.5 flex gap-1.5 bg-dark-bg/60 border-b border-dark-border/60">
           <Skeleton className="w-[60%] h-full rounded-2xl bg-dark-roast/90 border border-dark-border/40" />
           <div className="w-[40%] h-full flex flex-col gap-1.5">
             <Skeleton className="h-1/2 rounded-xl bg-dark-roast/90 border border-dark-border/40" />
@@ -81,9 +81,9 @@ export function CardSkeleton({ size = 'small', className }: CardSkeletonProps) {
 
   if (size === 'medium') {
     return (
-      <Card className={cn("col-span-2 row-span-1 p-3.5 bg-gradient-to-r from-dark-roast via-dark-roast/90 to-dark-bg rounded-3xl border border-dark-border/80 shadow-md flex gap-3.5 overflow-hidden", className)}>
+      <Card className={cn("col-span-1 sm:col-span-2 row-span-1 p-3.5 bg-gradient-to-r from-dark-roast via-dark-roast/90 to-dark-bg rounded-3xl border border-dark-border/80 shadow-md flex gap-3.5 overflow-hidden", className)}>
         {/* Left 4:3 Image Skeleton */}
-        <div className="w-[36%] sm:w-[34%] h-full rounded-2xl overflow-hidden bg-dark-roast/80 flex-shrink-0">
+        <div className="w-[36%] sm:w-[34%] h-full min-h-[130px] rounded-2xl overflow-hidden bg-dark-roast/80 flex-shrink-0">
           <Skeleton className="w-full h-full rounded-2xl bg-dark-roast/90 border border-dark-border/40" />
         </div>
 
@@ -127,17 +127,28 @@ export function CardSkeleton({ size = 'small', className }: CardSkeletonProps) {
   );
 }
 
-export function ListSkeleton({ count = 8 }: { count?: number }) {
+export function ListSkeleton({ count = 12 }: { count?: number }) {
+  const skeletonSizes: ('small' | 'medium' | 'large' | 'featured')[] = [
+    'featured',
+    'small',
+    'small',
+    'medium',
+    'small',
+    'large',
+    'small',
+    'small',
+    'medium',
+    'small',
+    'large',
+    'small',
+  ];
+
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5 auto-rows-[255px] [grid-auto-flow:dense]">
-      <CardSkeleton size="large" />
-      <CardSkeleton size="small" />
-      <CardSkeleton size="small" />
-      <CardSkeleton size="medium" />
-      <CardSkeleton size="small" />
-      <CardSkeleton size="small" />
-      <CardSkeleton size="small" />
-      {count > 7 && <CardSkeleton size="small" />}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 auto-rows-[270px] [grid-auto-flow:dense] transition-opacity duration-300 animate-in fade-in">
+      {Array.from({ length: count }).map((_, index) => {
+        const size = skeletonSizes[index % skeletonSizes.length];
+        return <CardSkeleton key={index} size={size} />;
+      })}
     </div>
   );
 }
@@ -164,3 +175,5 @@ export function DetailSkeleton() {
     </div>
   );
 }
+
+export const SkeletonCard = CardSkeleton;
