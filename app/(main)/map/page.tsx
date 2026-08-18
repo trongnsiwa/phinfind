@@ -17,7 +17,6 @@ import { Map } from '@/components/map/Map';
 import { useLocation } from '@/hooks/useLocation';
 import { useNearbyShops } from '@/hooks/useShops';
 import { useShopStore } from '@/stores/useShopStore';
-import { MOCK_VIETNAMESE_SHOPS } from '@/lib/mockShops';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import { APP_ROUTES } from '@/lib/utils/constants';
@@ -42,15 +41,7 @@ export default function MapPage() {
     }
   };
 
-  const allShops = useMemo(() => {
-    const combined = [...apiShops];
-    MOCK_VIETNAMESE_SHOPS.forEach((mock) => {
-      if (!combined.some((s) => s.id === mock.id || s.name === mock.name)) {
-        combined.push(mock);
-      }
-    });
-    return combined;
-  }, [apiShops]);
+  const allShops = apiShops;
 
   return (
     <div className="space-y-4 max-w-7xl mx-auto">

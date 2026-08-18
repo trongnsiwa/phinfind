@@ -3,11 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Search, User, Heart, Settings, LogOut, Compass, MapPin, X, Menu } from 'lucide-react';
+import { Search, User, Heart, Settings, LogOut, LogIn, Compass, MapPin, X, Menu } from 'lucide-react';
 import { APP_ROUTES } from '@/lib/utils/constants';
 import { useUIStore } from '@/stores/useUIStore';
 import { useShopStore } from '@/stores/useShopStore';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { useAuth } from '@/hooks/useAuth';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,7 +30,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { MOCK_VIETNAMESE_SHOPS } from '@/lib/mockShops';
+import { useSearchShops } from '@/hooks/useShops';
 import { cn } from '@/lib/utils';
 
 export function Header() {
@@ -37,7 +38,17 @@ export function Header() {
   const router = useRouter();
   const { searchQuery, setSearchQuery } = useUIStore();
   const { setSelectedShop } = useShopStore();
+  const { user, profile, isAuthenticated, signOut } = useAuth();
   const [searchModalOpen, setSearchModalOpen] = useState(false);
+
+  const { data: searchResults = [], isLoading: isSearching } = useSearchShops(searchQuery);
+
+  const displayName =
+    profile?.full_name ||
+    user?.user_metadata?.full_name ||
+    (user?.email ? user.email.split('@')[0] : 'Coffee Explorer');
+  const userEmail = profile?.email || user?.email;
+  const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url;
 
   // Keyboard shortcut listener (Cmd+K or Ctrl+K) to open search modal
   useEffect(() => {
@@ -50,15 +61,6 @@ export function Header() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
-
-  // Instant autocomplete search filter
-  const searchResults = React.useMemo(() => {
-    if (!searchQuery.trim()) return [];
-    const q = searchQuery.toLowerCase();
-    return MOCK_VIETNAMESE_SHOPS.filter(
-      (s) => s.name.toLowerCase().includes(q) || s.address.toLowerCase().includes(q)
-    );
-  }, [searchQuery]);
 
   return (
     <TooltipProvider>
@@ -176,61 +178,104 @@ export function Header() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="rounded-full p-0 border border-transparent hover:ring-2 hover:ring-amber-gold/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold transition-all duration-200"
-                  aria-label="User Menu"
+                  className="rounded-full p-0 border-0 transition-all duration-200 hover:scale-105 hover:shadow-[0_0_15px_rgba(212,160,87,0.15)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold/30"
+                  aria-label={isAuthenticated ? `User menu for ${displayName}` : 'Guest user menu'}
                 >
-                  <Avatar className="h-9 w-9 border-2 border-amber-gold shadow-md transition-transform duration-200 active:scale-95">
+                  <Avatar className="h-9 w-9 border-2 border-amber-gold">
+                    {avatarUrl && <AvatarImage src={avatarUrl} alt={displayName} className="object-cover" />}
                     <AvatarFallback className="bg-dark-roast text-amber-gold font-bold text-xs">
-                      <User size={18} />
+                      {isAuthenticated ? (
+                        displayName.charAt(0).toUpperCase() || <User size={16} />
+                      ) : (
+                        <User size={16} className="text-soft-beige" />
+                      )}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
-                className="w-52 bg-dark-bg/95 backdrop-blur-md border-dark-border text-cream-white shadow-2xl rounded-2xl p-1.5 space-y-1 z-[500]"
+                className="w-56 bg-dark-bg/95 backdrop-blur-md border border-dark-border text-cream-white shadow-2xl rounded-2xl p-1.5 space-y-1 z-[500]"
               >
-                <DropdownMenuLabel className="text-amber-gold font-sans font-bold text-xs px-2 py-1.5 flex items-center gap-1.5">
-                  ☕ Coffee Explorer
+                <DropdownMenuLabel className="font-sans px-2.5 py-2 select-none">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm">☕</span>
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-xs font-bold text-amber-gold truncate">
+                        {isAuthenticated ? displayName : 'Guest'}
+                      </span>
+                      <span className="text-[10px] font-normal text-warm-gray truncate">
+                        {isAuthenticated ? (userEmail || 'Coffee Explorer') : 'Sign in to access all features'}
+                      </span>
+                    </div>
+                  </div>
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator className="bg-dark-border" />
+                <DropdownMenuSeparator className="bg-dark-border my-1" />
                 <DropdownMenuItem asChild>
                   <Link
-                    href={APP_ROUTES.PROFILE}
-                    className="cursor-pointer text-xs font-medium text-soft-beige hover:text-amber-gold focus:bg-dark-roast focus:text-amber-gold rounded-xl transition-colors"
+                    href={isAuthenticated ? APP_ROUTES.PROFILE : APP_ROUTES.LOGIN}
+                    className="cursor-pointer text-xs font-medium text-soft-beige hover:text-amber-gold focus:bg-dark-roast/60 focus:text-amber-gold rounded-xl px-2.5 py-2 transition-colors flex items-center justify-between group"
                   >
-                    <User size={14} className="mr-2 text-amber-gold" />
-                    Profile
+                    <div className="flex items-center gap-2">
+                      <User size={15} className="text-warm-gray group-hover:text-amber-gold transition-colors" />
+                      <span>Profile</span>
+                    </div>
+                    {!isAuthenticated && (
+                      <span className="text-[10px] text-warm-gray/70 font-normal">Sign in</span>
+                    )}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link
-                    href={APP_ROUTES.FAVORITES}
-                    className="cursor-pointer text-xs font-medium text-soft-beige hover:text-amber-gold focus:bg-dark-roast focus:text-amber-gold rounded-xl transition-colors"
+                    href={isAuthenticated ? APP_ROUTES.FAVORITES : APP_ROUTES.LOGIN}
+                    className="cursor-pointer text-xs font-medium text-soft-beige hover:text-amber-gold focus:bg-dark-roast/60 focus:text-amber-gold rounded-xl px-2.5 py-2 transition-colors flex items-center justify-between group"
                   >
-                    <Heart size={14} className="mr-2 text-rose-400" />
-                    Favorites
+                    <div className="flex items-center gap-2">
+                      <Heart size={15} className="text-rose-400 group-hover:scale-105 transition-transform" />
+                      <span>Favorites</span>
+                    </div>
+                    {!isAuthenticated && (
+                      <span className="text-[10px] text-warm-gray/70 font-normal">Sign in</span>
+                    )}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link
-                    href={APP_ROUTES.PROFILE}
-                    className="cursor-pointer text-xs font-medium text-soft-beige hover:text-amber-gold focus:bg-dark-roast focus:text-amber-gold rounded-xl transition-colors"
+                    href={isAuthenticated ? APP_ROUTES.PROFILE : APP_ROUTES.LOGIN}
+                    className="cursor-pointer text-xs font-medium text-soft-beige hover:text-amber-gold focus:bg-dark-roast/60 focus:text-amber-gold rounded-xl px-2.5 py-2 transition-colors flex items-center justify-between group"
                   >
-                    <Settings size={14} className="mr-2 text-warm-gray" />
-                    Settings
+                    <div className="flex items-center gap-2">
+                      <Settings size={15} className="text-warm-gray group-hover:text-amber-gold transition-colors" />
+                      <span>Settings</span>
+                    </div>
+                    {!isAuthenticated && (
+                      <span className="text-[10px] text-warm-gray/70 font-normal">Sign in</span>
+                    )}
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-dark-border" />
-                <DropdownMenuItem asChild>
-                  <Link
-                    href={APP_ROUTES.LOGIN}
-                    className="cursor-pointer text-xs font-medium text-rose-400 hover:text-rose-300 focus:bg-rose-950/50 rounded-xl transition-colors"
+                <DropdownMenuSeparator className="bg-dark-border my-1" />
+                {isAuthenticated ? (
+                  <DropdownMenuItem
+                    onClick={async () => {
+                      await signOut();
+                      router.push(APP_ROUTES.LOGIN);
+                    }}
+                    className="cursor-pointer text-xs font-medium text-rose-400 hover:text-rose-300 focus:bg-rose-950/30 focus:text-rose-300 rounded-xl px-2.5 py-2 transition-colors flex items-center gap-2"
                   >
-                    <LogOut size={14} className="mr-2" />
-                    Sign Out
-                  </Link>
-                </DropdownMenuItem>
+                    <LogOut size={15} className="text-rose-400" />
+                    <span>Sign Out</span>
+                  </DropdownMenuItem>
+                ) : (
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href={APP_ROUTES.LOGIN}
+                      className="cursor-pointer text-xs font-medium text-amber-gold hover:text-amber-gold-hover focus:bg-amber-500/10 focus:text-amber-gold-hover rounded-xl px-2.5 py-2 transition-colors flex items-center gap-2"
+                    >
+                      <LogIn size={15} className="text-amber-gold" />
+                      <span>Sign In</span>
+                    </Link>
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -364,6 +409,32 @@ export function Header() {
                       )}
                     </Link>
                   </SheetClose>
+
+                  <div className="my-2 border-t border-dark-border" />
+
+                  {isAuthenticated ? (
+                    <Button
+                      variant="ghost"
+                      onClick={async () => {
+                        await signOut();
+                        router.push(APP_ROUTES.LOGIN);
+                      }}
+                      className="justify-start p-2.5 h-auto rounded-xl text-xs font-medium text-rose-400 hover:text-rose-300 hover:bg-rose-950/30 gap-2.5 transition-colors duration-200"
+                    >
+                      <LogOut size={16} className="text-rose-400" />
+                      <span>Sign Out</span>
+                    </Button>
+                  ) : (
+                    <SheetClose asChild>
+                      <Link
+                        href={APP_ROUTES.LOGIN}
+                        className="flex items-center gap-2.5 p-2.5 rounded-xl text-xs font-semibold text-amber-gold hover:text-amber-gold-hover hover:bg-amber-500/10 transition-colors duration-200"
+                      >
+                        <LogIn size={16} className="text-amber-gold" />
+                        <span>Sign In</span>
+                      </Link>
+                    </SheetClose>
+                  )}
                 </div>
               </SheetContent>
             </Sheet>
@@ -407,7 +478,9 @@ export function Header() {
 
           {/* Instant Autocomplete Search Results */}
           <div className="max-h-60 overflow-y-auto space-y-2 pr-1">
-            {searchQuery && searchResults.length === 0 ? (
+            {isSearching ? (
+              <p className="text-xs text-warm-gray text-center py-6">Searching coffee shops...</p>
+            ) : searchQuery && searchResults.length === 0 ? (
               <p className="text-xs text-warm-gray text-center py-6">No matching coffee shops found.</p>
             ) : (
               searchResults.map((shop) => (

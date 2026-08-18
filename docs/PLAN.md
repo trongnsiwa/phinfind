@@ -144,7 +144,8 @@ PhinFind provides an intuitive, location-aware PWA that helps users discover nea
 # Required
 NEXT_PUBLIC_GEOAPIFY_API_KEY=your_geoapify_key
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_publishable_key
+SUPABASE_SECRET_KEY=your_supabase_secret_key
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_google_maps_key  # Optional for directions
 
 # Optional
@@ -605,7 +606,8 @@ vercel --prod
 # Production
 NEXT_PUBLIC_GEOAPIFY_API_KEY=prod_key
 NEXT_PUBLIC_SUPABASE_URL=prod_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=prod_anon_key
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=prod_publishable_key
+SUPABASE_SECRET_KEY=prod_secret_key
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=prod_google_key
 NEXT_PUBLIC_APP_URL=https://phinfind.com
 

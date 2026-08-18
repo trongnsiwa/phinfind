@@ -110,6 +110,19 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Custom Global Text Selection */
+::selection,
+*::selection {
+  background-color: rgba(212, 160, 87, 0.35);
+  color: #FAF7F2;
+}
+
+::-moz-selection,
+*::-moz-selection {
+  background-color: rgba(212, 160, 87, 0.35);
+  color: #FAF7F2;
+}
+
 /* Custom Utilities for Polish */
 .animate-float {
   animation: float 3s ease-in-out infinite;

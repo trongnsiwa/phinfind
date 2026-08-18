@@ -32,19 +32,24 @@ import { ListSkeleton } from '@/components/common/LoadingSkeleton';
 
 import { useLocation } from '@/hooks/useLocation';
 import { useNearbyShops } from '@/hooks/useShops';
+import { useReverseGeocode } from '@/hooks/useReverseGeocode';
 import { useShopStore } from '@/stores/useShopStore';
 import { useUIStore } from '@/stores/useUIStore';
-import { MOCK_VIETNAMESE_SHOPS } from '@/lib/mockShops';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import { APP_ROUTES } from '@/lib/utils/constants';
 
 export default function DiscoverPage() {
-  const { lat, lng } = useLocation();
+  const { lat, lng, isFallback, loading: locationLoading } = useLocation();
   const { filters, setFilters } = useUIStore();
   const { selectedShop, setSelectedShop, favorites, toggleFavorite } = useShopStore();
 
   const { data: apiShops = [], isLoading: shopsLoading } = useNearbyShops(lat, lng);
+  const { data: cityName = 'Hà Nội', isLoading: isCityLoading } = useReverseGeocode(
+    lat,
+    lng,
+    isFallback
+  );
 
   const [visibleCount, setVisibleCount] = useState(12);
 
@@ -58,20 +63,9 @@ export default function DiscoverPage() {
     }
   };
 
-  // Combine API shops with rich mock dataset for infinite bento scroll
-  const allShops = useMemo(() => {
-    const combined = [...apiShops];
-    MOCK_VIETNAMESE_SHOPS.forEach((mock) => {
-      if (!combined.some((s) => s.id === mock.id || s.name === mock.name)) {
-        combined.push(mock);
-      }
-    });
-    return combined;
-  }, [apiShops]);
-
   // Filter & sort shop results
   const filteredShops = useMemo(() => {
-    let result = [...allShops];
+    let result = [...apiShops];
 
     if (filters.openNowOnly) {
       result = result.filter((s) => s.opening_hours?.open_now);
@@ -97,7 +91,7 @@ export default function DiscoverPage() {
     }
 
     return result;
-  }, [allShops, filters]);
+  }, [apiShops, filters]);
 
   const displayedShops = useMemo(() => {
     return filteredShops.slice(0, visibleCount);
@@ -127,8 +121,8 @@ export default function DiscoverPage() {
           <div className="flex items-center justify-between sm:justify-end gap-3 text-xs flex-shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-dark-border/40">
             <div className="flex items-center gap-1.5">
               <span className="font-bold text-cream-white tracking-tight">{filteredShops.length} shops nearby</span>
-              <Badge variant="outline" className="bg-dark-roast text-soft-beige border-dark-border text-[10px] px-2 py-0.5 rounded-full font-medium">
-                Hà Nội
+              <Badge variant="outline" className="bg-dark-roast text-soft-beige border-dark-border text-[10px] px-2 py-0.5 rounded-full font-medium transition-all duration-200">
+                {locationLoading || isCityLoading ? 'Locating...' : cityName}
               </Badge>
             </div>
 
