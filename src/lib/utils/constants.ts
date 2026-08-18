@@ -9,6 +9,7 @@ export const DEFAULT_SEARCH_RADIUS = 3000; // in meters (3km)
 
 export const APP_ROUTES = {
   HOME: '/',
+  MAP: '/map',
   LOGIN: '/login',
   SIGNUP: '/signup',
   FAVORITES: '/favorites',

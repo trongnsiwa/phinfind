@@ -4,6 +4,9 @@ import hooksPlugin from "eslint-plugin-react-hooks";
 
 export default [
   {
+    ignores: [".next/*", "node_modules/*", "out/*"],
+  },
+  {
     plugins: {
       "@next/next": nextPlugin,
       react: reactPlugin,

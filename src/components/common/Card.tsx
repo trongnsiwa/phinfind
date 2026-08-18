@@ -1,5 +1,13 @@
 import React from 'react';
-import { cn } from '@/lib/utils/cn';
+import {
+  Card as ShadcnCard,
+  CardHeader,
+  CardFooter,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   hoverable?: boolean;
@@ -7,7 +15,7 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export function Card({ className, children, hoverable = true, ...props }: CardProps) {
   return (
-    <div
+    <ShadcnCard
       className={cn(
         'bg-card text-card-foreground rounded-2xl border border-phin-100 shadow-card transition-all duration-200 overflow-hidden',
         hoverable && 'hover:shadow-card-hover hover:-translate-y-0.5',
@@ -16,6 +24,8 @@ export function Card({ className, children, hoverable = true, ...props }: CardPr
       {...props}
     >
       {children}
-    </div>
+    </ShadcnCard>
   );
 }
+
+export { CardHeader, CardFooter, CardTitle, CardDescription, CardContent };
