@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowUpDown, Coffee, Heart, MapPin, Star } from 'lucide-react';
+import { ArrowUpDown, Coffee } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -11,14 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerDescription,
-  DrawerFooter,
-} from '@/components/ui/drawer';
+import { ShopDetailModal } from '@/components/shop/ShopDetailModal';
 
 import { BentoGrid } from '@/components/bento/BentoGrid';
 import { SearchBar } from '@/components/bento/SearchBar';
@@ -303,66 +296,14 @@ export default function DiscoverPage() {
       {/* Floating Sticky Quick Filter Bar */}
       <FloatingFilterBar isVisible={isFilterFloating} shopCount={filteredShops.length} />
 
-      {/* Mobile Drawer Preview Modal for Selected Shop */}
-      {selectedShop && (
-        <Drawer open={!!selectedShop} onOpenChange={(open) => !open && setSelectedShop(null)}>
-          <DrawerContent className="bg-dark-bg text-cream-white border-t border-dark-border p-5 space-y-4 max-w-lg mx-auto rounded-t-3xl shadow-2xl">
-            <DrawerHeader className="p-0 text-left space-y-1">
-              <div className="flex items-center justify-between">
-                <DrawerTitle className="font-sans text-xl text-amber-gold">{selectedShop.name}</DrawerTitle>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleToggleFav(selectedShop.place_id)}
-                  className="rounded-full hover:bg-dark-roast text-soft-beige"
-                >
-                  <Heart
-                    size={20}
-                    className={favorites.includes(selectedShop.place_id) ? 'fill-rose-500 text-rose-500' : 'text-warm-gray'}
-                  />
-                </Button>
-              </div>
-              <DrawerDescription className="text-xs text-soft-beige flex items-center gap-1">
-                <MapPin size={14} className="text-amber-gold flex-shrink-0" />
-                {selectedShop.address || 'Address unavailable'}
-              </DrawerDescription>
-            </DrawerHeader>
-
-            <div className="flex items-center gap-3 text-xs">
-              <Badge variant="outline" className="bg-dark-roast text-amber-gold border-dark-border flex items-center gap-1 font-bold">
-                {selectedShop.rating && selectedShop.rating > 0 ? (
-                  <>
-                    <Star size={12} className="fill-amber-gold text-amber-gold" />
-                    {selectedShop.rating.toFixed(1)}
-                    {selectedShop.total_ratings && selectedShop.total_ratings > 0 ? ` (${selectedShop.total_ratings})` : ''}
-                  </>
-                ) : (
-                  <>
-                    <Star size={12} className="text-amber-gold/50" />
-                    New
-                  </>
-                )}
-              </Badge>
-              <span className="text-soft-beige font-medium">📍 {selectedShop.distance_text || 'Nearby'}</span>
-            </div>
-
-            <DrawerFooter className="p-0 flex flex-row gap-3 pt-3">
-              <Button variant="outline" className="flex-1 border-dark-border text-cream-white hover:bg-dark-roast rounded-xl" asChild>
-                <a
-                  href={`https://www.google.com/maps/dir/?api=1&destination=${selectedShop.lat},${selectedShop.lon}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Get Directions
-                </a>
-              </Button>
-              <Button variant="default" className="flex-1 bg-amber-gold text-dark-bg hover:bg-amber-gold-hover rounded-xl font-bold" asChild>
-                <Link href={APP_ROUTES.SHOP_DETAIL(selectedShop.id)}>View Details</Link>
-              </Button>
-            </DrawerFooter>
-          </DrawerContent>
-        </Drawer>
-      )}
+      {/* Refined Premium Glassmorphism Shop Detail Modal */}
+      <ShopDetailModal
+        shop={selectedShop}
+        isOpen={Boolean(selectedShop)}
+        onClose={() => setSelectedShop(null)}
+        onToggleFavorite={handleToggleFav}
+        isFavorite={selectedShop ? favorites.includes(selectedShop.place_id) : false}
+      />
     </div>
   );
 }
