@@ -9,8 +9,11 @@ export async function GET(request: NextRequest) {
   const parsedLng = parseFloat(searchParams.get('lng') || '');
   const lat = !isNaN(parsedLat) ? parsedLat : DEFAULT_LOCATION.lat;
   const lng = !isNaN(parsedLng) ? parsedLng : DEFAULT_LOCATION.lng;
-  const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '200', 10), 1), 1000);
-  const offset = Math.max(parseInt(searchParams.get('offset') || '0', 10), 0);
+  const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '12', 10), 1), 1000);
+  const page = Math.max(parseInt(searchParams.get('page') || '1', 10), 1);
+  const offset = searchParams.has('offset')
+    ? Math.max(parseInt(searchParams.get('offset') || '0', 10), 0)
+    : (page - 1) * limit;
 
   try {
     const supabase = await createClient();
@@ -18,13 +21,13 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       console.error('[API /api/shops/nearby] Supabase query error:', error);
-      return NextResponse.json({ shops: [], total: 0 });
+      return NextResponse.json({ shops: [], total: 0, page: 1, totalPages: 0 });
     }
 
     console.log(`[API /api/shops/nearby] Supabase returned ${data?.length ?? 0} total shop records.`);
 
     if (!data || data.length === 0) {
-      return NextResponse.json({ shops: [], total: 0 });
+      return NextResponse.json({ shops: [], total: 0, page: 1, totalPages: 0 });
     }
 
     const allSortedShops = data
@@ -35,18 +38,14 @@ export async function GET(request: NextRequest) {
     const paginatedShops = allSortedShops.slice(offset, offset + limit);
 
     console.log(
-      `[API /api/shops/nearby] Returning ${paginatedShops.length} shops (limit: ${limit}, offset: ${offset}, total: ${total}).`
+      `[API /api/shops/nearby] Returning ${paginatedShops.length} shops (limit: ${limit}, page: ${page}, offset: ${offset}, total: ${total}).`
     );
-    if (paginatedShops.length > 0) {
-      console.log(
-        '[API /api/shops/nearby] Sample shops:',
-        paginatedShops.slice(0, 3).map((s) => ({ name: s.name, distance: s.distance_text }))
-      );
-    }
 
     return NextResponse.json({
       shops: paginatedShops,
       total,
+      page,
+      totalPages: Math.ceil(total / limit),
     });
   } catch (error) {
     console.error('API Error in /api/shops/nearby:', error);

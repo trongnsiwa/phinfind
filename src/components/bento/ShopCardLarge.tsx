@@ -25,6 +25,7 @@ export const ShopCardLarge = memo(function ShopCardLarge({
   onToggleFavorite,
   onSelect,
 }: ShopCardLargeProps) {
+  const hasOpenInfo = shop.opening_hours?.open_now !== undefined;
   const isOpen = shop.opening_hours?.open_now ?? true;
   const [isHeartAnimating, setIsHeartAnimating] = useState(false);
   const [imgError, setImgError] = useState(false);
@@ -50,14 +51,26 @@ export const ShopCardLarge = memo(function ShopCardLarge({
   const photo3 = rawPhotos[2] || sampleGallery[2];
   const extraCount = Math.max(rawPhotos.length > 3 ? rawPhotos.length - 2 : 2, 2);
 
-  const categoryTagline =
-    shop.categories && shop.categories.length > 0
-      ? `Artisan ${shop.categories
-          .map((c) => c.replace(/^catering\./, '').replace(/_/g, ' '))
-          .filter((c) => c.length > 0)
-          .map((c) => c.charAt(0).toUpperCase() + c.slice(1))
-          .join(' • ')} with specialty roasts & cozy atmosphere.`
-      : 'Artisan Vietnamese drip coffee, specialty roasts & tranquil courtyard workspace.';
+  const formatCategories = () => {
+    if (!shop.categories || shop.categories.length === 0) {
+      return 'Artisan Vietnamese drip coffee, specialty roasts & tranquil courtyard workspace.';
+    }
+    const cleaned = shop.categories
+      .map((c) => c.replace(/^catering\./, '').replace(/_/g, ' ').trim())
+      .filter((c) => c.length > 0 && c !== 'cafe' && c !== 'coffee')
+      .map((c) => c.charAt(0).toUpperCase() + c.slice(1));
+
+    if (cleaned.length === 0) {
+      return 'Artisan Vietnamese drip coffee, specialty roasts & tranquil courtyard workspace.';
+    }
+    return `Specialty ${cleaned.join(' • ')} with artisan roasts & cozy atmosphere.`;
+  };
+
+  const categoryTagline = formatCategories();
+  const hasRating = typeof shop.rating === 'number' && shop.rating > 0;
+  const hasTotalRatings = typeof shop.total_ratings === 'number' && shop.total_ratings > 0;
+  const distanceDisplay = shop.distance_text && shop.distance_text !== '0 m' ? shop.distance_text : 'Nearby';
+  const addressDisplay = shop.address?.trim() || 'Address unavailable';
 
   return (
     <Card
@@ -110,20 +123,22 @@ export const ShopCardLarge = memo(function ShopCardLarge({
         </div>
 
         {/* Floating Status Badge on Top-Left */}
-        <div className="absolute top-2.5 left-2.5 z-10">
-          <Badge
-            variant="outline"
-            className={cn(
-              'text-[9px] font-semibold px-2 py-0.5 rounded-full border backdrop-blur-md shadow-md',
-              isOpen
-                ? 'bg-[#7CAE8E]/30 text-[#A3D9B1] border-[#7CAE8E]/40'
-                : 'bg-[#C97A7A]/30 text-[#E8A5A5] border-[#C97A7A]/40'
-            )}
-          >
-            <span className={cn('w-1.5 h-1.5 rounded-full mr-1', isOpen ? 'bg-[#7CAE8E] animate-pulse' : 'bg-[#C97A7A]')} />
-            {isOpen ? 'Open Now' : 'Closed'}
-          </Badge>
-        </div>
+        {hasOpenInfo && (
+          <div className="absolute top-2.5 left-2.5 z-10">
+            <Badge
+              variant="outline"
+              className={cn(
+                'text-[9px] font-semibold px-2 py-0.5 rounded-full border backdrop-blur-md shadow-md',
+                isOpen
+                  ? 'bg-[#7CAE8E]/30 text-[#A3D9B1] border-[#7CAE8E]/40'
+                  : 'bg-[#C97A7A]/30 text-[#E8A5A5] border-[#C97A7A]/40'
+              )}
+            >
+              <span className={cn('w-1.5 h-1.5 rounded-full mr-1', isOpen ? 'bg-[#7CAE8E] animate-pulse' : 'bg-[#C97A7A]')} />
+              {isOpen ? 'Open Now' : 'Closed'}
+            </Badge>
+          </div>
+        )}
 
         {/* Floating Favorite Button on Top-Right */}
         <Button
@@ -152,7 +167,7 @@ export const ShopCardLarge = memo(function ShopCardLarge({
           </h3>
           <p className="text-xs text-soft-beige/90 flex items-center gap-1 mt-0.5 line-clamp-1">
             <MapPin size={11} className="text-amber-gold flex-shrink-0" />
-            {shop.address}
+            {addressDisplay}
           </p>
         </div>
 
@@ -165,14 +180,25 @@ export const ShopCardLarge = memo(function ShopCardLarge({
         {/* Section 3: 4-Box Metadata Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 bg-dark-roast/50 p-1.5 rounded-xl border border-dark-border/50 text-xs">
           <div className="flex items-center gap-1 bg-dark-bg/60 p-1 rounded-lg border border-dark-border/40">
-            <Star size={11} className="fill-amber-gold text-amber-gold flex-shrink-0" />
-            <span className="font-bold text-cream-white text-xs">{shop.rating.toFixed(1)}</span>
-            <span className="text-[10px] text-warm-gray truncate">({shop.total_ratings})</span>
+            {hasRating ? (
+              <>
+                <Star size={11} className="fill-amber-gold text-amber-gold flex-shrink-0" />
+                <span className="font-bold text-cream-white text-xs">{shop.rating.toFixed(1)}</span>
+                {hasTotalRatings && (
+                  <span className="text-[10px] text-warm-gray truncate">({shop.total_ratings})</span>
+                )}
+              </>
+            ) : (
+              <>
+                <Star size={11} className="text-amber-gold/50 flex-shrink-0" />
+                <span className="font-medium text-soft-beige text-xs">New</span>
+              </>
+            )}
           </div>
 
           <div className="flex items-center gap-1 bg-dark-bg/60 p-1 rounded-lg border border-dark-border/40 text-soft-beige font-medium">
             <Footprints size={11} className="text-amber-gold/80 flex-shrink-0" />
-            <span className="truncate text-[10px] sm:text-[11px]">{shop.distance_text}</span>
+            <span className="truncate text-[10px] sm:text-[11px]">{distanceDisplay}</span>
           </div>
 
           <div className="flex items-center gap-1 bg-dark-bg/60 p-1 rounded-lg border border-dark-border/40 text-soft-beige/90 font-medium">

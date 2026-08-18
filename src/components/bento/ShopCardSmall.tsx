@@ -23,6 +23,7 @@ export const ShopCardSmall = memo(function ShopCardSmall({
   onToggleFavorite,
   onSelect,
 }: ShopCardSmallProps) {
+  const hasOpenInfo = shop.opening_hours?.open_now !== undefined;
   const isOpen = shop.opening_hours?.open_now ?? true;
   const [isHeartAnimating, setIsHeartAnimating] = useState(false);
   const [imgError, setImgError] = useState(false);
@@ -40,8 +41,12 @@ export const ShopCardSmall = memo(function ShopCardSmall({
     'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=500&q=80',
     'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=500&q=80',
   ];
-  const charCodeSum = shop.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const charCodeSum = (shop.id || shop.place_id || 'shop').split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const coverImage = shop.photos?.[0] || sampleImages[charCodeSum % sampleImages.length];
+
+  const hasRating = typeof shop.rating === 'number' && shop.rating > 0;
+  const distanceDisplay = shop.distance_text && shop.distance_text !== '0 m' ? shop.distance_text : 'Nearby';
+  const addressDisplay = shop.address?.trim() || 'Address unavailable';
 
   return (
     <Card
@@ -60,25 +65,27 @@ export const ShopCardSmall = memo(function ShopCardSmall({
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center bg-dark-roast/80 text-warm-gray gap-1.5">
             <Coffee size={22} className="text-amber-gold opacity-60" />
-            <span className="text-[10px] font-sans font-bold tracking-wider text-soft-beige">{shop.name.slice(0, 2).toUpperCase()}</span>
+            <span className="text-[10px] font-sans font-bold tracking-wider text-soft-beige">{(shop.name || 'Coffee').slice(0, 2).toUpperCase()}</span>
           </div>
         )}
 
         <div className="absolute inset-0 bg-gradient-to-t from-dark-bg/80 via-transparent to-black/25 pointer-events-none" />
 
         {/* Floating Status Pill */}
-        <Badge
-          variant="outline"
-          className={cn(
-            'absolute top-2.5 left-2.5 text-[9px] font-semibold px-2 py-0.5 rounded-full border backdrop-blur-md shadow-sm',
-            isOpen
-              ? 'bg-[#7CAE8E]/20 text-[#A3D9B1] border-[#7CAE8E]/30'
-              : 'bg-[#C97A7A]/20 text-[#E8A5A5] border-[#C97A7A]/30'
-          )}
-        >
-          <span className={cn('w-1.5 h-1.5 rounded-full mr-1', isOpen ? 'bg-[#7CAE8E] animate-pulse' : 'bg-[#C97A7A]')} />
-          {isOpen ? 'Open' : 'Closed'}
-        </Badge>
+        {hasOpenInfo && (
+          <Badge
+            variant="outline"
+            className={cn(
+              'absolute top-2.5 left-2.5 text-[9px] font-semibold px-2 py-0.5 rounded-full border backdrop-blur-md shadow-sm',
+              isOpen
+                ? 'bg-[#7CAE8E]/20 text-[#A3D9B1] border-[#7CAE8E]/30'
+                : 'bg-[#C97A7A]/20 text-[#E8A5A5] border-[#C97A7A]/30'
+            )}
+          >
+            <span className={cn('w-1.5 h-1.5 rounded-full mr-1', isOpen ? 'bg-[#7CAE8E] animate-pulse' : 'bg-[#C97A7A]')} />
+            {isOpen ? 'Open' : 'Closed'}
+          </Badge>
+        )}
 
         {/* Floating Favorite Button */}
         <Button
@@ -106,7 +113,7 @@ export const ShopCardSmall = memo(function ShopCardSmall({
           </h4>
           <p className="text-[11px] text-soft-beige/80 line-clamp-1 flex items-center gap-1 mt-0.5">
             <MapPin size={10} className="text-amber-gold flex-shrink-0" />
-            {shop.address}
+            {addressDisplay}
           </p>
 
           <div className="flex items-center gap-1.5 text-[10px] text-soft-beige/70 mt-1 font-medium">
@@ -114,17 +121,27 @@ export const ShopCardSmall = memo(function ShopCardSmall({
             <span className="truncate">{isOpen ? 'Closes 10:30 PM' : 'Opens 07:00 AM'}</span>
             <span className="text-dark-border">•</span>
             <Wifi size={10} className="text-soft-beige/70 flex-shrink-0" />
+            <span className="truncate">{shop.price_range || '€€'}</span>
           </div>
         </div>
 
         <div className="flex items-center justify-between text-[11px] pt-1.5 border-t border-dark-border/50">
           <span className="font-bold text-amber-gold flex items-center gap-1 bg-dark-bg/80 border border-dark-border/80 px-2 py-0.5 rounded-lg text-[10px]">
-            <Star size={10} className="fill-amber-gold text-amber-gold" />
-            {shop.rating.toFixed(1)}
+            {hasRating ? (
+              <>
+                <Star size={10} className="fill-amber-gold text-amber-gold" />
+                {shop.rating.toFixed(1)}
+              </>
+            ) : (
+              <>
+                <Star size={10} className="text-amber-gold/50" />
+                <span>New</span>
+              </>
+            )}
           </span>
           <span className="text-soft-beige flex items-center gap-1 text-[10px] font-medium">
             <Footprints size={10} className="text-amber-gold/70" />
-            {shop.distance_text}
+            {distanceDisplay}
           </span>
         </div>
       </div>

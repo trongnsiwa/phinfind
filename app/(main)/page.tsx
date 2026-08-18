@@ -29,10 +29,10 @@ import { ShopCardMedium } from '@/components/bento/ShopCardMedium';
 import { ShopCardLarge } from '@/components/bento/ShopCardLarge';
 import { ShopCardFeatured } from '@/components/bento/ShopCardFeatured';
 import { InfiniteScroll } from '@/components/bento/InfiniteScroll';
-import { ListSkeleton } from '@/components/common/LoadingSkeleton';
+import { ListSkeleton, SkeletonCard } from '@/components/common/LoadingSkeleton';
 
 import { useLocation } from '@/hooks/useLocation';
-import { useNearbyShops } from '@/hooks/useShops';
+import { useInfiniteShops } from '@/hooks/useShops';
 import { useReverseGeocode } from '@/hooks/useReverseGeocode';
 import { useShopStore } from '@/stores/useShopStore';
 import { useUIStore } from '@/stores/useUIStore';
@@ -46,16 +46,35 @@ export default function DiscoverPage() {
   const { filters, setFilters } = useUIStore();
   const { selectedShop, setSelectedShop, favorites, toggleFavorite } = useShopStore();
 
-  const { data: apiShops = [], isLoading: shopsLoading } = useNearbyShops(lat, lng);
+  const {
+    data,
+    isLoading: shopsLoading,
+    isFetching: shopsFetching,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+    isPending: shopsPending,
+    isError,
+    refetch,
+  } = useInfiniteShops(lat, lng, 12);
+
+  const rawShops = useMemo(() => {
+    return data?.pages.flatMap((page) => page.shops) || [];
+  }, [data]);
+
   const { data: cityName = 'Hà Nội', isLoading: isCityLoading } = useReverseGeocode(
     lat,
     lng,
     isFallback
   );
 
+  const isInitialLoading =
+    shopsLoading ||
+    shopsPending ||
+    (rawShops.length === 0 && (locationLoading || shopsFetching));
+
   const topFilterRef = useRef<HTMLDivElement>(null);
   const [isFilterFloating, setIsFilterFloating] = useState(false);
-  const [visibleCount, setVisibleCount] = useState(12);
 
   const handleToggleFav = (placeId: string) => {
     const isFav = favorites.includes(placeId);
@@ -69,7 +88,7 @@ export default function DiscoverPage() {
 
   // Filter & sort shop results
   const filteredShops = useMemo(() => {
-    let result = [...apiShops];
+    let result = [...rawShops];
 
     if (filters.openNowOnly) {
       result = result.filter((s) => s.opening_hours?.open_now);
@@ -95,20 +114,19 @@ export default function DiscoverPage() {
     }
 
     return result;
-  }, [apiShops, filters]);
+  }, [rawShops, filters]);
 
   // Generate dynamic, balanced card sizes (Small 50%, Medium 25%, Large 15%, Featured 10%)
   const cardSizes = useMemo(() => generateCardSizes(filteredShops), [filteredShops]);
 
-  const displayedShops = useMemo(() => {
-    return filteredShops.slice(0, visibleCount);
-  }, [filteredShops, visibleCount]);
-
-  const hasMore = visibleCount < filteredShops.length;
-
-  const loadMore = () => {
-    setVisibleCount((prev) => prev + 12);
-  };
+  const nextBatchSkeletonSizes: ('small' | 'medium' | 'large' | 'featured')[] = [
+    'small',
+    'medium',
+    'small',
+    'large',
+    'small',
+    'small',
+  ];
 
   // IntersectionObserver to reveal sticky floating filter bar when top filter exits viewport
   useEffect(() => {
@@ -182,10 +200,24 @@ export default function DiscoverPage() {
       </div>
 
       {/* Pure Coffee Dynamic Bento Grid Area */}
-      {shopsLoading ? (
-        <ListSkeleton count={8} />
-      ) : filteredShops.length === 0 ? (
+      {isInitialLoading ? (
+        <ListSkeleton count={12} />
+      ) : isError && rawShops.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 px-4 text-center bg-dark-bg/60 rounded-3xl border border-dark-border/60">
+          <Coffee size={40} className="text-rose-400 mb-3" />
+          <h3 className="font-sans font-bold text-lg text-cream-white mb-1">Failed to load coffee spots</h3>
+          <p className="text-xs text-soft-beige/80 max-w-sm mb-4">
+            We encountered an issue fetching spots nearby. Please try again.
+          </p>
+          <Button
+            onClick={() => refetch()}
+            className="bg-amber-gold text-dark-bg hover:bg-amber-gold-hover font-bold rounded-xl text-xs px-4 py-2"
+          >
+            Try Again
+          </Button>
+        </div>
+      ) : filteredShops.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 px-4 text-center bg-dark-bg/60 rounded-3xl border border-dark-border/60 animate-in fade-in duration-300">
           <Coffee size={40} className="text-amber-gold/60 mb-3" />
           <h3 className="font-sans font-bold text-lg text-cream-white mb-1">No coffee spots found</h3>
           <p className="text-xs text-soft-beige/80 max-w-sm">
@@ -194,7 +226,7 @@ export default function DiscoverPage() {
         </div>
       ) : (
         <BentoGrid>
-          {displayedShops.map((shop, index) => {
+          {filteredShops.map((shop, index) => {
             const size = cardSizes[index] || 'small';
             const isFav = favorites.includes(shop.place_id);
 
@@ -249,8 +281,22 @@ export default function DiscoverPage() {
             );
           })}
 
+          {/* Next Page Skeleton Placeholders */}
+          {isFetchingNextPage &&
+            nextBatchSkeletonSizes.map((size, idx) => (
+              <SkeletonCard key={`skeleton-next-${idx}`} size={size} />
+            ))}
+
           {/* Infinite Scroll Sentinel */}
-          <InfiniteScroll onLoadMore={loadMore} hasMore={hasMore} isLoading={false} />
+          <InfiniteScroll
+            onLoadMore={() => {
+              if (hasNextPage && !isFetchingNextPage) {
+                fetchNextPage();
+              }
+            }}
+            hasMore={Boolean(hasNextPage)}
+            isLoading={isFetchingNextPage}
+          />
         </BentoGrid>
       )}
 
@@ -278,16 +324,26 @@ export default function DiscoverPage() {
               </div>
               <DrawerDescription className="text-xs text-soft-beige flex items-center gap-1">
                 <MapPin size={14} className="text-amber-gold flex-shrink-0" />
-                {selectedShop.address}
+                {selectedShop.address || 'Address unavailable'}
               </DrawerDescription>
             </DrawerHeader>
 
             <div className="flex items-center gap-3 text-xs">
               <Badge variant="outline" className="bg-dark-roast text-amber-gold border-dark-border flex items-center gap-1 font-bold">
-                <Star size={12} className="fill-amber-gold text-amber-gold" />
-                {selectedShop.rating.toFixed(1)} ({selectedShop.total_ratings})
+                {selectedShop.rating && selectedShop.rating > 0 ? (
+                  <>
+                    <Star size={12} className="fill-amber-gold text-amber-gold" />
+                    {selectedShop.rating.toFixed(1)}
+                    {selectedShop.total_ratings && selectedShop.total_ratings > 0 ? ` (${selectedShop.total_ratings})` : ''}
+                  </>
+                ) : (
+                  <>
+                    <Star size={12} className="text-amber-gold/50" />
+                    New
+                  </>
+                )}
               </Badge>
-              <span className="text-soft-beige font-medium">📍 {selectedShop.distance_text}</span>
+              <span className="text-soft-beige font-medium">📍 {selectedShop.distance_text || 'Nearby'}</span>
             </div>
 
             <DrawerFooter className="p-0 flex flex-row gap-3 pt-3">

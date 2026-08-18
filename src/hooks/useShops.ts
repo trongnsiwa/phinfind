@@ -1,9 +1,47 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { API_ENDPOINTS } from '@/lib/utils/constants';
 import { CoffeeShop } from '@/types/shop';
+
+export interface PaginatedShopsResponse {
+  shops: CoffeeShop[];
+  total: number;
+  page: number;
+  totalPages: number;
+}
+
+export function useInfiniteShops(
+  lat: number,
+  lng: number,
+  limit: number = 12
+) {
+  return useInfiniteQuery({
+    queryKey: ['shops', 'infinite', lat, lng, limit],
+    queryFn: async ({ pageParam = 1 }) => {
+      const response = await axios.get<PaginatedShopsResponse>(
+        API_ENDPOINTS.NEARBY_SHOPS,
+        {
+          params: { lat, lng, limit, page: pageParam },
+        }
+      );
+      return response.data;
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      if (!lastPage || !lastPage.shops || lastPage.shops.length < limit) {
+        return undefined;
+      }
+      if (lastPage.page >= lastPage.totalPages) {
+        return undefined;
+      }
+      return lastPage.page + 1;
+    },
+    staleTime: 60 * 1000,
+    enabled: Boolean(lat && lng),
+  });
+}
 
 export function useNearbyShops(
   lat: number,
