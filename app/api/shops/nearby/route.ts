@@ -17,9 +17,11 @@ export async function GET(request: NextRequest) {
     const { data, error } = await supabase.from('shops').select('*');
 
     if (error) {
-      console.error('Supabase query error in /api/shops/nearby:', error);
+      console.error('[API /api/shops/nearby] Supabase query error:', error);
       return NextResponse.json({ shops: [], total: 0 });
     }
+
+    console.log(`[API /api/shops/nearby] Supabase returned ${data?.length ?? 0} total shop records.`);
 
     if (!data || data.length === 0) {
       return NextResponse.json({ shops: [], total: 0 });
@@ -31,6 +33,16 @@ export async function GET(request: NextRequest) {
 
     const total = allSortedShops.length;
     const paginatedShops = allSortedShops.slice(offset, offset + limit);
+
+    console.log(
+      `[API /api/shops/nearby] Returning ${paginatedShops.length} shops (limit: ${limit}, offset: ${offset}, total: ${total}).`
+    );
+    if (paginatedShops.length > 0) {
+      console.log(
+        '[API /api/shops/nearby] Sample shops:',
+        paginatedShops.slice(0, 3).map((s) => ({ name: s.name, distance: s.distance_text }))
+      );
+    }
 
     return NextResponse.json({
       shops: paginatedShops,

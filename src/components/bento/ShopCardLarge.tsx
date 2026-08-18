@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import Link from 'next/link';
 import { Heart, MapPin, Navigation, Star, Footprints, ExternalLink, Quote, Coffee, Clock, Wifi, Images } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -8,16 +8,18 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { APP_ROUTES } from '@/lib/utils/constants';
 import { CoffeeShop } from '@/types/shop';
+import { CardSize } from '@/lib/utils/bentoLayout';
 import { cn } from '@/lib/utils';
 
 interface ShopCardLargeProps {
   shop: CoffeeShop;
+  size?: CardSize;
   isFavorite?: boolean;
   onToggleFavorite?: (placeId: string) => void;
   onSelect?: (shop: CoffeeShop) => void;
 }
 
-export function ShopCardLarge({
+export const ShopCardLarge = memo(function ShopCardLarge({
   shop,
   isFavorite = false,
   onToggleFavorite,
@@ -60,10 +62,10 @@ export function ShopCardLarge({
   return (
     <Card
       onClick={() => onSelect?.(shop)}
-      className="col-span-2 row-span-2 card-glow-border bg-gradient-to-b from-dark-roast via-[#25140d] to-dark-bg rounded-3xl border border-dark-border/80 shadow-2xl hover:shadow-[0_20px_50px_rgba(212,160,87,0.15)] hover:border-amber-gold/50 hover:-translate-y-1.5 transition-all duration-300 p-0 flex flex-col justify-between cursor-pointer group relative overflow-hidden"
+      className="col-span-1 sm:col-span-2 row-span-2 w-full h-full card-glow-border bg-gradient-to-b from-dark-roast via-[#25140d] to-dark-bg rounded-3xl border border-dark-border/80 shadow-2xl hover:shadow-[0_20px_50px_rgba(212,160,87,0.15)] hover:border-amber-gold/50 hover:-translate-y-1.5 transition-all duration-300 p-0 flex flex-col justify-between cursor-pointer group relative overflow-hidden"
     >
       {/* 2-Column Magazine-Style Gallery (60% Left, 40% Right Stacked) */}
-      <div className="relative w-full h-56 sm:h-64 p-1.5 flex gap-1.5 bg-dark-bg/60 border-b border-dark-border/60 overflow-hidden flex-shrink-0">
+      <div className="relative w-full h-52 sm:h-60 p-1.5 flex gap-1.5 bg-dark-bg/60 border-b border-dark-border/60 overflow-hidden flex-shrink-0">
         {/* Left Column (60% Width) - Primary Image */}
         <div className="w-[60%] h-full rounded-2xl overflow-hidden relative bg-dark-roast border border-dark-border/40">
           {!imgError ? (
@@ -75,8 +77,8 @@ export function ShopCardLarge({
             />
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center bg-dark-roast text-warm-gray gap-1.5 p-2">
-              <Coffee size={28} className="text-amber-gold opacity-60" />
-              <span className="text-xs font-sans font-bold text-soft-beige">{shop.name}</span>
+              <Coffee size={24} className="text-amber-gold opacity-60" />
+              <span className="text-[10px] font-sans font-bold text-soft-beige truncate">{shop.name}</span>
             </div>
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-dark-bg/60 via-transparent to-black/20 pointer-events-none" />
@@ -100,19 +102,19 @@ export function ShopCardLarge({
               alt={`${shop.name} detail`}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
             />
-            <div className="absolute inset-0 bg-black/65 backdrop-blur-[1px] flex items-center justify-center text-amber-gold font-bold text-xs tracking-tight gap-1 hover:bg-black/50 transition-colors">
-              <Images size={13} className="text-amber-gold" />
-              <span>+{extraCount} more</span>
+            <div className="absolute inset-0 bg-black/65 backdrop-blur-[1px] flex items-center justify-center text-amber-gold font-bold text-[10px] tracking-tight gap-0.5 hover:bg-black/50 transition-colors">
+              <Images size={11} className="text-amber-gold" />
+              <span>+{extraCount}</span>
             </div>
           </div>
         </div>
 
         {/* Floating Status Badge on Top-Left */}
-        <div className="absolute top-3.5 left-3.5 z-10">
+        <div className="absolute top-2.5 left-2.5 z-10">
           <Badge
             variant="outline"
             className={cn(
-              'text-[9px] font-semibold px-2.5 py-0.5 rounded-full border backdrop-blur-md shadow-md',
+              'text-[9px] font-semibold px-2 py-0.5 rounded-full border backdrop-blur-md shadow-md',
               isOpen
                 ? 'bg-[#7CAE8E]/30 text-[#A3D9B1] border-[#7CAE8E]/40'
                 : 'bg-[#C97A7A]/30 text-[#E8A5A5] border-[#C97A7A]/40'
@@ -129,7 +131,7 @@ export function ShopCardLarge({
           size="icon"
           onClick={handleFav}
           aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-          className="absolute top-3.5 right-3.5 z-10 h-7 w-7 rounded-full bg-dark-bg/80 backdrop-blur-md hover:bg-dark-roast border border-dark-border/60 text-cream-white shadow-md transition-all focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0"
+          className="absolute top-2.5 right-2.5 z-10 h-7 w-7 rounded-full bg-dark-bg/80 backdrop-blur-md hover:bg-dark-roast border border-dark-border/60 text-cream-white shadow-md transition-all focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0"
         >
           <Heart
             size={14}
@@ -141,46 +143,46 @@ export function ShopCardLarge({
         </Button>
       </div>
 
-      {/* Structured Content Area Below Image */}
-      <CardContent className="p-4 sm:p-5 space-y-3 flex-1 flex flex-col justify-between overflow-visible min-h-0">
+      {/* Structured Content Area */}
+      <CardContent className="p-3.5 sm:p-4 space-y-2 flex-1 flex flex-col justify-between overflow-visible min-h-0">
         {/* Section 1: Shop Name & Address */}
         <div>
-          <h3 className="font-sans font-bold text-lg sm:text-xl text-cream-white tracking-tight line-clamp-1 group-hover:text-amber-gold-hover transition-colors">
+          <h3 className="font-sans font-bold text-base sm:text-lg text-cream-white tracking-tight line-clamp-1 group-hover:text-amber-gold-hover transition-colors">
             {shop.name}
           </h3>
           <p className="text-xs text-soft-beige/90 flex items-center gap-1 mt-0.5 line-clamp-1">
-            <MapPin size={12} className="text-amber-gold flex-shrink-0" />
+            <MapPin size={11} className="text-amber-gold flex-shrink-0" />
             {shop.address}
           </p>
         </div>
 
         {/* Section 2: Excerpt / Atmosphere Tagline Panel */}
-        <div className="bg-dark-bg/70 px-3 py-2 rounded-xl border border-dark-border/60 text-xs text-soft-beige/90 leading-relaxed flex items-start gap-2 shadow-inner">
-          <Quote size={13} className="text-amber-gold flex-shrink-0 mt-0.5" />
-          <span className="line-clamp-2">{categoryTagline}</span>
+        <div className="bg-dark-bg/70 px-2.5 py-1.5 rounded-xl border border-dark-border/60 text-xs text-soft-beige/90 leading-relaxed flex items-start gap-1.5 shadow-inner">
+          <Quote size={12} className="text-amber-gold flex-shrink-0 mt-0.5" />
+          <span className="line-clamp-2 text-[11px] sm:text-xs">{categoryTagline}</span>
         </div>
 
         {/* Section 3: 4-Box Metadata Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 bg-dark-roast/50 p-2 rounded-xl border border-dark-border/50 text-xs">
-          <div className="flex items-center gap-1.5 bg-dark-bg/60 p-1.5 rounded-lg border border-dark-border/40">
-            <Star size={12} className="fill-amber-gold text-amber-gold flex-shrink-0" />
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 bg-dark-roast/50 p-1.5 rounded-xl border border-dark-border/50 text-xs">
+          <div className="flex items-center gap-1 bg-dark-bg/60 p-1 rounded-lg border border-dark-border/40">
+            <Star size={11} className="fill-amber-gold text-amber-gold flex-shrink-0" />
             <span className="font-bold text-cream-white text-xs">{shop.rating.toFixed(1)}</span>
             <span className="text-[10px] text-warm-gray truncate">({shop.total_ratings})</span>
           </div>
 
-          <div className="flex items-center gap-1 bg-dark-bg/60 p-1.5 rounded-lg border border-dark-border/40 text-soft-beige font-medium">
-            <Footprints size={12} className="text-amber-gold/80 flex-shrink-0" />
-            <span className="truncate text-[11px]">{shop.distance_text}</span>
+          <div className="flex items-center gap-1 bg-dark-bg/60 p-1 rounded-lg border border-dark-border/40 text-soft-beige font-medium">
+            <Footprints size={11} className="text-amber-gold/80 flex-shrink-0" />
+            <span className="truncate text-[10px] sm:text-[11px]">{shop.distance_text}</span>
           </div>
 
-          <div className="flex items-center gap-1 bg-dark-bg/60 p-1.5 rounded-lg border border-dark-border/40 text-soft-beige/90 font-medium">
-            <Clock size={12} className="text-amber-gold/80 flex-shrink-0" />
-            <span className="truncate text-[11px]">{isOpen ? 'Closes 10:30 PM' : 'Opens 07:00 AM'}</span>
+          <div className="flex items-center gap-1 bg-dark-bg/60 p-1 rounded-lg border border-dark-border/40 text-soft-beige/90 font-medium">
+            <Clock size={11} className="text-amber-gold/80 flex-shrink-0" />
+            <span className="truncate text-[10px] sm:text-[11px]">{isOpen ? 'Closes 10:30 PM' : 'Opens 07:00 AM'}</span>
           </div>
 
-          <div className="flex items-center gap-1 bg-dark-bg/60 p-1.5 rounded-lg border border-dark-border/40 text-soft-beige/90 font-medium">
-            <Wifi size={12} className="text-soft-beige/70 flex-shrink-0" />
-            <span className="truncate text-[11px]">{shop.price_range || '€€'} · Wi-Fi</span>
+          <div className="flex items-center gap-1 bg-dark-bg/60 p-1 rounded-lg border border-dark-border/40 text-soft-beige/90 font-medium">
+            <Wifi size={11} className="text-soft-beige/70 flex-shrink-0" />
+            <span className="truncate text-[10px] sm:text-[11px]">{shop.price_range || '€€'} · Wi-Fi</span>
           </div>
         </div>
 
@@ -195,9 +197,9 @@ export function ShopCardLarge({
             <Button
               variant="outline"
               size="sm"
-              className="h-8 px-3 text-xs bg-dark-roast/70 border-dark-border text-cream-white hover:text-amber-gold-hover hover:border-amber-gold/40 hover:bg-dark-roast rounded-xl font-medium transition-all"
+              className="h-7 px-2.5 text-xs bg-dark-roast/70 border-dark-border text-cream-white hover:text-amber-gold-hover hover:border-amber-gold/40 hover:bg-dark-roast rounded-xl font-medium transition-all"
             >
-              <Navigation size={12} className="mr-1 text-amber-gold" /> Directions
+              <Navigation size={11} className="mr-1 text-amber-gold" /> Directions
             </Button>
           </a>
 
@@ -205,13 +207,13 @@ export function ShopCardLarge({
             <Button
               variant="default"
               size="sm"
-              className="h-8 px-3.5 text-xs bg-amber-gold text-dark-bg hover:bg-amber-gold-hover rounded-xl font-bold transition-all shadow-md"
+              className="h-7 px-3 text-xs bg-amber-gold text-dark-bg hover:bg-amber-gold-hover rounded-xl font-bold transition-all shadow-md"
             >
-              Explore Details <ExternalLink size={12} className="ml-1 opacity-90" />
+              Explore Details <ExternalLink size={11} className="ml-1 opacity-90" />
             </Button>
           </Link>
         </div>
       </CardContent>
     </Card>
   );
-}
+});

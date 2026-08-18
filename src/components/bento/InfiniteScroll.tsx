@@ -20,7 +20,7 @@ export function InfiniteScroll({ onLoadMore, hasMore, isLoading }: InfiniteScrol
           onLoadMore();
         }
       },
-      { threshold: 0.5 }
+      { threshold: 0.2, rootMargin: '200px' }
     );
 
     const currentSentinel = sentinelRef.current;
@@ -37,7 +37,7 @@ export function InfiniteScroll({ onLoadMore, hasMore, isLoading }: InfiniteScrol
 
   if (!hasMore) {
     return (
-      <div className="col-span-full py-8 text-center text-xs text-phin-600 font-medium">
+      <div className="col-span-full py-8 text-center text-xs text-soft-beige/70 font-medium">
         ☕ You&apos;ve explored all nearby coffee spots!
       </div>
     );
@@ -46,8 +46,8 @@ export function InfiniteScroll({ onLoadMore, hasMore, isLoading }: InfiniteScrol
   return (
     <div ref={sentinelRef} className="col-span-full py-6 flex items-center justify-center">
       {isLoading && (
-        <div className="flex items-center gap-2 text-xs font-semibold text-phin-700">
-          <span className="w-4 h-4 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+        <div className="flex items-center gap-2 text-xs font-semibold text-amber-gold">
+          <span className="w-4 h-4 rounded-full border-2 border-amber-gold border-t-transparent animate-spin" />
           Brewing more coffee spots...
         </div>
       )}

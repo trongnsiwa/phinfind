@@ -1,7 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { ArrowUpDown, Heart, MapPin, Star } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { ArrowUpDown, Coffee, Heart, MapPin, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -35,6 +35,7 @@ import { useNearbyShops } from '@/hooks/useShops';
 import { useReverseGeocode } from '@/hooks/useReverseGeocode';
 import { useShopStore } from '@/stores/useShopStore';
 import { useUIStore } from '@/stores/useUIStore';
+import { generateCardSizes } from '@/lib/utils/bentoLayout';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import { APP_ROUTES } from '@/lib/utils/constants';
@@ -93,6 +94,9 @@ export default function DiscoverPage() {
     return result;
   }, [apiShops, filters]);
 
+  // Generate dynamic, balanced card sizes (Small 50%, Medium 25%, Large 15%, Featured 10%)
+  const cardSizes = useMemo(() => generateCardSizes(filteredShops), [filteredShops]);
+
   const displayedShops = useMemo(() => {
     return filteredShops.slice(0, visibleCount);
   }, [filteredShops, visibleCount]);
@@ -100,8 +104,15 @@ export default function DiscoverPage() {
   const hasMore = visibleCount < filteredShops.length;
 
   const loadMore = () => {
-    setVisibleCount((prev) => prev + 8);
+    setVisibleCount((prev) => prev + 12);
   };
+
+  // Debug logging
+  useEffect(() => {
+    console.log(
+      `[DiscoverPage] apiShops: ${apiShops.length}, filteredShops: ${filteredShops.length}, displayedShops: ${displayedShops.length}, visibleCount: ${visibleCount}`
+    );
+  }, [apiShops.length, filteredShops.length, displayedShops.length, visibleCount]);
 
   return (
     <div className="space-y-5 max-w-7xl mx-auto text-cream-white">
@@ -155,24 +166,29 @@ export default function DiscoverPage() {
         </div>
       </div>
 
-      {/* Pure Coffee Bento Grid Area (Below Filter Area) */}
+      {/* Pure Coffee Dynamic Bento Grid Area */}
       {shopsLoading ? (
         <ListSkeleton count={8} />
+      ) : filteredShops.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 px-4 text-center bg-dark-bg/60 rounded-3xl border border-dark-border/60">
+          <Coffee size={40} className="text-amber-gold/60 mb-3" />
+          <h3 className="font-sans font-bold text-lg text-cream-white mb-1">No coffee spots found</h3>
+          <p className="text-xs text-soft-beige/80 max-w-sm">
+            Try adjusting your search query or filters to find more artisan spots nearby.
+          </p>
+        </div>
       ) : (
         <BentoGrid>
           {displayedShops.map((shop, index) => {
+            const size = cardSizes[index] || 'small';
             const isFav = favorites.includes(shop.place_id);
 
-            // Bento Grid Card Size Assignment Logic:
-            // Every 15th card: Featured (3 columns × 2 rows)
-            // Every 10th card: Large (2 columns × 2 rows)
-            // Every 5th card: Medium (2 columns × 1 row)
-            // All others: Small (1 column × 1 row)
-            if (index % 15 === 14) {
+            if (size === 'featured') {
               return (
                 <ShopCardFeatured
                   key={shop.id}
                   shop={shop}
+                  size={size}
                   isFavorite={isFav}
                   onToggleFavorite={handleToggleFav}
                   onSelect={setSelectedShop}
@@ -180,11 +196,12 @@ export default function DiscoverPage() {
               );
             }
 
-            if (index % 10 === 9) {
+            if (size === 'large') {
               return (
                 <ShopCardLarge
                   key={shop.id}
                   shop={shop}
+                  size={size}
                   isFavorite={isFav}
                   onToggleFavorite={handleToggleFav}
                   onSelect={setSelectedShop}
@@ -192,11 +209,12 @@ export default function DiscoverPage() {
               );
             }
 
-            if (index % 5 === 4) {
+            if (size === 'medium') {
               return (
                 <ShopCardMedium
                   key={shop.id}
                   shop={shop}
+                  size={size}
                   isFavorite={isFav}
                   onToggleFavorite={handleToggleFav}
                   onSelect={setSelectedShop}
@@ -208,6 +226,7 @@ export default function DiscoverPage() {
               <ShopCardSmall
                 key={shop.id}
                 shop={shop}
+                size={size}
                 isFavorite={isFav}
                 onToggleFavorite={handleToggleFav}
                 onSelect={setSelectedShop}
@@ -273,4 +292,5 @@ export default function DiscoverPage() {
     </div>
   );
 }
+
 

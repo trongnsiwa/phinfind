@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import Link from 'next/link';
 import { Heart, MapPin, Navigation, Star, Footprints, ExternalLink, Sparkles, Coffee, Clock, Wifi, Quote, Images } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -8,16 +8,18 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { APP_ROUTES } from '@/lib/utils/constants';
 import { CoffeeShop } from '@/types/shop';
+import { CardSize } from '@/lib/utils/bentoLayout';
 import { cn } from '@/lib/utils';
 
 interface ShopCardFeaturedProps {
   shop: CoffeeShop;
+  size?: CardSize;
   isFavorite?: boolean;
   onToggleFavorite?: (placeId: string) => void;
   onSelect?: (shop: CoffeeShop) => void;
 }
 
-export function ShopCardFeatured({
+export const ShopCardFeatured = memo(function ShopCardFeatured({
   shop,
   isFavorite = false,
   onToggleFavorite,
@@ -60,10 +62,10 @@ export function ShopCardFeatured({
   return (
     <Card
       onClick={() => onSelect?.(shop)}
-      className="col-span-2 md:col-span-3 row-span-2 card-glow-border bg-gradient-to-br from-dark-roast via-[#25140d] to-dark-bg text-cream-white rounded-3xl border border-amber-gold/30 shadow-2xl hover:shadow-[0_20px_50px_rgba(212,160,87,0.15)] hover:border-amber-gold/60 hover:-translate-y-1.5 transition-all duration-500 p-0 flex flex-col justify-between cursor-pointer group relative overflow-hidden"
+      className="col-span-1 sm:col-span-2 lg:col-span-3 row-span-2 w-full h-full card-glow-border bg-gradient-to-br from-dark-roast via-[#25140d] to-dark-bg text-cream-white rounded-3xl border border-amber-gold/40 shadow-2xl hover:shadow-[0_20px_50px_rgba(212,160,87,0.2)] hover:border-amber-gold/70 hover:-translate-y-1.5 transition-all duration-500 p-0 flex flex-col justify-between cursor-pointer group relative overflow-hidden"
     >
       {/* 2-Column Magazine-Style Gallery (60% Left, 40% Right Stacked) */}
-      <div className="relative w-full h-56 sm:h-64 p-1.5 flex gap-1.5 bg-dark-bg/60 border-b border-dark-border/60 overflow-hidden flex-shrink-0">
+      <div className="relative w-full h-52 sm:h-60 p-1.5 flex gap-1.5 bg-dark-bg/60 border-b border-dark-border/60 overflow-hidden flex-shrink-0">
         {/* Left Column (60% Width) - Primary Image */}
         <div className="w-[60%] h-full rounded-2xl overflow-hidden relative bg-dark-roast border border-dark-border/40">
           {!imgError ? (
@@ -108,7 +110,7 @@ export function ShopCardFeatured({
         </div>
 
         {/* Floating Badges on Top-Left */}
-        <div className="absolute top-3.5 left-3.5 z-10 flex items-center gap-2">
+        <div className="absolute top-2.5 left-2.5 z-10 flex items-center gap-1.5">
           <Badge variant="secondary" className="bg-amber-gold text-dark-bg font-bold text-xs px-2.5 py-0.5 rounded-full shadow-md">
             <Sparkles size={11} className="mr-1 fill-dark-bg text-dark-bg" /> Editor&apos;s Choice
           </Badge>
@@ -116,7 +118,7 @@ export function ShopCardFeatured({
           <Badge
             variant="outline"
             className={cn(
-              'text-[10px] font-semibold px-2.5 py-0.5 rounded-full border backdrop-blur-md shadow-md',
+              'text-[9px] font-semibold px-2 py-0.5 rounded-full border backdrop-blur-md shadow-md',
               isOpen
                 ? 'bg-[#7CAE8E]/30 text-[#A3D9B1] border-[#7CAE8E]/40'
                 : 'bg-[#C97A7A]/30 text-[#E8A5A5] border-[#C97A7A]/40'
@@ -133,7 +135,7 @@ export function ShopCardFeatured({
           size="icon"
           onClick={handleFav}
           aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-          className="absolute top-3.5 right-3.5 z-10 h-7 w-7 rounded-full bg-dark-bg/80 backdrop-blur-md hover:bg-dark-roast border border-dark-border/60 text-cream-white shadow-md transition-all focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0"
+          className="absolute top-2.5 right-2.5 z-10 h-7 w-7 rounded-full bg-dark-bg/80 backdrop-blur-md hover:bg-dark-roast border border-dark-border/60 text-cream-white shadow-md transition-all focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0"
         >
           <Heart
             size={14}
@@ -146,10 +148,10 @@ export function ShopCardFeatured({
       </div>
 
       {/* Structured Editorial Content Card */}
-      <CardContent className="p-4 sm:p-5 space-y-3 bg-dark-bg/95 backdrop-blur-md flex-1 flex flex-col justify-between overflow-visible min-h-0">
+      <CardContent className="p-4 sm:p-5 space-y-2.5 bg-dark-bg/95 backdrop-blur-md flex-1 flex flex-col justify-between overflow-visible min-h-0">
         {/* Section 1: Title & Address */}
         <div>
-          <h3 className="font-sans font-bold text-lg sm:text-xl md:text-2xl text-cream-white tracking-tight line-clamp-1 group-hover:text-amber-gold-hover transition-colors">
+          <h3 className="font-sans font-bold text-lg sm:text-xl text-cream-white tracking-tight line-clamp-1 group-hover:text-amber-gold-hover transition-colors">
             {shop.name}
           </h3>
           <p className="text-xs text-soft-beige/90 flex items-center gap-1 mt-0.5 line-clamp-1">
@@ -161,7 +163,7 @@ export function ShopCardFeatured({
         {/* Section 2: Excerpt / Tagline Panel */}
         <div className="bg-dark-bg/70 px-3 py-2 rounded-xl border border-dark-border/60 text-xs text-soft-beige/90 leading-relaxed flex items-start gap-2 shadow-inner">
           <Quote size={13} className="text-amber-gold flex-shrink-0 mt-0.5" />
-          <span className="line-clamp-2">{categoryTagline}</span>
+          <span className="line-clamp-2 text-xs">{categoryTagline}</span>
         </div>
 
         {/* Section 3: 4-Box Metadata Grid */}
@@ -218,4 +220,4 @@ export function ShopCardFeatured({
       </CardContent>
     </Card>
   );
-}
+});

@@ -150,20 +150,26 @@ body {
   -webkit-backdrop-filter: blur(8px);
 }
 
-/* Custom scrollbars for mobile friendliness */
+/* Firefox & Standard Scrollbar */
+* {
+  scrollbar-color: rgba(212, 160, 87, 0.4) #2C1810;
+  scrollbar-width: thin;
+}
+
+/* Custom scrollbars for WebKit-based browsers (Chrome, Safari, Edge) */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #FAF7F2;
+  background: #1A0F0A;
 }
 ::-webkit-scrollbar-thumb {
-  background: #E8D5C0;
+  background: rgba(212, 160, 87, 0.4);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #D48B5C;
+  background: rgba(212, 160, 87, 0.65);
 }
 
 /* Subtle Perimeter Border Line Animation on Hover */

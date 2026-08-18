@@ -1,21 +1,23 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import { Heart, Star, Footprints, MapPin, Coffee, Clock, Wifi } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CoffeeShop } from '@/types/shop';
+import { CardSize } from '@/lib/utils/bentoLayout';
 import { cn } from '@/lib/utils';
 
 interface ShopCardSmallProps {
   shop: CoffeeShop;
+  size?: CardSize;
   isFavorite?: boolean;
   onToggleFavorite?: (placeId: string) => void;
   onSelect?: (shop: CoffeeShop) => void;
 }
 
-export function ShopCardSmall({
+export const ShopCardSmall = memo(function ShopCardSmall({
   shop,
   isFavorite = false,
   onToggleFavorite,
@@ -44,7 +46,7 @@ export function ShopCardSmall({
   return (
     <Card
       onClick={() => onSelect?.(shop)}
-      className="col-span-1 row-span-1 card-glow-border bg-gradient-to-b from-dark-roast to-dark-bg/95 rounded-3xl border border-dark-border/80 shadow-md hover:shadow-2xl hover:border-amber-gold/40 hover:-translate-y-1.5 transition-all duration-300 p-3 flex flex-col justify-between cursor-pointer group relative overflow-hidden"
+      className="col-span-1 row-span-1 w-full h-full card-glow-border bg-gradient-to-b from-dark-roast to-dark-bg/95 rounded-3xl border border-dark-border/80 shadow-md hover:shadow-2xl hover:border-amber-gold/40 hover:-translate-y-1.5 transition-all duration-300 p-3 flex flex-col justify-between cursor-pointer group relative overflow-hidden"
     >
       {/* Image Showcase with Overlapping Badges */}
       <div className="relative w-full h-28 rounded-2xl overflow-hidden bg-dark-bg flex-shrink-0 border border-dark-border/60">
@@ -128,4 +130,4 @@ export function ShopCardSmall({
       </div>
     </Card>
   );
-}
+});

@@ -1,22 +1,25 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import { Heart, MapPin, Navigation, Star, Footprints, Coffee, Clock, Wifi } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CoffeeShop } from '@/types/shop';
+import { CardSize } from '@/lib/utils/bentoLayout';
 import { cn } from '@/lib/utils';
 
 interface ShopCardMediumProps {
   shop: CoffeeShop;
+  size?: CardSize;
   isFavorite?: boolean;
   onToggleFavorite?: (placeId: string) => void;
   onSelect?: (shop: CoffeeShop) => void;
 }
 
-export function ShopCardMedium({
+export const ShopCardMedium = memo(function ShopCardMedium({
   shop,
+  size = 'small',
   isFavorite = false,
   onToggleFavorite,
   onSelect,
@@ -43,7 +46,7 @@ export function ShopCardMedium({
   return (
     <Card
       onClick={() => onSelect?.(shop)}
-      className="col-span-2 row-span-1 card-glow-border bg-gradient-to-r from-dark-roast via-dark-roast/90 to-dark-bg rounded-3xl border border-dark-border/80 shadow-md hover:shadow-2xl hover:border-amber-gold/40 hover:-translate-y-1.5 transition-all duration-300 p-3.5 flex gap-3.5 cursor-pointer group relative overflow-hidden"
+      className="col-span-1 sm:col-span-2 row-span-1 w-full h-full card-glow-border bg-gradient-to-r from-dark-roast via-dark-roast/90 to-dark-bg rounded-3xl border border-dark-border/80 shadow-md hover:shadow-2xl hover:border-amber-gold/40 hover:-translate-y-1.5 transition-all duration-300 p-3.5 flex gap-3.5 cursor-pointer group relative overflow-hidden"
     >
       {/* Left Media with 4:3 Aspect Ratio Container */}
       <div className="relative w-[36%] sm:w-[34%] h-full min-h-[130px] rounded-2xl overflow-hidden bg-dark-bg flex-shrink-0 border border-dark-border/60">
@@ -144,4 +147,4 @@ export function ShopCardMedium({
       </div>
     </Card>
   );
-}
+});
