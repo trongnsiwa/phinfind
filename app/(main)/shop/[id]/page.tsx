@@ -17,12 +17,21 @@ import {
   Sun,
   Coffee,
   Share2,
+  Sparkles,
+  CupSoda,
+  CreditCard,
+  Utensils,
+  Copy,
+  Check,
+  CheckCircle2,
+  Compass,
+  Footprints,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,11 +48,44 @@ import { useShopStore } from '@/stores/useShopStore';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
+const SAMPLE_IMAGES = [
+  'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1200&q=80',
+  'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1200&q=80',
+  'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=1200&q=80',
+  'https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&w=1200&q=80',
+];
+
+const MOCK_REVIEWS = [
+  {
+    author: 'Minh Anh',
+    rating: 5,
+    date: '2 days ago',
+    comment:
+      'Signature traditional phin drip with sweetened condensed milk is outstanding. Quiet second-floor space with fast Wi-Fi and plenty of outlets for remote work.',
+  },
+  {
+    author: 'Thanh Tùng',
+    rating: 5,
+    date: '1 week ago',
+    comment:
+      'Cozy, authentic vibes and friendly baristas. Great selection of specialty beans from Da Lat and excellent cold brew.',
+  },
+  {
+    author: 'Elena Rostova',
+    rating: 4,
+    date: '3 weeks ago',
+    comment:
+      'Loved the airy ambiance and playlist. Perfect spot for reading or casual meetings. Try the salted egg coffee!',
+  },
+];
+
 export default function ShopDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
   const { data: shop, isLoading, error } = useShopDetails(resolvedParams.id);
   const { favorites, toggleFavorite } = useShopStore();
   const [showUnsaveDialog, setShowUnsaveDialog] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [activeTab, setActiveTab] = useState<'overview' | 'reviews' | 'amenities'>('overview');
 
   if (isLoading) {
     return <DetailSkeleton />;
@@ -51,13 +93,13 @@ export default function ShopDetailPage({ params }: { params: Promise<{ id: strin
 
   if (error || !shop) {
     return (
-      <Card className="text-center py-12 bg-white rounded-3xl border border-phin-200 shadow-sm p-6 max-w-md mx-auto space-y-3">
+      <Card className="text-center py-12 bg-dark-bg/95 rounded-3xl border border-dark-border shadow-xl p-6 max-w-md mx-auto space-y-3 text-cream-white">
         <span className="text-5xl">☕</span>
-        <CardTitle className="font-sans text-lg text-phin-900">Coffee Shop Not Found</CardTitle>
-        <p className="text-xs text-phin-600">
+        <CardTitle className="font-sans text-lg text-cream-white">Coffee Shop Not Found</CardTitle>
+        <p className="text-xs text-soft-beige/80">
           The requested coffee shop details could not be loaded.
         </p>
-        <Button variant="default" size="sm" asChild className="bg-phin-800 text-white rounded-xl">
+        <Button variant="default" size="sm" asChild className="bg-amber-gold text-dark-bg hover:bg-amber-gold-hover font-bold rounded-xl text-xs">
           <Link href="/">
             <ArrowLeft size={14} className="mr-1" /> Back to Discover
           </Link>
@@ -93,26 +135,36 @@ export default function ShopDetailPage({ params }: { params: Promise<{ id: strin
     }
   };
 
-  const sampleImages = [
-    'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1200&q=80',
-    'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1200&q=80',
-    'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=1200&q=80',
-  ];
+  const handleCopyAddress = () => {
+    if (shop.address) {
+      navigator.clipboard.writeText(shop.address);
+      setCopied(true);
+      toast.success('Address copied to clipboard');
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   const charCodeSum = shop.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  const heroImage = shop.photos?.[0] || sampleImages[charCodeSum % sampleImages.length];
+  const heroImage = shop.photos?.[0] || SAMPLE_IMAGES[charCodeSum % SAMPLE_IMAGES.length];
+  const ratingScorePercent = Math.min(Math.round(((shop.rating || 4.5) / 5) * 100), 100);
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="max-w-3xl mx-auto space-y-6 text-cream-white pb-8">
       {/* Hero Photo Banner with Overlay Actions */}
-      <div className="relative w-full h-64 sm:h-80 rounded-3xl overflow-hidden shadow-card border border-phin-200 bg-phin-900">
+      <div className="relative w-full h-64 sm:h-80 rounded-3xl overflow-hidden shadow-2xl border border-dark-border/80 bg-dark-roast">
         <img src={heroImage} alt={shop.name} className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-dark-bg/95 via-black/30 to-black/40" />
 
         {/* Top Overlay Controls */}
         <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
-          <Button variant="ghost" size="sm" asChild className="bg-white/80 backdrop-blur-md hover:bg-white text-phin-900 border border-white/20 text-xs rounded-xl shadow-md">
+          <Button
+            variant="ghost"
+            size="sm"
+            asChild
+            className="bg-dark-bg/80 backdrop-blur-md hover:bg-dark-roast text-cream-white border border-dark-border/60 text-xs rounded-xl shadow-md"
+          >
             <Link href="/">
-              <ArrowLeft size={16} className="mr-1" />
+              <ArrowLeft size={16} className="mr-1 text-amber-gold" />
               Back
             </Link>
           </Button>
@@ -122,7 +174,7 @@ export default function ShopDetailPage({ params }: { params: Promise<{ id: strin
               variant="ghost"
               size="icon"
               onClick={handleShare}
-              className="bg-white/80 backdrop-blur-md hover:bg-white text-phin-900 border border-white/20 h-9 w-9 rounded-full shadow-md"
+              className="bg-dark-bg/80 backdrop-blur-md hover:bg-dark-roast text-warm-gray hover:text-cream-white border border-dark-border/60 h-9 w-9 rounded-full shadow-md"
               aria-label="Share shop"
             >
               <Share2 size={16} />
@@ -132,160 +184,327 @@ export default function ShopDetailPage({ params }: { params: Promise<{ id: strin
               variant="ghost"
               size="icon"
               onClick={handleSaveClick}
-              className="bg-white/80 backdrop-blur-md hover:bg-white text-phin-900 border border-white/20 h-9 w-9 rounded-full shadow-md"
+              className="bg-dark-bg/80 backdrop-blur-md hover:bg-dark-roast text-warm-gray hover:text-cream-white border border-dark-border/60 h-9 w-9 rounded-full shadow-md"
               aria-label={isFav ? 'Remove favorite' : 'Save favorite'}
             >
-              <Heart size={16} className={isFav ? 'fill-rose-500 text-rose-500' : 'text-phin-800'} />
+              <Heart size={16} className={isFav ? 'fill-rose-500 text-rose-500' : 'text-warm-gray'} />
             </Button>
           </div>
         </div>
 
         {/* Bottom Hero Info Overlay */}
-        <div className="absolute bottom-4 left-4 right-4 text-white space-y-1.5">
+        <div className="absolute bottom-4 left-4 right-4 text-cream-white space-y-1.5">
           <div className="flex items-center gap-2">
             <Badge
               variant="outline"
               className={cn(
                 'text-xs font-bold px-2.5 py-0.5 rounded-full border backdrop-blur-md shadow-sm',
                 isOpen
-                  ? 'bg-emerald-500/90 text-white border-emerald-400'
-                  : 'bg-rose-500/90 text-white border-rose-400'
+                  ? 'bg-[#7CAE8E]/30 text-[#A3D9B1] border-[#7CAE8E]/50'
+                  : 'bg-[#C97A7A]/30 text-[#E8A5A5] border-[#C97A7A]/50'
               )}
             >
-              {isOpen ? '🟢 Open Now' : '🔴 Closed'}
+              <span className={cn('w-1.5 h-1.5 rounded-full mr-1.5', isOpen ? 'bg-[#7CAE8E] animate-pulse' : 'bg-[#C97A7A]')} />
+              {isOpen ? 'Open Now' : 'Closed'}
             </Badge>
             {shop.price_range && (
-              <Badge variant="secondary" className="bg-white/90 text-phin-900 font-bold text-xs">
+              <Badge variant="secondary" className="bg-dark-bg/90 text-amber-gold border border-dark-border/60 font-bold text-xs">
                 {shop.price_range}
               </Badge>
             )}
           </div>
-          <h1 className="font-sans font-bold text-2xl sm:text-3xl text-white drop-shadow-md leading-tight">
+          <h1 className="font-sans font-bold text-2xl sm:text-3xl text-cream-white drop-shadow-md leading-tight">
             {shop.name}
           </h1>
-          <p className="text-xs text-phin-100/90 flex items-center gap-1">
-            <MapPin size={14} className="text-phin-300 flex-shrink-0" />
+          <p className="text-xs text-soft-beige/90 flex items-center gap-1">
+            <MapPin size={14} className="text-amber-gold flex-shrink-0" />
             {shop.address}
           </p>
         </div>
       </div>
 
-      {/* Main Info Card */}
-      <Card className="bg-white rounded-3xl p-6 border border-phin-200 shadow-card space-y-4">
-        <CardHeader className="p-0 flex flex-row items-center justify-between">
-          <div className="space-y-1">
-            <CardTitle className="font-sans font-bold text-lg text-phin-900">Rating & Community</CardTitle>
-            <p className="text-xs text-phin-600">Based on Google Places user feedback</p>
-          </div>
-          <Badge variant="outline" className="flex items-center gap-1.5 bg-amber-50 px-3 py-1.5 rounded-2xl border-amber-200 text-amber-800 font-bold text-sm">
-            <Star size={16} className="fill-amber-400 text-amber-400" />
-            {shop.rating.toFixed(1)}
-            <span className="text-xs font-normal text-amber-700">({shop.total_ratings})</span>
-          </Badge>
-        </CardHeader>
-
-        <CardContent className="p-0 space-y-4 pt-2">
-          <div className="space-y-1.5">
-            <div className="flex justify-between text-xs text-phin-700 font-medium">
-              <span>Customer Satisfaction Score</span>
-              <span className="font-bold text-phin-900">{Math.round((shop.rating / 5) * 100)}%</span>
-            </div>
-            <Progress value={(shop.rating / 5) * 100} className="h-2.5 bg-phin-100" />
-          </div>
-
-          <Separator className="bg-phin-100" />
-
-          {/* Primary Directions Action */}
-          <a
-            href={`https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lon}`}
-            target="_blank"
-            rel="noopener noreferrer"
+      {/* Tabbed Navigation Header */}
+      <Tabs
+        value={activeTab}
+        onValueChange={(val) => setActiveTab(val as typeof activeTab)}
+        className="w-full space-y-4"
+      >
+        <TabsList className="grid grid-cols-3 bg-dark-roast/80 p-1.5 rounded-2xl border border-dark-border/60 h-12 w-full">
+          <TabsTrigger
+            value="overview"
+            className="text-xs font-semibold rounded-xl text-soft-beige data-[state=active]:bg-amber-gold data-[state=active]:text-dark-bg data-[state=active]:shadow-md transition-all"
           >
-            <Button variant="default" className="w-full h-12 text-sm font-semibold bg-phin-800 text-white hover:bg-phin-900 rounded-xl shadow-md">
-              <Navigation size={16} className="mr-2" /> Get Directions via Google Maps
-            </Button>
-          </a>
-        </CardContent>
-      </Card>
+            Overview
+          </TabsTrigger>
+          <TabsTrigger
+            value="reviews"
+            className="text-xs font-semibold rounded-xl text-soft-beige data-[state=active]:bg-amber-gold data-[state=active]:text-dark-bg data-[state=active]:shadow-md transition-all"
+          >
+            Reviews
+          </TabsTrigger>
+          <TabsTrigger
+            value="amenities"
+            className="text-xs font-semibold rounded-xl text-soft-beige data-[state=active]:bg-amber-gold data-[state=active]:text-dark-bg data-[state=active]:shadow-md transition-all"
+          >
+            Amenities
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Amenities & Vibe */}
-      <Card className="bg-white rounded-3xl p-6 border border-phin-200 shadow-card space-y-3">
-        <h3 className="font-sans font-bold text-sm text-phin-900">Amenities & Atmosphere</h3>
-        <div className="flex items-center gap-2 flex-wrap text-xs">
-          <Badge variant="secondary" className="bg-phin-50 text-phin-800 border border-phin-200 px-3 py-1.5 rounded-xl font-medium">
-            <Wifi size={14} className="mr-1.5 text-primary" /> Free Wi-Fi
-          </Badge>
-          <Badge variant="secondary" className="bg-phin-50 text-phin-800 border border-phin-200 px-3 py-1.5 rounded-xl font-medium">
-            <Zap size={14} className="mr-1.5 text-amber-600" /> Power Outlets
-          </Badge>
-          <Badge variant="secondary" className="bg-phin-50 text-phin-800 border border-phin-200 px-3 py-1.5 rounded-xl font-medium">
-            <Wind size={14} className="mr-1.5 text-blue-500" /> Air Conditioned
-          </Badge>
-          <Badge variant="secondary" className="bg-phin-50 text-phin-800 border border-phin-200 px-3 py-1.5 rounded-xl font-medium">
-            <Sun size={14} className="mr-1.5 text-orange-500" /> Outdoor Seating
-          </Badge>
-          <Badge variant="secondary" className="bg-phin-50 text-phin-800 border border-phin-200 px-3 py-1.5 rounded-xl font-medium">
-            <Coffee size={14} className="mr-1.5 text-phin-700" /> Specialty Drip Coffee
-          </Badge>
-        </div>
-      </Card>
+        {/* Tab 1: Overview */}
+        <TabsContent value="overview" className="space-y-4 focus-visible:outline-none">
+          {/* Main Info Card */}
+          <Card className="bg-dark-bg/95 rounded-3xl p-6 border border-dark-border shadow-xl space-y-4">
+            <CardHeader className="p-0 flex flex-row items-center justify-between">
+              <div className="space-y-1">
+                <CardTitle className="font-sans font-bold text-lg text-cream-white">Rating & Community</CardTitle>
+                <p className="text-xs text-soft-beige/80">Based on Google Places user feedback</p>
+              </div>
+              <Badge variant="outline" className="flex items-center gap-1.5 bg-dark-roast px-3 py-1.5 rounded-2xl border-dark-border text-amber-gold font-bold text-sm">
+                <Star size={16} className="fill-amber-gold text-amber-gold" />
+                {shop.rating.toFixed(1)}
+                <span className="text-xs font-normal text-warm-gray">({shop.total_ratings})</span>
+              </Badge>
+            </CardHeader>
 
-      {/* Additional Shop Details Card */}
-      <Card className="bg-white rounded-3xl p-6 border border-phin-200 shadow-card space-y-4">
-        <h3 className="font-sans font-bold text-sm text-phin-900">Shop Information</h3>
-        <Separator className="bg-phin-100" />
+            <CardContent className="p-0 space-y-4 pt-2">
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-xs text-soft-beige font-medium">
+                  <span>Customer Satisfaction Score</span>
+                  <span className="font-bold text-amber-gold">{ratingScorePercent}%</span>
+                </div>
+                <Progress value={ratingScorePercent} className="h-2.5 bg-dark-bg border border-dark-border" />
+              </div>
+            </CardContent>
+          </Card>
 
-        <div className="space-y-4 text-xs text-phin-800">
-          <div className="flex items-start gap-3">
-            <Clock size={16} className="text-phin-500 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="font-bold text-phin-900">Opening Hours</p>
-              <p className="text-phin-600 mt-0.5">Everyday: 07:00 AM - 10:00 PM</p>
+          {/* Shop Information Card */}
+          <Card className="bg-dark-bg/95 rounded-3xl p-6 border border-dark-border shadow-xl space-y-4">
+            <h3 className="font-sans font-bold text-sm text-cream-white">Shop Information</h3>
+            <div className="space-y-4 text-xs text-soft-beige">
+              <div className="flex items-start gap-3">
+                <Clock size={16} className="text-amber-gold flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold text-cream-white">Opening Hours</p>
+                  <p className="text-soft-beige/80 mt-0.5">Everyday: 07:00 AM – 10:30 PM</p>
+                </div>
+              </div>
+
+              {shop.phone && (
+                <div className="flex items-start gap-3">
+                  <Phone size={16} className="text-amber-gold flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-bold text-cream-white">Phone</p>
+                    <a href={`tel:${shop.phone}`} className="text-amber-gold font-semibold hover:underline">
+                      {shop.phone}
+                    </a>
+                  </div>
+                </div>
+              )}
+
+              {shop.website && (
+                <div className="flex items-start gap-3">
+                  <Globe size={16} className="text-amber-gold flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-bold text-cream-white">Website</p>
+                    <a
+                      href={shop.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-amber-gold font-semibold hover:underline truncate block max-w-xs"
+                    >
+                      {shop.website}
+                    </a>
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
+          </Card>
 
-          {shop.phone && (
-            <div className="flex items-start gap-3">
-              <Phone size={16} className="text-phin-500 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="font-bold text-phin-900">Phone</p>
-                <a href={`tel:${shop.phone}`} className="text-primary font-semibold hover:underline">
-                  {shop.phone}
-                </a>
+          {/* Physical Location Card */}
+          <Card className="bg-dark-bg/95 rounded-3xl p-6 border border-dark-border shadow-xl space-y-4">
+            <div className="flex items-start justify-between gap-2">
+              <div className="space-y-1">
+                <h3 className="font-sans font-bold text-sm text-cream-white">Physical Location</h3>
+                <p className="text-sm font-semibold text-soft-beige">{shop.address}</p>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleCopyAddress}
+                aria-label="Copy address"
+                className="h-8 w-8 rounded-xl bg-dark-roast text-soft-beige hover:text-amber-gold border border-dark-border/60 flex-shrink-0"
+              >
+                {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-dark-border/40 text-xs">
+              <div className="bg-dark-roast/50 p-2.5 rounded-xl border border-dark-border/40 flex items-center gap-2">
+                <Footprints size={15} className="text-amber-gold flex-shrink-0" />
+                <div>
+                  <span className="text-[10px] text-warm-gray block">Distance</span>
+                  <span className="font-bold text-cream-white text-xs">{shop.distance_text || 'Nearby'}</span>
+                </div>
+              </div>
+
+              <div className="bg-dark-roast/50 p-2.5 rounded-xl border border-dark-border/40 flex items-center gap-2">
+                <Compass size={15} className="text-amber-gold flex-shrink-0" />
+                <div>
+                  <span className="text-[10px] text-warm-gray block">Coordinates</span>
+                  <span className="font-bold text-cream-white text-xs">
+                    {shop.lat.toFixed(4)}, {shop.lon.toFixed(4)}
+                  </span>
+                </div>
               </div>
             </div>
-          )}
 
-          {shop.website && (
-            <div className="flex items-start gap-3">
-              <Globe size={16} className="text-phin-500 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="font-bold text-phin-900">Website</p>
-                <a
-                  href={shop.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary font-semibold hover:underline truncate block max-w-xs"
+            <a
+              href={`https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lon}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block pt-2"
+            >
+              <Button className="w-full h-11 bg-amber-gold text-dark-bg hover:bg-amber-gold-hover font-bold text-xs rounded-xl shadow-lg shadow-amber-gold/15 transition-all">
+                <Navigation size={14} className="mr-2" />
+                Get Instant Directions via Google Maps
+              </Button>
+            </a>
+          </Card>
+        </TabsContent>
+
+        {/* Tab 2: Reviews */}
+        <TabsContent value="reviews" className="space-y-4 focus-visible:outline-none">
+          <Card className="bg-dark-bg/95 rounded-3xl p-6 border border-dark-border shadow-xl space-y-4">
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <div className="text-center sm:text-left flex flex-col items-center sm:items-start min-w-[100px]">
+                <span className="text-4xl font-extrabold text-cream-white tracking-tight">
+                  {shop.rating.toFixed(1)}
+                </span>
+                <div className="flex items-center gap-0.5 text-amber-gold my-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      size={14}
+                      className={star <= Math.round(shop.rating) ? 'fill-amber-gold text-amber-gold' : 'text-dark-border'}
+                    />
+                  ))}
+                </div>
+                <span className="text-[11px] text-warm-gray">{shop.total_ratings} Google Reviews</span>
+              </div>
+
+              <div className="flex-1 w-full space-y-1 text-[11px] text-soft-beige">
+                {[
+                  { star: 5, pct: 82 },
+                  { star: 4, pct: 12 },
+                  { star: 3, pct: 4 },
+                  { star: 2, pct: 1 },
+                  { star: 1, pct: 1 },
+                ].map((bar) => (
+                  <div key={bar.star} className="flex items-center gap-2">
+                    <span className="w-3 text-right text-[10px] text-warm-gray">{bar.star}</span>
+                    <div className="flex-1 h-1.5 bg-dark-roast rounded-full overflow-hidden border border-dark-border/40">
+                      <div
+                        className="h-full bg-amber-gold rounded-full"
+                        style={{ width: `${bar.pct}%` }}
+                      />
+                    </div>
+                    <span className="w-7 text-right text-[10px] text-warm-gray">{bar.pct}%</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-3 pt-3 border-t border-dark-border/40">
+              <span className="text-[11px] font-bold text-soft-beige/70 uppercase tracking-wider block">
+                Community Highlights
+              </span>
+              {MOCK_REVIEWS.map((rev, idx) => (
+                <div
+                  key={idx}
+                  className="bg-dark-roast/40 p-3.5 rounded-2xl border border-dark-border/50 space-y-1.5 text-xs"
                 >
-                  {shop.website}
-                </a>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-bold text-cream-white">{rev.author}</span>
+                      <CheckCircle2 size={12} className="text-emerald-400" />
+                    </div>
+                    <span className="text-[10px] text-warm-gray">{rev.date}</span>
+                  </div>
+                  <div className="flex items-center gap-0.5 text-amber-gold">
+                    {[...Array(rev.rating)].map((_, i) => (
+                      <Star key={i} size={10} className="fill-amber-gold text-amber-gold" />
+                    ))}
+                  </div>
+                  <p className="text-[11px] text-soft-beige/90 leading-relaxed">{rev.comment}</p>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </TabsContent>
+
+        {/* Tab 3: Amenities */}
+        <TabsContent value="amenities" className="space-y-4 focus-visible:outline-none">
+          <Card className="bg-dark-bg/95 rounded-3xl p-6 border border-dark-border shadow-xl space-y-4">
+            <h3 className="font-sans font-bold text-sm text-cream-white">Amenities & Atmosphere</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div className="flex items-center gap-3 bg-dark-roast/50 p-3 rounded-2xl border border-dark-border/50">
+                <Wifi size={16} className="text-amber-gold flex-shrink-0" />
+                <div>
+                  <span className="font-bold text-cream-white block">High-Speed Wi-Fi</span>
+                  <span className="text-[11px] text-soft-beige/70">Fast connection for remote work</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 bg-dark-roast/50 p-3 rounded-2xl border border-dark-border/50">
+                <Zap size={16} className="text-amber-gold flex-shrink-0" />
+                <div>
+                  <span className="font-bold text-cream-white block">Power Outlets</span>
+                  <span className="text-[11px] text-soft-beige/70">Available at most tables</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 bg-dark-roast/50 p-3 rounded-2xl border border-dark-border/50">
+                <Wind size={16} className="text-amber-gold flex-shrink-0" />
+                <div>
+                  <span className="font-bold text-cream-white block">Air Conditioned</span>
+                  <span className="text-[11px] text-soft-beige/70">Cool and comfortable indoors</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 bg-dark-roast/50 p-3 rounded-2xl border border-dark-border/50">
+                <Sun size={16} className="text-amber-gold flex-shrink-0" />
+                <div>
+                  <span className="font-bold text-cream-white block">Outdoor Seating</span>
+                  <span className="text-[11px] text-soft-beige/70">Airy balcony and street view</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 bg-dark-roast/50 p-3 rounded-2xl border border-dark-border/50">
+                <Coffee size={16} className="text-amber-gold flex-shrink-0" />
+                <div>
+                  <span className="font-bold text-cream-white block">Specialty Phin & Drip</span>
+                  <span className="text-[11px] text-soft-beige/70">Single-origin Robusta & Arabica</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 bg-dark-roast/50 p-3 rounded-2xl border border-dark-border/50">
+                <CupSoda size={16} className="text-amber-gold flex-shrink-0" />
+                <div>
+                  <span className="font-bold text-cream-white block">Artisan Beverages</span>
+                  <span className="text-[11px] text-soft-beige/70">Egg coffee, matcha & cold brew</span>
+                </div>
               </div>
             </div>
-          )}
-        </div>
-      </Card>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       {/* Unsave Confirmation Modal */}
       <AlertDialog open={showUnsaveDialog} onOpenChange={setShowUnsaveDialog}>
-        <AlertDialogContent className="bg-white border-phin-200 rounded-2xl">
+        <AlertDialogContent className="bg-dark-bg border border-dark-border rounded-2xl text-cream-white">
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-sans text-phin-900">Remove from Favorites?</AlertDialogTitle>
-            <AlertDialogDescription className="text-xs text-phin-600">
+            <AlertDialogTitle className="font-sans text-cream-white">Remove from Favorites?</AlertDialogTitle>
+            <AlertDialogDescription className="text-xs text-soft-beige/80">
               Are you sure you want to remove &quot;{shop.name}&quot; from your saved coffee shops?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-phin-200 text-xs rounded-xl">Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="border-dark-border bg-dark-roast text-cream-white text-xs rounded-xl">Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={confirmUnsave} className="bg-rose-600 text-white hover:bg-rose-700 text-xs rounded-xl font-semibold">
               Remove
             </AlertDialogAction>

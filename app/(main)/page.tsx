@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ShopDetailModal } from '@/components/shop/ShopDetailModal';
+import { ShopDrawer } from '@/components/shop/ShopDrawer';
 
 import { BentoGrid } from '@/components/bento/BentoGrid';
 import { SearchBar } from '@/components/bento/SearchBar';
@@ -83,6 +83,36 @@ export default function DiscoverPage() {
       toast.success('Shop saved to favorites!');
     }
   };
+
+  // Auto-open drawer if ?shop=id query param or /shop/[id] deep link is present on page load
+  useEffect(() => {
+    if (rawShops.length > 0 && typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const shopQueryId = urlParams.get('shop');
+      const pathMatch = window.location.pathname.match(/\/shop\/([^/]+)/);
+      const targetId = shopQueryId || (pathMatch ? pathMatch[1] : null);
+
+      if (targetId && (!selectedShop || (selectedShop.id !== targetId && selectedShop.place_id !== targetId))) {
+        const found = rawShops.find((s) => s.id === targetId || s.place_id === targetId);
+        if (found) {
+          setSelectedShop(found);
+        }
+      }
+    }
+  }, [rawShops, selectedShop, setSelectedShop]);
+
+  // Handle popstate on page to close drawer if ?shop param is removed via back button
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handlePopState = () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (!urlParams.get('shop') && selectedShop) {
+        setSelectedShop(null);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [selectedShop, setSelectedShop]);
 
   const deferredSearchQuery = useDeferredValue(searchQuery);
   const deferredFilters = useDeferredValue(filters);
@@ -338,8 +368,8 @@ export default function DiscoverPage() {
       {/* Floating Sticky Quick Filter Bar */}
       <FloatingFilterBar isVisible={isFilterFloating} shopCount={displayedShops.length} />
 
-      {/* Refined Premium Glassmorphism Shop Detail Modal */}
-      <ShopDetailModal
+      {/* Unified Google Maps-Style Tabbed Shop Drawer */}
+      <ShopDrawer
         shop={selectedShop}
         isOpen={Boolean(selectedShop)}
         onClose={() => setSelectedShop(null)}

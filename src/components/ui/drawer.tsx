@@ -6,7 +6,7 @@ import { Drawer as DrawerPrimitive } from "vaul"
 import { cn } from "@/lib/utils"
 
 const Drawer = ({
-  shouldScaleBackground = true,
+  shouldScaleBackground = false,
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Root>) => (
   <DrawerPrimitive.Root
@@ -34,6 +34,18 @@ const DrawerOverlay = React.forwardRef<
 ))
 DrawerOverlay.displayName = DrawerPrimitive.Overlay.displayName
 
+const DrawerHandle = React.forwardRef<
+  React.ElementRef<typeof DrawerPrimitive.Handle>,
+  React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Handle>
+>(({ className, ...props }, ref) => (
+  <DrawerPrimitive.Handle
+    ref={ref}
+    className={cn("mx-auto h-1.5 w-12 rounded-full bg-muted", className)}
+    {...props}
+  />
+))
+DrawerHandle.displayName = "DrawerHandle"
+
 const DrawerContent = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content>
@@ -43,12 +55,12 @@ const DrawerContent = React.forwardRef<
     <DrawerPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[10px] border bg-background",
+        "fixed inset-x-0 bottom-0 z-50 flex h-auto flex-col rounded-t-[10px] border bg-background",
         className
       )}
       {...props}
     >
-      <div className="mx-auto mt-4 h-2 w-[100px] rounded-full bg-muted" />
+      <DrawerHandle className="mt-4" />
       {children}
     </DrawerPrimitive.Content>
   </DrawerPortal>
@@ -110,6 +122,7 @@ export {
   DrawerOverlay,
   DrawerTrigger,
   DrawerClose,
+  DrawerHandle,
   DrawerContent,
   DrawerHeader,
   DrawerFooter,
