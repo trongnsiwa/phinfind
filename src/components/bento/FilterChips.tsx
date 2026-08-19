@@ -14,11 +14,13 @@ import { useUIStore } from '@/stores/useUIStore';
 import { cn } from '@/lib/utils';
 
 export function FilterChips() {
-  const { filters, setFilters, resetFilters } = useUIStore();
+  const { searchQuery, filters, setFilters, resetFilters } = useUIStore();
 
   const activeCount =
     (filters.openNowOnly ? 1 : 0) +
-    (filters.minRating && filters.minRating > 0 ? 1 : 0);
+    (filters.minRating && filters.minRating > 0 ? 1 : 0) +
+    (filters.sortBy !== 'distance' ? 1 : 0) +
+    (searchQuery.trim().length > 0 ? 1 : 0);
 
   return (
     <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5 scroll-smooth">

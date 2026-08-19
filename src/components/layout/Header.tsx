@@ -47,9 +47,29 @@ export function Header() {
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const [localValue, setLocalValue] = useState(searchQuery);
+  const [debouncedQuery, setDebouncedQuery] = useState(searchQuery);
+
+  // Sync local input with store if changed externally
+  useEffect(() => {
+    setLocalValue(searchQuery);
+  }, [searchQuery]);
+
+  // Debounce updates to global store and autocomplete
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(localValue);
+      if (localValue !== searchQuery) {
+        setSearchQuery(localValue);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [localValue, searchQuery, setSearchQuery]);
+
   // Debounced search query to Supabase via useSearchShops
   const { data: searchResults = [], isLoading: isSearching } = useSearchShops(
-    isSearchOpen ? searchQuery : '',
+    isSearchOpen && debouncedQuery.trim().length > 0 ? debouncedQuery : '',
     lat,
     lng
   );
@@ -127,6 +147,7 @@ export function Header() {
 
   const handleCloseSearch = () => {
     setIsSearchOpen(false);
+    setLocalValue('');
     setSearchQuery('');
     setSelectedIndex(-1);
   };
@@ -239,9 +260,9 @@ export function Header() {
                   <Input
                     ref={inputRef}
                     type="text"
-                    value={searchQuery}
+                    value={localValue}
                     onChange={(e) => {
-                      setSearchQuery(e.target.value);
+                      setLocalValue(e.target.value);
                       setSelectedIndex(-1);
                     }}
                     onKeyDown={handleKeyDown}
@@ -249,12 +270,13 @@ export function Header() {
                     aria-label="Search coffee shops"
                     className="w-48 sm:w-64 h-9 pl-9 pr-8 text-xs sm:text-sm bg-dark-roast text-cream-white border-dark-border rounded-xl focus-visible:ring-1 focus-visible:ring-amber-gold placeholder:text-warm-gray shadow-inner"
                   />
-                  {searchQuery && (
+                  {localValue && (
                     <Button
                       type="button"
                       variant="ghost"
                       size="icon"
                       onClick={() => {
+                        setLocalValue('');
                         setSearchQuery('');
                         setSelectedIndex(-1);
                         inputRef.current?.focus();
@@ -279,7 +301,7 @@ export function Header() {
             )}
 
             {/* Autocomplete Suggestions Dropdown Attached Below Right-Aligned Search */}
-            {isSearchOpen && searchQuery.trim().length > 0 && (
+            {isSearchOpen && localValue.trim().length > 0 && (
               <div className="absolute right-0 top-full mt-2 w-72 sm:w-80 md:w-96 bg-dark-bg/98 backdrop-blur-xl border border-dark-border/80 rounded-2xl shadow-[0_10px_35px_rgba(0,0,0,0.6)] shadow-amber-gold/5 p-2 z-[100] max-h-80 overflow-y-auto space-y-1 animate-in fade-in slide-in-from-top-1 duration-150 text-left">
                 {isSearching ? (
                   <div className="py-6 text-center text-xs text-soft-beige/70 flex items-center justify-center gap-2 font-medium">

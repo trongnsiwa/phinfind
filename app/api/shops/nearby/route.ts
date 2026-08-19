@@ -24,8 +24,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ shops: [], total: 0, page: 1, totalPages: 0 });
     }
 
-    console.log(`[API /api/shops/nearby] Supabase returned ${data?.length ?? 0} total shop records.`);
-
     if (!data || data.length === 0) {
       return NextResponse.json({ shops: [], total: 0, page: 1, totalPages: 0 });
     }
@@ -36,10 +34,6 @@ export async function GET(request: NextRequest) {
 
     const total = allSortedShops.length;
     const paginatedShops = allSortedShops.slice(offset, offset + limit);
-
-    console.log(
-      `[API /api/shops/nearby] Returning ${paginatedShops.length} shops (limit: ${limit}, page: ${page}, offset: ${offset}, total: ${total}).`
-    );
 
     return NextResponse.json({
       shops: paginatedShops,

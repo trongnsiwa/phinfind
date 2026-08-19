@@ -21,7 +21,6 @@ const defaultFilters: ShopFilterState = {
   openNowOnly: false,
   minRating: 0,
   sortBy: 'distance',
-  searchQuery: '',
 };
 
 export const useUIStore = create<UIState>((set) => ({
@@ -39,6 +38,10 @@ export const useUIStore = create<UIState>((set) => ({
     set((state) => ({
       filters: { ...state.filters, ...newFilters },
     })),
-  resetFilters: () => set({ filters: defaultFilters }),
+  resetFilters: () =>
+    set({
+      searchQuery: '',
+      filters: defaultFilters,
+    }),
   toggleMobileNav: () => set((state) => ({ mobileNavOpen: !state.mobileNavOpen })),
 }));
