@@ -22,7 +22,23 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
   shopCount,
 }: FloatingFilterBarProps) {
   const { filters, setFilters, searchQuery, setSearchQuery, resetFilters } = useUIStore();
+  const [localValue, setLocalValue] = useState(searchQuery);
   const [isDismissed, setIsDismissed] = useState(false);
+
+  // Synchronize local input with global store if changed externally
+  useEffect(() => {
+    setLocalValue(searchQuery);
+  }, [searchQuery]);
+
+  // Debounce updates to global store
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (localValue !== searchQuery) {
+        setSearchQuery(localValue);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [localValue, searchQuery, setSearchQuery]);
 
   // Reset dismissal state when user scrolls back up to the top filter section
   useEffect(() => {
@@ -38,9 +54,15 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
   const activeCount =
     (filters.openNowOnly ? 1 : 0) +
     (filters.minRating && filters.minRating > 0 ? 1 : 0) +
-    (filters.sortBy !== 'distance' ? 1 : 0);
+    (filters.sortBy !== 'distance' ? 1 : 0) +
+    (searchQuery.trim().length > 0 ? 1 : 0);
 
   const shouldShow = isVisible && !isDismissed;
+
+  const handleClear = () => {
+    setLocalValue('');
+    setSearchQuery('');
+  };
 
   return (
     <aside
@@ -63,17 +85,17 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
             />
             <Input
               type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              value={localValue}
+              onChange={(e) => setLocalValue(e.target.value)}
               placeholder="Search..."
               aria-label="Quick search coffee shops"
               className="h-8 pl-8 pr-7 text-xs bg-dark-roast text-cream-white border-dark-border rounded-xl sm:rounded-full focus-visible:ring-1 focus-visible:ring-amber-gold/60 focus-visible:border-amber-gold/60 placeholder:text-warm-gray"
             />
-            {searchQuery && (
+            {localValue && (
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => setSearchQuery('')}
+                onClick={handleClear}
                 aria-label="Clear search"
                 className="absolute right-1.5 top-1/2 -translate-y-1/2 h-5 w-5 text-warm-gray hover:text-cream-white rounded-full"
               >

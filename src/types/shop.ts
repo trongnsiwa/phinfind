@@ -31,7 +31,6 @@ export interface ShopFilterState {
   openNowOnly: boolean;
   minRating: number;
   sortBy: 'distance' | 'rating' | 'name';
-  searchQuery: string;
 }
 
 export interface GeoapifyFeature {

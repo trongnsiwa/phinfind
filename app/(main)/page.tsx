@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowUpDown, Coffee } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -30,13 +30,14 @@ import { useReverseGeocode } from '@/hooks/useReverseGeocode';
 import { useShopStore } from '@/stores/useShopStore';
 import { useUIStore } from '@/stores/useUIStore';
 import { generateCardSizes } from '@/lib/utils/bentoLayout';
+import type { CoffeeShop } from '@/types/shop';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import { APP_ROUTES } from '@/lib/utils/constants';
 
 export default function DiscoverPage() {
   const { lat, lng, isFallback, loading: locationLoading } = useLocation();
-  const { filters, setFilters } = useUIStore();
+  const { searchQuery, filters, setFilters, resetFilters } = useUIStore();
   const { selectedShop, setSelectedShop, favorites, toggleFavorite } = useShopStore();
 
   const {
@@ -61,10 +62,14 @@ export default function DiscoverPage() {
     isFallback
   );
 
+  const hasLoadedOnceRef = useRef(false);
+  if (rawShops.length > 0) {
+    hasLoadedOnceRef.current = true;
+  }
+
   const isInitialLoading =
-    shopsLoading ||
-    shopsPending ||
-    (rawShops.length === 0 && (locationLoading || shopsFetching));
+    !hasLoadedOnceRef.current &&
+    (!data || shopsLoading || shopsPending || (rawShops.length === 0 && locationLoading));
 
   const topFilterRef = useRef<HTMLDivElement>(null);
   const [isFilterFloating, setIsFilterFloating] = useState(false);
@@ -79,44 +84,73 @@ export default function DiscoverPage() {
     }
   };
 
+  const deferredSearchQuery = useDeferredValue(searchQuery);
+  const deferredFilters = useDeferredValue(filters);
+
+  const isFilterActive = Boolean(
+    searchQuery.trim() ||
+    filters.openNowOnly ||
+    (filters.minRating && filters.minRating > 0)
+  );
+
+  const isFiltered = Boolean(
+    deferredSearchQuery.trim() ||
+    deferredFilters.openNowOnly ||
+    (deferredFilters.minRating && deferredFilters.minRating > 0)
+  );
+
   // Filter & sort shop results
   const filteredShops = useMemo(() => {
     let result = [...rawShops];
 
-    if (filters.openNowOnly) {
+    if (deferredFilters.openNowOnly) {
       result = result.filter((s) => s.opening_hours?.open_now);
     }
 
-    if (filters.minRating && filters.minRating > 0) {
-      result = result.filter((s) => s.rating >= (filters.minRating || 0));
+    if (deferredFilters.minRating && deferredFilters.minRating > 0) {
+      result = result.filter((s) => (s.rating || 0) >= (deferredFilters.minRating || 0));
     }
 
-    if (filters.searchQuery.trim()) {
-      const q = filters.searchQuery.toLowerCase();
+    const q = deferredSearchQuery.trim().toLowerCase();
+    if (q) {
       result = result.filter(
-        (s) => s.name.toLowerCase().includes(q) || s.address.toLowerCase().includes(q)
+        (s) =>
+          (s.name && s.name.toLowerCase().includes(q)) ||
+          (s.address && s.address.toLowerCase().includes(q))
       );
     }
 
-    if (filters.sortBy === 'rating') {
-      result.sort((a, b) => b.rating - a.rating);
-    } else if (filters.sortBy === 'name') {
-      result.sort((a, b) => a.name.localeCompare(b.name));
+    if (deferredFilters.sortBy === 'rating') {
+      result.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+    } else if (deferredFilters.sortBy === 'name') {
+      result.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
     } else {
-      result.sort((a, b) => a.distance - b.distance);
+      result.sort((a, b) => (a.distance || 0) - (b.distance || 0));
     }
 
     return result;
-  }, [rawShops, filters]);
+  }, [rawShops, deferredFilters, deferredSearchQuery]);
+
+  // Persistent displayed shops state to eliminate transient empty state flashes
+  const [displayedShops, setDisplayedShops] = useState<CoffeeShop[]>([]);
+
+  useEffect(() => {
+    if (filteredShops.length > 0) {
+      setDisplayedShops(filteredShops);
+    } else if (isFilterActive) {
+      setDisplayedShops([]);
+    }
+  }, [filteredShops, isFilterActive]);
 
   // Generate dynamic, balanced card sizes (Small 50%, Medium 25%, Large 15%, Featured 10%)
-  const cardSizes = useMemo(() => generateCardSizes(filteredShops), [filteredShops]);
+  const cardSizes = useMemo(() => generateCardSizes(displayedShops), [displayedShops]);
 
   const nextBatchSkeletonSizes: ('small' | 'medium' | 'large' | 'featured')[] = [
     'small',
     'medium',
     'small',
     'large',
+    'small',
     'small',
     'small',
   ];
@@ -157,7 +191,7 @@ export default function DiscoverPage() {
           {/* Right: Results Count, Location Badge, & Sort Selector */}
           <div className="flex items-center justify-between sm:justify-end gap-3 text-xs flex-shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-dark-border/40">
             <div className="flex items-center gap-1.5">
-              <span className="font-bold text-cream-white tracking-tight">{filteredShops.length} shops nearby</span>
+              <span className="font-bold text-cream-white tracking-tight">{displayedShops.length} shops nearby</span>
               <Badge variant="outline" className="bg-dark-roast text-soft-beige border-dark-border text-[10px] px-2 py-0.5 rounded-full font-medium transition-all duration-200">
                 {locationLoading || isCityLoading ? 'Locating...' : cityName}
               </Badge>
@@ -209,17 +243,23 @@ export default function DiscoverPage() {
             Try Again
           </Button>
         </div>
-      ) : filteredShops.length === 0 ? (
+      ) : displayedShops.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 px-4 text-center bg-dark-bg/60 rounded-3xl border border-dark-border/60 animate-in fade-in duration-300">
           <Coffee size={40} className="text-amber-gold/60 mb-3" />
           <h3 className="font-sans font-bold text-lg text-cream-white mb-1">No coffee spots found</h3>
-          <p className="text-xs text-soft-beige/80 max-w-sm">
+          <p className="text-xs text-soft-beige/80 max-w-sm mb-4">
             Try adjusting your search query or filters to find more artisan spots nearby.
           </p>
+          <Button
+            onClick={resetFilters}
+            className="bg-amber-gold text-dark-bg hover:bg-amber-gold-hover font-bold rounded-xl text-xs px-4 py-2"
+          >
+            Reset Filters
+          </Button>
         </div>
       ) : (
         <BentoGrid>
-          {filteredShops.map((shop, index) => {
+          {displayedShops.map((shop, index) => {
             const size = cardSizes[index] || 'small';
             const isFav = favorites.includes(shop.place_id);
 
@@ -274,27 +314,29 @@ export default function DiscoverPage() {
             );
           })}
 
-          {/* Next Page Skeleton Placeholders */}
-          {isFetchingNextPage &&
+          {/* Next Page Skeleton Placeholders (only in unfiltered view when scrolling at the bottom) */}
+          {!isFiltered && isFetchingNextPage &&
             nextBatchSkeletonSizes.map((size, idx) => (
               <SkeletonCard key={`skeleton-next-${idx}`} size={size} />
             ))}
 
-          {/* Infinite Scroll Sentinel */}
-          <InfiniteScroll
-            onLoadMore={() => {
-              if (hasNextPage && !isFetchingNextPage) {
-                fetchNextPage();
-              }
-            }}
-            hasMore={Boolean(hasNextPage)}
-            isLoading={isFetchingNextPage}
-          />
+          {/* Infinite Scroll Sentinel (only active in unfiltered view) */}
+          {!isFiltered && (
+            <InfiniteScroll
+              onLoadMore={() => {
+                if (hasNextPage && !isFetchingNextPage) {
+                  fetchNextPage();
+                }
+              }}
+              hasMore={Boolean(hasNextPage)}
+              isLoading={isFetchingNextPage}
+            />
+          )}
         </BentoGrid>
       )}
 
       {/* Floating Sticky Quick Filter Bar */}
-      <FloatingFilterBar isVisible={isFilterFloating} shopCount={filteredShops.length} />
+      <FloatingFilterBar isVisible={isFilterFloating} shopCount={displayedShops.length} />
 
       {/* Refined Premium Glassmorphism Shop Detail Modal */}
       <ShopDetailModal

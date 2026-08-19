@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createPublicClient } from '@/lib/supabase/server';
 import { DEFAULT_LOCATION } from '@/lib/utils/constants';
 import { mapDbShopToCoffeeShop } from '@/lib/supabase/shops';
 
@@ -16,15 +16,13 @@ export async function GET(request: NextRequest) {
     : (page - 1) * limit;
 
   try {
-    const supabase = await createClient();
+    const supabase = await createPublicClient();
     const { data, error } = await supabase.from('shops').select('*');
 
     if (error) {
       console.error('[API /api/shops/nearby] Supabase query error:', error);
       return NextResponse.json({ shops: [], total: 0, page: 1, totalPages: 0 });
     }
-
-    console.log(`[API /api/shops/nearby] Supabase returned ${data?.length ?? 0} total shop records.`);
 
     if (!data || data.length === 0) {
       return NextResponse.json({ shops: [], total: 0, page: 1, totalPages: 0 });
@@ -36,10 +34,6 @@ export async function GET(request: NextRequest) {
 
     const total = allSortedShops.length;
     const paginatedShops = allSortedShops.slice(offset, offset + limit);
-
-    console.log(
-      `[API /api/shops/nearby] Returning ${paginatedShops.length} shops (limit: ${limit}, page: ${page}, offset: ${offset}, total: ${total}).`
-    );
 
     return NextResponse.json({
       shops: paginatedShops,
