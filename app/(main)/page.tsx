@@ -27,15 +27,19 @@ import { ListSkeleton, SkeletonCard } from '@/components/common/LoadingSkeleton'
 import { useLocation } from '@/hooks/useLocation';
 import { useInfiniteShops } from '@/hooks/useShops';
 import { useReverseGeocode } from '@/hooks/useReverseGeocode';
+import { useAuth } from '@/hooks/useAuth';
 import { useShopStore } from '@/stores/useShopStore';
 import { useUIStore } from '@/stores/useUIStore';
 import { generateCardSizes } from '@/lib/utils/bentoLayout';
 import type { CoffeeShop } from '@/types/shop';
 import { toast } from 'sonner';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { APP_ROUTES } from '@/lib/utils/constants';
 
 export default function DiscoverPage() {
+  const router = useRouter();
+  const { isAuthenticated } = useAuth();
   const { lat, lng, isFallback, loading: locationLoading } = useLocation();
   const { searchQuery, filters, setFilters, resetFilters } = useUIStore();
   const { selectedShop, setSelectedShop, favorites, toggleFavorite } = useShopStore();
@@ -75,6 +79,17 @@ export default function DiscoverPage() {
   const [isFilterFloating, setIsFilterFloating] = useState(false);
 
   const handleToggleFav = (placeId: string) => {
+    if (!isAuthenticated) {
+      toast('Sign in required', {
+        description: 'Sign in to start saving your favorite spots and share your coffee experiences.',
+        action: {
+          label: 'Sign in',
+          onClick: () => router.push(APP_ROUTES.LOGIN),
+        },
+      });
+      return;
+    }
+
     const isFav = favorites.includes(placeId);
     toggleFavorite(placeId);
     if (isFav) {

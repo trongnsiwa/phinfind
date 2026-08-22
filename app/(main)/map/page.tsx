@@ -17,10 +17,12 @@ import {
 import { Map } from '@/components/map/Map';
 import { ShopDrawer } from '@/components/shop/ShopDrawer';
 import { ShopSidebar } from '@/components/shop/ShopSidebar';
+import { useRouter } from 'next/navigation';
 import { useLocation } from '@/hooks/useLocation';
 import { useNearbyShops, useSearchShops } from '@/hooks/useShops';
 import { useReverseGeocode } from '@/hooks/useReverseGeocode';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { useAuth } from '@/hooks/useAuth';
 import { useShopStore } from '@/stores/useShopStore';
 import { useUIStore } from '@/stores/useUIStore';
 import { APP_ROUTES } from '@/lib/utils/constants';
@@ -29,6 +31,8 @@ import { toast } from 'sonner';
 import { CoffeeShop } from '@/types/shop';
 
 export default function MapPage() {
+  const router = useRouter();
+  const { isAuthenticated } = useAuth();
   const isDesktop = useMediaQuery('(min-width: 1024px)');
   const { lat, lng, loading: locationLoading, isFallback, refetchLocation } = useLocation();
   const { selectedShop, setSelectedShop, favorites, toggleFavorite } = useShopStore();
@@ -138,6 +142,17 @@ export default function MapPage() {
   };
 
   const handleToggleFav = (placeId: string) => {
+    if (!isAuthenticated) {
+      toast('Sign in required', {
+        description: 'Sign in to start saving your favorite spots and share your coffee experiences.',
+        action: {
+          label: 'Sign in',
+          onClick: () => router.push(APP_ROUTES.LOGIN),
+        },
+      });
+      return;
+    }
+
     const isFav = favorites.includes(placeId);
     toggleFavorite(placeId);
     if (isFav) {
