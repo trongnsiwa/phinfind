@@ -14,27 +14,29 @@ type ToasterProps = React.ComponentProps<typeof Sonner>
 const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner
-      theme="light"
-      className="toaster group"
+      theme="dark"
+      className="toaster group top-4 right-4 max-sm:left-4 w-96 max-w-[90vw]"
       icons={{
-        success: <CircleCheck className="h-4 w-4" />,
-        info: <Info className="h-4 w-4" />,
-        warning: <TriangleAlert className="h-4 w-4" />,
-        error: <OctagonX className="h-4 w-4" />,
-        loading: <LoaderCircle className="h-4 w-4 animate-spin" />,
+        success: <CircleCheck className="h-5 w-5 text-green-400 shrink-0" />,
+        info: <Info className="h-5 w-5 text-amber-gold shrink-0" />,
+        warning: <TriangleAlert className="h-5 w-5 text-orange-400 shrink-0" />,
+        error: <OctagonX className="h-5 w-5 text-rose-400 shrink-0" />,
+        loading: <LoaderCircle className="h-5 w-5 text-amber-gold shrink-0 animate-spin" />,
       }}
       toastOptions={{
         classNames: {
           toast:
-            "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg",
-          description: "group-[.toast]:text-muted-foreground",
+            "group toast rounded-2xl p-4 gap-3 items-start bg-dark-bg/80 backdrop-blur-xl border border-amber-gold/20 shadow-2xl shadow-black/30 shadow-amber-gold/5 transition-all duration-200 text-cream-white",
+          title: "text-cream-white font-sans font-semibold text-sm",
+          description: "text-soft-beige/90 text-xs",
           actionButton:
-            "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
+            "bg-primary hover:bg-primary-hover text-primary-foreground font-bold rounded-lg px-3 py-1.5 text-xs transition-colors",
           cancelButton:
-            "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
+            "bg-dark-roast/80 hover:bg-white/10 text-soft-beige rounded-lg px-3 py-1.5 text-xs transition-colors",
         },
       }}
       {...props}
+      richColors={false}
     />
   )
 }

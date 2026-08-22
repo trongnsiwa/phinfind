@@ -152,6 +152,11 @@ export function Header() {
     setSelectedIndex(-1);
   };
 
+  // Map route provides its own full-bleed overlay header
+  if (pathname === APP_ROUTES.MAP) {
+    return null;
+  }
+
   return (
     <header className="sticky top-0 z-40 bg-dark-bg/95 backdrop-blur-md border-b border-dark-border text-cream-white shadow-lg px-3 sm:px-4 py-2.5 transition-all duration-300">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 sm:gap-4">
