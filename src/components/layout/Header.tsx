@@ -392,89 +392,70 @@ export function Header() {
             )}
           </div>
 
-          {/* Profile Avatar Dropdown Menu */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-full p-0 transition-all duration-200 hover:scale-105 hover:shadow-[0_0_15px_rgba(212,160,87,0.15)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold/30"
-                aria-label={isAuthenticated ? `User menu for ${displayName}` : 'Guest user menu'}
-              >
-                <Avatar className="h-9 w-9">
-                  {avatarUrl && <AvatarImage src={avatarUrl} alt={displayName} className="object-cover" />}
-                  <AvatarFallback className="bg-dark-roast text-amber-gold font-bold text-xs">
-                    {isAuthenticated ? (
-                      displayName.charAt(0).toUpperCase() || <User size={15} />
-                    ) : (
-                      <User size={15} className="text-soft-beige" />
-                    )}
-                  </AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className="w-56 bg-dark-bg/95 backdrop-blur-md border border-dark-border text-cream-white shadow-2xl rounded-2xl p-1.5 space-y-1 z-[500]"
-            >
-              <DropdownMenuLabel className="font-sans px-2.5 py-2 select-none">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm">☕</span>
-                  <div className="flex flex-col min-w-0">
-                    <span className="text-xs font-bold text-amber-gold truncate">
-                      {isAuthenticated ? displayName : 'Guest'}
-                    </span>
-                    <span className="text-[10px] font-normal text-warm-gray truncate">
-                      {isAuthenticated ? (userEmail || 'Coffee Explorer') : 'Sign in to access all features'}
-                    </span>
-                  </div>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-dark-border my-1" />
-              <DropdownMenuItem asChild>
-                <Link
-                  href={isAuthenticated ? APP_ROUTES.PROFILE : APP_ROUTES.LOGIN}
-                  className="cursor-pointer text-xs font-medium text-soft-beige hover:text-amber-gold focus:bg-dark-roast/60 focus:text-amber-gold rounded-xl px-2.5 py-2 transition-colors flex items-center justify-between group"
+          {/* Profile Avatar Dropdown Menu (Authenticated) or Sign In Button (Guest) */}
+          {isAuthenticated ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-full p-0 transition-all duration-200 hover:scale-105 hover:shadow-[0_0_15px_rgba(212,160,87,0.15)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold/30 cursor-pointer"
+                  aria-label={`User menu for ${displayName}`}
                 >
+                  <Avatar className="h-9 w-9">
+                    {avatarUrl && <AvatarImage src={avatarUrl} alt={displayName} className="object-cover" />}
+                    <AvatarFallback className="bg-dark-roast text-amber-gold font-bold text-xs">
+                      {displayName.charAt(0).toUpperCase() || <User size={15} />}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className="w-56 bg-dark-bg/95 backdrop-blur-md border border-dark-border text-cream-white shadow-2xl rounded-2xl p-1.5 space-y-1 z-[500]"
+              >
+                <DropdownMenuLabel className="font-sans px-2.5 py-2 select-none">
                   <div className="flex items-center gap-2">
+                    <span className="text-sm">☕</span>
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-xs font-bold text-amber-gold truncate">
+                        {displayName}
+                      </span>
+                      <span className="text-[10px] font-normal text-warm-gray truncate">
+                        {userEmail || 'Coffee Explorer'}
+                      </span>
+                    </div>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-dark-border my-1" />
+                <DropdownMenuItem asChild>
+                  <Link
+                    href={APP_ROUTES.PROFILE}
+                    className="cursor-pointer text-xs font-medium text-soft-beige hover:text-amber-gold focus:bg-dark-roast/60 focus:text-amber-gold rounded-xl px-2.5 py-2 transition-colors flex items-center gap-2 group"
+                  >
                     <User size={15} className="text-warm-gray group-hover:text-amber-gold transition-colors" />
                     <span>Profile</span>
-                  </div>
-                  {!isAuthenticated && (
-                    <span className="text-[10px] text-warm-gray/70 font-normal">Sign in</span>
-                  )}
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link
-                  href={isAuthenticated ? APP_ROUTES.FAVORITES : APP_ROUTES.LOGIN}
-                  className="cursor-pointer text-xs font-medium text-soft-beige hover:text-amber-gold focus:bg-dark-roast/60 focus:text-amber-gold rounded-xl px-2.5 py-2 transition-colors flex items-center justify-between group"
-                >
-                  <div className="flex items-center gap-2">
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link
+                    href={APP_ROUTES.FAVORITES}
+                    className="cursor-pointer text-xs font-medium text-soft-beige hover:text-amber-gold focus:bg-dark-roast/60 focus:text-amber-gold rounded-xl px-2.5 py-2 transition-colors flex items-center gap-2 group"
+                  >
                     <Heart size={15} className="text-rose-400 group-hover:scale-105 transition-transform" />
                     <span>Favorites</span>
-                  </div>
-                  {!isAuthenticated && (
-                    <span className="text-[10px] text-warm-gray/70 font-normal">Sign in</span>
-                  )}
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link
-                  href={isAuthenticated ? APP_ROUTES.PROFILE : APP_ROUTES.LOGIN}
-                  className="cursor-pointer text-xs font-medium text-soft-beige hover:text-amber-gold focus:bg-dark-roast/60 focus:text-amber-gold rounded-xl px-2.5 py-2 transition-colors flex items-center justify-between group"
-                >
-                  <div className="flex items-center gap-2">
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link
+                    href={APP_ROUTES.PROFILE}
+                    className="cursor-pointer text-xs font-medium text-soft-beige hover:text-amber-gold focus:bg-dark-roast/60 focus:text-amber-gold rounded-xl px-2.5 py-2 transition-colors flex items-center gap-2 group"
+                  >
                     <Settings size={15} className="text-warm-gray group-hover:text-amber-gold transition-colors" />
                     <span>Settings</span>
-                  </div>
-                  {!isAuthenticated && (
-                    <span className="text-[10px] text-warm-gray/70 font-normal">Sign in</span>
-                  )}
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-dark-border my-1" />
-              {isAuthenticated ? (
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-dark-border my-1" />
                 <DropdownMenuItem
                   onClick={async () => {
                     await signOut();
@@ -485,19 +466,19 @@ export function Header() {
                   <LogOut size={15} className="text-rose-400" />
                   <span>Sign Out</span>
                 </DropdownMenuItem>
-              ) : (
-                <DropdownMenuItem asChild>
-                  <Link
-                    href={APP_ROUTES.LOGIN}
-                    className="cursor-pointer text-xs font-medium text-amber-gold hover:text-amber-gold-hover focus:bg-amber-500/10 focus:text-amber-gold-hover rounded-xl px-2.5 py-2 transition-colors flex items-center gap-2"
-                  >
-                    <LogIn size={15} className="text-amber-gold" />
-                    <span>Sign In</span>
-                  </Link>
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button
+              asChild
+              className="bg-amber-gold hover:bg-amber-gold-hover text-dark-bg font-bold text-xs rounded-xl px-3.5 py-1.5 h-9 shadow-md hover:scale-[1.02] active:scale-95 transition-all duration-200 flex items-center gap-1.5 cursor-pointer"
+            >
+              <Link href={APP_ROUTES.LOGIN}>
+                <LogIn size={15} />
+                <span>Sign In</span>
+              </Link>
+            </Button>
+          )}
 
           {/* Mobile Hamburger Navigation Sheet Button */}
           <Sheet>
