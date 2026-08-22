@@ -12,12 +12,13 @@ interface MapProps {
   selectedShop: CoffeeShop | null;
   onSelectShop: (shop: CoffeeShop) => void;
   onRecenter?: () => void;
+  className?: string;
 }
 
 // Dynamically import Leaflet map component to prevent SSR window undefined errors
 const LeafletMapInner = dynamic(() => import('./LeafletMapInner'), {
   ssr: false,
-  loading: () => <LoadingSpinner text="Brewing interactive map..." className="h-[400px]" />,
+  loading: () => <LoadingSpinner text="Brewing interactive map..." className="w-full h-full flex-1 min-h-[300px]" />,
 });
 
 export function Map(props: MapProps) {
@@ -28,7 +29,7 @@ export function Map(props: MapProps) {
   }, []);
 
   if (!mounted) {
-    return <LoadingSpinner text="Initializing map..." className="h-[400px]" />;
+    return <LoadingSpinner text="Initializing map..." className="w-full h-full flex-1 min-h-[300px]" />;
   }
 
   return <LeafletMapInner {...props} />;

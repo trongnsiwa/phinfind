@@ -167,7 +167,13 @@ body[data-scroll-locked][data-scroll-locked] {
 }
 
 html {
-  scrollbar-gutter: stable;
+  scrollbar-gutter: auto;
+}
+
+html.overflow-hidden,
+html.overflow-hidden body {
+  scrollbar-gutter: auto !important;
+  overflow: hidden !important;
 }
 
 /* Firefox & Standard Scrollbar for html, body, and all elements */
@@ -299,3 +305,116 @@ body::-webkit-scrollbar-thumb:hover {
   opacity: 1;
   animation: border-travel 2.2s linear infinite;
 }
+
+/* Warm Espresso Theme Filter for Leaflet Dark Tiles */
+.leaflet-tile-pane {
+  filter: sepia(30%) saturate(135%) hue-rotate(330deg) contrast(112%) brightness(96%);
+}
+
+/* Leaflet Dark Theme Popup & Marker Styles */
+.leaflet-popup-content-wrapper {
+  background: rgba(26, 15, 10, 0.96) !important;
+  border: 1px solid #3D2A1E !important;
+  border-radius: 1rem !important;
+  color: #FAF7F2 !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.8) !important;
+  backdrop-filter: blur(16px) !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+.leaflet-popup-tip-container {
+  overflow: visible !important;
+}
+
+.leaflet-container {
+  background-color: #120A07 !important;
+}
+
+.leaflet-popup-tip {
+  background: #1A0F0A !important;
+  border: 1px solid #3D2A1E !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6) !important;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  padding: 0.85rem !important;
+  line-height: 1.4 !important;
+}
+
+.leaflet-container a.leaflet-popup-close-button {
+  color: #A8988E !important;
+  top: 8px !important;
+  right: 8px !important;
+  padding: 4px !important;
+  font-size: 16px !important;
+  font-weight: bold !important;
+  transition: color 0.2s ease !important;
+}
+
+.leaflet-container a.leaflet-popup-close-button:hover {
+  color: #D4A057 !important;
+}
+
+/* Leaflet Attribution Styling */
+.leaflet-control-attribution {
+  background: rgba(26, 15, 10, 0.8) !important;
+  backdrop-filter: blur(8px) !important;
+  color: #A8988E !important;
+  font-size: 10px !important;
+  border-top-left-radius: 8px !important;
+  padding: 2px 8px !important;
+  border: 1px solid rgba(61, 42, 30, 0.5) !important;
+  border-bottom: none !important;
+  border-right: none !important;
+}
+
+.leaflet-control-attribution a {
+  color: #D4A057 !important;
+  text-decoration: none !important;
+  opacity: 0.85;
+}
+
+.leaflet-control-attribution a:hover {
+  text-decoration: underline !important;
+  opacity: 1;
+}
+
+/* Leaflet Dark Tooltip Styles */
+.leaflet-tooltip.custom-dark-tooltip {
+  background: rgba(26, 15, 10, 0.95) !important;
+  border: 1px solid #3D2A1E !important;
+  border-radius: 0.625rem !important;
+  color: #FAF7F2 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.85) !important;
+  backdrop-filter: blur(12px) !important;
+  padding: 4px 8px !important;
+  font-family: inherit !important;
+}
+
+.leaflet-tooltip-top.custom-dark-tooltip::before {
+  border-top-color: #1A0F0A !important;
+}
+
+.leaflet-tooltip-bottom.custom-dark-tooltip::before {
+  border-bottom-color: #1A0F0A !important;
+}
+
+/* Selected Marker Subtle Pulse Ring Animation */
+@keyframes pulse-ring-halo {
+  0% {
+    transform: scale(0.96);
+    opacity: 0.75;
+  }
+  100% {
+    transform: scale(1.24);
+    opacity: 0;
+  }
+}
+
+.animate-pulse-ring-halo {
+  animation: pulse-ring-halo 1.6s cubic-bezier(0.2, 0.8, 0.4, 1) infinite;
+}
+
+
