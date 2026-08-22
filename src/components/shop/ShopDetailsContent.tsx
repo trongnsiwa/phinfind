@@ -14,6 +14,8 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/useAuth';
+import { useRouter } from 'next/navigation';
+import { APP_ROUTES } from '@/lib/utils/constants';
 import { cn } from '@/lib/utils';
 import { useShopStore } from '@/stores/useShopStore';
 import { useUIStore } from '@/stores/useUIStore';
@@ -660,6 +662,7 @@ interface ReviewItem {
 }
 
 export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop }) {
+  const router = useRouter();
   const { user, profile, isAuthenticated } = useAuth();
   const [reviewsList, setReviewsList] = useState<ReviewItem[]>(MOCK_REVIEWS);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -713,7 +716,13 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isAuthenticated || !user) {
-      toast.error('Please sign in to write a review.');
+      toast('Sign in required', {
+        description: 'Sign in to share your coffee story with the community.',
+        action: {
+          label: 'Sign in',
+          onClick: () => router.push(APP_ROUTES.LOGIN),
+        },
+      });
       return;
     }
 

@@ -78,7 +78,8 @@ export function ShopSidebar({
     onToggleFavorite?.(shop.place_id);
   };
 
-  const handleShare = () => {
+  const handleShare = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
     if (!shop || typeof window === 'undefined') return;
     const url = `${window.location.origin}/?shop=${shop.id}`;
 
@@ -134,26 +135,30 @@ export function ShopSidebar({
       </div>
 
       {/* Fixed Bottom Action Bar */}
-      <div className='flex-shrink-0 bg-dark-bg/95 backdrop-blur-xl border-t border-dark-border/70 px-4 py-3 shadow-2xl select-none'>
-        <div className='grid grid-cols-3 gap-2.5'>
+      <div
+        onClick={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
+        className='flex-shrink-0 bg-dark-bg/95 backdrop-blur-xl border-t border-dark-border/70 px-4 py-3 shadow-2xl select-none'
+      >
+        <div className='grid grid-cols-3 gap-2'>
           <a
             href={getDirectionsUrl()}
             target='_blank'
             rel='noopener noreferrer'
-            className='flex items-center justify-center gap-2 py-2.5 px-3 rounded-full bg-amber-gold text-dark-bg font-bold hover:bg-amber-gold-hover transition-all text-xs shadow-md group active:scale-95 min-h-[42px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-dark-bg'
+            className='flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 px-3 rounded-full bg-amber-gold text-dark-bg font-bold hover:bg-amber-gold-hover transition-all text-xs shadow-md group active:scale-95 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-dark-bg'
           >
             <Navigation
               size={15}
-              className='fill-dark-bg group-hover:scale-110 transition-transform'
+              className='fill-dark-bg group-hover:scale-110 transition-transform flex-shrink-0'
             />
-            <span>Directions</span>
+            <span className='truncate'>Directions</span>
           </a>
 
           <button
             type='button'
             onClick={handleFavoriteClick}
             className={cn(
-              'flex items-center justify-center gap-2 py-2.5 px-3 rounded-full border transition-all text-xs font-semibold shadow-xs active:scale-95 min-h-[42px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-dark-bg',
+              'flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 px-3 rounded-full border transition-all text-xs font-semibold shadow-xs active:scale-95 min-h-[44px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-dark-bg',
               isFavorite
                 ? 'bg-rose-500/15 border-rose-500/40 text-rose-400 hover:bg-rose-500/25 hover:border-rose-500/60'
                 : 'bg-dark-roast/90 border-dark-border/80 text-soft-beige hover:text-cream-white hover:bg-white/10 hover:border-amber-gold/40'
@@ -162,21 +167,22 @@ export function ShopSidebar({
             <Heart
               size={15}
               className={cn(
-                'transition-all duration-200',
+                'transition-all duration-200 flex-shrink-0',
                 isFavorite ? 'fill-rose-500 text-rose-500' : 'text-warm-gray',
                 isHeartAnimating && 'scale-125'
               )}
             />
-            <span>{isFavorite ? 'Saved' : 'Save'}</span>
+            <span className='truncate'>{isFavorite ? 'Saved' : 'Save'}</span>
           </button>
 
           <button
             type='button'
             onClick={handleShare}
-            className='flex items-center justify-center gap-2 py-2.5 px-3 rounded-full bg-dark-roast/90 border border-dark-border/80 text-soft-beige hover:text-cream-white hover:bg-white/10 hover:border-amber-gold/40 transition-all text-xs font-semibold shadow-xs active:scale-95 min-h-[42px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-dark-bg'
+            onPointerDown={(e) => e.stopPropagation()}
+            className='flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 px-3 rounded-full bg-dark-roast/90 border border-dark-border/80 text-soft-beige hover:text-cream-white hover:bg-white/10 hover:border-amber-gold/40 transition-all text-xs font-semibold shadow-xs active:scale-95 min-h-[44px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-dark-bg'
           >
-            <Share2 size={15} className='text-amber-gold' />
-            <span>Share</span>
+            <Share2 size={15} className='text-amber-gold flex-shrink-0' />
+            <span className='truncate'>Share</span>
           </button>
         </div>
       </div>

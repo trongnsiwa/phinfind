@@ -44,8 +44,11 @@ import {
 } from '@/components/ui/alert-dialog';
 import { DetailSkeleton } from '@/components/common/LoadingSkeleton';
 import { useShopDetails } from '@/hooks/useShops';
+import { useAuth } from '@/hooks/useAuth';
 import { useShopStore } from '@/stores/useShopStore';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
+import { APP_ROUTES } from '@/lib/utils/constants';
 import { cn } from '@/lib/utils';
 
 const SAMPLE_IMAGES = [
@@ -81,6 +84,8 @@ const MOCK_REVIEWS = [
 
 export default function ShopDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
+  const router = useRouter();
+  const { isAuthenticated } = useAuth();
   const { data: shop, isLoading, error } = useShopDetails(resolvedParams.id);
   const { favorites, toggleFavorite } = useShopStore();
   const [showUnsaveDialog, setShowUnsaveDialog] = useState(false);
@@ -112,6 +117,17 @@ export default function ShopDetailPage({ params }: { params: Promise<{ id: strin
   const isOpen = shop.opening_hours?.open_now ?? true;
 
   const handleSaveClick = () => {
+    if (!isAuthenticated) {
+      toast('Sign in required', {
+        description: 'Sign in to start saving your favorite spots and share your coffee experiences.',
+        action: {
+          label: 'Sign in',
+          onClick: () => router.push(APP_ROUTES.LOGIN),
+        },
+      });
+      return;
+    }
+
     if (isFav) {
       setShowUnsaveDialog(true);
     } else {
