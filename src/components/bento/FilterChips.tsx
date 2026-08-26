@@ -34,14 +34,14 @@ export function FilterChips() {
         className={cn(
           'h-8 px-3 text-xs font-semibold rounded-full border transition-all duration-200 ease-out flex-shrink-0 flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-offset-0 focus-visible:scale-[1.01]',
           filters.openNowOnly
-            ? 'bg-[#7CAE8E] text-[#101010] border-[#7CAE8E] font-bold shadow-md shadow-[#7CAE8E]/25 hover:bg-[#8BBF9F] hover:text-[#101010] focus-visible:ring-[#7CAE8E] focus-visible:border-[#7CAE8E] focus-visible:shadow-[0_0_0_2px_rgba(124,174,142,0.35)]'
+            ? 'bg-teal text-[#101010] border-teal font-bold shadow-md shadow-teal/25 hover:bg-teal-hover hover:text-[#101010] focus-visible:ring-teal focus-visible:border-teal focus-visible:shadow-[0_0_0_2px_rgba(46,196,182,0.35)]'
             : 'bg-[#141414] text-white border-[#2A2A2A] hover:bg-white/10 hover:text-amber-gold-hover hover:border-amber-gold/40 focus-visible:ring-amber-gold/60 focus-visible:border-amber-gold/60 focus-visible:bg-white/10'
         )}
       >
         <span
           className={cn(
             'w-2 h-2 rounded-full flex-shrink-0 transition-colors duration-200',
-            filters.openNowOnly ? 'bg-[#101010]' : 'bg-[#7CAE8E] animate-pulse'
+            filters.openNowOnly ? 'bg-[#101010]' : 'bg-teal animate-pulse'
           )}
           aria-hidden="true"
         />
@@ -101,7 +101,7 @@ export function FilterChips() {
           size="sm"
           onClick={resetFilters}
           aria-label="Đặt lại tất cả bộ lọc"
-          className="h-8 px-3 text-xs text-[#D0D0D0] hover:text-white hover:bg-white/10 border border-transparent rounded-full flex-shrink-0 transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold/60 focus-visible:ring-offset-0 focus-visible:border-amber-gold/60"
+          className="h-8 px-3 text-xs text-[#D0D0D0] hover:text-teal hover:bg-teal/10 hover:border-teal/30 border border-transparent rounded-full flex-shrink-0 transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 focus-visible:ring-offset-0 focus-visible:border-teal/60"
         >
           <RotateCcw size={13} className="mr-1" />
           Đặt lại

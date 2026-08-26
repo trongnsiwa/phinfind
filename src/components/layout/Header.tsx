@@ -364,7 +364,7 @@ export function Header() {
                               </h4>
                               {shop.opening_hours?.open_now && (
                                 <span
-                                  className='w-1.5 h-1.5 rounded-full bg-[#7CAE8E] flex-shrink-0'
+                                  className='w-1.5 h-1.5 rounded-full bg-teal flex-shrink-0 animate-pulse'
                                   title='Đang mở cửa'
                                 />
                               )}

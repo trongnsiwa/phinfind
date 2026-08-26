@@ -124,14 +124,14 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
             className={cn(
               'h-8 px-2.5 sm:px-3 text-xs font-semibold rounded-full border transition-all duration-200 flex items-center gap-1.5 flex-shrink-0',
               filters.openNowOnly
-                ? 'bg-[#7CAE8E] text-[#101010] border-[#7CAE8E] font-bold shadow-md'
-                : 'bg-[#141414] text-white border-[#2A2A2A] hover:border-amber-gold/40 hover:text-amber-gold-hover'
+                ? 'bg-teal text-[#101010] border-teal font-bold shadow-md shadow-teal/20 hover:bg-teal-hover'
+                : 'bg-[#141414] text-white border-[#2A2A2A] hover:border-teal/40 hover:text-teal'
             )}
           >
             <span
               className={cn(
                 'w-1.5 h-1.5 rounded-full',
-                filters.openNowOnly ? 'bg-[#101010]' : 'bg-[#7CAE8E] animate-pulse'
+                filters.openNowOnly ? 'bg-[#101010]' : 'bg-teal animate-pulse'
               )}
             />
             <span className="hidden xs:inline sm:inline">Mở cửa</span>
@@ -205,7 +205,7 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
               onClick={resetFilters}
               aria-label="Đặt lại bộ lọc"
               title="Đặt lại bộ lọc"
-              className="h-8 w-8 text-[#D0D0D0] hover:text-white hover:bg-white/10 rounded-full flex-shrink-0"
+              className="h-8 w-8 text-[#D0D0D0] hover:text-teal hover:bg-teal/10 rounded-full flex-shrink-0"
             >
               <RotateCcw size={13} />
             </Button>

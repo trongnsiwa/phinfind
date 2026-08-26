@@ -202,7 +202,7 @@ export default function ProfilePage() {
           </div>
           <div className="flex justify-between items-center py-1">
             <span>Trạng thái PWA</span>
-            <Badge variant="outline" className="bg-green-100 text-green-700 border-green-200 font-bold text-[10px]">
+            <Badge variant="outline" className="bg-teal/20 text-teal border-teal/40 font-bold text-[10px]">
               Sẵn sàng / Trực tuyến
             </Badge>
           </div>

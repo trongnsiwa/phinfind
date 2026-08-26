@@ -134,11 +134,11 @@ export const ShopCardFeatured = memo(function ShopCardFeatured({
               className={cn(
                 'text-[9px] font-semibold px-2 py-0.5 rounded-full border backdrop-blur-md shadow-md',
                 isOpen
-                  ? 'bg-[#7CAE8E]/30 text-[#A3D9B1] border-[#7CAE8E]/40'
+                  ? 'bg-teal/20 text-teal border-teal/40'
                   : 'bg-[#C97A7A]/30 text-[#E8A5A5] border-[#C97A7A]/40'
               )}
             >
-              <span className={cn('w-1.5 h-1.5 rounded-full mr-1.5', isOpen ? 'bg-[#7CAE8E] animate-pulse' : 'bg-[#C97A7A]')} />
+              <span className={cn('w-1.5 h-1.5 rounded-full mr-1.5', isOpen ? 'bg-teal animate-pulse' : 'bg-[#C97A7A]')} />
               {isOpen ? 'Đang mở cửa' : 'Đã đóng cửa'}
             </Badge>
           )}

@@ -216,11 +216,11 @@ export default function ShopDetailPage({ params }: { params: Promise<{ id: strin
               className={cn(
                 'text-xs font-bold px-2.5 py-0.5 rounded-full border backdrop-blur-md shadow-sm',
                 isOpen
-                  ? 'bg-[#7CAE8E]/30 text-[#A3D9B1] border-[#7CAE8E]/50'
+                  ? 'bg-teal/20 text-teal border-teal/40'
                   : 'bg-[#C97A7A]/30 text-[#E8A5A5] border-[#C97A7A]/50'
               )}
             >
-              <span className={cn('w-1.5 h-1.5 rounded-full mr-1.5', isOpen ? 'bg-[#7CAE8E] animate-pulse' : 'bg-[#C97A7A]')} />
+              <span className={cn('w-1.5 h-1.5 rounded-full mr-1.5', isOpen ? 'bg-teal animate-pulse' : 'bg-[#C97A7A]')} />
               {isOpen ? 'Đang mở cửa' : 'Đã đóng cửa'}
             </Badge>
             {shop.price_range && (
@@ -286,9 +286,13 @@ export default function ShopDetailPage({ params }: { params: Promise<{ id: strin
               <div className="space-y-1.5">
                 <div className="flex justify-between text-xs text-[#D0D0D0] font-medium">
                   <span>Mức Độ Hài Lòng Của Khách Hàng</span>
-                  <span className="font-bold text-amber-gold">{ratingScorePercent}%</span>
+                  <span className="font-bold text-teal">{ratingScorePercent}%</span>
                 </div>
-                <Progress value={ratingScorePercent} className="h-2.5 bg-[#101010] border border-[#2A2A2A]" />
+                <Progress
+                  value={ratingScorePercent}
+                  indicatorClassName="bg-gradient-to-r from-teal to-teal-hover"
+                  className="h-2.5 bg-[#101010] border border-[#2A2A2A]"
+                />
               </div>
             </CardContent>
           </Card>
@@ -350,7 +354,7 @@ export default function ShopDetailPage({ params }: { params: Promise<{ id: strin
                 aria-label="Sao chép địa chỉ"
                 className="h-8 w-8 rounded-xl bg-[#141414] text-[#D0D0D0] hover:text-amber-gold border border-[#2A2A2A]/60 flex-shrink-0"
               >
-                {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+                {copied ? <Check size={14} className="text-teal" /> : <Copy size={14} />}
               </Button>
             </div>
 
@@ -442,7 +446,7 @@ export default function ShopDetailPage({ params }: { params: Promise<{ id: strin
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5">
                       <span className="font-bold text-white">{rev.author}</span>
-                      <CheckCircle2 size={12} className="text-emerald-400" />
+                      <CheckCircle2 size={12} className="text-teal" />
                     </div>
                     <span className="text-[10px] text-[#A0A0A0]">{rev.date}</span>
                   </div>

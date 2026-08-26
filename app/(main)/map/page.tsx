@@ -467,8 +467,8 @@ export default function MapPage() {
                     aria-checked={filters.openNowOnly}
                     onClick={() => setFilters({ openNowOnly: !filters.openNowOnly })}
                     className={cn(
-                      'w-11 h-6 rounded-full transition-colors relative p-0.5 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold',
-                      filters.openNowOnly ? 'bg-amber-gold' : 'bg-[#2A2A2A]'
+                      'w-11 h-6 rounded-full transition-colors relative p-0.5 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-teal',
+                      filters.openNowOnly ? 'bg-teal' : 'bg-[#2A2A2A]'
                     )}
                   >
                     <span

@@ -70,11 +70,11 @@ export function ShopCard({
             className={cn(
               'text-[10px] font-bold px-2.5 py-0.5 rounded-full border shadow-sm backdrop-blur-md',
               isOpen
-                ? 'bg-emerald-500/90 text-white border-emerald-400'
+                ? 'bg-teal/20 text-teal border-teal/40'
                 : 'bg-rose-500/90 text-white border-rose-400'
             )}
           >
-            <span className={cn('w-1.5 h-1.5 rounded-full mr-1 inline-block', isOpen ? 'bg-emerald-200 animate-pulse' : 'bg-rose-200')} />
+            <span className={cn('w-1.5 h-1.5 rounded-full mr-1 inline-block', isOpen ? 'bg-teal animate-pulse' : 'bg-rose-200')} />
             {isOpen ? 'Đang mở cửa' : 'Đã đóng cửa'}
           </Badge>
 

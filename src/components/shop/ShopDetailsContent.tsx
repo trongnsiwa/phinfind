@@ -323,10 +323,11 @@ export const OverviewTab = memo(function OverviewTab({
       <div className='bg-[#141414]/40 p-3.5 rounded-2xl border border-[#2A2A2A]/50 space-y-1.5'>
         <div className='flex items-center justify-between text-xs'>
           <span className='text-[#D0D0D0] font-medium'>Mức Độ Hài Lòng Của Khách Hàng</span>
-          <span className='font-bold text-amber-gold'>{ratingScorePercent}% hài lòng</span>
+          <span className='font-bold text-teal'>{ratingScorePercent}% hài lòng</span>
         </div>
         <Progress
           value={ratingScorePercent}
+          indicatorClassName='bg-gradient-to-r from-teal to-teal-hover'
           className='h-2 bg-[#101010] border border-[#2A2A2A]/50'
         />
         <div className='flex items-center justify-between text-[11px] text-[#A0A0A0] pt-0.5'>
@@ -356,7 +357,7 @@ export const OverviewTab = memo(function OverviewTab({
                 <span
                   className={cn(
                     'w-1.5 h-1.5 rounded-full',
-                    scheduleInfo.isOpenNow ? 'bg-[#7CAE8E] animate-pulse' : 'bg-[#C97A7A]'
+                    scheduleInfo.isOpenNow ? 'bg-teal animate-pulse' : 'bg-[#C97A7A]'
                   )}
                 />
               </div>
@@ -364,7 +365,7 @@ export const OverviewTab = memo(function OverviewTab({
                 <span
                   className={cn(
                     'font-semibold',
-                    scheduleInfo.isOpenNow ? 'text-[#A3D9B1]' : 'text-[#E8A5A5]'
+                    scheduleInfo.isOpenNow ? 'text-teal' : 'text-[#E8A5A5]'
                   )}
                 >
                   {scheduleInfo.isOpenNow ? 'Đang mở cửa' : 'Đã đóng cửa'}
@@ -501,7 +502,7 @@ export const OverviewTab = memo(function OverviewTab({
             aria-label='Sao chép địa chỉ'
             className='h-8 w-8 rounded-xl bg-[#101010]/80 text-[#D0D0D0] hover:text-amber-gold hover:bg-[#141414] border border-[#2A2A2A]/60 flex-shrink-0 cursor-pointer'
           >
-            {copied ? <Check size={14} className='text-emerald-400' /> : <Copy size={14} />}
+            {copied ? <Check size={14} className='text-teal' /> : <Copy size={14} />}
           </Button>
         </div>
 
@@ -1017,7 +1018,7 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
                   <div className='min-w-0 flex flex-col'>
                     <div className='flex items-center gap-1.5 min-w-0'>
                       <span className='font-bold text-white text-xs truncate'>{rev.author}</span>
-                      <CheckCircle2 size={12} className='text-emerald-400 flex-shrink-0' />
+                      <CheckCircle2 size={12} className='text-teal flex-shrink-0' />
                       {rev.isUserSubmission && (
                         <span className='text-[9px] bg-amber-gold text-[#101010] font-extrabold px-1.5 py-0.2 rounded uppercase tracking-wider flex-shrink-0'>
                           Bạn

@@ -17,7 +17,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       theme="dark"
       className="toaster group top-4 right-4 max-sm:left-4 max-sm:right-4 w-96 max-w-[90vw]"
       icons={{
-        success: <CircleCheck className="h-5 w-5 text-green-400 shrink-0" />,
+        success: <CircleCheck className="h-5 w-5 text-teal shrink-0" />,
         info: <Info className="h-5 w-5 text-amber-gold shrink-0" />,
         warning: <TriangleAlert className="h-5 w-5 text-orange-400 shrink-0" />,
         error: <OctagonX className="h-5 w-5 text-rose-400 shrink-0" />,

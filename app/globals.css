@@ -53,6 +53,9 @@
   /* Softened Dark Theme Palette (#101010) */
   --color-amber-gold: #D4A057;
   --color-amber-gold-hover: #E8B86D;
+  --color-teal: #2EC4B6;
+  --color-teal-hover: #22A699;
+  --color-teal-muted: rgba(46, 196, 182, 0.2);
   --color-dark-bg: #101010;
   --color-dark-roast: #141414;
   --color-dark-border: #2A2A2A;

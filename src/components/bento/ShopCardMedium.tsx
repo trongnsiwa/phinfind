@@ -78,11 +78,11 @@ export const ShopCardMedium = memo(function ShopCardMedium({
             className={cn(
               'absolute top-2.5 left-2.5 text-[9px] font-semibold px-2 py-0.5 rounded-full border backdrop-blur-md shadow-sm',
               isOpen
-                ? 'bg-[#7CAE8E]/25 text-[#A3D9B1] border-[#7CAE8E]/30'
+                ? 'bg-teal/20 text-teal border-teal/30'
                 : 'bg-[#C97A7A]/25 text-[#E8A5A5] border-[#C97A7A]/30'
             )}
           >
-            <span className={cn('w-1.5 h-1.5 rounded-full mr-1', isOpen ? 'bg-[#7CAE8E] animate-pulse' : 'bg-[#C97A7A]')} />
+            <span className={cn('w-1.5 h-1.5 rounded-full mr-1', isOpen ? 'bg-teal animate-pulse' : 'bg-[#C97A7A]')} />
             {isOpen ? 'Mở cửa' : 'Đóng cửa'}
           </Badge>
         )}
