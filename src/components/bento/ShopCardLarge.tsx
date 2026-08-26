@@ -53,7 +53,7 @@ export const ShopCardLarge = memo(function ShopCardLarge({
 
   const formatCategories = () => {
     if (!shop.categories || shop.categories.length === 0) {
-      return 'Artisan Vietnamese drip coffee, specialty roasts & tranquil courtyard workspace.';
+      return 'Cà phê phin truyền thống, hạt rang mộc đặc sản & không gian sân vườn thoáng đãng.';
     }
     const cleaned = shop.categories
       .map((c) => c.replace(/^catering\./, '').replace(/_/g, ' ').trim())
@@ -61,16 +61,16 @@ export const ShopCardLarge = memo(function ShopCardLarge({
       .map((c) => c.charAt(0).toUpperCase() + c.slice(1));
 
     if (cleaned.length === 0) {
-      return 'Artisan Vietnamese drip coffee, specialty roasts & tranquil courtyard workspace.';
+      return 'Cà phê phin truyền thống, hạt rang mộc đặc sản & không gian sân vườn thoáng đãng.';
     }
-    return `Specialty ${cleaned.join(' • ')} with artisan roasts & cozy atmosphere.`;
+    return `Cà phê đặc sản ${cleaned.join(' • ')} với hương vị nguyên bản & không gian ấm cúng.`;
   };
 
   const categoryTagline = formatCategories();
   const hasRating = typeof shop.rating === 'number' && shop.rating > 0;
   const hasTotalRatings = typeof shop.total_ratings === 'number' && shop.total_ratings > 0;
-  const distanceDisplay = shop.distance_text && shop.distance_text !== '0 m' ? shop.distance_text : 'Nearby';
-  const addressDisplay = shop.address?.trim() || 'Address unavailable';
+  const distanceDisplay = shop.distance_text && shop.distance_text !== '0 m' ? shop.distance_text : 'Gần đây';
+  const addressDisplay = shop.address?.trim() || 'Chưa có địa chỉ';
 
   return (
     <Card
@@ -135,7 +135,7 @@ export const ShopCardLarge = memo(function ShopCardLarge({
               )}
             >
               <span className={cn('w-1.5 h-1.5 rounded-full mr-1', isOpen ? 'bg-[#7CAE8E] animate-pulse' : 'bg-[#C97A7A]')} />
-              {isOpen ? 'Open Now' : 'Closed'}
+              {isOpen ? 'Đang mở cửa' : 'Đã đóng cửa'}
             </Badge>
           </div>
         )}
@@ -145,7 +145,7 @@ export const ShopCardLarge = memo(function ShopCardLarge({
           variant="ghost"
           size="icon"
           onClick={handleFav}
-          aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+          aria-label={isFavorite ? 'Xóa khỏi danh sách yêu thích' : 'Thêm vào danh sách yêu thích'}
           className="absolute top-2.5 right-2.5 z-10 h-7 w-7 rounded-full bg-[#101010]/80 backdrop-blur-md hover:bg-[#141414] border border-[#2A2A2A]/60 text-white shadow-md transition-all focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0"
         >
           <Heart
@@ -191,7 +191,7 @@ export const ShopCardLarge = memo(function ShopCardLarge({
             ) : (
               <>
                 <Star size={11} className="text-amber-gold/50 flex-shrink-0" />
-                <span className="font-medium text-[#D0D0D0] text-xs">New</span>
+                <span className="font-medium text-[#D0D0D0] text-xs">Mới</span>
               </>
             )}
           </div>
@@ -203,12 +203,12 @@ export const ShopCardLarge = memo(function ShopCardLarge({
 
           <div className="flex items-center gap-1 bg-[#101010]/60 p-1 rounded-lg border border-[#2A2A2A]/40 text-[#D0D0D0]/90 font-medium">
             <Clock size={11} className="text-amber-gold/80 flex-shrink-0" />
-            <span className="truncate text-[10px] sm:text-[11px]">{isOpen ? 'Closes 10:30 PM' : 'Opens 07:00 AM'}</span>
+            <span className="truncate text-[10px] sm:text-[11px]">{isOpen ? 'Đóng cửa 22:30' : 'Mở cửa 07:00'}</span>
           </div>
 
           <div className="flex items-center gap-1 bg-[#101010]/60 p-1 rounded-lg border border-[#2A2A2A]/40 text-[#D0D0D0]/90 font-medium">
             <Wifi size={11} className="text-[#D0D0D0]/70 flex-shrink-0" />
-            <span className="truncate text-[10px] sm:text-[11px]">{shop.price_range || '€€'} · Wi-Fi</span>
+            <span className="truncate text-[10px] sm:text-[11px]">{shop.price_range || '25k - 65k'} · Wi-Fi</span>
           </div>
         </div>
 
@@ -225,7 +225,7 @@ export const ShopCardLarge = memo(function ShopCardLarge({
               size="sm"
               className="h-7 px-2.5 text-xs bg-[#141414]/70 border-[#2A2A2A] text-white hover:text-amber-gold-hover hover:border-amber-gold/40 hover:bg-[#141414] rounded-xl font-medium transition-all"
             >
-              <Navigation size={11} className="mr-1 text-amber-gold" /> Directions
+              <Navigation size={11} className="mr-1 text-amber-gold" /> Chỉ đường
             </Button>
           </a>
 
@@ -235,7 +235,7 @@ export const ShopCardLarge = memo(function ShopCardLarge({
               size="sm"
               className="h-7 px-3 text-xs bg-amber-gold text-[#101010] hover:bg-amber-gold-hover rounded-xl font-bold transition-all shadow-md"
             >
-              Explore Details <ExternalLink size={11} className="ml-1 opacity-90" />
+              Xem chi tiết <ExternalLink size={11} className="ml-1 opacity-90" />
             </Button>
           </Link>
         </div>

@@ -11,8 +11,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'PhinFind - Discover Vietnamese Coffee',
-  description: 'Discover the best coffee shops near you with interactive maps and reviews',
+  title: 'PhinFind - Khám phá Cà phê Việt',
+  description: 'Khám phá những quán cà phê tuyệt vời nhất gần bạn với bản đồ tương tác và đánh giá chi tiết',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
@@ -34,7 +34,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable}`}>
+    <html lang="vi" className={`${inter.variable}`}>
       <body className="min-h-screen bg-background text-foreground antialiased selection:bg-phin-200">
         <ReactQueryProvider>
           {children}

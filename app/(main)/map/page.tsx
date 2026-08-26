@@ -138,15 +138,15 @@ export default function MapPage() {
 
   const handleRefetch = () => {
     refetchLocation();
-    toast.info('Updating location...');
+    toast.info('Đang cập nhật vị trí...');
   };
 
   const handleToggleFav = (placeId: string) => {
     if (!isAuthenticated) {
-      toast('Sign in required', {
-        description: 'Sign in to start saving your favorite spots and share your coffee experiences.',
+      toast('Yêu cầu đăng nhập', {
+        description: 'Đăng nhập để bắt đầu lưu lại các quán yêu thích và chia sẻ trải nghiệm cà phê của bạn.',
         action: {
-          label: 'Sign in',
+          label: 'Đăng nhập',
           onClick: () => router.push(APP_ROUTES.LOGIN),
         },
       });
@@ -156,9 +156,9 @@ export default function MapPage() {
     const isFav = favorites.includes(placeId);
     toggleFavorite(placeId);
     if (isFav) {
-      toast.info('Removed from favorites');
+      toast.info('Đã xóa khỏi danh sách yêu thích');
     } else {
-      toast.success('Shop saved to favorites!');
+      toast.success('Đã lưu quán vào danh sách yêu thích!');
     }
   };
 
@@ -229,7 +229,7 @@ export default function MapPage() {
         <Link
           href={APP_ROUTES.HOME}
           className="flex items-center gap-2 group rounded-2xl p-1 -m-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold transition-all duration-200 flex-shrink-0"
-          aria-label="PhinFind Homepage"
+          aria-label="Trang chủ PhinFind"
         >
           <span className="w-8.5 h-8.5 rounded-2xl bg-gradient-to-br from-amber-gold to-phin-600 text-[#101010] flex items-center justify-center font-bold text-base shadow-md group-hover:scale-105 transition-transform duration-200">
             ☕
@@ -239,24 +239,25 @@ export default function MapPage() {
               PhinFind
             </h1>
             <p className="text-[8px] sm:text-[9px] text-[#D0D0D0] tracking-wider font-semibold uppercase mt-0.5 group-hover:text-white transition-colors">
-              Coffee Map
+              Bản đồ Cà phê
             </p>
           </div>
         </Link>
 
         {/* Center: Location Pill (when search closed) OR Centered Search Bar (when search open) */}
+        {/* Center: Location Pill (when search closed) OR Centered Search Bar (when search open) */}
         {!isSearchOpen ? (
           <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 rounded-full bg-[#141414]/80 border border-[#2A2A2A]/80 text-xs shadow-xs max-w-[170px] xs:max-w-[220px] sm:max-w-xs truncate animate-in fade-in duration-150">
             <MapPin size={13} className="text-amber-gold flex-shrink-0" />
             <span className="font-semibold text-white truncate text-[11px] sm:text-xs">
-              {locationLoading ? 'Locating...' : locationName || 'Hà Nội'}
+              {locationLoading ? 'Đang định vị...' : locationName || 'Hà Nội'}
             </span>
             <span className="text-[10px] text-[#A0A0A0] flex-shrink-0">•</span>
             <Badge
               variant="outline"
               className="bg-amber-gold/15 text-amber-gold border-amber-gold/30 text-[10px] font-bold px-1.5 py-0 rounded-full flex-shrink-0"
             >
-              {filteredShops.length} spots
+              {filteredShops.length} quán
             </Badge>
           </div>
         ) : (
@@ -279,8 +280,8 @@ export default function MapPage() {
                   setSelectedIndex(-1);
                 }}
                 onKeyDown={handleSearchKeyDown}
-                placeholder="Search spots, streets, areas..."
-                aria-label="Search coffee shops"
+                placeholder="Tìm quán, đường phố, khu vực..."
+                aria-label="Tìm kiếm quán cà phê"
                 className="w-full h-8.5 pl-9 pr-8 text-xs bg-[#141414] text-white border-[#2A2A2A] rounded-xl focus-visible:ring-1 focus-visible:ring-amber-gold placeholder:text-[#A0A0A0] shadow-inner"
               />
               {localQuery && (
@@ -293,7 +294,7 @@ export default function MapPage() {
                     setSelectedIndex(-1);
                     searchInputRef.current?.focus();
                   }}
-                  aria-label="Clear search"
+                  aria-label="Xóa nội dung tìm kiếm"
                   className="absolute right-1.5 top-1/2 -translate-y-1/2 h-5.5 w-5.5 text-[#A0A0A0] hover:text-white hover:bg-[#2A2A2A]/80 rounded-full p-0 transition-colors cursor-pointer"
                 >
                   <X size={11} />
@@ -307,18 +308,18 @@ export default function MapPage() {
                 {isSearching ? (
                   <div className="py-5 text-center text-xs text-[#D0D0D0]/70 flex items-center justify-center gap-2 font-medium">
                     <span className="w-3 h-3 rounded-full border-2 border-amber-gold border-t-transparent animate-spin" />
-                    Searching spots...
+                    Đang tìm kiếm quán...
                   </div>
                 ) : searchResults.length === 0 ? (
                   <div className="py-5 text-center text-xs text-[#D0D0D0]/70">
-                    <p className="font-semibold text-white mb-0.5">No spots found</p>
-                    <p className="text-[10px]">Try searching by street or area</p>
+                    <p className="font-semibold text-white mb-0.5">Không tìm thấy quán nào</p>
+                    <p className="text-[10px]">Thử tìm kiếm theo tên đường hoặc khu vực</p>
                   </div>
                 ) : (
                   <>
                     <div className="px-2.5 py-1 text-[10px] font-bold text-[#D0D0D0]/60 uppercase tracking-wider flex items-center justify-between border-b border-[#2A2A2A]/40 mb-1">
-                      <span>Matching Spots</span>
-                      <span>{searchResults.length} results</span>
+                      <span>Quán Cà Phê Phù Hợp</span>
+                      <span>{searchResults.length} kết quả</span>
                     </div>
                     {searchResults.map((shop, index) => {
                       const isSelected = index === selectedIndex;
@@ -342,7 +343,7 @@ export default function MapPage() {
                             </h4>
                             <p className="text-[10px] text-[#D0D0D0]/80 truncate flex items-center gap-1 mt-0.5">
                               <MapPin size={9} className="text-amber-gold flex-shrink-0" />
-                              {shop.address || 'Address unavailable'}
+                              {shop.address || 'Chưa có địa chỉ'}
                             </p>
                           </div>
                           {hasRating && (
@@ -369,7 +370,7 @@ export default function MapPage() {
               variant="ghost"
               size="icon"
               onClick={() => setIsSearchOpen(true)}
-              aria-label="Search coffee shops (Cmd+K)"
+              aria-label="Tìm quán cà phê (Cmd+K)"
               className="h-8.5 w-8.5 rounded-full text-[#A0A0A0] hover:text-amber-gold hover:bg-white/5 border border-[#2A2A2A]/60 hover:border-amber-gold/40 transition-all flex-shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold"
             >
               <Search size={15} className="text-amber-gold" />
@@ -380,7 +381,7 @@ export default function MapPage() {
               variant="ghost"
               size="icon"
               onClick={handleCloseSearch}
-              aria-label="Close search"
+              aria-label="Đóng tìm kiếm"
               className="h-8.5 w-8.5 text-[#A0A0A0] hover:text-white hover:bg-[#2A2A2A]/80 rounded-xl p-0 flex-shrink-0 transition-colors cursor-pointer"
             >
               <X size={16} />
@@ -415,7 +416,7 @@ export default function MapPage() {
                 className="group flex items-center gap-2 px-3.5 py-2.5 h-11 rounded-full bg-[#101010]/90 backdrop-blur-md border border-[#2A2A2A]/80 hover:border-amber-gold/50 hover:bg-[#141414] text-white hover:text-amber-gold text-xs font-bold shadow-xl shadow-black/50 transition-all duration-200 active:scale-95 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold select-none"
               >
                 <SlidersHorizontal size={15} className="text-amber-gold group-hover:scale-110 transition-transform" />
-                <span className="text-white group-hover:text-amber-gold transition-colors">Filters</span>
+                <span className="text-white group-hover:text-amber-gold transition-colors">Bộ lọc</span>
                 {activeFilterCount > 0 && (
                   <span className="w-5 h-5 rounded-full bg-amber-gold text-[#101010] text-[10px] font-black flex items-center justify-center shadow-xs">
                     {activeFilterCount}
@@ -431,7 +432,7 @@ export default function MapPage() {
                 <div className="flex items-center justify-between pr-6">
                   <SheetTitle className="text-base font-bold text-white flex items-center gap-2">
                     <SlidersHorizontal size={16} className="text-amber-gold" />
-                    Map Quick Filters
+                    Bộ Lọc Nhanh Bản Đồ
                   </SheetTitle>
                   {activeFilterCount > 0 && (
                     <Button
@@ -441,12 +442,12 @@ export default function MapPage() {
                       className="text-xs text-[#A0A0A0] hover:text-amber-gold hover:bg-white/5 h-7 px-2 rounded-lg flex items-center gap-1 cursor-pointer"
                     >
                       <RotateCcw size={12} />
-                      <span>Reset</span>
+                      <span>Đặt lại</span>
                     </Button>
                   )}
                 </div>
                 <SheetDescription className="text-xs text-[#D0D0D0]/70">
-                  Filter and sort coffee spots displayed on the map in real-time.
+                  Lọc và sắp xếp các quán cà phê hiển thị trên bản đồ theo thời gian thực.
                 </SheetDescription>
               </SheetHeader>
 
@@ -456,8 +457,8 @@ export default function MapPage() {
                   <div className="flex items-center gap-2.5">
                     <Clock size={16} className="text-amber-gold" />
                     <div>
-                      <span className="text-xs font-bold text-white block">Open Now Only</span>
-                      <span className="text-[10px] text-[#D0D0D0]/70">Only show spots currently open</span>
+                      <span className="text-xs font-bold text-white block">Chỉ quán đang mở cửa</span>
+                      <span className="text-[10px] text-[#D0D0D0]/70">Chỉ hiển thị các quán đang phục vụ</span>
                     </div>
                   </div>
                   <button
@@ -481,10 +482,10 @@ export default function MapPage() {
 
                 {/* 2. Minimum Rating */}
                 <div className="space-y-1.5">
-                  <span className="text-xs font-semibold text-[#D0D0D0] block">Minimum Rating</span>
+                  <span className="text-xs font-semibold text-[#D0D0D0] block">Đánh giá tối thiểu</span>
                   <div className="grid grid-cols-3 gap-2">
                     {[
-                      { label: 'All Ratings', value: 0 },
+                      { label: 'Tất cả', value: 0 },
                       { label: '★ 4.0+', value: 4.0 },
                       { label: '★ 4.5+', value: 4.5 },
                     ].map((opt) => {
@@ -510,11 +511,11 @@ export default function MapPage() {
 
                 {/* 3. Sort Order */}
                 <div className="space-y-1.5">
-                  <span className="text-xs font-semibold text-[#D0D0D0] block">Sort By</span>
+                  <span className="text-xs font-semibold text-[#D0D0D0] block">Sắp xếp theo</span>
                   <div className="grid grid-cols-2 gap-2">
                     {[
-                      { label: '📍 Distance (Closest)', value: 'distance' as const },
-                      { label: '⭐ Rating (Highest)', value: 'rating' as const },
+                      { label: '📍 Khoảng cách (Gần nhất)', value: 'distance' as const },
+                      { label: '⭐ Đánh giá (Cao nhất)', value: 'rating' as const },
                     ].map((opt) => {
                       const isSelected = filters.sortBy === opt.value;
                       return (
@@ -542,7 +543,7 @@ export default function MapPage() {
                   onClick={() => setIsFilterSheetOpen(false)}
                   className="w-full h-10 bg-amber-gold hover:bg-amber-gold-hover text-[#101010] font-bold text-xs rounded-xl shadow-md transition-all active:scale-98 cursor-pointer mt-2"
                 >
-                  Apply & View {filteredShops.length} Spots
+                  Áp dụng &amp; Xem {filteredShops.length} quán
                 </Button>
               </div>
             </SheetContent>

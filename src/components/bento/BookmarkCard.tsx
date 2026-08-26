@@ -26,9 +26,9 @@ export function BookmarkCard() {
             <span className="font-sans font-bold text-2xl text-rose-950 leading-none">
               {favorites.length}
             </span>
-            <span className="text-[10px] text-rose-700 font-semibold uppercase tracking-wide">Saved</span>
+            <span className="text-[10px] text-rose-700 font-semibold uppercase tracking-wide">Đã lưu</span>
           </div>
-          <p className="text-[10px] text-rose-800/80 font-medium line-clamp-1 mt-0.5">Your bookmarked spots</p>
+          <p className="text-[10px] text-rose-800/80 font-medium line-clamp-1 mt-0.5">Các quán cà phê bạn yêu thích</p>
         </div>
       </Card>
     </Link>

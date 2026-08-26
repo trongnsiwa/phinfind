@@ -41,12 +41,12 @@ function SignupForm() {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password || !fullName) {
-      toast.error('Please fill in all fields.');
+      toast.error('Vui lòng điền đầy đủ các thông tin.');
       return;
     }
 
     if (password.length < 8) {
-      toast.error('Password must be at least 8 characters long.');
+      toast.error('Mật khẩu phải có ít nhất 8 ký tự.');
       return;
     }
 
@@ -63,27 +63,27 @@ function SignupForm() {
       });
 
       if (error) {
-        toast.error(error.message || 'Failed to create account');
+        toast.error(error.message || 'Tạo tài khoản thất bại');
         setIsLoading(false);
         return;
       }
 
       if (data?.session) {
-        toast.success('Account created successfully!');
+        toast.success('Tạo tài khoản thành công!');
         router.push(redirect);
         router.refresh();
       } else {
-        toast.info('Please check your email to confirm your account.');
+        toast.info('Vui lòng kiểm tra email để xác nhận tài khoản của bạn.');
         router.push(`/login${redirect && redirect !== '/' ? `?redirect=${encodeURIComponent(redirect)}` : ''}`);
       }
     } catch {
-      toast.error('An unexpected error occurred during registration');
+      toast.error('Đã xảy ra lỗi trong quá trình đăng ký');
       setIsLoading(false);
     }
   };
 
   const handleGoogleSignIn = () => {
-    toast.info('Google Sign-In is coming soon! Stay tuned ☕', {
+    toast.info('Tính năng Đăng ký bằng Google sẽ sớm ra mắt! Hãy đón chờ nhé ☕', {
       duration: 4000,
     });
   };
@@ -92,10 +92,10 @@ function SignupForm() {
     <Card className="border-0 shadow-none bg-transparent p-0">
       <CardHeader className="p-0 mb-6 sm:mb-8 space-y-1.5 text-left">
         <CardTitle className="font-sans font-bold text-2xl sm:text-3xl text-white tracking-tight">
-          Create Account
+          Tạo Tài Khoản
         </CardTitle>
         <CardDescription className="text-xs sm:text-sm text-[#D0D0D0]/80 leading-relaxed font-body">
-          Join PhinFind to start discovering authentic coffee spots
+          Tham gia PhinFind để bắt đầu khám phá những quán cà phê độc đáo
         </CardDescription>
       </CardHeader>
 
@@ -103,12 +103,12 @@ function SignupForm() {
         <form className="space-y-4" onSubmit={handleSignup}>
           <div className="space-y-2">
             <Label htmlFor="fullname" className="text-[#D0D0D0]/80 font-semibold text-xs uppercase tracking-wider">
-              Full Name
+              Họ và tên
             </Label>
             <Input
               id="fullname"
               type="text"
-              placeholder="e.g. Linh Nguyen"
+              placeholder="vd: Nguyễn Văn Linh"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               disabled={isLoading}
@@ -119,12 +119,12 @@ function SignupForm() {
 
           <div className="space-y-2">
             <Label htmlFor="email" className="text-[#D0D0D0]/80 font-semibold text-xs uppercase tracking-wider">
-              Email address
+              Địa chỉ email
             </Label>
             <Input
               id="email"
               type="email"
-              placeholder="you@example.com"
+              placeholder="ban@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={isLoading}
@@ -135,13 +135,13 @@ function SignupForm() {
 
           <div className="space-y-2">
             <Label htmlFor="password" className="text-[#D0D0D0]/80 font-semibold text-xs uppercase tracking-wider">
-              Password
+              Mật khẩu
             </Label>
             <div className="relative">
               <Input
                 id="password"
                 type={showPassword ? 'text' : 'password'}
-                placeholder="Minimum 8 characters"
+                placeholder="Tối thiểu 8 ký tự"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
@@ -156,7 +156,7 @@ function SignupForm() {
                 disabled={isLoading}
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-1 top-1/2 -translate-y-1/2 h-9 w-9 text-[#A0A0A0] hover:text-white hover:bg-white/5 rounded-lg cursor-pointer transition-colors"
-                aria-label="Toggle password visibility"
+                aria-label="Ẩn/hiện mật khẩu"
               >
                 {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
               </Button>
@@ -171,11 +171,11 @@ function SignupForm() {
             {isLoading ? (
               <span className="flex items-center gap-2">
                 <span className="w-4 h-4 rounded-full border-2 border-[#101010]/30 border-t-[#101010] animate-spin" />
-                Creating account...
+                Đang tạo tài khoản...
               </span>
             ) : (
               <span className="flex items-center gap-2">
-                <UserPlus size={16} /> Create Account
+                <UserPlus size={16} /> Tạo tài khoản
               </span>
             )}
           </Button>
@@ -183,14 +183,14 @@ function SignupForm() {
           {/* Security Reassurance Badge */}
           <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#A0A0A0] font-medium pt-0.5">
             <ShieldCheck size={13} className="text-amber-gold" />
-            <span>Free forever &amp; privacy guaranteed</span>
+            <span>Miễn phí trọn đời &amp; bảo mật thông tin</span>
           </div>
         </form>
 
         <div className="flex items-center gap-3 my-3">
           <div className="h-px bg-[#2A2A2A]/60 flex-1" />
           <span className="text-[10px] text-[#A0A0A0] font-bold uppercase tracking-wider select-none bg-transparent">
-            Or
+            Hoặc
           </span>
           <div className="h-px bg-[#2A2A2A]/60 flex-1" />
         </div>
@@ -220,16 +220,16 @@ function SignupForm() {
               d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
             />
           </svg>
-          Sign up with Google
+          Đăng ký bằng Google
         </Button>
 
         <p className="text-center text-xs text-[#D0D0D0]/80 pt-1">
-          Already have an account?{' '}
+          Đã có tài khoản?{' '}
           <Link
             href={`/login${redirect && redirect !== '/' ? `?redirect=${encodeURIComponent(redirect)}` : ''}`}
             className="text-amber-gold hover:text-amber-gold-hover font-semibold hover:underline underline-offset-2 transition-colors"
           >
-            Sign in
+            Đăng nhập
           </Link>
         </p>
       </CardContent>

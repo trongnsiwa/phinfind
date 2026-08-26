@@ -111,7 +111,7 @@ export function ImageOverlay() {
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Full-screen photo gallery"
+      aria-label="Bộ sưu tập ảnh toàn màn hình"
       onClick={handleBackdropClick}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
@@ -139,7 +139,7 @@ export function ImageOverlay() {
             e.stopPropagation();
             closeImagePreview();
           }}
-          aria-label="Close full-screen image viewer"
+          aria-label="Đóng trình xem ảnh"
           className="h-11 w-11 rounded-full bg-white/15 hover:bg-white/25 active:scale-90 text-white flex items-center justify-center transition-all border border-white/15 backdrop-blur-md shadow-xl cursor-pointer z-30 pointer-events-auto"
         >
           <X size={22} />
@@ -155,7 +155,7 @@ export function ImageOverlay() {
         {loading && !hasError && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-[#A0A0A0] pointer-events-none">
             <Loader2 size={36} className="animate-spin text-amber-gold" />
-            <span className="text-xs text-[#D0D0D0]">Loading image...</span>
+            <span className="text-xs text-[#D0D0D0]">Đang tải hình ảnh...</span>
           </div>
         )}
 
@@ -163,13 +163,13 @@ export function ImageOverlay() {
         {hasError ? (
           <div className="flex flex-col items-center justify-center gap-2 text-[#A0A0A0] py-12">
             <ImageIcon size={48} className="text-amber-gold/60" />
-            <p className="text-sm font-medium text-[#D0D0D0]">Failed to load full image</p>
+            <p className="text-sm font-medium text-[#D0D0D0]">Không thể tải hình ảnh</p>
           </div>
         ) : (
           <img
             key={currentImage?.url}
             src={currentImage?.url}
-            alt={currentImage?.title || `Photo ${currentIndex + 1}`}
+            alt={currentImage?.title || `Ảnh ${currentIndex + 1}`}
             onLoad={() => setLoading(false)}
             onError={() => {
               setLoading(false);
@@ -191,7 +191,7 @@ export function ImageOverlay() {
                 e.stopPropagation();
                 prevImagePreview();
               }}
-              aria-label="Previous photo"
+              aria-label="Ảnh trước"
               className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full bg-black/60 hover:bg-black/80 active:scale-90 text-white flex items-center justify-center transition-all border border-white/15 backdrop-blur-md shadow-xl z-20 cursor-pointer pointer-events-auto"
             >
               <ChevronLeft size={24} />
@@ -203,7 +203,7 @@ export function ImageOverlay() {
                 e.stopPropagation();
                 nextImagePreview();
               }}
-              aria-label="Next photo"
+              aria-label="Ảnh tiếp theo"
               className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full bg-black/60 hover:bg-black/80 active:scale-90 text-white flex items-center justify-center transition-all border border-white/15 backdrop-blur-md shadow-xl z-20 cursor-pointer pointer-events-auto"
             >
               <ChevronRight size={24} />
@@ -238,7 +238,7 @@ export function ImageOverlay() {
                     : 'border-white/10 opacity-50 hover:opacity-80 hover:border-white/30'
                 )}
               >
-                <img src={img.url} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" />
+                <img src={img.url} alt={`Ảnh thu nhỏ ${idx + 1}`} className="w-full h-full object-cover" />
               </button>
             ))}
           </div>

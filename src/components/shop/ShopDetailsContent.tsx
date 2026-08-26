@@ -25,33 +25,33 @@ import { CoffeeShop } from '@/types/shop';
 export const SAMPLE_GALLERY = [
   {
     url: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1200&q=80',
-    title: 'Warm Rustic Espresso Bar & Seating',
-    category: 'Interior'
+    title: 'Không gian ấm cúng & quầy espresso mộc mạc',
+    category: 'Không gian'
   },
   {
     url: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1200&q=80',
-    title: 'Signature Handcrafted Latte Art',
-    category: 'Coffee'
+    title: 'Nghệ thuật Latte Art đặc trưng',
+    category: 'Cà phê'
   },
   {
     url: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=1200&q=80',
-    title: 'Sunlit Window Study Nook with Natural Light',
-    category: 'Ambience'
+    title: 'Góc ngồi bên cửa sổ ngập tràn ánh sáng tự nhiên',
+    category: 'Không gian'
   },
   {
     url: 'https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&w=1200&q=80',
-    title: 'Artisan Vietnamese Phin Drip Station',
-    category: 'Coffee'
+    title: 'Góc pha cà phê phin đặc sản Việt Nam',
+    category: 'Cà phê'
   },
   {
     url: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=1200&q=80',
-    title: 'Quiet Second-Floor Laptop Work Sanctuary',
-    category: 'Workspace'
+    title: 'Không gian làm việc tầng 2 yên tĩnh',
+    category: 'Góc làm việc'
   },
   {
     url: 'https://images.unsplash.com/photo-1521017432531-fbd92d768814?auto=format&fit=crop&w=1200&q=80',
-    title: 'Breezy Balcony Garden Patio Seating',
-    category: 'Outdoor'
+    title: 'Ban công sân vườn thoáng đãng',
+    category: 'Ngoài trời'
   }
 ];
 
@@ -62,30 +62,30 @@ export const MOCK_REVIEWS = [
     avatar:
       'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80',
     rating: 5,
-    date: '2 days ago',
-    highlight: 'Best Salted Egg Coffee in Town',
+    date: '2 ngày trước',
+    highlight: 'Cà phê trứng muối ngon nhất khu vực',
     comment:
-      'The signature traditional phin drip with sweetened condensed milk and salted cream is phenomenal. Quiet second-floor space with fast Wi-Fi and plenty of outlets for remote work.'
+      'Cà phê phin truyền thống với sữa đặc và lớp kem trứng muối thật sự tuyệt vời. Tầng 2 yên tĩnh, Wi-Fi nhanh và nhiều ổ cắm tiện làm việc.'
   },
   {
     author: 'Thanh Tùng',
     avatar:
       'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80',
     rating: 5,
-    date: '1 week ago',
-    highlight: 'Cozy Work & Study Vibe',
+    date: '1 tuần trước',
+    highlight: 'Không gian làm việc & học tập ấm cúng',
     comment:
-      'Cozy, authentic vibes and friendly baristas. Great selection of specialty single-origin beans from Da Lat and refreshing cold brew.'
+      'Không gian ấm cúng, barista rất thân thiện. Quán có nhiều loại hạt cà phê đặc sản Đà Lạt và cold brew thanh mát.'
   },
   {
     author: 'Elena Rostova',
     avatar:
       'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=120&q=80',
     rating: 5,
-    date: '3 weeks ago',
-    highlight: 'Airy Ambience & Great Music',
+    date: '3 tuần trước',
+    highlight: 'Không gian thoáng đãng & nhạc hay',
     comment:
-      'Loved the sunlit ambiance and gentle acoustic playlist. Perfect spot for reading or casual coffee dates. Definitely try their homemade pastries!'
+      'Rất thích ánh sáng tự nhiên và playlist nhạc acoustic nhẹ nhàng của quán. Nơi lý tưởng để đọc sách hoặc hẹn hò cà phê.'
   }
 ];
 
@@ -111,13 +111,12 @@ function parseHHMM(timeStr: string): { hours: number; minutes: number; formatted
   const clean = timeStr.padStart(4, '0');
   const h = parseInt(clean.slice(0, 2), 10);
   const m = parseInt(clean.slice(2, 4), 10);
-  const period = h >= 12 ? 'PM' : 'AM';
-  const displayH = h % 12 === 0 ? 12 : h % 12;
+  const displayH = h < 10 ? `0${h}` : `${h}`;
   const displayM = m < 10 ? `0${m}` : `${m}`;
   return {
     hours: h,
     minutes: m,
-    formatted: `${displayH}:${displayM} ${period}`
+    formatted: `${displayH}:${displayM}`
   };
 }
 
@@ -127,13 +126,13 @@ export function getShopSchedule(openingHours?: CoffeeShop['opening_hours']): Com
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
   const DAYS_ORDER = [
-    { name: 'Monday', short: 'Mon', index: 1 },
-    { name: 'Tuesday', short: 'Tue', index: 2 },
-    { name: 'Wednesday', short: 'Wed', index: 3 },
-    { name: 'Thursday', short: 'Thu', index: 4 },
-    { name: 'Friday', short: 'Fri', index: 5 },
-    { name: 'Saturday', short: 'Sat', index: 6 },
-    { name: 'Sunday', short: 'Sun', index: 0 }
+    { name: 'Thứ Hai', short: 'T2', index: 1 },
+    { name: 'Thứ Ba', short: 'T3', index: 2 },
+    { name: 'Thứ Tư', short: 'T4', index: 3 },
+    { name: 'Thứ Năm', short: 'T5', index: 4 },
+    { name: 'Thứ Sáu', short: 'T6', index: 5 },
+    { name: 'Thứ Bảy', short: 'T7', index: 6 },
+    { name: 'Chủ Nhật', short: 'CN', index: 0 }
   ];
 
   const periods = openingHours?.periods;
@@ -150,7 +149,7 @@ export function getShopSchedule(openingHours?: CoffeeShop['opening_hours']): Com
           dayShort: d.short,
           dayIndex: d.index,
           isToday: d.index === currentDay,
-          timeText: 'Closed',
+          timeText: 'Đóng cửa',
           isOpenDay: false
         };
       }
@@ -170,7 +169,7 @@ export function getShopSchedule(openingHours?: CoffeeShop['opening_hours']): Com
 
     const todayPeriod = periods.find((p) => p.open.day === currentDay);
     let isOpenNow = false;
-    let statusText = 'Closed';
+    let statusText = 'Đã đóng cửa';
 
     if (todayPeriod) {
       const openTime = parseHHMM(todayPeriod.open.time);
@@ -180,17 +179,17 @@ export function getShopSchedule(openingHours?: CoffeeShop['opening_hours']): Com
 
       if (currentMinutes >= openMins && currentMinutes < closeMins) {
         isOpenNow = true;
-        statusText = `Open • Closes ${closeTime.formatted}`;
+        statusText = `Đang mở cửa • Đóng cửa lúc ${closeTime.formatted}`;
       } else if (currentMinutes < openMins) {
         isOpenNow = false;
-        statusText = `Closed • Opens ${openTime.formatted}`;
+        statusText = `Đã đóng cửa • Mở cửa lúc ${openTime.formatted}`;
       } else {
         isOpenNow = false;
-        statusText = 'Closed for the day';
+        statusText = 'Đã đóng cửa hôm nay';
       }
     } else {
       isOpenNow = false;
-      statusText = 'Closed today';
+      statusText = 'Đóng cửa hôm nay';
     }
 
     const todaySchedule = scheduleList.find((s) => s.isToday);
@@ -201,7 +200,7 @@ export function getShopSchedule(openingHours?: CoffeeShop['opening_hours']): Com
       scheduleList,
       todaySchedule,
       isApproximate: false,
-      peakVibeTime: '08:30 AM – 10:00 AM'
+      peakVibeTime: '08:30 – 10:00'
     };
   }
 
@@ -218,12 +217,12 @@ export function getShopSchedule(openingHours?: CoffeeShop['opening_hours']): Com
     dayShort: d.short,
     dayIndex: d.index,
     isToday: d.index === currentDay,
-    timeText: d.index === 0 || d.index === 6 ? '07:00 AM – 11:00 PM' : '07:00 AM – 10:30 PM',
+    timeText: d.index === 0 || d.index === 6 ? '07:00 – 23:00' : '07:00 – 22:30',
     isOpenDay: true
   }));
 
   const todaySchedule = scheduleList.find((s) => s.isToday);
-  const statusText = isOpenNow ? 'Open Now • Closes 10:30 PM' : 'Closed • Opens 07:00 AM';
+  const statusText = isOpenNow ? 'Đang mở cửa • Đóng cửa 22:30' : 'Đã đóng cửa • Mở cửa 07:00';
 
   return {
     isOpenNow,
@@ -231,7 +230,7 @@ export function getShopSchedule(openingHours?: CoffeeShop['opening_hours']): Com
     scheduleList,
     todaySchedule,
     isApproximate: true,
-    peakVibeTime: '08:30 AM – 10:00 AM'
+    peakVibeTime: '08:30 – 10:00'
   };
 }
 
@@ -255,13 +254,13 @@ export const OverviewTab = memo(function OverviewTab({
   const validRating = shop.rating && shop.rating > 0 ? shop.rating : 4.8;
   const ratingScorePercent = Math.min(Math.round((validRating / 5) * 100), 100);
   const distanceText =
-    shop.distance_text && shop.distance_text !== '0 m' ? shop.distance_text : 'Nearby';
+    shop.distance_text && shop.distance_text !== '0 m' ? shop.distance_text : 'Gần đây';
 
   const handleCopyAddress = () => {
     if (shop.address) {
       navigator.clipboard.writeText(shop.address);
       setCopied(true);
-      toast.success('Address copied to clipboard');
+      toast.success('Đã sao chép địa chỉ vào bộ nhớ tạm');
       setTimeout(() => setCopied(false), 2000);
     }
   };
@@ -273,10 +272,10 @@ export const OverviewTab = memo(function OverviewTab({
         <div className='flex items-center justify-between gap-2'>
           <div className='flex items-center gap-1.5 text-amber-gold font-bold text-xs tracking-wide flex-shrink-0'>
             <Flame size={14} className='text-amber-gold animate-pulse' />
-            <span>Popular Spot in Town</span>
+            <span>Quán Nổi Bật Được Yêu Thích</span>
           </div>
           <span className='text-[10.5px] text-[#D0D0D0]/90 bg-[#101010]/70 px-2 py-0.5 rounded-full border border-[#2A2A2A]/50 font-medium whitespace-nowrap'>
-            ⚡️ 32 coffee lovers checked in today
+            ⚡️ 32 tín đồ cà phê đã ghé hôm nay
           </span>
         </div>
         <p className='text-xs text-[#D0D0D0] leading-relaxed font-medium break-words'>{experienceTagline}</p>
@@ -289,13 +288,13 @@ export const OverviewTab = memo(function OverviewTab({
         </div>
         <div className='space-y-0.5 flex-1 min-w-0'>
           <span className='text-[10px] font-bold text-amber-gold uppercase tracking-wider block'>
-            Signature Recommendation
+            Gợi ý đặc biệt
           </span>
           <p className='text-xs font-semibold text-white leading-snug break-words'>
-            Traditional Phin Drip with Condensed Milk & Salted Cream Foam
+            Cà phê phin truyền thống với sữa đặc &amp; bọt kem trứng muối
           </p>
           <p className='text-[11px] text-[#D0D0D0]/75 break-words'>
-            Handcrafted with slow-dripped single-origin Da Lat beans.
+            Pha chế thủ công từ hạt cà phê đặc sản Đà Lạt chất lượng cao.
           </p>
         </div>
       </div>
@@ -304,34 +303,34 @@ export const OverviewTab = memo(function OverviewTab({
       <div className='grid grid-cols-2 gap-2'>
         <div className='flex items-center gap-2 bg-[#141414]/70 border border-[#2A2A2A]/60 p-2.5 rounded-xl text-[#D0D0D0] shadow-xs min-w-0'>
           <Wifi size={14} className='text-amber-gold flex-shrink-0' />
-          <span className='text-xs font-medium truncate'>Fast Wi-Fi</span>
+          <span className='text-xs font-medium truncate'>Wi-Fi Tốc Độ Cao</span>
         </div>
         <div className='flex items-center gap-2 bg-[#141414]/70 border border-[#2A2A2A]/60 p-2.5 rounded-xl text-[#D0D0D0] shadow-xs min-w-0'>
           <Zap size={14} className='text-amber-gold flex-shrink-0' />
-          <span className='text-xs font-medium truncate'>Charging Sockets</span>
+          <span className='text-xs font-medium truncate'>Ổ Cắm Điện</span>
         </div>
         <div className='flex items-center gap-2 bg-[#141414]/70 border border-[#2A2A2A]/60 p-2.5 rounded-xl text-[#D0D0D0] shadow-xs min-w-0'>
           <Wind size={14} className='text-amber-gold flex-shrink-0' />
-          <span className='text-xs font-medium truncate'>Air Conditioned</span>
+          <span className='text-xs font-medium truncate'>Điều Hòa Mát Lạnh</span>
         </div>
         <div className='flex items-center gap-2 bg-[#141414]/70 border border-[#2A2A2A]/60 p-2.5 rounded-xl text-[#D0D0D0] shadow-xs min-w-0'>
           <Sun size={14} className='text-amber-gold flex-shrink-0' />
-          <span className='text-xs font-medium truncate'>Outdoor Patio</span>
+          <span className='text-xs font-medium truncate'>Chỗ Ngồi Ngoài Trời</span>
         </div>
       </div>
 
       {/* 4. Explorer Satisfaction Rating Card */}
       <div className='bg-[#141414]/40 p-3.5 rounded-2xl border border-[#2A2A2A]/50 space-y-1.5'>
         <div className='flex items-center justify-between text-xs'>
-          <span className='text-[#D0D0D0] font-medium'>Explorer Satisfaction Rating</span>
-          <span className='font-bold text-amber-gold'>{ratingScorePercent}% positive</span>
+          <span className='text-[#D0D0D0] font-medium'>Mức Độ Hài Lòng Của Khách Hàng</span>
+          <span className='font-bold text-amber-gold'>{ratingScorePercent}% hài lòng</span>
         </div>
         <Progress
           value={ratingScorePercent}
           className='h-2 bg-[#101010] border border-[#2A2A2A]/50'
         />
         <div className='flex items-center justify-between text-[11px] text-[#A0A0A0] pt-0.5'>
-          <span>Based on {shop.total_ratings || 120}+ verified explorer ratings</span>
+          <span>Dựa trên {shop.total_ratings || 120}+ lượt đánh giá đã xác thực</span>
           <span className='text-amber-gold font-semibold'>★ {validRating.toFixed(1)} / 5.0</span>
         </div>
       </div>
@@ -352,7 +351,7 @@ export const OverviewTab = memo(function OverviewTab({
             <div className='min-w-0'>
               <div className='flex items-center gap-1.5'>
                 <span className='font-bold text-white text-xs block group-hover/hours:text-amber-gold transition-colors'>
-                  Opening Hours
+                  Giờ Mở Cửa
                 </span>
                 <span
                   className={cn(
@@ -368,12 +367,12 @@ export const OverviewTab = memo(function OverviewTab({
                     scheduleInfo.isOpenNow ? 'text-[#A3D9B1]' : 'text-[#E8A5A5]'
                   )}
                 >
-                  {scheduleInfo.isOpenNow ? 'Open Now' : 'Closed'}
+                  {scheduleInfo.isOpenNow ? 'Đang mở cửa' : 'Đã đóng cửa'}
                 </span>
                 {scheduleInfo.todaySchedule && (
                   <span className='text-[#D0D0D0]/65'>
                     {' '}
-                    • Today: {scheduleInfo.todaySchedule.timeText}
+                    • Hôm nay: {scheduleInfo.todaySchedule.timeText}
                   </span>
                 )}
               </p>
@@ -382,7 +381,7 @@ export const OverviewTab = memo(function OverviewTab({
 
           <div className='flex items-center gap-1.5 flex-shrink-0 bg-[#101010]/60 border border-[#2A2A2A]/40 px-2 py-1 rounded-xl group-hover/hours:border-amber-gold/40 transition-colors'>
             <span className='text-[10px] font-semibold text-amber-gold'>
-              {isHoursExpanded ? 'Hide' : 'See all'}
+              {isHoursExpanded ? 'Thu gọn' : 'Xem tất cả'}
             </span>
             <ChevronDown
               size={14}
@@ -407,8 +406,8 @@ export const OverviewTab = memo(function OverviewTab({
             <div className='flex items-center gap-2 bg-[#101010]/70 border border-[#2A2A2A]/40 px-3 py-2 rounded-xl text-[11px] text-amber-gold'>
               <Sparkles size={13} className='text-amber-gold flex-shrink-0' />
               <span className='font-medium'>
-                <strong className='text-white font-semibold'>Peak Vibe:</strong>{' '}
-                {scheduleInfo.peakVibeTime} — best time for slow pour-overs and calm seating.
+                <strong className='text-white font-semibold'>Thời điểm lý tưởng:</strong>{' '}
+                {scheduleInfo.peakVibeTime} — thời gian tuyệt nhất để thưởng thức cà phê và tận hưởng không gian yên tĩnh.
               </span>
             </div>
 
@@ -432,7 +431,7 @@ export const OverviewTab = memo(function OverviewTab({
                     <span className={cn(day.isToday && 'text-amber-gold')}>{day.dayName}</span>
                     {day.isToday && (
                       <span className='text-[9px] uppercase tracking-wider bg-amber-gold text-[#101010] px-1.5 py-0.2 rounded font-extrabold ml-1'>
-                        Today
+                        Hôm nay
                       </span>
                     )}
                   </div>
@@ -456,7 +455,7 @@ export const OverviewTab = memo(function OverviewTab({
             {shop.phone && (
               <div className='flex items-center gap-2.5'>
                 <Phone size={14} className='text-amber-gold flex-shrink-0' />
-                <span className='text-[11px] text-[#A0A0A0]'>Phone:</span>
+                <span className='text-[11px] text-[#A0A0A0]'>Điện thoại:</span>
                 <a
                   href={`tel:${shop.phone}`}
                   className='text-amber-gold hover:text-amber-gold-hover hover:underline transition-colors font-medium text-xs ml-auto'
@@ -489,17 +488,17 @@ export const OverviewTab = memo(function OverviewTab({
         <div className='flex items-start justify-between gap-2'>
           <div className='space-y-1 min-w-0'>
             <span className='text-[10px] font-bold text-amber-gold uppercase tracking-wider block'>
-              Physical Location
+              Địa Chỉ Quán
             </span>
             <p className='text-xs sm:text-sm font-semibold text-white leading-snug'>
-              {shop.address || 'Address information unavailable'}
+              {shop.address || 'Chưa có thông tin địa chỉ'}
             </p>
           </div>
           <Button
             variant='ghost'
             size='icon'
             onClick={handleCopyAddress}
-            aria-label='Copy address'
+            aria-label='Sao chép địa chỉ'
             className='h-8 w-8 rounded-xl bg-[#101010]/80 text-[#D0D0D0] hover:text-amber-gold hover:bg-[#141414] border border-[#2A2A2A]/60 flex-shrink-0 cursor-pointer'
           >
             {copied ? <Check size={14} className='text-emerald-400' /> : <Copy size={14} />}
@@ -510,7 +509,7 @@ export const OverviewTab = memo(function OverviewTab({
           <div className='bg-[#101010]/70 p-2.5 rounded-xl border border-[#2A2A2A]/40 flex items-center gap-2'>
             <Footprints size={15} className='text-amber-gold flex-shrink-0' />
             <div>
-              <span className='text-[10px] text-[#A0A0A0] block'>Distance</span>
+              <span className='text-[10px] text-[#A0A0A0] block'>Khoảng cách</span>
               <span className='font-bold text-white text-xs'>{distanceText}</span>
             </div>
           </div>
@@ -518,7 +517,7 @@ export const OverviewTab = memo(function OverviewTab({
           <div className='bg-[#101010]/70 p-2.5 rounded-xl border border-[#2A2A2A]/40 flex items-center gap-2'>
             <Compass size={15} className='text-amber-gold flex-shrink-0' />
             <div>
-              <span className='text-[10px] text-[#A0A0A0] block'>GPS Coordinates</span>
+              <span className='text-[10px] text-[#A0A0A0] block'>Tọa độ GPS</span>
               <span className='font-bold text-white text-xs'>
                 {shop.lat.toFixed(4)}, {shop.lon.toFixed(4)}
               </span>
@@ -534,7 +533,7 @@ export const OverviewTab = memo(function OverviewTab({
         >
           <Button className='w-full h-12 bg-gradient-to-r from-amber-gold to-[#E5B56D] text-[#101010] hover:brightness-110 font-bold text-sm rounded-xl shadow-lg shadow-amber-gold/20 transition-all transform active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer'>
             <Navigation size={16} className='fill-[#101010]' />
-            Go There Now • Open in Google Maps
+            Đến Quán Ngay • Mở Google Maps
           </Button>
         </a>
       </div>
@@ -545,9 +544,9 @@ export const OverviewTab = memo(function OverviewTab({
           <div className='flex items-center justify-between'>
             <span className='text-xs font-bold text-white flex items-center gap-1.5'>
               <Sparkles size={13} className='text-amber-gold' />
-              You Might Also Like
+              Có Thể Bạn Cũng Thích
             </span>
-            <span className='text-[11px] text-[#D0D0D0]/70'>Nearby spots</span>
+            <span className='text-[11px] text-[#D0D0D0]/70'>Quán cà phê lân cận</span>
           </div>
 
           <div className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
@@ -572,7 +571,7 @@ export const OverviewTab = memo(function OverviewTab({
                     <Star size={10} className='fill-amber-gold text-amber-gold' />
                     <span>{(simShop.rating || 4.5).toFixed(1)}</span>
                     <span>•</span>
-                    <span>{simShop.distance_text || 'Nearby'}</span>
+                    <span>{simShop.distance_text || 'Gần đây'}</span>
                   </div>
                 </div>
                 <ChevronRight
@@ -595,8 +594,8 @@ export const PhotosTab = memo(function PhotosTab({ shop }: { shop: CoffeeShop })
     if (shop.photos && shop.photos.length > 0) {
       return shop.photos.map((url, i) => ({
         url,
-        title: `${shop.name} - Photo ${i + 1}`,
-        category: i === 0 ? 'Featured' : i % 2 === 0 ? 'Interior' : 'Coffee'
+        title: `${shop.name} - Ảnh ${i + 1}`,
+        category: i === 0 ? 'Nổi bật' : i % 2 === 0 ? 'Không gian' : 'Cà phê'
       }));
     }
     return SAMPLE_GALLERY.map((g) => ({
@@ -609,16 +608,16 @@ export const PhotosTab = memo(function PhotosTab({ shop }: { shop: CoffeeShop })
     <div className='space-y-4 pb-16'>
       <div className='flex items-center justify-between'>
         <div>
-          <span className='text-xs font-bold text-white block'>Atmosphere & Gallery</span>
+          <span className='text-xs font-bold text-white block'>Không gian &amp; Hình ảnh</span>
           <span className='text-[11px] text-[#D0D0D0]/70'>
-            {photoList.length} curated explorer photos
+            {photoList.length} hình ảnh thực tế từ cộng đồng
           </span>
         </div>
         <Badge
           variant='outline'
           className='bg-[#141414] text-amber-gold border-[#2A2A2A] text-[10px] font-bold'
         >
-          Full-Screen View
+          Xem toàn màn hình
         </Badge>
       </div>
 
@@ -686,17 +685,17 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
         if (data.reviews && Array.isArray(data.reviews) && data.reviews.length > 0) {
           const formatted: ReviewItem[] = data.reviews.map((r: any) => ({
             id: r.id,
-            author: r.profiles?.full_name || r.profiles?.username || 'Verified Explorer',
+            author: r.profiles?.full_name || r.profiles?.username || 'Tín đồ cà phê',
             avatar:
               r.profiles?.avatar_url ||
               'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80',
             rating: r.rating,
-            date: new Date(r.created_at).toLocaleDateString(undefined, {
+            date: new Date(r.created_at).toLocaleDateString('vi-VN', {
               month: 'short',
               day: 'numeric',
               year: 'numeric'
             }),
-            highlight: 'Community Review',
+            highlight: 'Đánh giá từ cộng đồng',
             comment: r.comment
           }));
           if (isMounted) {
@@ -716,10 +715,10 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isAuthenticated || !user) {
-      toast('Sign in required', {
-        description: 'Sign in to share your coffee story with the community.',
+      toast('Yêu cầu đăng nhập', {
+        description: 'Đăng nhập để chia sẻ câu chuyện cà phê của bạn cùng cộng đồng.',
         action: {
-          label: 'Sign in',
+          label: 'Đăng nhập',
           onClick: () => router.push(APP_ROUTES.LOGIN),
         },
       });
@@ -727,12 +726,12 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
     }
 
     if (!rating || rating < 1 || rating > 5) {
-      toast.error('Please select a star rating between 1 and 5.');
+      toast.error('Vui lòng chọn số sao đánh giá từ 1 đến 5.');
       return;
     }
 
     if (!comment || comment.trim().length < 3) {
-      toast.error('Please write at least 3 characters for your review.');
+      toast.error('Vui lòng viết ít nhất 3 ký tự cho bài đánh giá của bạn.');
       return;
     }
 
@@ -752,20 +751,20 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to submit review');
+        throw new Error(data.error || 'Gửi đánh giá thất bại');
       }
 
       const newReview: ReviewItem = {
         id: data.review?.id || String(Date.now()),
         author:
-          profile?.full_name || user.user_metadata?.full_name || user.email?.split('@')[0] || 'You',
+          profile?.full_name || user.user_metadata?.full_name || user.email?.split('@')[0] || 'Bạn',
         avatar:
           profile?.avatar_url ||
           user.user_metadata?.avatar_url ||
           'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80',
         rating,
-        date: 'Just now',
-        highlight: 'Your Review',
+        date: 'Vừa xong',
+        highlight: 'Đánh giá của bạn',
         comment: comment.trim(),
         isUserSubmission: true
       };
@@ -774,9 +773,9 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
       setComment('');
       setRating(5);
       setIsFormOpen(false);
-      toast.success('Thank you! Your review has been posted.');
+      toast.success('Cảm ơn bạn! Đánh giá của bạn đã được đăng tải.');
     } catch (err: any) {
-      toast.error(err.message || 'Could not submit review. Please try again.');
+      toast.error(err.message || 'Không thể gửi đánh giá. Vui lòng thử lại.');
     } finally {
       setIsSubmitting(false);
     }
@@ -804,7 +803,7 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
             ))}
           </div>
           <span className='text-[10px] text-[#A0A0A0] font-medium leading-none'>
-            {totalReviews} Reviews
+            {totalReviews} Đánh giá
           </span>
         </div>
 
@@ -842,10 +841,10 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
             </div>
             <div className='min-w-0'>
               <span className='font-bold text-white text-xs block'>
-                Visited this coffee shop?
+                Bạn đã từng ghé quán cà phê này?
               </span>
               <p className='text-[11px] text-[#D0D0D0]/75 leading-tight'>
-                Share your impressions with the community.
+                Chia sẻ cảm nhận và trải nghiệm của bạn cùng cộng đồng.
               </p>
             </div>
           </div>
@@ -859,7 +858,7 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
               className='w-full bg-amber-gold/20 hover:bg-amber-gold/30 text-amber-gold hover:text-amber-gold-hover border-amber-gold/40 hover:border-amber-gold/60 text-xs font-bold rounded-xl py-2 h-9 flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer'
             >
               <LogIn size={14} />
-              <span>Sign in to write a review</span>
+              <span>Đăng nhập để viết đánh giá</span>
             </Button>
           </Link>
         </div>
@@ -871,7 +870,7 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
           <div className='flex items-center justify-between border-b border-[#2A2A2A]/50 pb-2'>
             <div className='flex items-center gap-2'>
               <Edit3 size={15} className='text-amber-gold' />
-              <span className='font-bold text-xs text-white'>Write Your Review</span>
+              <span className='font-bold text-xs text-white'>Viết Đánh Giá Của Bạn</span>
             </div>
             <button
               type='button'
@@ -883,7 +882,7 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
           </div>
 
           <div className='space-y-1'>
-            <span className='text-[11px] font-semibold text-[#D0D0D0] block'>Overall Rating</span>
+            <span className='text-[11px] font-semibold text-[#D0D0D0] block'>Đánh giá tổng quan</span>
             <div className='flex items-center gap-1.5 py-0.5'>
               {[1, 2, 3, 4, 5].map((star) => {
                 const active = (hoverRating || rating) >= star;
@@ -907,17 +906,17 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
                 );
               })}
               <span className='text-xs font-bold text-amber-gold ml-2'>
-                {hoverRating || rating} / 5 Stars
+                {hoverRating || rating} / 5 Sao
               </span>
             </div>
           </div>
 
           <div className='space-y-1'>
-            <span className='text-[11px] font-semibold text-[#D0D0D0] block'>Your Review</span>
+            <span className='text-[11px] font-semibold text-[#D0D0D0] block'>Cảm nhận của bạn</span>
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              placeholder='What did you think of the coffee roasts, seating comfort, Wi-Fi speed, or vibe?'
+              placeholder='Bạn cảm thấy thế nào về hương vị cà phê, chỗ ngồi, tốc độ Wi-Fi hay không gian quán?'
               rows={3}
               className='w-full bg-[#101010]/80 border border-[#2A2A2A]/80 rounded-xl p-2.5 text-xs text-white placeholder:text-[#A0A0A0]/60 focus:outline-none focus:border-amber-gold resize-none transition-colors'
             />
@@ -931,7 +930,7 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
               disabled={isSubmitting}
               className='text-xs text-[#A0A0A0] hover:text-white hover:bg-white/5 rounded-xl px-3 py-1.5 h-8 cursor-pointer'
             >
-              Cancel
+              Hủy
             </Button>
             <Button
               type='submit'
@@ -941,12 +940,12 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
               {isSubmitting ? (
                 <>
                   <Loader2 size={13} className='animate-spin' />
-                  Posting...
+                  Đang đăng...
                 </>
               ) : (
                 <>
                   <Send size={13} />
-                  Post Review
+                  Gửi đánh giá
                 </>
               )}
             </Button>
@@ -962,16 +961,16 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
                   user?.user_metadata?.avatar_url ||
                   'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80'
                 }
-                alt='Your avatar'
+                alt='Ảnh đại diện của bạn'
                 className='w-full h-full object-cover'
               />
             </div>
             <div className='min-w-0'>
               <span className='text-xs font-bold text-white block truncate'>
-                Review as {profile?.full_name || user?.user_metadata?.full_name || 'Explorer'}
+                Đánh giá với tư cách {profile?.full_name || user?.user_metadata?.full_name || 'Tín đồ cà phê'}
               </span>
               <p className='text-[11px] text-[#D0D0D0]/70 truncate'>
-                Share your impressions with the community
+                Chia sẻ cảm nhận của bạn cùng cộng đồng
               </p>
             </div>
           </div>
@@ -981,7 +980,7 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
             className='bg-amber-gold hover:bg-amber-gold-hover text-[#101010] font-bold text-xs rounded-xl px-3 py-1.5 h-8.5 shadow-md flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer flex-shrink-0'
           >
             <Edit3 size={13} />
-            <span>Write Review</span>
+            <span>Viết đánh giá</span>
           </Button>
         </div>
       )}
@@ -989,7 +988,7 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
       {/* Review Comments Feed */}
       <div className='space-y-2.5'>
         <span className='text-xs font-bold text-white block'>
-          Community Highlights & Stories ({reviewsList.length})
+          Đánh giá &amp; Trải nghiệm cộng đồng ({reviewsList.length})
         </span>
         <div className='grid grid-cols-1 gap-2.5'>
           {reviewsList.map((rev, idx) => (
@@ -1021,7 +1020,7 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
                       <CheckCircle2 size={12} className='text-emerald-400 flex-shrink-0' />
                       {rev.isUserSubmission && (
                         <span className='text-[9px] bg-amber-gold text-[#101010] font-extrabold px-1.5 py-0.2 rounded uppercase tracking-wider flex-shrink-0'>
-                          You
+                          Bạn
                         </span>
                       )}
                     </div>
@@ -1053,51 +1052,51 @@ export const AmenitiesTab = memo(function AmenitiesTab() {
   const amenitiesList = [
     {
       icon: Wifi,
-      title: 'High-Speed Wi-Fi',
-      desc: '100+ Mbps connection optimized for remote work, video calls & browsing',
+      title: 'Wi-Fi Tốc Độ Cao',
+      desc: 'Kết nối 100+ Mbps tối ưu cho làm việc từ xa, gọi video và lướt web',
       badge: '100 Mbps'
     },
     {
       icon: Zap,
-      title: 'Plentiful Power Outlets',
-      desc: 'Accessible charging sockets located at almost every table and booth',
-      badge: 'At Tables'
+      title: 'Nhiều Ổ Cắm Điện',
+      desc: 'Ổ cắm sạc thuận tiện bố trí tại hầu hết các bàn và góc ngồi',
+      badge: 'Tại các bàn'
     },
     {
       icon: Wind,
-      title: 'Air Conditioned Sanctuary',
-      desc: 'Cool and comfortable indoor temperature year-round',
-      badge: 'Cool Vibe'
+      title: 'Không Gian Điều Hòa Mát Lạnh',
+      desc: 'Nhiệt độ phòng luôn mát mẻ và dễ chịu quanh năm',
+      badge: 'Mát mẻ'
     },
     {
       icon: Sun,
-      title: 'Balcony & Garden Seating',
-      desc: 'Breezy open-air outdoor tables surrounded by lush greenery',
-      badge: 'Scenic'
+      title: 'Ban Công & Sân Vườn',
+      desc: 'Khu vực bàn ngoài trời thoáng đãng rợp bóng cây xanh',
+      badge: 'Thoáng đãng'
     },
     {
       icon: Coffee,
-      title: 'Specialty Single-Origin Roasts',
-      desc: 'Authentic Da Lat Robusta & Arabica beans roasted to perfection',
-      badge: 'Da Lat Beans'
+      title: 'Hạt Cà Phê Đặc Sản Nguyên Bản',
+      desc: 'Hạt Robusta & Arabica Cầu Đất, Đà Lạt được rang mộc tỉ mỉ',
+      badge: 'Hạt Đà Lạt'
     },
     {
       icon: CupSoda,
-      title: 'Signature Artisan Drinks',
-      desc: 'Traditional egg coffee, coconut coffee, matcha latte & cold brews',
-      badge: 'Must Try'
+      title: 'Đồ Uống Thủ Công Đặc Trưng',
+      desc: 'Cà phê trứng, cà phê cốt dừa, matcha latte và cold brew',
+      badge: 'Món phải thử'
     },
     {
       icon: CreditCard,
-      title: 'Contactless Payments',
-      desc: 'VietQR, Apple Pay, Visa, Mastercard & cash all welcome',
-      badge: 'All Accepted'
+      title: 'Thanh Toán Không Tiền Mặt',
+      desc: 'Hỗ trợ VietQR, Apple Pay, Visa, Mastercard và tiền mặt',
+      badge: 'Đa dạng'
     },
     {
       icon: Utensils,
-      title: 'Fresh Bakery & Light Bites',
-      desc: 'Warm croissants, artisan banh mi, and homemade pastries',
-      badge: 'Fresh Daily'
+      title: 'Bánh Ngọt & Đồ Ăn Nhẹ',
+      desc: 'Bánh sừng bò nóng hổi, bánh mì thủ công và bánh ngọt tươi mỗi ngày',
+      badge: 'Tươi mỗi ngày'
     }
   ];
 
@@ -1131,7 +1130,7 @@ export const AmenitiesTab = memo(function AmenitiesTab() {
       <div className='bg-[#141414]/30 p-3.5 rounded-2xl border border-[#2A2A2A]/40 text-xs text-[#D0D0D0]/85'>
         <p className='flex items-center gap-2 font-medium text-xs'>
           <Sparkles size={14} className='text-amber-gold flex-shrink-0' />
-          Atmosphere: Laptop-friendly, quiet study zones & relaxing lounge seating.
+          Không gian: Thân thiện với laptop, khu vực học tập yên tĩnh &amp; chỗ ngồi thư giãn.
         </p>
       </div>
     </div>
@@ -1167,7 +1166,7 @@ export function ShopDetailsContent({
   const scheduleInfo = useMemo(() => getShopSchedule(shop.opening_hours), [shop.opening_hours]);
 
   const experienceTagline = useMemo(() => {
-    return `Cozy artisan coffeehouse with specialty single-origin roasts, inviting study nooks & handcrafted brews.`;
+    return `Quán cà phê thủ công ấm cúng với các mẻ rang đặc sản, góc ngồi học tập yên tĩnh & đồ uống thơm ngon.`;
   }, []);
 
   const similarShops = useMemo(() => {
@@ -1183,8 +1182,8 @@ export function ShopDetailsContent({
     if (shop.photos && shop.photos.length > 0) {
       return shop.photos.map((url, i) => ({
         url,
-        title: `${shop.name} - Photo ${i + 1}`,
-        category: i === 0 ? 'Featured' : i % 2 === 0 ? 'Interior' : 'Coffee'
+        title: `${shop.name} - Ảnh ${i + 1}`,
+        category: i === 0 ? 'Nổi bật' : i % 2 === 0 ? 'Không gian' : 'Cà phê'
       }));
     }
     return SAMPLE_GALLERY.map((g) => ({
@@ -1195,7 +1194,7 @@ export function ShopDetailsContent({
 
   const hasRating = typeof shop.rating === 'number' && shop.rating > 0;
   const distanceText =
-    shop.distance_text && shop.distance_text !== '0 m' ? shop.distance_text : 'Nearby';
+    shop.distance_text && shop.distance_text !== '0 m' ? shop.distance_text : 'Gần đây';
   const isOpenNow = scheduleInfo.isOpenNow;
 
   return (
@@ -1211,7 +1210,7 @@ export function ShopDetailsContent({
           {imgError || !galleryPhotos[0]?.url ? (
             <div className='w-full h-full flex flex-col items-center justify-center text-[#A0A0A0] bg-[#141414]'>
               <Coffee size={36} className='text-amber-gold mb-2 opacity-80 animate-pulse' />
-              <span className='text-xs font-medium text-white'>PhinFind Coffee Spotlight</span>
+              <span className='text-xs font-medium text-white'>Tiêu điểm Cà phê PhinFind</span>
             </div>
           ) : (
             <div className='w-full h-full flex gap-1 p-1 bg-[#101010]/60'>
@@ -1229,7 +1228,7 @@ export function ShopDetailsContent({
                 <div className='absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-2.5'>
                   <span className='text-xs font-bold text-white drop-shadow-md flex items-center gap-1.5'>
                     <Images size={13} className='text-amber-gold' />
-                    <span>View photo gallery</span>
+                    <span>Xem bộ sưu tập ảnh</span>
                   </span>
                 </div>
               </div>
@@ -1243,7 +1242,7 @@ export function ShopDetailsContent({
                     <img
                       draggable={false}
                       src={galleryPhotos[1]?.url}
-                      alt={`${shop.name} - Photo 2`}
+                      alt={`${shop.name} - Ảnh 2`}
                       className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 select-none pointer-events-auto [user-drag:none] [-webkit-user-drag:none]'
                     />
                   </div>
@@ -1255,13 +1254,13 @@ export function ShopDetailsContent({
                     <img
                       draggable={false}
                       src={galleryPhotos[2]?.url}
-                      alt={`${shop.name} - Photo 3`}
+                      alt={`${shop.name} - Ảnh 3`}
                       className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 select-none pointer-events-auto [user-drag:none] [-webkit-user-drag:none]'
                     />
                     {galleryPhotos.length > 3 && (
                       <div className='absolute inset-0 bg-black/65 backdrop-blur-[1px] flex items-center justify-center text-amber-gold font-bold text-xs tracking-tight gap-1 hover:bg-black/50 transition-colors pointer-events-none'>
                         <Images size={12} className='text-amber-gold' />
-                        <span>+{galleryPhotos.length - 2} more</span>
+                        <span>+{galleryPhotos.length - 2} ảnh</span>
                       </div>
                     )}
                   </div>
@@ -1279,7 +1278,7 @@ export function ShopDetailsContent({
 
           <div className='text-xs text-[#D0D0D0]/85 flex items-start gap-1.5'>
             <MapPin size={13} className='text-amber-gold flex-shrink-0 mt-0.5' />
-            <span className='break-words leading-relaxed'>{shop.address || 'Address unavailable'}</span>
+            <span className='break-words leading-relaxed'>{shop.address || 'Chưa có địa chỉ'}</span>
           </div>
 
           {/* Quick Metrics Bar */}
@@ -1319,7 +1318,7 @@ export function ShopDetailsContent({
               className='bg-[#141414] text-[#D0D0D0] border-[#2A2A2A] flex items-center gap-1 font-medium text-[11px] py-0.5 px-2 rounded-xl shadow-xs'
             >
               <Clock size={11} className='text-amber-gold/80' />
-              <span>{isOpenNow ? 'Open Now' : 'Closed'}</span>
+              <span>{isOpenNow ? 'Đang mở cửa' : 'Đã đóng cửa'}</span>
             </Badge>
           </div>
         </div>
@@ -1331,25 +1330,25 @@ export function ShopDetailsContent({
               value='overview'
               className='flex-1 pb-2 pt-1 px-1 font-semibold text-xs text-[#D0D0D0]/70 hover:text-white data-[state=active]:text-amber-gold data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-amber-gold rounded-none transition-all cursor-pointer'
             >
-              Overview
+              Tổng quan
             </TabsTrigger>
             <TabsTrigger
               value='photos'
               className='flex-1 pb-2 pt-1 px-1 font-semibold text-xs text-[#D0D0D0]/70 hover:text-white data-[state=active]:text-amber-gold data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-amber-gold rounded-none transition-all cursor-pointer'
             >
-              Photos
+              Hình ảnh
             </TabsTrigger>
             <TabsTrigger
               value='reviews'
               className='flex-1 pb-2 pt-1 px-1 font-semibold text-xs text-[#D0D0D0]/70 hover:text-white data-[state=active]:text-amber-gold data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-amber-gold rounded-none transition-all cursor-pointer'
             >
-              Reviews
+              Đánh giá
             </TabsTrigger>
             <TabsTrigger
               value='amenities'
               className='flex-1 pb-2 pt-1 px-1 font-semibold text-xs text-[#D0D0D0]/70 hover:text-white data-[state=active]:text-amber-gold data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-amber-gold rounded-none transition-all cursor-pointer'
             >
-              Amenities
+              Tiện ích
             </TabsTrigger>
           </TabsList>
         </div>

@@ -75,7 +75,7 @@ export function ShopCard({
             )}
           >
             <span className={cn('w-1.5 h-1.5 rounded-full mr-1 inline-block', isOpen ? 'bg-emerald-200 animate-pulse' : 'bg-rose-200')} />
-            {isOpen ? 'Open Now' : 'Closed'}
+            {isOpen ? 'Đang mở cửa' : 'Đã đóng cửa'}
           </Badge>
 
           {shop.price_range && (
@@ -90,7 +90,7 @@ export function ShopCard({
           variant="ghost"
           size="icon"
           onClick={handleFavoriteClick}
-          aria-label={isFavorite ? 'Remove from favorites' : 'Save to favorites'}
+          aria-label={isFavorite ? 'Xóa khỏi danh sách yêu thích' : 'Thêm vào danh sách yêu thích'}
           className="absolute top-3 right-3 z-10 h-8 w-8 rounded-full bg-white/90 backdrop-blur-md hover:bg-white text-phin-700 shadow-sm transition-transform active:scale-95"
         >
           <Heart
@@ -110,7 +110,7 @@ export function ShopCard({
           </h3>
           <p className="text-[11px] text-phin-100/90 flex items-center gap-1 mt-0.5 line-clamp-1 drop-shadow-sm">
             <MapPin size={12} className="text-phin-300 flex-shrink-0" />
-            {shop.address}
+            {shop.address || 'Chưa có địa chỉ'}
           </p>
         </div>
       </div>
@@ -127,7 +127,7 @@ export function ShopCard({
 
             <span className="text-phin-600 font-medium text-[11px] flex items-center gap-1">
               <Footprints size={12} className="text-phin-500" />
-              {shop.distance_text}
+              {shop.distance_text || 'Gần đây'}
             </span>
           </div>
 
@@ -141,13 +141,13 @@ export function ShopCard({
             >
               <Button variant="outline" size="sm" className="h-7 px-2.5 text-[11px] border-phin-200 text-phin-800 hover:bg-phin-100 rounded-lg">
                 <Navigation size={11} className="mr-1 text-primary" />
-                Nav
+                Chỉ đường
               </Button>
             </a>
 
             <Link href={APP_ROUTES.SHOP_DETAIL(shop.id)} onClick={(e) => e.stopPropagation()}>
               <Button variant="default" size="sm" className="h-7 px-2.5 text-[11px] bg-phin-800 text-white hover:bg-phin-900 rounded-lg font-semibold">
-                View
+                Xem
                 <ExternalLink size={10} className="ml-1 opacity-70" />
               </Button>
             </Link>

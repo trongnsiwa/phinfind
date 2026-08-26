@@ -31,7 +31,7 @@ export function MapPreviewCard({
       <div className="absolute top-3 left-3 z-[400] flex items-center gap-1.5">
         <Badge variant="secondary" className="bg-white/95 backdrop-blur-md text-phin-900 shadow-md border border-phin-200 px-3 py-1 font-bold text-xs">
           <MapPin size={13} className="mr-1 text-primary inline" />
-          {shops.length} Nearby Spots
+          {shops.length} Quán gần đây
         </Badge>
       </div>
 
@@ -43,7 +43,7 @@ export function MapPreviewCard({
           className="h-8 px-2.5 bg-white/95 backdrop-blur-md text-phin-900 border-phin-200 shadow-md text-xs font-semibold hover:bg-phin-50 rounded-xl"
         >
           <Maximize2 size={13} className="mr-1 text-primary" />
-          Full Map
+          Xem bản đồ lớn
         </Button>
       </div>
 

@@ -50,9 +50,9 @@ export function ShopList({
     return (
       <div className="text-center py-12 px-4 rounded-3xl bg-[#141414]/90 border border-[#2A2A2A]/80 shadow-md space-y-2">
         <span className="text-4xl">☕</span>
-        <h3 className="text-lg font-bold text-white font-sans">No Coffee Shops Found</h3>
+        <h3 className="text-lg font-bold text-white font-sans">Không Tìm Thấy Quán Cà Phê Nào</h3>
         <p className="text-sm text-[#D0D0D0]/80 max-w-sm mx-auto">
-          Try expanding your search radius or clearing active filters to discover nearby spots.
+          Thử mở rộng bán kính tìm kiếm hoặc đặt lại các bộ lọc đang chọn để khám phá các quán gần bạn.
         </p>
       </div>
     );

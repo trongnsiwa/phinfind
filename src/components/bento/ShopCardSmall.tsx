@@ -45,8 +45,8 @@ export const ShopCardSmall = memo(function ShopCardSmall({
   const coverImage = shop.photos?.[0] || sampleImages[charCodeSum % sampleImages.length];
 
   const hasRating = typeof shop.rating === 'number' && shop.rating > 0;
-  const distanceDisplay = shop.distance_text && shop.distance_text !== '0 m' ? shop.distance_text : 'Nearby';
-  const addressDisplay = shop.address?.trim() || 'Address unavailable';
+  const distanceDisplay = shop.distance_text && shop.distance_text !== '0 m' ? shop.distance_text : 'Gần đây';
+  const addressDisplay = shop.address?.trim() || 'Chưa có địa chỉ';
 
   return (
     <Card
@@ -83,7 +83,7 @@ export const ShopCardSmall = memo(function ShopCardSmall({
             )}
           >
             <span className={cn('w-1.5 h-1.5 rounded-full mr-1', isOpen ? 'bg-[#7CAE8E] animate-pulse' : 'bg-[#C97A7A]')} />
-            {isOpen ? 'Open' : 'Closed'}
+            {isOpen ? 'Mở cửa' : 'Đóng cửa'}
           </Badge>
         )}
 
@@ -92,7 +92,7 @@ export const ShopCardSmall = memo(function ShopCardSmall({
           variant="ghost"
           size="icon"
           onClick={handleFav}
-          aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+          aria-label={isFavorite ? 'Xóa khỏi danh sách yêu thích' : 'Thêm vào danh sách yêu thích'}
           className="absolute top-2.5 right-2.5 z-10 h-7 w-7 rounded-full bg-[#101010]/70 backdrop-blur-md hover:bg-[#141414] border border-[#2A2A2A]/50 text-white shadow-sm transition-all focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0"
         >
           <Heart
@@ -118,10 +118,10 @@ export const ShopCardSmall = memo(function ShopCardSmall({
 
           <div className="flex items-center gap-1.5 text-[10px] text-[#D0D0D0]/70 mt-1 font-medium">
             <Clock size={10} className="text-amber-gold/75 flex-shrink-0" />
-            <span className="truncate">{isOpen ? 'Closes 10:30 PM' : 'Opens 07:00 AM'}</span>
+            <span className="truncate">{isOpen ? 'Đóng cửa 22:30' : 'Mở cửa 07:00'}</span>
             <span className="text-[#2A2A2A]">•</span>
             <Wifi size={10} className="text-[#D0D0D0]/70 flex-shrink-0" />
-            <span className="truncate">{shop.price_range || '€€'}</span>
+            <span className="truncate">{shop.price_range || '25k - 65k'}</span>
           </div>
         </div>
 
@@ -135,7 +135,7 @@ export const ShopCardSmall = memo(function ShopCardSmall({
             ) : (
               <>
                 <Star size={10} className="text-amber-gold/50" />
-                <span>New</span>
+                <span>Mới</span>
               </>
             )}
           </span>

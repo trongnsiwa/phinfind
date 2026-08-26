@@ -112,13 +112,13 @@ export function ShopDrawer({
       navigator
         .share({
           title: shop.name,
-          text: `Check out ${shop.name} on PhinFind!`,
+          text: `Khám phá quán cà phê ${shop.name} trên PhinFind!`,
           url
         })
         .catch(() => {});
     } else {
       navigator.clipboard.writeText(url);
-      toast.success('Link copied to clipboard!');
+      toast.success('Đã sao chép liên kết vào bộ nhớ tạm!');
     }
   };
 
@@ -188,7 +188,7 @@ export function ShopDrawer({
                 size={15}
                 className='fill-[#101010] group-hover:scale-110 transition-transform flex-shrink-0'
               />
-              <span className='truncate'>Directions</span>
+              <span className='truncate'>Chỉ đường</span>
             </a>
 
             <button
@@ -209,7 +209,7 @@ export function ShopDrawer({
                   isHeartAnimating && 'scale-125'
                 )}
               />
-              <span className='truncate'>{isFavorite ? 'Saved' : 'Save'}</span>
+              <span className='truncate'>{isFavorite ? 'Đã lưu' : 'Lưu lại'}</span>
             </button>
 
             <button
@@ -219,7 +219,7 @@ export function ShopDrawer({
               className='flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 px-3 rounded-full bg-[#141414]/90 border border-[#2A2A2A]/80 text-[#D0D0D0] hover:text-white hover:bg-white/10 hover:border-amber-gold/40 transition-all text-xs font-semibold shadow-xs active:scale-95 min-h-[44px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#101010]'
             >
               <Share2 size={15} className='text-amber-gold flex-shrink-0' />
-              <span className='truncate'>Share</span>
+              <span className='truncate'>Chia sẻ</span>
             </button>
           </div>
         </div>

@@ -12,22 +12,22 @@ export function BottomNav() {
 
   const navItems = [
     {
-      label: 'Discover',
+      label: 'Khám phá',
       href: APP_ROUTES.HOME,
       icon: Compass,
     },
     {
-      label: 'Map',
+      label: 'Bản đồ',
       href: APP_ROUTES.MAP,
       icon: MapPin,
     },
     {
-      label: 'Saved',
+      label: 'Đã lưu',
       href: APP_ROUTES.FAVORITES,
       icon: Heart,
     },
     {
-      label: 'Profile',
+      label: 'Hồ sơ',
       href: APP_ROUTES.PROFILE,
       icon: User,
     },

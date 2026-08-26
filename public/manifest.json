@@ -1,7 +1,7 @@
 {
-  "name": "PhinFind - Discover Vietnamese Coffee",
+  "name": "PhinFind - Khám phá Cà phê Việt",
   "short_name": "PhinFind",
-  "description": "Discover nearby Vietnamese coffee shops wherever you are",
+  "description": "Khám phá các quán cà phê gần bạn mọi lúc mọi nơi",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#101010",

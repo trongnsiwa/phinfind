@@ -87,13 +87,13 @@ export function ShopSidebar({
       navigator
         .share({
           title: shop.name,
-          text: `Check out ${shop.name} on PhinFind!`,
+          text: `Khám phá quán cà phê ${shop.name} trên PhinFind!`,
           url
         })
         .catch(() => {});
     } else {
       navigator.clipboard.writeText(url);
-      toast.success('Link copied to clipboard!');
+      toast.success('Đã sao chép liên kết vào bộ nhớ tạm!');
     }
   };
 
@@ -106,19 +106,19 @@ export function ShopSidebar({
 
   return (
     <aside
-      aria-label={`${shop.name} details sidebar`}
+      aria-label={`Bảng thông tin chi tiết ${shop.name}`}
       className='fixed top-14 right-0 bottom-0 w-full sm:w-[440px] lg:w-[440px] xl:w-[460px] 2xl:w-[480px] max-w-[90vw] z-40 bg-[#101010]/95 backdrop-blur-xl border-l border-[#2A2A2A]/80 shadow-2xl flex flex-col transition-all duration-300 ease-out animate-in slide-in-from-right select-none'
     >
       {/* Top Header Bar with Close Button */}
       <div className='flex items-center justify-between px-4 py-2.5 border-b border-[#2A2A2A]/60 bg-[#101010]/80 flex-shrink-0'>
         <span className='text-xs font-bold text-[#A0A0A0] uppercase tracking-wider'>
-          Shop Details
+          Thông Tin Chi Tiết
         </span>
         <Button
           variant='ghost'
           size='icon'
           onClick={handleClose}
-          aria-label='Close sidebar'
+          aria-label='Đóng bảng chi tiết'
           className='h-8 w-8 rounded-full text-[#A0A0A0] hover:text-white hover:bg-white/10 transition-colors cursor-pointer'
         >
           <X size={17} />
@@ -151,7 +151,7 @@ export function ShopSidebar({
               size={15}
               className='fill-[#101010] group-hover:scale-110 transition-transform flex-shrink-0'
             />
-            <span className='truncate'>Directions</span>
+            <span className='truncate'>Chỉ đường</span>
           </a>
 
           <button
@@ -172,7 +172,7 @@ export function ShopSidebar({
                 isHeartAnimating && 'scale-125'
               )}
             />
-            <span className='truncate'>{isFavorite ? 'Saved' : 'Save'}</span>
+            <span className='truncate'>{isFavorite ? 'Đã lưu' : 'Lưu lại'}</span>
           </button>
 
           <button
@@ -182,7 +182,7 @@ export function ShopSidebar({
             className='flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 px-3 rounded-full bg-[#141414]/90 border border-[#2A2A2A]/80 text-[#D0D0D0] hover:text-white hover:bg-white/10 hover:border-amber-gold/40 transition-all text-xs font-semibold shadow-xs active:scale-95 min-h-[44px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#101010]'
           >
             <Share2 size={15} className='text-amber-gold flex-shrink-0' />
-            <span className='truncate'>Share</span>
+            <span className='truncate'>Chia sẻ</span>
           </button>
         </div>
       </div>

@@ -37,7 +37,7 @@ export default function FavoritesPage() {
   const handleConfirmRemove = () => {
     if (shopToRemove) {
       toggleFavorite(shopToRemove.place_id);
-      toast.info(`Removed "${shopToRemove.name}" from favorites`);
+      toast.info(`Đã xóa "${shopToRemove.name}" khỏi danh sách yêu thích`);
       setShopToRemove(null);
     }
   };
@@ -49,23 +49,23 @@ export default function FavoritesPage() {
         <div>
           <h2 className="font-sans font-bold text-2xl text-phin-900 flex items-center gap-2.5">
             <Heart size={22} className="text-rose-500 fill-rose-500 animate-pulse" />
-            Saved Coffee Shops
+            Quán Cà Phê Đã Lưu
           </h2>
           <p className="text-xs text-phin-600 mt-1">
-            Bookmark your favorite coffee spots for quick offline access
+            Lưu lại các địa điểm cà phê yêu thích để dễ dàng xem lại mọi lúc
           </p>
         </div>
         <Badge variant="outline" className="bg-rose-50 text-rose-700 border-rose-200 font-bold text-xs px-3 py-1">
-          {favoriteShops.length} saved
+          {favoriteShops.length} đã lưu
         </Badge>
       </div>
 
       {favoriteShops.length === 0 ? (
         <EmptyState
           icon={Heart}
-          title="No Favorites Saved Yet"
-          description="Tap the heart icon on any coffee shop card to bookmark it for easy access anytime."
-          actionLabel="Discover Coffee Shops"
+          title="Chưa Có Quán Yêu Thích Nào"
+          description="Nhấn vào biểu tượng trái tim trên bất kỳ thẻ quán cà phê nào để lưu lại danh sách riêng của bạn."
+          actionLabel="Khám phá quán cà phê"
           onAction={() => router.push(APP_ROUTES.HOME)}
           className="py-16"
         />
@@ -85,34 +85,34 @@ export default function FavoritesPage() {
                     variant="ghost"
                     size="icon"
                     onClick={() => setShopToRemove(shop)}
-                    className="h-8 w-8 text-phin-400 hover:text-rose-600 hover:bg-rose-50 rounded-full flex-shrink-0"
-                    aria-label="Remove from favorites"
+                    className="h-8 w-8 text-phin-400 hover:text-rose-600 hover:bg-rose-50 rounded-full flex-shrink-0 cursor-pointer"
+                    aria-label="Xóa khỏi yêu thích"
                   >
                     <Trash2 size={15} />
                   </Button>
                 </div>
-                <p className="text-xs text-phin-600 line-clamp-1">{shop.address}</p>
+                <p className="text-xs text-phin-600 line-clamp-1">{shop.address || 'Chưa có địa chỉ'}</p>
               </CardHeader>
 
               <CardContent className="p-0 pt-4 flex items-center justify-between text-xs border-t border-phin-50 mt-3">
                 <Badge variant="outline" className="bg-amber-50 text-amber-800 border-amber-200 font-bold text-[11px]">
-                  ⭐ {shop.rating.toFixed(1)} · {shop.distance_text}
+                  ⭐ {shop.rating.toFixed(1)} · {shop.distance_text || 'Gần đây'}
                 </Badge>
 
                 <div className="flex gap-1.5">
-                  <Button variant="outline" size="sm" className="h-7 px-2.5 text-[11px] border-phin-200 rounded-lg" asChild>
+                  <Button variant="outline" size="sm" className="h-7 px-2.5 text-[11px] border-phin-200 rounded-lg cursor-pointer" asChild>
                     <a
                       href={`https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lon}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
                       <Navigation size={11} className="mr-1 text-primary" />
-                      Nav
+                      Chỉ đường
                     </a>
                   </Button>
-                  <Button variant="default" size="sm" className="h-7 px-2.5 text-[11px] bg-phin-800 text-white hover:bg-phin-900 rounded-lg font-semibold" asChild>
+                  <Button variant="default" size="sm" className="h-7 px-2.5 text-[11px] bg-phin-800 text-white hover:bg-phin-900 rounded-lg font-semibold cursor-pointer" asChild>
                     <Link href={APP_ROUTES.SHOP_DETAIL(shop.id)}>
-                      View
+                      Xem
                       <ExternalLink size={10} className="ml-1 opacity-70" />
                     </Link>
                   </Button>
@@ -127,15 +127,15 @@ export default function FavoritesPage() {
       <AlertDialog open={!!shopToRemove} onOpenChange={(open) => !open && setShopToRemove(null)}>
         <AlertDialogContent className="bg-white border-phin-200 rounded-2xl">
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-sans text-phin-900">Remove Favorite?</AlertDialogTitle>
+            <AlertDialogTitle className="font-sans text-phin-900">Xóa khỏi danh sách yêu thích?</AlertDialogTitle>
             <AlertDialogDescription className="text-xs text-phin-600">
-              Are you sure you want to remove &quot;{shopToRemove?.name}&quot; from your saved favorites?
+              Bạn có chắc chắn muốn xóa &quot;{shopToRemove?.name}&quot; khỏi danh sách yêu thích không?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-phin-200 text-xs rounded-xl">Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmRemove} className="bg-rose-600 text-white hover:bg-rose-700 text-xs rounded-xl font-semibold">
-              Remove
+            <AlertDialogCancel className="border-phin-200 text-xs rounded-xl cursor-pointer">Hủy</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmRemove} className="bg-rose-600 text-white hover:bg-rose-700 text-xs rounded-xl font-semibold cursor-pointer">
+              Xóa
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

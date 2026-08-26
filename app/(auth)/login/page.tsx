@@ -40,7 +40,7 @@ function LoginForm() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      toast.error('Please enter both email and password.');
+      toast.error('Vui lòng nhập cả email và mật khẩu.');
       return;
     }
 
@@ -52,24 +52,24 @@ function LoginForm() {
       });
 
       if (error) {
-        toast.error(error.message || 'Invalid email or password');
+        toast.error(error.message || 'Email hoặc mật khẩu không hợp lệ');
         setIsLoading(false);
         return;
       }
 
       if (data?.session) {
-        toast.success('Welcome back!');
+        toast.success('Chào mừng bạn quay trở lại!');
         router.push(redirect);
         router.refresh();
       }
     } catch {
-      toast.error('An unexpected error occurred during sign in');
+      toast.error('Đã xảy ra lỗi trong quá trình đăng nhập');
       setIsLoading(false);
     }
   };
 
   const handleGoogleSignIn = () => {
-    toast.info('Google Sign-In is coming soon! Stay tuned ☕', {
+    toast.info('Tính năng Đăng nhập bằng Google sẽ sớm ra mắt! Hãy đón chờ nhé ☕', {
       duration: 4000,
     });
   };
@@ -78,10 +78,10 @@ function LoginForm() {
     <Card className="border-0 shadow-none bg-transparent p-0">
       <CardHeader className="p-0 mb-6 sm:mb-8 space-y-1.5 text-left">
         <CardTitle className="font-sans font-bold text-2xl sm:text-3xl text-white tracking-tight">
-          Welcome Back
+          Chào Mừng Trở Lại
         </CardTitle>
         <CardDescription className="text-xs sm:text-sm text-[#D0D0D0]/80 leading-relaxed font-body">
-          Sign in to access your saved coffee shops and recommendations
+          Đăng nhập để xem các quán cà phê đã lưu và gợi ý dành riêng cho bạn
         </CardDescription>
       </CardHeader>
 
@@ -89,12 +89,12 @@ function LoginForm() {
         <form className="space-y-4" onSubmit={handleLogin}>
           <div className="space-y-2">
             <Label htmlFor="email" className="text-[#D0D0D0]/80 font-semibold text-xs uppercase tracking-wider">
-              Email address
+              Địa chỉ email
             </Label>
             <Input
               id="email"
               type="email"
-              placeholder="you@example.com"
+              placeholder="ban@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={isLoading}
@@ -106,10 +106,10 @@ function LoginForm() {
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <Label htmlFor="password" className="text-[#D0D0D0]/80 font-semibold text-xs uppercase tracking-wider">
-                Password
+                Mật khẩu
               </Label>
               <a href="#" className="text-xs text-amber-gold/70 hover:text-amber-gold font-semibold hover:underline underline-offset-2 transition-colors">
-                Forgot?
+                Quên mật khẩu?
               </a>
             </div>
             <div className="relative">
@@ -130,7 +130,7 @@ function LoginForm() {
                 disabled={isLoading}
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-1 top-1/2 -translate-y-1/2 h-9 w-9 text-[#A0A0A0] hover:text-white hover:bg-white/5 rounded-lg cursor-pointer transition-colors"
-                aria-label="Toggle password visibility"
+                aria-label="Ẩn/hiện mật khẩu"
               >
                 {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
               </Button>
@@ -145,11 +145,11 @@ function LoginForm() {
             {isLoading ? (
               <span className="flex items-center gap-2">
                 <span className="w-4 h-4 rounded-full border-2 border-[#101010]/30 border-t-[#101010] animate-spin" />
-                Signing in...
+                Đang đăng nhập...
               </span>
             ) : (
               <span className="flex items-center gap-2">
-                <LogIn size={16} /> Sign In
+                <LogIn size={16} /> Đăng nhập
               </span>
             )}
           </Button>
@@ -157,14 +157,14 @@ function LoginForm() {
           {/* Security Reassurance Badge */}
           <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#A0A0A0] font-medium pt-0.5">
             <ShieldCheck size={13} className="text-amber-gold" />
-            <span>256-bit Secure Coffee Passport</span>
+            <span>Hộ chiếu Cà phê Bảo mật 256-bit</span>
           </div>
         </form>
 
         <div className="flex items-center gap-3 my-3">
           <div className="h-px bg-[#2A2A2A]/60 flex-1" />
           <span className="text-[10px] text-[#A0A0A0] font-bold uppercase tracking-wider select-none bg-transparent">
-            Or
+            Hoặc
           </span>
           <div className="h-px bg-[#2A2A2A]/60 flex-1" />
         </div>
@@ -194,16 +194,16 @@ function LoginForm() {
               d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
             />
           </svg>
-          Sign in with Google
+          Đăng nhập bằng Google
         </Button>
 
         <p className="text-center text-xs text-[#D0D0D0]/80 pt-1">
-          Don&apos;t have an account?{' '}
+          Chưa có tài khoản?{' '}
           <Link
             href={`/signup${redirect && redirect !== '/' ? `?redirect=${encodeURIComponent(redirect)}` : ''}`}
             className="text-amber-gold hover:text-amber-gold-hover font-semibold hover:underline underline-offset-2 transition-colors"
           >
-            Create one now
+            Tạo tài khoản ngay
           </Link>
         </p>
       </CardContent>

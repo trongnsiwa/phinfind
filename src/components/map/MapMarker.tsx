@@ -10,7 +10,7 @@ export function MapMarker({ shop, isSelected = false, onClick }: MapMarkerProps)
   return (
     <button
       onClick={onClick}
-      aria-label={`Coffee shop marker for ${shop.name}`}
+      aria-label={`Điểm đánh dấu quán cà phê ${shop.name}`}
       className={`relative group flex items-center justify-center transition-all duration-200 ${
         isSelected ? 'scale-125 z-30' : 'hover:scale-110 z-10'
       }`}

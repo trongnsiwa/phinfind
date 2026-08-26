@@ -17,8 +17,8 @@ export function SearchCard() {
           <Search size={16} />
         </div>
         <div>
-          <h4 className="font-sans font-bold text-xs text-phin-900 leading-tight">Quick Search</h4>
-          <p className="text-[10px] text-phin-600">Find shops by name or address</p>
+          <h4 className="font-sans font-bold text-xs text-phin-900 leading-tight">Tìm kiếm nhanh</h4>
+          <p className="text-[10px] text-phin-600">Tìm quán theo tên hoặc địa chỉ</p>
         </div>
       </div>
 
@@ -27,7 +27,7 @@ export function SearchCard() {
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Type shop name, neighborhood, or street..."
+          placeholder="Nhập tên quán, khu vực hoặc đường phố..."
           className="w-full h-10 pl-3 pr-8 text-xs bg-phin-50 text-phin-900 border-phin-200 rounded-xl focus-visible:ring-primary focus-visible:bg-white"
         />
         {searchQuery && (
@@ -36,7 +36,7 @@ export function SearchCard() {
             size="icon"
             onClick={() => setSearchQuery('')}
             className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 text-phin-400 hover:text-phin-800 rounded-full"
-            aria-label="Clear search"
+            aria-label="Xóa nội dung tìm kiếm"
           >
             <X size={14} />
           </Button>

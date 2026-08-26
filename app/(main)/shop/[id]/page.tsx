@@ -62,23 +62,23 @@ const MOCK_REVIEWS = [
   {
     author: 'Minh Anh',
     rating: 5,
-    date: '2 days ago',
+    date: '2 ngày trước',
     comment:
-      'Signature traditional phin drip with sweetened condensed milk is outstanding. Quiet second-floor space with fast Wi-Fi and plenty of outlets for remote work.',
+      'Cà phê phin truyền thống với sữa đặc của quán rất ngon và đậm đà. Tầng 2 yên tĩnh, Wi-Fi nhanh và nhiều ổ cắm tiện làm việc.',
   },
   {
     author: 'Thanh Tùng',
     rating: 5,
-    date: '1 week ago',
+    date: '1 tuần trước',
     comment:
-      'Cozy, authentic vibes and friendly baristas. Great selection of specialty beans from Da Lat and excellent cold brew.',
+      'Không gian ấm cúng, barista thân thiện. Nhiều loại hạt đặc sản Đà Lạt chất lượng và cold brew thơm ngon.',
   },
   {
     author: 'Elena Rostova',
     rating: 4,
-    date: '3 weeks ago',
+    date: '3 tuần trước',
     comment:
-      'Loved the airy ambiance and playlist. Perfect spot for reading or casual meetings. Try the salted egg coffee!',
+      'Rất thích không gian thoáng đãng và playlist nhạc của quán. Rất thích hợp để đọc sách hoặc trò chuyện nhẹ nhàng. Nên thử cà phê trứng!',
   },
 ];
 
@@ -100,13 +100,13 @@ export default function ShopDetailPage({ params }: { params: Promise<{ id: strin
     return (
       <Card className="text-center py-12 bg-[#101010]/95 rounded-3xl border border-[#2A2A2A] shadow-xl p-6 max-w-md mx-auto space-y-3 text-white">
         <span className="text-5xl">☕</span>
-        <CardTitle className="font-sans text-lg text-white">Coffee Shop Not Found</CardTitle>
+        <CardTitle className="font-sans text-lg text-white">Không Tìm Thấy Quán Cà Phê</CardTitle>
         <p className="text-xs text-[#D0D0D0]/80">
-          The requested coffee shop details could not be loaded.
+          Không thể tải thông tin chi tiết của quán cà phê này.
         </p>
         <Button variant="default" size="sm" asChild className="bg-amber-gold text-[#101010] hover:bg-amber-gold-hover font-bold rounded-xl text-xs">
           <Link href="/">
-            <ArrowLeft size={14} className="mr-1" /> Back to Discover
+            <ArrowLeft size={14} className="mr-1" /> Quay lại Khám phá
           </Link>
         </Button>
       </Card>
@@ -118,10 +118,10 @@ export default function ShopDetailPage({ params }: { params: Promise<{ id: strin
 
   const handleSaveClick = () => {
     if (!isAuthenticated) {
-      toast('Sign in required', {
-        description: 'Sign in to start saving your favorite spots and share your coffee experiences.',
+      toast('Yêu cầu đăng nhập', {
+        description: 'Đăng nhập để bắt đầu lưu lại các quán yêu thích và chia sẻ trải nghiệm cà phê của bạn.',
         action: {
-          label: 'Sign in',
+          label: 'Đăng nhập',
           onClick: () => router.push(APP_ROUTES.LOGIN),
         },
       });
@@ -132,14 +132,14 @@ export default function ShopDetailPage({ params }: { params: Promise<{ id: strin
       setShowUnsaveDialog(true);
     } else {
       toggleFavorite(shop.place_id);
-      toast.success('Shop saved to favorites!');
+      toast.success('Đã lưu quán vào danh sách yêu thích!');
     }
   };
 
   const confirmUnsave = () => {
     toggleFavorite(shop.place_id);
     setShowUnsaveDialog(false);
-    toast.info('Shop removed from favorites');
+    toast.info('Đã xóa quán khỏi danh sách yêu thích');
   };
 
   const handleShare = () => {
@@ -147,7 +147,7 @@ export default function ShopDetailPage({ params }: { params: Promise<{ id: strin
       navigator.share({ title: shop.name, url: window.location.href });
     } else {
       navigator.clipboard.writeText(window.location.href);
-      toast.success('Link copied to clipboard!');
+      toast.success('Đã sao chép liên kết vào bộ nhớ tạm!');
     }
   };
 
@@ -155,7 +155,7 @@ export default function ShopDetailPage({ params }: { params: Promise<{ id: strin
     if (shop.address) {
       navigator.clipboard.writeText(shop.address);
       setCopied(true);
-      toast.success('Address copied to clipboard');
+      toast.success('Đã sao chép địa chỉ vào bộ nhớ tạm');
       setTimeout(() => setCopied(false), 2000);
     }
   };
@@ -181,7 +181,7 @@ export default function ShopDetailPage({ params }: { params: Promise<{ id: strin
           >
             <Link href="/">
               <ArrowLeft size={16} className="mr-1 text-amber-gold" />
-              Back
+              Quay lại
             </Link>
           </Button>
 
@@ -191,7 +191,7 @@ export default function ShopDetailPage({ params }: { params: Promise<{ id: strin
               size="icon"
               onClick={handleShare}
               className="bg-[#101010]/80 backdrop-blur-md hover:bg-[#141414] text-[#A0A0A0] hover:text-white border border-[#2A2A2A]/60 h-9 w-9 rounded-full shadow-md"
-              aria-label="Share shop"
+              aria-label="Chia sẻ quán cà phê"
             >
               <Share2 size={16} />
             </Button>
@@ -201,7 +201,7 @@ export default function ShopDetailPage({ params }: { params: Promise<{ id: strin
               size="icon"
               onClick={handleSaveClick}
               className="bg-[#101010]/80 backdrop-blur-md hover:bg-[#141414] text-[#A0A0A0] hover:text-white border border-[#2A2A2A]/60 h-9 w-9 rounded-full shadow-md"
-              aria-label={isFav ? 'Remove favorite' : 'Save favorite'}
+              aria-label={isFav ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích'}
             >
               <Heart size={16} className={isFav ? 'fill-rose-500 text-rose-500' : 'text-[#A0A0A0]'} />
             </Button>
@@ -221,7 +221,7 @@ export default function ShopDetailPage({ params }: { params: Promise<{ id: strin
               )}
             >
               <span className={cn('w-1.5 h-1.5 rounded-full mr-1.5', isOpen ? 'bg-[#7CAE8E] animate-pulse' : 'bg-[#C97A7A]')} />
-              {isOpen ? 'Open Now' : 'Closed'}
+              {isOpen ? 'Đang mở cửa' : 'Đã đóng cửa'}
             </Badge>
             {shop.price_range && (
               <Badge variant="secondary" className="bg-[#101010]/90 text-amber-gold border border-[#2A2A2A]/60 font-bold text-xs">
@@ -234,7 +234,7 @@ export default function ShopDetailPage({ params }: { params: Promise<{ id: strin
           </h1>
           <p className="text-xs text-[#D0D0D0]/90 flex items-center gap-1">
             <MapPin size={14} className="text-amber-gold flex-shrink-0" />
-            {shop.address}
+            {shop.address || 'Chưa có địa chỉ'}
           </p>
         </div>
       </div>
@@ -250,19 +250,19 @@ export default function ShopDetailPage({ params }: { params: Promise<{ id: strin
             value="overview"
             className="text-xs font-semibold rounded-xl text-[#D0D0D0] data-[state=active]:bg-amber-gold data-[state=active]:text-[#101010] data-[state=active]:shadow-md transition-all"
           >
-            Overview
+            Tổng quan
           </TabsTrigger>
           <TabsTrigger
             value="reviews"
             className="text-xs font-semibold rounded-xl text-[#D0D0D0] data-[state=active]:bg-amber-gold data-[state=active]:text-[#101010] data-[state=active]:shadow-md transition-all"
           >
-            Reviews
+            Đánh giá
           </TabsTrigger>
           <TabsTrigger
             value="amenities"
             className="text-xs font-semibold rounded-xl text-[#D0D0D0] data-[state=active]:bg-amber-gold data-[state=active]:text-[#101010] data-[state=active]:shadow-md transition-all"
           >
-            Amenities
+            Tiện ích
           </TabsTrigger>
         </TabsList>
 
@@ -272,8 +272,8 @@ export default function ShopDetailPage({ params }: { params: Promise<{ id: strin
           <Card className="bg-[#101010]/95 rounded-3xl p-6 border border-[#2A2A2A] shadow-xl space-y-4">
             <CardHeader className="p-0 flex flex-row items-center justify-between">
               <div className="space-y-1">
-                <CardTitle className="font-sans font-bold text-lg text-white">Rating & Community</CardTitle>
-                <p className="text-xs text-[#D0D0D0]/80">Based on Google Places user feedback</p>
+                <CardTitle className="font-sans font-bold text-lg text-white">Đánh Giá &amp; Cộng Đồng</CardTitle>
+                <p className="text-xs text-[#D0D0D0]/80">Dựa trên phản hồi từ người dùng Google Places</p>
               </div>
               <Badge variant="outline" className="flex items-center gap-1.5 bg-[#141414] px-3 py-1.5 rounded-2xl border-[#2A2A2A] text-amber-gold font-bold text-sm">
                 <Star size={16} className="fill-amber-gold text-amber-gold" />
@@ -285,7 +285,7 @@ export default function ShopDetailPage({ params }: { params: Promise<{ id: strin
             <CardContent className="p-0 space-y-4 pt-2">
               <div className="space-y-1.5">
                 <div className="flex justify-between text-xs text-[#D0D0D0] font-medium">
-                  <span>Customer Satisfaction Score</span>
+                  <span>Mức Độ Hài Lòng Của Khách Hàng</span>
                   <span className="font-bold text-amber-gold">{ratingScorePercent}%</span>
                 </div>
                 <Progress value={ratingScorePercent} className="h-2.5 bg-[#101010] border border-[#2A2A2A]" />
@@ -295,13 +295,13 @@ export default function ShopDetailPage({ params }: { params: Promise<{ id: strin
 
           {/* Shop Information Card */}
           <Card className="bg-[#101010]/95 rounded-3xl p-6 border border-[#2A2A2A] shadow-xl space-y-4">
-            <h3 className="font-sans font-bold text-sm text-white">Shop Information</h3>
+            <h3 className="font-sans font-bold text-sm text-white">Thông Tin Quán</h3>
             <div className="space-y-4 text-xs text-[#D0D0D0]">
               <div className="flex items-start gap-3">
                 <Clock size={16} className="text-amber-gold flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-bold text-white">Opening Hours</p>
-                  <p className="text-[#D0D0D0]/80 mt-0.5">Everyday: 07:00 AM – 10:30 PM</p>
+                  <p className="font-bold text-white">Giờ Mở Cửa</p>
+                  <p className="text-[#D0D0D0]/80 mt-0.5">Hàng ngày: 07:00 – 22:30</p>
                 </div>
               </div>
 
@@ -309,7 +309,7 @@ export default function ShopDetailPage({ params }: { params: Promise<{ id: strin
                 <div className="flex items-start gap-3">
                   <Phone size={16} className="text-amber-gold flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-bold text-white">Phone</p>
+                    <p className="font-bold text-white">Điện thoại</p>
                     <a href={`tel:${shop.phone}`} className="text-amber-gold font-semibold hover:underline">
                       {shop.phone}
                     </a>
@@ -340,14 +340,14 @@ export default function ShopDetailPage({ params }: { params: Promise<{ id: strin
           <Card className="bg-[#101010]/95 rounded-3xl p-6 border border-[#2A2A2A] shadow-xl space-y-4">
             <div className="flex items-start justify-between gap-2">
               <div className="space-y-1">
-                <h3 className="font-sans font-bold text-sm text-white">Physical Location</h3>
-                <p className="text-sm font-semibold text-[#D0D0D0]">{shop.address}</p>
+                <h3 className="font-sans font-bold text-sm text-white">Địa Chỉ Quán</h3>
+                <p className="text-sm font-semibold text-[#D0D0D0]">{shop.address || 'Chưa có địa chỉ'}</p>
               </div>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={handleCopyAddress}
-                aria-label="Copy address"
+                aria-label="Sao chép địa chỉ"
                 className="h-8 w-8 rounded-xl bg-[#141414] text-[#D0D0D0] hover:text-amber-gold border border-[#2A2A2A]/60 flex-shrink-0"
               >
                 {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
@@ -358,15 +358,15 @@ export default function ShopDetailPage({ params }: { params: Promise<{ id: strin
               <div className="bg-[#141414]/50 p-2.5 rounded-xl border border-[#2A2A2A]/40 flex items-center gap-2">
                 <Footprints size={15} className="text-amber-gold flex-shrink-0" />
                 <div>
-                  <span className="text-[10px] text-[#A0A0A0] block">Distance</span>
-                  <span className="font-bold text-white text-xs">{shop.distance_text || 'Nearby'}</span>
+                  <span className="text-[10px] text-[#A0A0A0] block">Khoảng cách</span>
+                  <span className="font-bold text-white text-xs">{shop.distance_text || 'Gần đây'}</span>
                 </div>
               </div>
 
               <div className="bg-[#141414]/50 p-2.5 rounded-xl border border-[#2A2A2A]/40 flex items-center gap-2">
                 <Compass size={15} className="text-amber-gold flex-shrink-0" />
                 <div>
-                  <span className="text-[10px] text-[#A0A0A0] block">Coordinates</span>
+                  <span className="text-[10px] text-[#A0A0A0] block">Tọa độ GPS</span>
                   <span className="font-bold text-white text-xs">
                     {shop.lat.toFixed(4)}, {shop.lon.toFixed(4)}
                   </span>
@@ -382,7 +382,7 @@ export default function ShopDetailPage({ params }: { params: Promise<{ id: strin
             >
               <Button className="w-full h-11 bg-amber-gold text-[#101010] hover:bg-amber-gold-hover font-bold text-xs rounded-xl shadow-lg shadow-amber-gold/15 transition-all">
                 <Navigation size={14} className="mr-2" />
-                Get Instant Directions via Google Maps
+                Chỉ Đường Trực Tiếp Qua Google Maps
               </Button>
             </a>
           </Card>
@@ -405,7 +405,7 @@ export default function ShopDetailPage({ params }: { params: Promise<{ id: strin
                     />
                   ))}
                 </div>
-                <span className="text-[11px] text-[#A0A0A0]">{shop.total_ratings} Google Reviews</span>
+                <span className="text-[11px] text-[#A0A0A0]">{shop.total_ratings} Đánh giá Google</span>
               </div>
 
               <div className="flex-1 w-full space-y-1 text-[11px] text-[#D0D0D0]">
@@ -432,7 +432,7 @@ export default function ShopDetailPage({ params }: { params: Promise<{ id: strin
 
             <div className="space-y-3 pt-3 border-t border-[#2A2A2A]/40">
               <span className="text-[11px] font-bold text-[#D0D0D0]/70 uppercase tracking-wider block">
-                Community Highlights
+                Điểm Nhấn Từ Cộng Đồng
               </span>
               {MOCK_REVIEWS.map((rev, idx) => (
                 <div
@@ -461,48 +461,48 @@ export default function ShopDetailPage({ params }: { params: Promise<{ id: strin
         {/* Tab 3: Amenities */}
         <TabsContent value="amenities" className="space-y-4 focus-visible:outline-none">
           <Card className="bg-[#101010]/95 rounded-3xl p-6 border border-[#2A2A2A] shadow-xl space-y-4">
-            <h3 className="font-sans font-bold text-sm text-white">Amenities & Atmosphere</h3>
+            <h3 className="font-sans font-bold text-sm text-white">Tiện Ích &amp; Không Gian</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
               <div className="flex items-center gap-3 bg-[#141414]/50 p-3 rounded-2xl border border-[#2A2A2A]/50">
                 <Wifi size={16} className="text-amber-gold flex-shrink-0" />
                 <div>
-                  <span className="font-bold text-white block">High-Speed Wi-Fi</span>
-                  <span className="text-[11px] text-[#D0D0D0]/70">Fast connection for remote work</span>
+                  <span className="font-bold text-white block">Wi-Fi Tốc Độ Cao</span>
+                  <span className="text-[11px] text-[#D0D0D0]/70">Kết nối nhanh chóng tiện làm việc từ xa</span>
                 </div>
               </div>
               <div className="flex items-center gap-3 bg-[#141414]/50 p-3 rounded-2xl border border-[#2A2A2A]/50">
                 <Zap size={16} className="text-amber-gold flex-shrink-0" />
                 <div>
-                  <span className="font-bold text-white block">Power Outlets</span>
-                  <span className="text-[11px] text-[#D0D0D0]/70">Available at most tables</span>
+                  <span className="font-bold text-white block">Nhiều Ổ Cắm Điện</span>
+                  <span className="text-[11px] text-[#D0D0D0]/70">Có sẵn tại hầu hết các bàn</span>
                 </div>
               </div>
               <div className="flex items-center gap-3 bg-[#141414]/50 p-3 rounded-2xl border border-[#2A2A2A]/50">
                 <Wind size={16} className="text-amber-gold flex-shrink-0" />
                 <div>
-                  <span className="font-bold text-white block">Air Conditioned</span>
-                  <span className="text-[11px] text-[#D0D0D0]/70">Cool and comfortable indoors</span>
+                  <span className="font-bold text-white block">Không Gian Điều Hòa</span>
+                  <span className="text-[11px] text-[#D0D0D0]/70">Mát mẻ và dễ chịu trong nhà</span>
                 </div>
               </div>
               <div className="flex items-center gap-3 bg-[#141414]/50 p-3 rounded-2xl border border-[#2A2A2A]/50">
                 <Sun size={16} className="text-amber-gold flex-shrink-0" />
                 <div>
-                  <span className="font-bold text-white block">Outdoor Seating</span>
-                  <span className="text-[11px] text-[#D0D0D0]/70">Airy balcony and street view</span>
+                  <span className="font-bold text-white block">Chỗ Ngồi Ngoài Trời</span>
+                  <span className="text-[11px] text-[#D0D0D0]/70">Ban công và góc ngắm phố thoáng mát</span>
                 </div>
               </div>
               <div className="flex items-center gap-3 bg-[#141414]/50 p-3 rounded-2xl border border-[#2A2A2A]/50">
                 <Coffee size={16} className="text-amber-gold flex-shrink-0" />
                 <div>
-                  <span className="font-bold text-white block">Specialty Phin & Drip</span>
-                  <span className="text-[11px] text-[#D0D0D0]/70">Single-origin Robusta & Arabica</span>
+                  <span className="font-bold text-white block">Cà Phê Phin &amp; Pha Tay Đặc Sản</span>
+                  <span className="text-[11px] text-[#D0D0D0]/70">Hạt Robusta &amp; Arabica nguyên bản</span>
                 </div>
               </div>
               <div className="flex items-center gap-3 bg-[#141414]/50 p-3 rounded-2xl border border-[#2A2A2A]/50">
                 <CupSoda size={16} className="text-amber-gold flex-shrink-0" />
                 <div>
-                  <span className="font-bold text-white block">Artisan Beverages</span>
-                  <span className="text-[11px] text-[#D0D0D0]/70">Egg coffee, matcha & cold brew</span>
+                  <span className="font-bold text-white block">Đồ Uống Thủ Công</span>
+                  <span className="text-[11px] text-[#D0D0D0]/70">Cà phê trứng, matcha &amp; cold brew</span>
                 </div>
               </div>
             </div>
@@ -514,15 +514,15 @@ export default function ShopDetailPage({ params }: { params: Promise<{ id: strin
       <AlertDialog open={showUnsaveDialog} onOpenChange={setShowUnsaveDialog}>
         <AlertDialogContent className="bg-[#101010] border border-[#2A2A2A] rounded-2xl text-white">
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-sans text-white">Remove from Favorites?</AlertDialogTitle>
+            <AlertDialogTitle className="font-sans text-white">Xóa khỏi danh sách yêu thích?</AlertDialogTitle>
             <AlertDialogDescription className="text-xs text-[#D0D0D0]/80">
-              Are you sure you want to remove &quot;{shop.name}&quot; from your saved coffee shops?
+              Bạn có chắc chắn muốn xóa &quot;{shop.name}&quot; khỏi danh sách quán đã lưu không?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-[#2A2A2A] bg-[#141414] text-white text-xs rounded-xl">Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmUnsave} className="bg-rose-600 text-white hover:bg-rose-700 text-xs rounded-xl font-semibold">
-              Remove
+            <AlertDialogCancel className="border-[#2A2A2A] bg-[#141414] text-white text-xs rounded-xl cursor-pointer">Hủy</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmUnsave} className="bg-rose-600 text-white hover:bg-rose-700 text-xs rounded-xl font-semibold cursor-pointer">
+              Xóa
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

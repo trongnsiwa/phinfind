@@ -25,7 +25,7 @@ export function useLocation() {
       setLocation({
         lat: DEFAULT_LOCATION.lat,
         lng: DEFAULT_LOCATION.lng,
-        error: 'Geolocation is not supported by your browser',
+        error: 'Trình duyệt của bạn không hỗ trợ định vị GPS',
         loading: false,
         isFallback: true,
       });

@@ -18,7 +18,7 @@ interface MapProps {
 // Dynamically import Leaflet map component to prevent SSR window undefined errors
 const LeafletMapInner = dynamic(() => import('./LeafletMapInner'), {
   ssr: false,
-  loading: () => <LoadingSpinner text="Brewing interactive map..." className="w-full h-full flex-1 min-h-[300px]" />,
+  loading: () => <LoadingSpinner text="Đang chuẩn bị bản đồ tương tác..." className="w-full h-full flex-1 min-h-[300px]" />,
 });
 
 export function Map(props: MapProps) {
@@ -29,7 +29,7 @@ export function Map(props: MapProps) {
   }, []);
 
   if (!mounted) {
-    return <LoadingSpinner text="Initializing map..." className="w-full h-full flex-1 min-h-[300px]" />;
+    return <LoadingSpinner text="Đang khởi tạo bản đồ..." className="w-full h-full flex-1 min-h-[300px]" />;
   }
 
   return <LeafletMapInner {...props} />;

@@ -36,14 +36,14 @@ export function ShopFilters() {
             className="flex items-center gap-1.5 px-3 text-xs font-semibold data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm rounded-lg"
           >
             <Map size={14} />
-            Map View
+            Bản đồ
           </TabsTrigger>
           <TabsTrigger
             value="list"
             className="flex items-center gap-1.5 px-3 text-xs font-semibold data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm rounded-lg"
           >
             <List size={14} />
-            List View
+            Danh sách
           </TabsTrigger>
         </TabsList>
       </Tabs>
@@ -57,7 +57,7 @@ export function ShopFilters() {
             onCheckedChange={(checked) => setFilters({ openNowOnly: checked })}
           />
           <Label htmlFor="open-now-desktop" className="text-xs font-medium text-phin-900 cursor-pointer">
-            Open Now Only
+            Chỉ quán đang mở cửa
           </Label>
         </div>
 
@@ -66,12 +66,12 @@ export function ShopFilters() {
           onValueChange={(value) => setFilters({ sortBy: value as 'distance' | 'rating' | 'name' })}
         >
           <SelectTrigger className="h-9 w-40 text-xs font-medium bg-white text-phin-900 border-phin-200">
-            <SelectValue placeholder="Sort by..." />
+            <SelectValue placeholder="Sắp xếp theo..." />
           </SelectTrigger>
           <SelectContent className="bg-white border-phin-200">
-            <SelectItem value="distance">Sort by Distance</SelectItem>
-            <SelectItem value="rating">Sort by Rating</SelectItem>
-            <SelectItem value="name">Sort by Name</SelectItem>
+            <SelectItem value="distance">Khoảng cách</SelectItem>
+            <SelectItem value="rating">Đánh giá</SelectItem>
+            <SelectItem value="name">Tên quán</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -82,21 +82,21 @@ export function ShopFilters() {
           <SheetTrigger asChild>
             <Button variant="outline" size="sm" className="h-9 text-xs border-phin-200">
               <SlidersHorizontal size={14} className="mr-1.5" />
-              Filters
+              Bộ lọc
             </Button>
           </SheetTrigger>
           <SheetContent side="bottom" className="bg-white rounded-t-2xl border-t border-phin-200 p-6 space-y-6">
             <SheetHeader>
-              <SheetTitle className="font-sans text-lg text-phin-900">Filter Coffee Shops</SheetTitle>
+              <SheetTitle className="font-sans text-lg text-phin-900">Lọc Quán Cà Phê</SheetTitle>
               <SheetDescription className="text-xs text-phin-600">
-                Adjust search preferences and sorting options
+                Tùy chỉnh tiêu chí tìm kiếm và sắp xếp kết quả
               </SheetDescription>
             </SheetHeader>
 
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <Label htmlFor="open-now-mobile" className="text-sm font-medium text-phin-900">
-                  Open Now Only
+                  Chỉ quán đang mở cửa
                 </Label>
                 <Switch
                   id="open-now-mobile"
@@ -106,25 +106,25 @@ export function ShopFilters() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-phin-900">Sort By</Label>
+                <Label className="text-sm font-medium text-phin-900">Sắp xếp theo</Label>
                 <Select
                   value={filters.sortBy}
                   onValueChange={(value) => setFilters({ sortBy: value as 'distance' | 'rating' | 'name' })}
                 >
                   <SelectTrigger className="w-full text-xs bg-white border-phin-200">
-                    <SelectValue placeholder="Sort by..." />
+                    <SelectValue placeholder="Sắp xếp theo..." />
                   </SelectTrigger>
                   <SelectContent className="bg-white border-phin-200">
-                    <SelectItem value="distance">Sort by Distance</SelectItem>
-                    <SelectItem value="rating">Sort by Rating</SelectItem>
-                    <SelectItem value="name">Sort by Name</SelectItem>
+                    <SelectItem value="distance">Khoảng cách</SelectItem>
+                    <SelectItem value="rating">Đánh giá</SelectItem>
+                    <SelectItem value="name">Tên quán</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
                 <div className="flex justify-between text-xs">
-                  <Label className="text-sm font-medium text-phin-900">Minimum Rating</Label>
+                  <Label className="text-sm font-medium text-phin-900">Đánh giá tối thiểu</Label>
                   <span className="text-phin-600 font-semibold">{filters.minRating || 0} ⭐</span>
                 </div>
                 <Slider
@@ -139,10 +139,10 @@ export function ShopFilters() {
 
               <div className="flex gap-3 pt-4">
                 <Button variant="outline" className="flex-1" onClick={resetFilters}>
-                  Reset
+                  Đặt lại
                 </Button>
                 <Button variant="default" className="flex-1 bg-phin-800 text-white">
-                  Apply Filters
+                  Áp dụng bộ lọc
                 </Button>
               </div>
             </div>

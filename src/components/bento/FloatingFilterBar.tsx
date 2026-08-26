@@ -66,7 +66,7 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
 
   return (
     <aside
-      aria-label="Quick filters and search bar"
+      aria-label="Thanh tìm kiếm và bộ lọc nhanh"
       className={cn(
         'fixed bottom-16 md:bottom-4 left-1/2 -translate-x-1/2 z-40 w-[95%] max-w-4xl transition-all duration-300 ease-out',
         shouldShow
@@ -87,8 +87,8 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
               type="text"
               value={localValue}
               onChange={(e) => setLocalValue(e.target.value)}
-              placeholder="Search..."
-              aria-label="Quick search coffee shops"
+              placeholder="Tìm kiếm..."
+              aria-label="Tìm nhanh quán cà phê"
               className="h-8 pl-8 pr-7 text-xs bg-[#141414] text-white border-[#2A2A2A] rounded-xl sm:rounded-full focus-visible:ring-1 focus-visible:ring-amber-gold/60 focus-visible:border-amber-gold/60 placeholder:text-[#A0A0A0]"
             />
             {localValue && (
@@ -96,7 +96,7 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
                 variant="ghost"
                 size="icon"
                 onClick={handleClear}
-                aria-label="Clear search"
+                aria-label="Xóa nội dung tìm kiếm"
                 className="absolute right-1.5 top-1/2 -translate-y-1/2 h-5 w-5 text-[#A0A0A0] hover:text-white rounded-full"
               >
                 <X size={12} />
@@ -108,7 +108,7 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
             variant="outline"
             className="hidden sm:inline-flex bg-[#141414] text-white border-[#2A2A2A] text-[11px] px-2.5 py-1 rounded-full font-bold flex-shrink-0"
           >
-            {shopCount} spots
+            {shopCount} quán
           </Badge>
         </div>
 
@@ -119,7 +119,7 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
             variant="ghost"
             size="sm"
             onClick={() => setFilters({ openNowOnly: !filters.openNowOnly })}
-            aria-label="Toggle open now"
+            aria-label="Lọc quán đang mở cửa"
             aria-pressed={filters.openNowOnly}
             className={cn(
               'h-8 px-2.5 sm:px-3 text-xs font-semibold rounded-full border transition-all duration-200 flex items-center gap-1.5 flex-shrink-0',
@@ -134,7 +134,7 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
                 filters.openNowOnly ? 'bg-[#101010]' : 'bg-[#7CAE8E] animate-pulse'
               )}
             />
-            <span className="hidden xs:inline sm:inline">Open</span>
+            <span className="hidden xs:inline sm:inline">Mở cửa</span>
           </Button>
 
           {/* Rating Dropdown */}
@@ -143,7 +143,7 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
             onValueChange={(val) => setFilters({ minRating: val === 'all' ? 0 : Number(val) })}
           >
             <SelectTrigger
-              aria-label="Filter by rating"
+              aria-label="Lọc theo đánh giá"
               className={cn(
                 'h-8 px-2.5 sm:px-3 text-xs font-semibold rounded-full border border-[#2A2A2A] bg-[#141414] text-white hover:border-amber-gold/40 hover:text-amber-gold-hover flex-shrink-0 w-auto gap-1',
                 filters.minRating && filters.minRating > 0 && 'bg-amber-gold text-[#101010] border-amber-gold font-bold'
@@ -157,11 +157,11 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
                     : 'fill-amber-gold text-amber-gold'
                 )}
               />
-              <SelectValue placeholder="Rating" />
+              <SelectValue placeholder="Đánh giá" />
             </SelectTrigger>
             <SelectContent className="bg-[#141414] border-[#2A2A2A] text-white rounded-xl shadow-xl z-50">
               <SelectItem value="all" className="focus:bg-[#101010] focus:text-amber-gold text-xs cursor-pointer">
-                All
+                Tất cả
               </SelectItem>
               <SelectItem value="4" className="focus:bg-[#101010] focus:text-amber-gold text-xs cursor-pointer">
                 4.0+
@@ -178,21 +178,21 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
             onValueChange={(val) => setFilters({ sortBy: val as 'distance' | 'rating' | 'name' })}
           >
             <SelectTrigger
-              aria-label="Sort coffee shops"
+              aria-label="Sắp xếp quán cà phê"
               className="h-8 px-2.5 sm:px-3 text-xs font-semibold rounded-full border border-[#2A2A2A] bg-[#141414] text-white hover:border-amber-gold/40 hover:text-amber-gold-hover flex-shrink-0 w-auto gap-1"
             >
               <ArrowUpDown size={12} className="text-amber-gold" />
-              <SelectValue placeholder="Sort" />
+              <SelectValue placeholder="Sắp xếp" />
             </SelectTrigger>
             <SelectContent className="bg-[#141414] border-[#2A2A2A] text-white rounded-xl shadow-xl z-50">
               <SelectItem value="distance" className="focus:bg-[#101010] focus:text-amber-gold text-xs cursor-pointer">
-                Distance
+                Khoảng cách
               </SelectItem>
               <SelectItem value="rating" className="focus:bg-[#101010] focus:text-amber-gold text-xs cursor-pointer">
-                Rating
+                Đánh giá
               </SelectItem>
               <SelectItem value="name" className="focus:bg-[#101010] focus:text-amber-gold text-xs cursor-pointer">
-                Name
+                Tên quán
               </SelectItem>
             </SelectContent>
           </Select>
@@ -203,8 +203,8 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
               variant="ghost"
               size="icon"
               onClick={resetFilters}
-              aria-label="Reset filters"
-              title="Reset filters"
+              aria-label="Đặt lại bộ lọc"
+              title="Đặt lại bộ lọc"
               className="h-8 w-8 text-[#D0D0D0] hover:text-white hover:bg-white/10 rounded-full flex-shrink-0"
             >
               <RotateCcw size={13} />
@@ -216,8 +216,8 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
             variant="ghost"
             size="icon"
             onClick={scrollToTop}
-            aria-label="Scroll to top"
-            title="Scroll to top"
+            aria-label="Cuộn lên đầu trang"
+            title="Cuộn lên đầu"
             className="h-8 w-8 bg-[#141414] hover:bg-white/10 text-amber-gold hover:text-amber-gold-hover border border-[#2A2A2A] rounded-full flex-shrink-0"
           >
             <ChevronUp size={15} />
@@ -228,8 +228,8 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
             variant="ghost"
             size="icon"
             onClick={() => setIsDismissed(true)}
-            aria-label="Dismiss floating filter bar"
-            title="Dismiss"
+            aria-label="Ẩn thanh bộ lọc nhanh"
+            title="Ẩn"
             className="h-8 w-8 text-[#A0A0A0] hover:text-white hover:bg-white/10 rounded-full flex-shrink-0"
           >
             <X size={14} />

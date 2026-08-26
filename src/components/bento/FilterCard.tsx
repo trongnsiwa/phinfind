@@ -33,14 +33,14 @@ export function FilterCard() {
           </div>
           <div>
             <h3 className="font-sans font-bold text-sm leading-tight flex items-center gap-1.5">
-              Filter & Discover
+              Lọc &amp; Khám phá
               {activeCount > 0 && (
                 <Badge variant="secondary" className="bg-amber-400 text-phin-950 font-bold text-[10px] h-4 px-1.5 rounded-full">
                   {activeCount}
                 </Badge>
               )}
             </h3>
-            <p className="text-[11px] text-phin-200">Tailor your coffee exploration</p>
+            <p className="text-[11px] text-phin-200">Tùy chỉnh trải nghiệm tìm quán cà phê</p>
           </div>
         </div>
 
@@ -51,7 +51,7 @@ export function FilterCard() {
           className="text-xs bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-xl px-2.5 h-8 gap-1 backdrop-blur-md"
         >
           <SlidersHorizontal size={13} />
-          <span>{expanded ? 'Collapse' : 'Options'}</span>
+          <span>{expanded ? 'Thu gọn' : 'Tùy chọn'}</span>
           <ChevronDown size={13} className={cn('transition-transform duration-300', expanded && 'rotate-180')} />
         </Button>
       </div>
@@ -70,7 +70,7 @@ export function FilterCard() {
             )}
           >
             <span className={cn('w-1.5 h-1.5 rounded-full inline-block mr-1.5', filters.openNowOnly ? 'bg-[#101010]' : 'bg-[#7CAE8E]')} />
-            Open Now
+            Đang mở cửa
           </Button>
 
           <Button
@@ -84,7 +84,7 @@ export function FilterCard() {
                 : 'bg-white/10 text-phin-100 border-white/20 hover:bg-white/20'
             )}
           >
-            ⭐ 4.0+ Rating
+            ⭐ Từ 4.0+ sao
           </Button>
 
           {activeCount > 0 && (
@@ -95,7 +95,7 @@ export function FilterCard() {
               className="h-7 px-2 text-[10px] text-phin-300 hover:text-white"
             >
               <RotateCcw size={11} className="mr-1" />
-              Reset
+              Đặt lại
             </Button>
           )}
         </div>
@@ -103,7 +103,7 @@ export function FilterCard() {
         <CardContent className="p-0 pt-3 space-y-3.5 z-10 text-xs">
           <div className="flex items-center justify-between pt-1">
             <Label htmlFor="bento-open-now" className="text-phin-100 font-medium cursor-pointer">
-              Open Now Only
+              Chỉ quán đang mở cửa
             </Label>
             <Switch
               id="bento-open-now"
@@ -114,7 +114,7 @@ export function FilterCard() {
 
           <div className="space-y-1.5">
             <div className="flex justify-between text-phin-200">
-              <span>Minimum Rating</span>
+              <span>Đánh giá tối thiểu</span>
               <span className="font-bold text-amber-300">{filters.minRating || 0} ⭐</span>
             </div>
             <Slider
@@ -135,7 +135,7 @@ export function FilterCard() {
               className="h-7 px-2.5 text-[11px] text-phin-300 hover:text-white"
             >
               <RotateCcw size={11} className="mr-1" />
-              Reset All
+              Đặt lại tất cả
             </Button>
             <Button
               variant="default"
@@ -143,7 +143,7 @@ export function FilterCard() {
               onClick={() => setExpanded(false)}
               className="h-7 px-3 text-[11px] bg-amber-400 text-phin-950 font-bold hover:bg-amber-300 rounded-lg"
             >
-              Apply Filters
+              Áp dụng bộ lọc
             </Button>
           </div>
         </CardContent>

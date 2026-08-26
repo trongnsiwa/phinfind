@@ -38,7 +38,7 @@ export function InfiniteScroll({ onLoadMore, hasMore, isLoading }: InfiniteScrol
   if (!hasMore) {
     return (
       <div className="col-span-full py-8 text-center text-xs text-[#D0D0D0]/70 font-medium">
-        ☕ You&apos;ve explored all nearby coffee spots!
+        ☕ Bạn đã khám phá hết tất cả quán cà phê gần đây!
       </div>
     );
   }
@@ -48,7 +48,7 @@ export function InfiniteScroll({ onLoadMore, hasMore, isLoading }: InfiniteScrol
       {isLoading && (
         <div className="flex items-center gap-2 text-xs font-semibold text-amber-gold">
           <span className="w-4 h-4 rounded-full border-2 border-amber-gold border-t-transparent animate-spin" />
-          Brewing more coffee spots...
+          Đang pha chế thêm các quán cà phê...
         </div>
       )}
     </div>

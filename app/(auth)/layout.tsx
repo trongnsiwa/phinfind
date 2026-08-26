@@ -42,12 +42,12 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
               <div>
                 <h1 className="font-sans font-bold text-lg leading-none text-white">PhinFind</h1>
                 <p className="text-[10px] text-amber-gold font-semibold tracking-wider uppercase mt-0.5">
-                  Vietnamese Coffee PWA
+                  Cà phê Việt PWA
                 </p>
               </div>
             </Link>
             <span className="text-[10px] font-semibold text-amber-gold bg-amber-gold/10 border border-amber-gold/25 px-2.5 py-1 rounded-full flex items-center gap-1">
-              <Sparkles size={11} /> Coffee Passport
+              <Sparkles size={11} /> Hộ chiếu Cà phê
             </span>
           </div>
 
@@ -79,20 +79,20 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                     PhinFind
                   </h1>
                   <p className="text-[11px] text-amber-gold font-semibold tracking-widest uppercase mt-1">
-                    Vietnamese Coffee PWA
+                    Cà phê Việt PWA
                   </p>
                 </div>
               </Link>
 
               <div className="pt-4 space-y-3">
                 <span className="inline-flex items-center text-xs font-semibold text-amber-gold bg-amber-gold/10 px-3 py-1 rounded-full border border-amber-gold/30 backdrop-blur-sm shadow-sm gap-1.5">
-                  <Sparkles size={13} className="text-amber-gold" /> Join the Community
+                  <Sparkles size={13} className="text-amber-gold" /> Tham gia Cộng đồng
                 </span>
                 <h2 className="font-sans font-bold text-2xl lg:text-3xl leading-tight tracking-tight text-white">
-                  Discover the best coffee spots everywhere you go.
+                  Khám phá những quán cà phê tuyệt vời nhất ở mọi nơi bạn đến.
                 </h2>
                 <p className="text-sm text-[#D0D0D0]/80 leading-relaxed font-body">
-                  Save your favorite cafés, explore interactive maps, and get instant directions to local hidden gems.
+                  Lưu lại các quán yêu thích, khám phá bản đồ tương tác và nhận chỉ đường nhanh chóng đến những quán cà phê độc đáo.
                 </p>
               </div>
 
@@ -115,7 +115,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                     <span className="text-xs font-bold text-white ml-1.5">4.9 / 5</span>
                   </div>
                   <p className="text-xs text-[#D0D0D0]/75">
-                    Over 500+ handpicked artisan cafés
+                    Hơn 500+ quán cà phê được chọn lọc kỹ lưỡng
                   </p>
                 </div>
               </div>
@@ -128,15 +128,15 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                   <ShieldCheck size={20} />
                 </div>
                 <p className="text-xs text-[#D0D0D0]/85 leading-snug">
-                  Trusted by coffee lovers, digital nomads, and urban explorers.
+                  Được tin dùng bởi những người yêu cà phê và những người khám phá phố thị.
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-2 pt-1">
                 <span className="text-[11px] font-medium text-amber-gold/90 bg-amber-gold/10 border border-amber-gold/20 px-2.5 py-0.5 rounded-md flex items-center gap-1">
-                  <Users size={11} /> Community Driven
+                  <Users size={11} /> Cộng đồng năng động
                 </span>
                 <span className="text-[11px] font-medium text-amber-gold/90 bg-amber-gold/10 border border-amber-gold/20 px-2.5 py-0.5 rounded-md flex items-center gap-1">
-                  <MapPin size={11} /> Live Directions
+                  <MapPin size={11} /> Chỉ đường trực tiếp
                 </span>
               </div>
             </div>

@@ -80,10 +80,10 @@ export default function DiscoverPage() {
 
   const handleToggleFav = (placeId: string) => {
     if (!isAuthenticated) {
-      toast('Sign in required', {
-        description: 'Sign in to start saving your favorite spots and share your coffee experiences.',
+      toast('Yêu cầu đăng nhập', {
+        description: 'Đăng nhập để bắt đầu lưu lại các quán yêu thích và chia sẻ trải nghiệm cà phê của bạn.',
         action: {
-          label: 'Sign in',
+          label: 'Đăng nhập',
           onClick: () => router.push(APP_ROUTES.LOGIN),
         },
       });
@@ -93,9 +93,9 @@ export default function DiscoverPage() {
     const isFav = favorites.includes(placeId);
     toggleFavorite(placeId);
     if (isFav) {
-      toast.info('Removed from favorites');
+      toast.info('Đã xóa khỏi danh sách yêu thích');
     } else {
-      toast.success('Shop saved to favorites!');
+      toast.success('Đã lưu quán vào danh sách yêu thích!');
     }
   };
 
@@ -236,9 +236,9 @@ export default function DiscoverPage() {
           {/* Right: Results Count, Location Badge, & Sort Selector */}
           <div className="flex items-center justify-between sm:justify-end gap-3 text-xs flex-shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-[#2A2A2A]/40">
             <div className="flex items-center gap-1.5">
-              <span className="font-bold text-white tracking-tight">{displayedShops.length} shops nearby</span>
+              <span className="font-bold text-white tracking-tight">{displayedShops.length} quán gần bạn</span>
               <Badge variant="outline" className="bg-[#141414] text-[#D0D0D0] border-[#2A2A2A] text-[10px] px-2 py-0.5 rounded-full font-medium transition-all duration-200">
-                {locationLoading || isCityLoading ? 'Locating...' : cityName}
+                {locationLoading || isCityLoading ? 'Đang định vị...' : cityName}
               </Badge>
             </div>
 
@@ -248,21 +248,21 @@ export default function DiscoverPage() {
                 onValueChange={(val) => setFilters({ sortBy: val as 'distance' | 'rating' | 'name' })}
               >
                 <SelectTrigger
-                  aria-label="Sort coffee shops by"
+                  aria-label="Sắp xếp quán cà phê theo"
                   className="h-8 text-xs font-semibold bg-[#141414] text-white border-[#2A2A2A] rounded-xl focus:outline-none focus:ring-1 focus:ring-amber-gold/60 focus:ring-offset-0 focus:border-amber-gold/60 focus:scale-[1.01] hover:border-amber-gold/40 hover:text-amber-gold-hover hover:bg-white/10 transition-all duration-200 ease-out w-auto gap-2 px-3 group"
                 >
                   <ArrowUpDown size={14} className="text-amber-gold flex-shrink-0 transition-colors duration-200 group-hover:text-amber-gold-hover group-focus-within:text-amber-gold-hover" />
-                  <SelectValue placeholder="Sort..." />
+                  <SelectValue placeholder="Sắp xếp..." />
                 </SelectTrigger>
                 <SelectContent className="bg-[#141414] border-[#2A2A2A] text-white rounded-xl shadow-xl">
                   <SelectItem value="distance" className="focus:bg-[#101010] focus:text-amber-gold text-xs transition-colors cursor-pointer">
-                    Distance
+                    Khoảng cách
                   </SelectItem>
                   <SelectItem value="rating" className="focus:bg-[#101010] focus:text-amber-gold text-xs transition-colors cursor-pointer">
-                    Rating
+                    Đánh giá
                   </SelectItem>
                   <SelectItem value="name" className="focus:bg-[#101010] focus:text-amber-gold text-xs transition-colors cursor-pointer">
-                    Name
+                    Tên quán
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -277,29 +277,29 @@ export default function DiscoverPage() {
       ) : isError && rawShops.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 px-4 text-center bg-[#101010]/60 rounded-3xl border border-[#2A2A2A]/60">
           <Coffee size={40} className="text-rose-400 mb-3" />
-          <h3 className="font-sans font-bold text-lg text-white mb-1">Failed to load coffee spots</h3>
+          <h3 className="font-sans font-bold text-lg text-white mb-1">Không thể tải danh sách quán cà phê</h3>
           <p className="text-xs text-[#D0D0D0]/80 max-w-sm mb-4">
-            We encountered an issue fetching spots nearby. Please try again.
+            Đã xảy ra sự cố khi tải các quán cà phê gần bạn. Vui lòng thử lại.
           </p>
           <Button
             onClick={() => refetch()}
             className="bg-amber-gold text-[#101010] hover:bg-amber-gold-hover font-bold rounded-xl text-xs px-4 py-2"
           >
-            Try Again
+            Thử lại
           </Button>
         </div>
       ) : displayedShops.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 px-4 text-center bg-[#101010]/60 rounded-3xl border border-[#2A2A2A]/60 animate-in fade-in duration-300">
           <Coffee size={40} className="text-amber-gold/60 mb-3" />
-          <h3 className="font-sans font-bold text-lg text-white mb-1">No coffee spots found</h3>
+          <h3 className="font-sans font-bold text-lg text-white mb-1">Không tìm thấy quán cà phê nào</h3>
           <p className="text-xs text-[#D0D0D0]/80 max-w-sm mb-4">
-            Try adjusting your search query or filters to find more artisan spots nearby.
+            Hãy thử thay đổi từ khóa tìm kiếm hoặc các bộ lọc để tìm thêm các quán gần bạn.
           </p>
           <Button
             onClick={resetFilters}
             className="bg-amber-gold text-[#101010] hover:bg-amber-gold-hover font-bold rounded-xl text-xs px-4 py-2"
           >
-            Reset Filters
+            Đặt lại bộ lọc
           </Button>
         </div>
       ) : (

@@ -21,7 +21,7 @@ export function SearchBar({
   onChange,
   suggestions = [],
   onSelectSuggestion,
-  placeholder = 'Search coffee shop name or location...',
+  placeholder = 'Tìm tên quán cà phê hoặc địa chỉ...',
   className,
 }: SearchBarProps) {
   const [open, setOpen] = useState(false);
@@ -46,7 +46,7 @@ export function SearchBar({
       <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 bg-white border-phin-200 shadow-md">
         <Command>
           <CommandList>
-            <CommandGroup heading="Suggestions">
+            <CommandGroup heading="Gợi ý tìm kiếm">
               {suggestions.map((shop) => (
                 <CommandItem
                   key={shop.id}
