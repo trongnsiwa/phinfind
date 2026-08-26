@@ -4,8 +4,8 @@
   "description": "Discover nearby Vietnamese coffee shops wherever you are",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#FAF7F2",
-  "theme_color": "#6F4E37",
+  "background_color": "#101010",
+  "theme_color": "#101010",
   "orientation": "portrait",
   "icons": [
     {

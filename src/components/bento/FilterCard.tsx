@@ -65,11 +65,11 @@ export function FilterCard() {
             className={cn(
               'h-7 px-2.5 text-[11px] rounded-lg border backdrop-blur-md transition-all',
               filters.openNowOnly
-                ? 'bg-[#7CAE8E] text-dark-bg border-[#7CAE8E] font-bold shadow-md shadow-[#7CAE8E]/25 hover:bg-[#8BBF9F]'
+                ? 'bg-[#7CAE8E] text-[#101010] border-[#7CAE8E] font-bold shadow-md shadow-[#7CAE8E]/25 hover:bg-[#8BBF9F]'
                 : 'bg-white/10 text-phin-100 border-white/20 hover:bg-white/20'
             )}
           >
-            <span className={cn('w-1.5 h-1.5 rounded-full inline-block mr-1.5', filters.openNowOnly ? 'bg-dark-bg' : 'bg-[#7CAE8E]')} />
+            <span className={cn('w-1.5 h-1.5 rounded-full inline-block mr-1.5', filters.openNowOnly ? 'bg-[#101010]' : 'bg-[#7CAE8E]')} />
             Open Now
           </Button>
 

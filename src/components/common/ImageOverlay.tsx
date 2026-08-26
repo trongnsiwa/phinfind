@@ -115,13 +115,13 @@ export function ImageOverlay() {
       onClick={handleBackdropClick}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
-      className="fixed inset-0 z-[999999] flex flex-col items-center justify-between bg-black/95 backdrop-blur-2xl text-cream-white select-none pointer-events-auto animate-in fade-in duration-150"
+      className="fixed inset-0 z-[999999] flex flex-col items-center justify-between bg-black/95 backdrop-blur-2xl text-white select-none pointer-events-auto animate-in fade-in duration-150"
     >
       {/* Top Header Bar */}
       <div className="w-full flex items-center justify-between px-4 sm:px-6 py-4 z-20 pointer-events-auto">
         <div className="flex items-center gap-2">
           {hasMultiple && (
-            <span className="text-xs font-semibold px-3 py-1 rounded-full bg-white/10 text-cream-white backdrop-blur-md border border-white/10">
+            <span className="text-xs font-semibold px-3 py-1 rounded-full bg-white/10 text-white backdrop-blur-md border border-white/10">
               {currentIndex + 1} / {images.length}
             </span>
           )}
@@ -140,7 +140,7 @@ export function ImageOverlay() {
             closeImagePreview();
           }}
           aria-label="Close full-screen image viewer"
-          className="h-11 w-11 rounded-full bg-white/15 hover:bg-white/25 active:scale-90 text-cream-white flex items-center justify-center transition-all border border-white/15 backdrop-blur-md shadow-xl cursor-pointer z-30 pointer-events-auto"
+          className="h-11 w-11 rounded-full bg-white/15 hover:bg-white/25 active:scale-90 text-white flex items-center justify-center transition-all border border-white/15 backdrop-blur-md shadow-xl cursor-pointer z-30 pointer-events-auto"
         >
           <X size={22} />
         </button>
@@ -153,17 +153,17 @@ export function ImageOverlay() {
       >
         {/* Loading Spinner */}
         {loading && !hasError && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-warm-gray pointer-events-none">
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-[#A0A0A0] pointer-events-none">
             <Loader2 size={36} className="animate-spin text-amber-gold" />
-            <span className="text-xs text-soft-beige">Loading image...</span>
+            <span className="text-xs text-[#D0D0D0]">Loading image...</span>
           </div>
         )}
 
         {/* Error State */}
         {hasError ? (
-          <div className="flex flex-col items-center justify-center gap-2 text-warm-gray py-12">
+          <div className="flex flex-col items-center justify-center gap-2 text-[#A0A0A0] py-12">
             <ImageIcon size={48} className="text-amber-gold/60" />
-            <p className="text-sm font-medium text-soft-beige">Failed to load full image</p>
+            <p className="text-sm font-medium text-[#D0D0D0]">Failed to load full image</p>
           </div>
         ) : (
           <img
@@ -192,7 +192,7 @@ export function ImageOverlay() {
                 prevImagePreview();
               }}
               aria-label="Previous photo"
-              className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full bg-black/60 hover:bg-black/80 active:scale-90 text-cream-white flex items-center justify-center transition-all border border-white/15 backdrop-blur-md shadow-xl z-20 cursor-pointer pointer-events-auto"
+              className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full bg-black/60 hover:bg-black/80 active:scale-90 text-white flex items-center justify-center transition-all border border-white/15 backdrop-blur-md shadow-xl z-20 cursor-pointer pointer-events-auto"
             >
               <ChevronLeft size={24} />
             </button>
@@ -204,7 +204,7 @@ export function ImageOverlay() {
                 nextImagePreview();
               }}
               aria-label="Next photo"
-              className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full bg-black/60 hover:bg-black/80 active:scale-90 text-cream-white flex items-center justify-center transition-all border border-white/15 backdrop-blur-md shadow-xl z-20 cursor-pointer pointer-events-auto"
+              className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full bg-black/60 hover:bg-black/80 active:scale-90 text-white flex items-center justify-center transition-all border border-white/15 backdrop-blur-md shadow-xl z-20 cursor-pointer pointer-events-auto"
             >
               <ChevronRight size={24} />
             </button>
@@ -215,7 +215,7 @@ export function ImageOverlay() {
       {/* Bottom Info Bar & Thumbnail Strip */}
       <div className="w-full flex flex-col items-center gap-3 px-4 sm:px-6 py-4 z-20 pointer-events-auto">
         {currentImage?.title && (
-          <div className="bg-black/60 backdrop-blur-md border border-white/10 px-4 py-1.5 rounded-full text-xs text-soft-beige font-medium text-center max-w-md line-clamp-1 shadow-md">
+          <div className="bg-black/60 backdrop-blur-md border border-white/10 px-4 py-1.5 rounded-full text-xs text-[#D0D0D0] font-medium text-center max-w-md line-clamp-1 shadow-md">
             {currentImage.title}
           </div>
         )}

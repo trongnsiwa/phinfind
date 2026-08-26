@@ -44,14 +44,14 @@ export function SearchBar() {
         onChange={(e) => setLocalValue(e.target.value)}
         placeholder="Search coffee shops by name, street, or district..."
         aria-label="Search coffee shops by name, street, or district"
-        className="w-full h-11 pl-10 pr-10 text-xs sm:text-sm bg-dark-roast text-cream-white border-dark-border rounded-2xl focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold/60 focus-visible:ring-offset-0 focus-visible:border-amber-gold/60 focus-visible:shadow-[0_0_0_1px_rgba(212,160,87,0.25)] focus-visible:scale-[1.005] hover:border-amber-gold/40 shadow-inner transition-all duration-200 ease-out placeholder:text-warm-gray"
+        className="w-full h-11 pl-10 pr-10 text-xs sm:text-sm bg-[#141414] text-white border-[#2A2A2A] rounded-2xl focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold/60 focus-visible:ring-offset-0 focus-visible:border-amber-gold/60 focus-visible:shadow-[0_0_0_1px_rgba(212,160,87,0.25)] focus-visible:scale-[1.005] hover:border-amber-gold/40 shadow-inner transition-all duration-200 ease-out placeholder:text-[#A0A0A0]"
       />
       {localValue && (
         <Button
           variant="ghost"
           size="icon"
           onClick={handleClear}
-          className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 text-warm-gray hover:text-cream-white hover:bg-dark-bg rounded-full transition-colors focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0"
+          className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 text-[#A0A0A0] hover:text-white hover:bg-[#101010] rounded-full transition-colors focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0"
           aria-label="Clear search query"
         >
           <X size={14} />

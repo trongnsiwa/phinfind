@@ -26,13 +26,13 @@ const Toaster = ({ ...props }: ToasterProps) => {
       toastOptions={{
         classNames: {
           toast:
-            "group toast !rounded-3xl !p-5 !gap-4 !items-start !bg-gradient-to-br !from-[#1A0F0A] !to-[#2C1810] !backdrop-blur-xl !border !border-amber-gold/20 !border-t-2 !border-t-amber-gold/60 !shadow-[0_12px_40px_rgba(0,0,0,0.6)] !shadow-amber-gold/10 !text-cream-white transition-all duration-200",
-          title: "!text-cream-white !font-semibold !text-sm !tracking-wide",
-          description: "!text-soft-beige/80 !text-sm !leading-relaxed !max-w-xs",
+            "group toast !rounded-3xl !p-5 !gap-4 !items-start !bg-gradient-to-br !from-[#101010] !to-[#141414] !backdrop-blur-xl !border !border-amber-gold/20 !border-t-2 !border-t-amber-gold/60 !shadow-[0_12px_40px_rgba(0,0,0,0.6)] !shadow-amber-gold/10 !text-white transition-all duration-200",
+          title: "!text-white !font-semibold !text-sm !tracking-wide",
+          description: "!text-[#D0D0D0]/80 !text-sm !leading-relaxed !max-w-xs",
           actionButton:
-            "!bg-amber-gold hover:!bg-amber-gold-hover !text-dark-bg !font-bold !rounded-full !px-5 !py-2 !text-xs !shadow-md hover:!scale-[1.02] active:!scale-95 transition-all duration-200 !border-none cursor-pointer mt-2",
+            "!bg-amber-gold hover:!bg-amber-gold-hover !text-[#101010] !font-bold !rounded-full !px-5 !py-2 !text-xs !shadow-md hover:!scale-[1.02] active:!scale-95 transition-all duration-200 !border-none cursor-pointer mt-2",
           cancelButton:
-            "!bg-dark-roast/80 hover:!bg-white/10 !text-soft-beige !rounded-full !px-4 !py-2 !text-xs transition-colors !border-none cursor-pointer mt-2",
+            "!bg-[#141414]/80 hover:!bg-white/10 !text-[#D0D0D0] !rounded-full !px-4 !py-2 !text-xs transition-colors !border-none cursor-pointer mt-2",
         },
       }}
       {...props}

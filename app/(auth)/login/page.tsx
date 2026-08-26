@@ -77,10 +77,10 @@ function LoginForm() {
   return (
     <Card className="border-0 shadow-none bg-transparent p-0">
       <CardHeader className="p-0 mb-6 sm:mb-8 space-y-1.5 text-left">
-        <CardTitle className="font-sans font-bold text-2xl sm:text-3xl text-cream-white tracking-tight">
+        <CardTitle className="font-sans font-bold text-2xl sm:text-3xl text-white tracking-tight">
           Welcome Back
         </CardTitle>
-        <CardDescription className="text-xs sm:text-sm text-soft-beige/80 leading-relaxed font-body">
+        <CardDescription className="text-xs sm:text-sm text-[#D0D0D0]/80 leading-relaxed font-body">
           Sign in to access your saved coffee shops and recommendations
         </CardDescription>
       </CardHeader>
@@ -88,7 +88,7 @@ function LoginForm() {
       <CardContent className="p-0 space-y-5">
         <form className="space-y-4" onSubmit={handleLogin}>
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-soft-beige/80 font-semibold text-xs uppercase tracking-wider">
+            <Label htmlFor="email" className="text-[#D0D0D0]/80 font-semibold text-xs uppercase tracking-wider">
               Email address
             </Label>
             <Input
@@ -99,13 +99,13 @@ function LoginForm() {
               onChange={(e) => setEmail(e.target.value)}
               disabled={isLoading}
               required
-              className="h-11 text-sm bg-dark-roast/80 border-dark-border text-cream-white placeholder:text-warm-gray/60 focus-visible:ring-2 focus-visible:ring-amber-gold/30 focus-visible:border-amber-gold rounded-xl shadow-inner transition-all duration-150"
+              className="h-11 text-sm bg-[#141414]/80 border-[#2A2A2A] text-white placeholder:text-[#A0A0A0]/60 focus-visible:ring-2 focus-visible:ring-amber-gold/30 focus-visible:border-amber-gold rounded-xl shadow-inner transition-all duration-150"
             />
           </div>
 
           <div className="space-y-2">
             <div className="flex justify-between items-center">
-              <Label htmlFor="password" className="text-soft-beige/80 font-semibold text-xs uppercase tracking-wider">
+              <Label htmlFor="password" className="text-[#D0D0D0]/80 font-semibold text-xs uppercase tracking-wider">
                 Password
               </Label>
               <a href="#" className="text-xs text-amber-gold/70 hover:text-amber-gold font-semibold hover:underline underline-offset-2 transition-colors">
@@ -121,7 +121,7 @@ function LoginForm() {
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
                 required
-                className="h-11 text-sm bg-dark-roast/80 border-dark-border text-cream-white placeholder:text-warm-gray/60 focus-visible:ring-2 focus-visible:ring-amber-gold/30 focus-visible:border-amber-gold rounded-xl pr-11 shadow-inner transition-all duration-150"
+                className="h-11 text-sm bg-[#141414]/80 border-[#2A2A2A] text-white placeholder:text-[#A0A0A0]/60 focus-visible:ring-2 focus-visible:ring-amber-gold/30 focus-visible:border-amber-gold rounded-xl pr-11 shadow-inner transition-all duration-150"
               />
               <Button
                 type="button"
@@ -129,7 +129,7 @@ function LoginForm() {
                 size="icon"
                 disabled={isLoading}
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-1 top-1/2 -translate-y-1/2 h-9 w-9 text-warm-gray hover:text-cream-white hover:bg-white/5 rounded-lg cursor-pointer transition-colors"
+                className="absolute right-1 top-1/2 -translate-y-1/2 h-9 w-9 text-[#A0A0A0] hover:text-white hover:bg-white/5 rounded-lg cursor-pointer transition-colors"
                 aria-label="Toggle password visibility"
               >
                 {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
@@ -140,11 +140,11 @@ function LoginForm() {
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full h-11 bg-gradient-to-r from-amber-gold to-amber-gold-hover text-dark-bg font-bold rounded-xl py-3 text-sm shadow-md hover:shadow-lg hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 cursor-pointer border-0 mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full h-11 bg-gradient-to-r from-amber-gold to-amber-gold-hover text-[#101010] font-bold rounded-xl py-3 text-sm shadow-md hover:shadow-lg hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 cursor-pointer border-0 mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <span className="flex items-center gap-2">
-                <span className="w-4 h-4 rounded-full border-2 border-dark-bg/30 border-t-dark-bg animate-spin" />
+                <span className="w-4 h-4 rounded-full border-2 border-[#101010]/30 border-t-[#101010] animate-spin" />
                 Signing in...
               </span>
             ) : (
@@ -155,18 +155,18 @@ function LoginForm() {
           </Button>
 
           {/* Security Reassurance Badge */}
-          <div className="flex items-center justify-center gap-1.5 text-[11px] text-warm-gray font-medium pt-0.5">
+          <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#A0A0A0] font-medium pt-0.5">
             <ShieldCheck size={13} className="text-amber-gold" />
             <span>256-bit Secure Coffee Passport</span>
           </div>
         </form>
 
         <div className="flex items-center gap-3 my-3">
-          <div className="h-px bg-dark-border/60 flex-1" />
-          <span className="text-[10px] text-warm-gray font-bold uppercase tracking-wider select-none bg-transparent">
+          <div className="h-px bg-[#2A2A2A]/60 flex-1" />
+          <span className="text-[10px] text-[#A0A0A0] font-bold uppercase tracking-wider select-none bg-transparent">
             Or
           </span>
-          <div className="h-px bg-dark-border/60 flex-1" />
+          <div className="h-px bg-[#2A2A2A]/60 flex-1" />
         </div>
 
         <Button
@@ -174,7 +174,7 @@ function LoginForm() {
           variant="outline"
           disabled={isLoading}
           onClick={handleGoogleSignIn}
-          className="w-full h-11 gap-2.5 border border-dark-border bg-dark-roast/40 hover:bg-dark-roast/70 hover:border-amber-gold/30 text-soft-beige hover:text-cream-white text-sm font-semibold rounded-xl shadow-sm transition-all duration-150 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+          className="w-full h-11 gap-2.5 border border-[#2A2A2A] bg-[#141414]/40 hover:bg-[#141414]/70 hover:border-amber-gold/30 text-[#D0D0D0] hover:text-white text-sm font-semibold rounded-xl shadow-sm transition-all duration-150 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
         >
           <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
             <path
@@ -197,7 +197,7 @@ function LoginForm() {
           Sign in with Google
         </Button>
 
-        <p className="text-center text-xs text-soft-beige/80 pt-1">
+        <p className="text-center text-xs text-[#D0D0D0]/80 pt-1">
           Don&apos;t have an account?{' '}
           <Link
             href={`/signup${redirect && redirect !== '/' ? `?redirect=${encodeURIComponent(redirect)}` : ''}`}

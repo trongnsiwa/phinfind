@@ -81,7 +81,7 @@ PhinFind bridges the gap between modern convenience and Vietnamese coffee cultur
 
 ### Primary & Dark Theme Palette
 
-PhinFind v2.0 introduces a premium dark roast header palette combined with warm coffee tones.
+PhinFind introduces a near-black, high-contrast dark theme combined with signature amber-gold accents.
 
 ```
 Primary Accent:
@@ -96,37 +96,45 @@ HEX: #E8B86D
 Usage: Hover states for links and buttons
 
 Dark Theme Palette (Header & Surfaces):
-⬛ Dark Roast Background
-HEX: #1A0F0A
-Usage: Header background, dark sheet modals, mobile nav
+⬛ Softened Dark Background
+HEX: #101010
+Usage: Page background, dark sheet modals, mobile nav
 
-🟤 Dark Roast Border
-HEX: #2C1810
-Usage: Header bottom border, card separation lines
+⬛ Dark Surface & Card Base
+HEX: #141414
+Usage: Cards, dropdowns, inputs, surface containers
 
-⬜ Cream White Text
-HEX: #FAF7F2
+Elevated Surfaces:
+HEX: #1A1A1A
+Usage: Hover states, elevated layers
+
+Dark Border:
+HEX: #2A2A2A
+Usage: Header bottom border, card separation lines, dividers
+
+⬜ Pure White Text
+HEX: #FFFFFF
 Usage: Primary text on dark surfaces
 
-🌫️ Soft Beige & Warm Gray
-HEX: #D4C4B8 / #A8988E
+🌫️ Light Gray & Muted Gray
+HEX: #D0D0D0 / #A0A0A0
 Usage: Secondary & muted text on dark surfaces
 ```
 
 ### Coffee Brand Palette (Phin Tokens)
 
 ```
-phin-50:  #FAF7F2  (Background cream)
-phin-100: #F5E6D3  (Light golden surface)
-phin-200: #E8D5C0  (Card borders)
-phin-300: #D48B5C  (Accent caramel)
-phin-400: #C68E5C  (Muted saffron)
-phin-500: #8B6B4A  (Coffee roast)
-phin-600: #6F4E37  (Medium roast)
-phin-700: #5A3E2E  (Dark roast)
-phin-800: #4D3427  (Deep roast)
-phin-900: #2C1810  (Darkest roast)
-phin-950: #1A0E0A  (Black roast)
+phin-50:  #FFFFFF  (Pure white)
+phin-100: #EBEBEB  (Light surface)
+phin-200: #D0D0D0  (Secondary gray)
+phin-300: #D4A057  (Accent caramel/gold)
+phin-400: #D4A057  (Amber gold)
+phin-500: #D4A057  (Primary gold)
+phin-600: #D0D0D0  (Secondary text)
+phin-700: #A0A0A0  (Muted text)
+phin-800: #2A2A2A  (Border dark)
+phin-900: #141414  (Surface base)
+phin-950: #101010  (Background base)
 ```
 
 ---
@@ -185,7 +193,7 @@ Responsive Grid Columns:
 ## 🧩 Component Library
 
 ### 1. Header (`Header.tsx`)
-- **Dark Glassmorphism**: `bg-[#1A0F0A]/90 backdrop-blur-md border-b border-[#2C1810] text-[#FAF7F2]`
+- **Dark Glassmorphism**: `bg-[#101010]/90 backdrop-blur-md border-b border-[#2A2A2A] text-white`
 - **Left Side**: App logo ("☕ PhinFind") + `Discover` (`/`) and `Map` (`/map`) navigation links with Warm Amber Gold text (`#D4A057`) and 2px underline indicators when active.
 - **Right Side**: Search button (with tooltip and `Cmd+K` keyboard listener) + User Avatar with `#D4A057` border and `DropdownMenu` (Profile, Favorites, Settings, Logout).
 - **Mobile Navigation**: Hamburger menu opening a navigation sheet.
@@ -220,7 +228,7 @@ Responsive Grid Columns:
 
 ## ♿ Accessibility & Performance
 
-- **WCAG AA Color Contrast**: All text on dark `#1A0F0A` and cream `#FAF7F2` backgrounds meets strict contrast guidelines.
+- **WCAG AA Color Contrast**: All text on dark `#101010` and pure white `#FFFFFF` backgrounds meets strict contrast guidelines.
 - **Keyboard Shortcuts**: `Cmd+K` / `Ctrl+K` global hotkey to open the search modal sheet.
 - **Accessible Touch Targets**: All buttons, chips, and menu items maintain a minimum height of 44px.
 - **Verification Standards**: Implementation verified with `rtk pnpm lint`, `rtk pnpm exec tsc --noEmit`, and `rtk pnpm build`.

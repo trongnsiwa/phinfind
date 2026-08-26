@@ -37,7 +37,7 @@ export function InfiniteScroll({ onLoadMore, hasMore, isLoading }: InfiniteScrol
 
   if (!hasMore) {
     return (
-      <div className="col-span-full py-8 text-center text-xs text-soft-beige/70 font-medium">
+      <div className="col-span-full py-8 text-center text-xs text-[#D0D0D0]/70 font-medium">
         ☕ You&apos;ve explored all nearby coffee spots!
       </div>
     );

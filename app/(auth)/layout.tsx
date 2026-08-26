@@ -4,7 +4,7 @@ import { Coffee, Sparkles, ShieldCheck, Star, Users, MapPin } from 'lucide-react
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-dark-bg via-dark-roast to-dark-bg relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-[#101010] via-[#141414] to-[#101010] relative overflow-hidden">
       {/* Inline styles for steam animation */}
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes auth-steam-rise {
@@ -31,16 +31,16 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         <div className="absolute -inset-2 sm:-inset-4 bg-gradient-to-r from-amber-gold/20 via-amber-gold/10 to-amber-gold/20 rounded-[2.5rem] blur-2xl opacity-75 -z-10 pointer-events-none" />
 
         {/* Main Auth Card Container */}
-        <div className="w-full grid grid-cols-1 md:grid-cols-2 rounded-3xl overflow-hidden shadow-2xl shadow-black/60 border border-dark-border/80 bg-dark-bg gap-0">
+        <div className="w-full grid grid-cols-1 md:grid-cols-2 rounded-3xl overflow-hidden shadow-2xl shadow-black/60 border border-[#2A2A2A]/80 bg-[#101010] gap-0">
           
           {/* Mobile Header Branding (Visible only on mobile) */}
-          <div className="md:hidden p-5 bg-gradient-to-b from-dark-roast to-dark-bg border-b border-dark-border/80 text-white flex items-center justify-between">
+          <div className="md:hidden p-5 bg-gradient-to-b from-[#141414] to-[#101010] border-b border-[#2A2A2A]/80 text-white flex items-center justify-between">
             <Link href="/" className="inline-flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-amber-gold/15 border border-amber-gold/30 text-amber-gold flex items-center justify-center shadow-md">
                 <Coffee className="w-5 h-5" />
               </div>
               <div>
-                <h1 className="font-sans font-bold text-lg leading-none text-cream-white">PhinFind</h1>
+                <h1 className="font-sans font-bold text-lg leading-none text-white">PhinFind</h1>
                 <p className="text-[10px] text-amber-gold font-semibold tracking-wider uppercase mt-0.5">
                   Vietnamese Coffee PWA
                 </p>
@@ -52,7 +52,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           </div>
 
           {/* Left Coffee Branding Hero Panel (Desktop) */}
-          <div className="hidden md:flex flex-col justify-between p-8 lg:p-10 bg-gradient-to-b from-dark-roast to-dark-bg text-cream-white relative overflow-hidden border-r border-dark-border/80">
+          <div className="hidden md:flex flex-col justify-between p-8 lg:p-10 bg-gradient-to-b from-[#141414] to-[#101010] text-white relative overflow-hidden border-r border-[#2A2A2A]/80">
             {/* Subtle decorative amber warmth overlay */}
             <div className="absolute inset-0 bg-gradient-to-b from-amber-gold/5 via-transparent to-amber-gold/5 pointer-events-none" />
 
@@ -75,7 +75,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                   <Coffee className="w-6 h-6 text-amber-gold" />
                 </div>
                 <div>
-                  <h1 className="font-sans font-bold text-2xl lg:text-3xl leading-none text-cream-white tracking-tight group-hover:text-amber-gold transition-colors">
+                  <h1 className="font-sans font-bold text-2xl lg:text-3xl leading-none text-white tracking-tight group-hover:text-amber-gold transition-colors">
                     PhinFind
                   </h1>
                   <p className="text-[11px] text-amber-gold font-semibold tracking-widest uppercase mt-1">
@@ -88,10 +88,10 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                 <span className="inline-flex items-center text-xs font-semibold text-amber-gold bg-amber-gold/10 px-3 py-1 rounded-full border border-amber-gold/30 backdrop-blur-sm shadow-sm gap-1.5">
                   <Sparkles size={13} className="text-amber-gold" /> Join the Community
                 </span>
-                <h2 className="font-sans font-bold text-2xl lg:text-3xl leading-tight tracking-tight text-cream-white">
+                <h2 className="font-sans font-bold text-2xl lg:text-3xl leading-tight tracking-tight text-white">
                   Discover the best coffee spots everywhere you go.
                 </h2>
-                <p className="text-sm text-soft-beige/80 leading-relaxed font-body">
+                <p className="text-sm text-[#D0D0D0]/80 leading-relaxed font-body">
                   Save your favorite cafés, explore interactive maps, and get instant directions to local hidden gems.
                 </p>
               </div>
@@ -112,9 +112,9 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                     {[...Array(5)].map((_, i) => (
                       <Star key={i} size={12} className="fill-amber-gold text-amber-gold" />
                     ))}
-                    <span className="text-xs font-bold text-cream-white ml-1.5">4.9 / 5</span>
+                    <span className="text-xs font-bold text-white ml-1.5">4.9 / 5</span>
                   </div>
-                  <p className="text-xs text-soft-beige/75">
+                  <p className="text-xs text-[#D0D0D0]/75">
                     Over 500+ handpicked artisan cafés
                   </p>
                 </div>
@@ -122,12 +122,12 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             </div>
 
             {/* Bottom Trust Badge Section */}
-            <div className="relative z-10 pt-6 border-t border-dark-border/80 flex flex-col gap-3">
+            <div className="relative z-10 pt-6 border-t border-[#2A2A2A]/80 flex flex-col gap-3">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-amber-gold/10 border border-amber-gold/20 flex items-center justify-center text-amber-gold shrink-0">
                   <ShieldCheck size={20} />
                 </div>
-                <p className="text-xs text-soft-beige/85 leading-snug">
+                <p className="text-xs text-[#D0D0D0]/85 leading-snug">
                   Trusted by coffee lovers, digital nomads, and urban explorers.
                 </p>
               </div>
@@ -143,7 +143,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           </div>
 
           {/* Right Form Card Panel */}
-          <div className="bg-dark-bg/95 backdrop-blur-md p-6 sm:p-8 lg:p-10 flex flex-col justify-center relative text-cream-white">
+          <div className="bg-[#101010]/95 backdrop-blur-md p-6 sm:p-8 lg:p-10 flex flex-col justify-center relative text-white">
             {children}
           </div>
         </div>

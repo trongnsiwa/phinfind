@@ -217,27 +217,27 @@ export default function DiscoverPage() {
   }, []);
 
   return (
-    <div className="space-y-5 max-w-7xl mx-auto text-cream-white">
+    <div className="space-y-5 max-w-7xl mx-auto text-white">
       {/* Compact Premium Top Filter Card */}
       <div
         ref={topFilterRef}
-        className="bg-dark-bg/95 backdrop-blur-md rounded-3xl p-3.5 sm:p-4 border border-dark-border shadow-xl shadow-black/30 space-y-3"
+        className="bg-[#101010]/95 backdrop-blur-md rounded-3xl p-3.5 sm:p-4 border border-[#2A2A2A] shadow-xl shadow-black/30 space-y-3"
       >
         {/* Row 1: Prominent Full-Width Search Bar */}
         <SearchBar />
 
         {/* Row 2: Single Cohesive Controls Bar (Filter Chips + Results Count & Location + Sort Dropdown) */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1 border-t border-dark-border/60">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1 border-t border-[#2A2A2A]/60">
           {/* Left: Scrollable Filter Chips */}
           <div className="flex-1 min-w-0">
             <FilterChips />
           </div>
 
           {/* Right: Results Count, Location Badge, & Sort Selector */}
-          <div className="flex items-center justify-between sm:justify-end gap-3 text-xs flex-shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-dark-border/40">
+          <div className="flex items-center justify-between sm:justify-end gap-3 text-xs flex-shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-[#2A2A2A]/40">
             <div className="flex items-center gap-1.5">
-              <span className="font-bold text-cream-white tracking-tight">{displayedShops.length} shops nearby</span>
-              <Badge variant="outline" className="bg-dark-roast text-soft-beige border-dark-border text-[10px] px-2 py-0.5 rounded-full font-medium transition-all duration-200">
+              <span className="font-bold text-white tracking-tight">{displayedShops.length} shops nearby</span>
+              <Badge variant="outline" className="bg-[#141414] text-[#D0D0D0] border-[#2A2A2A] text-[10px] px-2 py-0.5 rounded-full font-medium transition-all duration-200">
                 {locationLoading || isCityLoading ? 'Locating...' : cityName}
               </Badge>
             </div>
@@ -249,19 +249,19 @@ export default function DiscoverPage() {
               >
                 <SelectTrigger
                   aria-label="Sort coffee shops by"
-                  className="h-8 text-xs font-semibold bg-dark-roast text-cream-white border-dark-border rounded-xl focus:outline-none focus:ring-1 focus:ring-amber-gold/60 focus:ring-offset-0 focus:border-amber-gold/60 focus:scale-[1.01] hover:border-amber-gold/40 hover:text-amber-gold-hover hover:bg-white/10 transition-all duration-200 ease-out w-auto gap-2 px-3 group"
+                  className="h-8 text-xs font-semibold bg-[#141414] text-white border-[#2A2A2A] rounded-xl focus:outline-none focus:ring-1 focus:ring-amber-gold/60 focus:ring-offset-0 focus:border-amber-gold/60 focus:scale-[1.01] hover:border-amber-gold/40 hover:text-amber-gold-hover hover:bg-white/10 transition-all duration-200 ease-out w-auto gap-2 px-3 group"
                 >
                   <ArrowUpDown size={14} className="text-amber-gold flex-shrink-0 transition-colors duration-200 group-hover:text-amber-gold-hover group-focus-within:text-amber-gold-hover" />
                   <SelectValue placeholder="Sort..." />
                 </SelectTrigger>
-                <SelectContent className="bg-dark-roast border-dark-border text-cream-white rounded-xl shadow-xl">
-                  <SelectItem value="distance" className="focus:bg-dark-bg focus:text-amber-gold text-xs transition-colors cursor-pointer">
+                <SelectContent className="bg-[#141414] border-[#2A2A2A] text-white rounded-xl shadow-xl">
+                  <SelectItem value="distance" className="focus:bg-[#101010] focus:text-amber-gold text-xs transition-colors cursor-pointer">
                     Distance
                   </SelectItem>
-                  <SelectItem value="rating" className="focus:bg-dark-bg focus:text-amber-gold text-xs transition-colors cursor-pointer">
+                  <SelectItem value="rating" className="focus:bg-[#101010] focus:text-amber-gold text-xs transition-colors cursor-pointer">
                     Rating
                   </SelectItem>
-                  <SelectItem value="name" className="focus:bg-dark-bg focus:text-amber-gold text-xs transition-colors cursor-pointer">
+                  <SelectItem value="name" className="focus:bg-[#101010] focus:text-amber-gold text-xs transition-colors cursor-pointer">
                     Name
                   </SelectItem>
                 </SelectContent>
@@ -275,29 +275,29 @@ export default function DiscoverPage() {
       {isInitialLoading ? (
         <ListSkeleton count={12} />
       ) : isError && rawShops.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 px-4 text-center bg-dark-bg/60 rounded-3xl border border-dark-border/60">
+        <div className="flex flex-col items-center justify-center py-16 px-4 text-center bg-[#101010]/60 rounded-3xl border border-[#2A2A2A]/60">
           <Coffee size={40} className="text-rose-400 mb-3" />
-          <h3 className="font-sans font-bold text-lg text-cream-white mb-1">Failed to load coffee spots</h3>
-          <p className="text-xs text-soft-beige/80 max-w-sm mb-4">
+          <h3 className="font-sans font-bold text-lg text-white mb-1">Failed to load coffee spots</h3>
+          <p className="text-xs text-[#D0D0D0]/80 max-w-sm mb-4">
             We encountered an issue fetching spots nearby. Please try again.
           </p>
           <Button
             onClick={() => refetch()}
-            className="bg-amber-gold text-dark-bg hover:bg-amber-gold-hover font-bold rounded-xl text-xs px-4 py-2"
+            className="bg-amber-gold text-[#101010] hover:bg-amber-gold-hover font-bold rounded-xl text-xs px-4 py-2"
           >
             Try Again
           </Button>
         </div>
       ) : displayedShops.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 px-4 text-center bg-dark-bg/60 rounded-3xl border border-dark-border/60 animate-in fade-in duration-300">
+        <div className="flex flex-col items-center justify-center py-16 px-4 text-center bg-[#101010]/60 rounded-3xl border border-[#2A2A2A]/60 animate-in fade-in duration-300">
           <Coffee size={40} className="text-amber-gold/60 mb-3" />
-          <h3 className="font-sans font-bold text-lg text-cream-white mb-1">No coffee spots found</h3>
-          <p className="text-xs text-soft-beige/80 max-w-sm mb-4">
+          <h3 className="font-sans font-bold text-lg text-white mb-1">No coffee spots found</h3>
+          <p className="text-xs text-[#D0D0D0]/80 max-w-sm mb-4">
             Try adjusting your search query or filters to find more artisan spots nearby.
           </p>
           <Button
             onClick={resetFilters}
-            className="bg-amber-gold text-dark-bg hover:bg-amber-gold-hover font-bold rounded-xl text-xs px-4 py-2"
+            className="bg-amber-gold text-[#101010] hover:bg-amber-gold-hover font-bold rounded-xl text-xs px-4 py-2"
           >
             Reset Filters
           </Button>

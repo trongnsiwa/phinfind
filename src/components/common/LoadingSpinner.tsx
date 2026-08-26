@@ -26,7 +26,7 @@ export function LoadingSpinner({ size = 'md', text, className }: LoadingSpinnerP
         <div className="absolute inset-0 rounded-full border-2 border-amber-gold/20 border-t-amber-gold animate-spin" />
         <Coffee size={iconSizes[size]} className="animate-pulse text-amber-gold" />
       </div>
-      {text && <p className="text-sm font-medium text-soft-beige/90 animate-pulse font-sans">{text}</p>}
+      {text && <p className="text-sm font-medium text-[#D0D0D0]/90 animate-pulse font-sans">{text}</p>}
     </div>
   );
 }

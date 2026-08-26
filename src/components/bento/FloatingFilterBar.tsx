@@ -74,7 +74,7 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
           : 'translate-y-full opacity-0 pointer-events-none'
       )}
     >
-      <div className="bg-dark-bg/98 backdrop-blur-xl border border-dark-border/40 hover:border-amber-gold/30 shadow-[0_-4px_30px_rgba(212,160,87,0.2)] shadow-[0_0_30px_rgba(212,160,87,0.08)] rounded-2xl sm:rounded-full p-2 sm:px-4 sm:py-2.5 flex items-center justify-between gap-2.5 transition-all duration-300">
+      <div className="bg-[#101010]/98 backdrop-blur-xl border border-[#2A2A2A]/40 hover:border-amber-gold/30 shadow-[0_-4px_30px_rgba(212,160,87,0.2)] shadow-[0_0_30px_rgba(212,160,87,0.08)] rounded-2xl sm:rounded-full p-2 sm:px-4 sm:py-2.5 flex items-center justify-between gap-2.5 transition-all duration-300">
         {/* Left Side: Compact Search + Results Count */}
         <div className="flex items-center gap-2 flex-1 min-w-0">
           <div className="relative flex-1 min-w-[120px] max-w-xs group">
@@ -89,7 +89,7 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
               onChange={(e) => setLocalValue(e.target.value)}
               placeholder="Search..."
               aria-label="Quick search coffee shops"
-              className="h-8 pl-8 pr-7 text-xs bg-dark-roast text-cream-white border-dark-border rounded-xl sm:rounded-full focus-visible:ring-1 focus-visible:ring-amber-gold/60 focus-visible:border-amber-gold/60 placeholder:text-warm-gray"
+              className="h-8 pl-8 pr-7 text-xs bg-[#141414] text-white border-[#2A2A2A] rounded-xl sm:rounded-full focus-visible:ring-1 focus-visible:ring-amber-gold/60 focus-visible:border-amber-gold/60 placeholder:text-[#A0A0A0]"
             />
             {localValue && (
               <Button
@@ -97,7 +97,7 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
                 size="icon"
                 onClick={handleClear}
                 aria-label="Clear search"
-                className="absolute right-1.5 top-1/2 -translate-y-1/2 h-5 w-5 text-warm-gray hover:text-cream-white rounded-full"
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 h-5 w-5 text-[#A0A0A0] hover:text-white rounded-full"
               >
                 <X size={12} />
               </Button>
@@ -106,7 +106,7 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
 
           <Badge
             variant="outline"
-            className="hidden sm:inline-flex bg-dark-roast text-cream-white border-dark-border text-[11px] px-2.5 py-1 rounded-full font-bold flex-shrink-0"
+            className="hidden sm:inline-flex bg-[#141414] text-white border-[#2A2A2A] text-[11px] px-2.5 py-1 rounded-full font-bold flex-shrink-0"
           >
             {shopCount} spots
           </Badge>
@@ -124,14 +124,14 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
             className={cn(
               'h-8 px-2.5 sm:px-3 text-xs font-semibold rounded-full border transition-all duration-200 flex items-center gap-1.5 flex-shrink-0',
               filters.openNowOnly
-                ? 'bg-[#7CAE8E] text-dark-bg border-[#7CAE8E] font-bold shadow-md'
-                : 'bg-dark-roast text-cream-white border-dark-border hover:border-amber-gold/40 hover:text-amber-gold-hover'
+                ? 'bg-[#7CAE8E] text-[#101010] border-[#7CAE8E] font-bold shadow-md'
+                : 'bg-[#141414] text-white border-[#2A2A2A] hover:border-amber-gold/40 hover:text-amber-gold-hover'
             )}
           >
             <span
               className={cn(
                 'w-1.5 h-1.5 rounded-full',
-                filters.openNowOnly ? 'bg-dark-bg' : 'bg-[#7CAE8E] animate-pulse'
+                filters.openNowOnly ? 'bg-[#101010]' : 'bg-[#7CAE8E] animate-pulse'
               )}
             />
             <span className="hidden xs:inline sm:inline">Open</span>
@@ -145,28 +145,28 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
             <SelectTrigger
               aria-label="Filter by rating"
               className={cn(
-                'h-8 px-2.5 sm:px-3 text-xs font-semibold rounded-full border border-dark-border bg-dark-roast text-cream-white hover:border-amber-gold/40 hover:text-amber-gold-hover flex-shrink-0 w-auto gap-1',
-                filters.minRating && filters.minRating > 0 && 'bg-amber-gold text-dark-bg border-amber-gold font-bold'
+                'h-8 px-2.5 sm:px-3 text-xs font-semibold rounded-full border border-[#2A2A2A] bg-[#141414] text-white hover:border-amber-gold/40 hover:text-amber-gold-hover flex-shrink-0 w-auto gap-1',
+                filters.minRating && filters.minRating > 0 && 'bg-amber-gold text-[#101010] border-amber-gold font-bold'
               )}
             >
               <Star
                 size={12}
                 className={cn(
                   filters.minRating && filters.minRating > 0
-                    ? 'fill-dark-bg text-dark-bg'
+                    ? 'fill-[#101010] text-[#101010]'
                     : 'fill-amber-gold text-amber-gold'
                 )}
               />
               <SelectValue placeholder="Rating" />
             </SelectTrigger>
-            <SelectContent className="bg-dark-roast border-dark-border text-cream-white rounded-xl shadow-xl z-50">
-              <SelectItem value="all" className="focus:bg-dark-bg focus:text-amber-gold text-xs cursor-pointer">
+            <SelectContent className="bg-[#141414] border-[#2A2A2A] text-white rounded-xl shadow-xl z-50">
+              <SelectItem value="all" className="focus:bg-[#101010] focus:text-amber-gold text-xs cursor-pointer">
                 All
               </SelectItem>
-              <SelectItem value="4" className="focus:bg-dark-bg focus:text-amber-gold text-xs cursor-pointer">
+              <SelectItem value="4" className="focus:bg-[#101010] focus:text-amber-gold text-xs cursor-pointer">
                 4.0+
               </SelectItem>
-              <SelectItem value="4.5" className="focus:bg-dark-bg focus:text-amber-gold text-xs cursor-pointer">
+              <SelectItem value="4.5" className="focus:bg-[#101010] focus:text-amber-gold text-xs cursor-pointer">
                 4.5+
               </SelectItem>
             </SelectContent>
@@ -179,19 +179,19 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
           >
             <SelectTrigger
               aria-label="Sort coffee shops"
-              className="h-8 px-2.5 sm:px-3 text-xs font-semibold rounded-full border border-dark-border bg-dark-roast text-cream-white hover:border-amber-gold/40 hover:text-amber-gold-hover flex-shrink-0 w-auto gap-1"
+              className="h-8 px-2.5 sm:px-3 text-xs font-semibold rounded-full border border-[#2A2A2A] bg-[#141414] text-white hover:border-amber-gold/40 hover:text-amber-gold-hover flex-shrink-0 w-auto gap-1"
             >
               <ArrowUpDown size={12} className="text-amber-gold" />
               <SelectValue placeholder="Sort" />
             </SelectTrigger>
-            <SelectContent className="bg-dark-roast border-dark-border text-cream-white rounded-xl shadow-xl z-50">
-              <SelectItem value="distance" className="focus:bg-dark-bg focus:text-amber-gold text-xs cursor-pointer">
+            <SelectContent className="bg-[#141414] border-[#2A2A2A] text-white rounded-xl shadow-xl z-50">
+              <SelectItem value="distance" className="focus:bg-[#101010] focus:text-amber-gold text-xs cursor-pointer">
                 Distance
               </SelectItem>
-              <SelectItem value="rating" className="focus:bg-dark-bg focus:text-amber-gold text-xs cursor-pointer">
+              <SelectItem value="rating" className="focus:bg-[#101010] focus:text-amber-gold text-xs cursor-pointer">
                 Rating
               </SelectItem>
-              <SelectItem value="name" className="focus:bg-dark-bg focus:text-amber-gold text-xs cursor-pointer">
+              <SelectItem value="name" className="focus:bg-[#101010] focus:text-amber-gold text-xs cursor-pointer">
                 Name
               </SelectItem>
             </SelectContent>
@@ -205,7 +205,7 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
               onClick={resetFilters}
               aria-label="Reset filters"
               title="Reset filters"
-              className="h-8 w-8 text-soft-beige hover:text-cream-white hover:bg-white/10 rounded-full flex-shrink-0"
+              className="h-8 w-8 text-[#D0D0D0] hover:text-white hover:bg-white/10 rounded-full flex-shrink-0"
             >
               <RotateCcw size={13} />
             </Button>
@@ -218,7 +218,7 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
             onClick={scrollToTop}
             aria-label="Scroll to top"
             title="Scroll to top"
-            className="h-8 w-8 bg-dark-roast hover:bg-white/10 text-amber-gold hover:text-amber-gold-hover border border-dark-border rounded-full flex-shrink-0"
+            className="h-8 w-8 bg-[#141414] hover:bg-white/10 text-amber-gold hover:text-amber-gold-hover border border-[#2A2A2A] rounded-full flex-shrink-0"
           >
             <ChevronUp size={15} />
           </Button>
@@ -230,7 +230,7 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
             onClick={() => setIsDismissed(true)}
             aria-label="Dismiss floating filter bar"
             title="Dismiss"
-            className="h-8 w-8 text-warm-gray hover:text-cream-white hover:bg-white/10 rounded-full flex-shrink-0"
+            className="h-8 w-8 text-[#A0A0A0] hover:text-white hover:bg-white/10 rounded-full flex-shrink-0"
           >
             <X size={14} />
           </Button>

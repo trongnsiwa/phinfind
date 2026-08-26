@@ -352,16 +352,17 @@ export interface CoffeeShop {
 
 ```
 Primary Colors:
-  - Coffee Brown: #6F4E37 (Primary)
-  - Warm Cream: #F5F0E8 (Background)
-  - Espresso: #2C1810 (Dark text)
-  - Caramel: #C68E5C (Accent)
+  - Amber Gold: #D4A057 (Primary Accent)
+  - Softened Black: #101010 (Background)
+  - Dark Surface: #141414 (Cards & Inputs)
+  - Pure White: #FFFFFF (Text)
 
 Secondary Colors:
-  - Light Cream: #FAF7F2 (Card bg)
-  - Mocha: #8B6B4A (Secondary text)
-  - Matcha Green: #7BA05B (Positive/Open)
-  - Berry Red: #C75B5B (Closed/Negative)
+  - Dark Border: #2A2A2A (Borders & Dividers)
+  - Light Gray: #D0D0D0 (Secondary text)
+  - Muted Gray: #A0A0A0 (Muted text)
+  - Sage Green: #7CAE8E (Positive/Open)
+  - Dusty Rose: #C97A7A (Closed/Negative)
 
 Semantic Colors:
   - Success: #7BA05B

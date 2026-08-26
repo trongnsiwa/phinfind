@@ -51,10 +51,10 @@ export const ShopCardMedium = memo(function ShopCardMedium({
   return (
     <Card
       onClick={() => onSelect?.(shop)}
-      className="col-span-1 sm:col-span-2 row-span-1 w-full h-full card-glow-border bg-gradient-to-r from-dark-roast via-dark-roast/90 to-dark-bg rounded-3xl border border-dark-border/80 shadow-md hover:shadow-2xl hover:border-amber-gold/40 hover:-translate-y-1.5 transition-all duration-300 p-3.5 flex gap-3.5 cursor-pointer group relative overflow-hidden"
+      className="col-span-1 sm:col-span-2 row-span-1 w-full h-full card-glow-border bg-gradient-to-r from-[#141414] via-[#141414]/90 to-[#101010] rounded-3xl border border-[#2A2A2A]/80 shadow-md hover:shadow-2xl hover:border-amber-gold/40 hover:-translate-y-1.5 transition-all duration-300 p-3.5 flex gap-3.5 cursor-pointer group relative overflow-hidden"
     >
       {/* Left Media with 4:3 Aspect Ratio Container */}
-      <div className="relative w-[36%] sm:w-[34%] h-full min-h-[130px] rounded-2xl overflow-hidden bg-dark-bg flex-shrink-0 border border-dark-border/60">
+      <div className="relative w-[36%] sm:w-[34%] h-full min-h-[130px] rounded-2xl overflow-hidden bg-[#101010] flex-shrink-0 border border-[#2A2A2A]/60">
         {!imgError ? (
           <img
             src={coverImage}
@@ -63,13 +63,13 @@ export const ShopCardMedium = memo(function ShopCardMedium({
             className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500 ease-out"
           />
         ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center bg-dark-roast/80 text-warm-gray gap-1.5 p-2">
+          <div className="w-full h-full flex flex-col items-center justify-center bg-[#141414]/80 text-[#A0A0A0] gap-1.5 p-2">
             <Coffee size={24} className="text-amber-gold opacity-60" />
-            <span className="text-xs font-sans font-bold tracking-wider text-soft-beige">{(shop.name || 'Coffee').slice(0, 2).toUpperCase()}</span>
+            <span className="text-xs font-sans font-bold tracking-wider text-[#D0D0D0]">{(shop.name || 'Coffee').slice(0, 2).toUpperCase()}</span>
           </div>
         )}
 
-        <div className="absolute inset-0 bg-gradient-to-t from-dark-bg/80 via-transparent to-black/20 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#101010]/80 via-transparent to-black/20 pointer-events-none" />
 
         {/* Floating Status Pill */}
         {hasOpenInfo && (
@@ -92,7 +92,7 @@ export const ShopCardMedium = memo(function ShopCardMedium({
       <div className="flex-1 flex flex-col justify-between py-0.5 min-w-0 space-y-1.5">
         <div>
           <div className="flex items-start justify-between gap-1.5">
-            <h4 className="font-sans font-bold text-sm sm:text-base text-cream-white line-clamp-1 group-hover:text-amber-gold-hover transition-colors tracking-tight">
+            <h4 className="font-sans font-bold text-sm sm:text-base text-white line-clamp-1 group-hover:text-amber-gold-hover transition-colors tracking-tight">
               {shop.name}
             </h4>
             <Button
@@ -100,40 +100,40 @@ export const ShopCardMedium = memo(function ShopCardMedium({
               size="icon"
               onClick={handleFav}
               aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-              className="h-7 w-7 rounded-full bg-dark-bg/60 hover:bg-dark-bg border border-dark-border/40 text-cream-white shadow-sm flex-shrink-0 transition-all focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0"
+              className="h-7 w-7 rounded-full bg-[#101010]/60 hover:bg-[#101010] border border-[#2A2A2A]/40 text-white shadow-sm flex-shrink-0 transition-all focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0"
             >
               <Heart
                 size={14}
                 className={cn(
-                  isFavorite ? 'fill-rose-500 text-rose-500' : 'text-cream-white/70',
+                  isFavorite ? 'fill-rose-500 text-rose-500' : 'text-white/70',
                   isHeartAnimating && 'animate-heart-beat'
                 )}
               />
             </Button>
           </div>
 
-          <p className="text-xs text-soft-beige/80 flex items-center gap-1 line-clamp-1 mt-0.5">
+          <p className="text-xs text-[#D0D0D0]/80 flex items-center gap-1 line-clamp-1 mt-0.5">
             <MapPin size={11} className="text-amber-gold flex-shrink-0" />
             {addressDisplay}
           </p>
 
-          <div className="flex items-center gap-1.5 text-[10px] text-soft-beige/70 mt-1 font-medium">
+          <div className="flex items-center gap-1.5 text-[10px] text-[#D0D0D0]/70 mt-1 font-medium">
             <Clock size={10} className="text-amber-gold/80 flex-shrink-0" />
             <span className="truncate">{isOpen ? 'Closes 10:30 PM' : 'Opens 07:00 AM'}</span>
-            <span className="text-dark-border">•</span>
-            <Wifi size={10} className="text-soft-beige/70 flex-shrink-0" />
+            <span className="text-[#2A2A2A]">•</span>
+            <Wifi size={10} className="text-[#D0D0D0]/70 flex-shrink-0" />
             <span className="truncate">{shop.price_range || '€€'} · Wi-Fi</span>
           </div>
         </div>
 
-        <div className="flex items-center justify-between text-xs pt-1.5 border-t border-dark-border/50">
+        <div className="flex items-center justify-between text-xs pt-1.5 border-t border-[#2A2A2A]/50">
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="bg-dark-bg/90 text-amber-gold border-dark-border font-bold text-[11px] py-0.5 px-2 rounded-lg flex items-center gap-1">
+            <Badge variant="outline" className="bg-[#101010]/90 text-amber-gold border-[#2A2A2A] font-bold text-[11px] py-0.5 px-2 rounded-lg flex items-center gap-1">
               {hasRating ? (
                 <>
                   <Star size={11} className="fill-amber-gold text-amber-gold" /> {shop.rating.toFixed(1)}
                   {hasTotalRatings && (
-                    <span className="text-[10px] text-warm-gray">({shop.total_ratings})</span>
+                    <span className="text-[10px] text-[#A0A0A0]">({shop.total_ratings})</span>
                   )}
                 </>
               ) : (
@@ -143,7 +143,7 @@ export const ShopCardMedium = memo(function ShopCardMedium({
                 </>
               )}
             </Badge>
-            <span className="text-soft-beige text-[11px] font-medium flex items-center gap-1">
+            <span className="text-[#D0D0D0] text-[11px] font-medium flex items-center gap-1">
               <Footprints size={11} className="text-amber-gold/70" /> {distanceDisplay}
             </span>
           </div>
@@ -157,7 +157,7 @@ export const ShopCardMedium = memo(function ShopCardMedium({
             <Button
               variant="outline"
               size="sm"
-              className="h-7 px-2.5 text-[11px] bg-dark-bg/60 border-dark-border text-cream-white hover:text-amber-gold-hover hover:border-amber-gold/40 hover:bg-dark-bg rounded-lg font-medium transition-all"
+              className="h-7 px-2.5 text-[11px] bg-[#101010]/60 border-[#2A2A2A] text-white hover:text-amber-gold-hover hover:border-amber-gold/40 hover:bg-[#101010] rounded-lg font-medium transition-all"
             >
               <Navigation size={11} className="mr-1 text-amber-gold" /> Nav
             </Button>

@@ -2,25 +2,25 @@
 @import 'leaflet/dist/leaflet.css';
 
 :root {
-  --background: 38 44% 96%;
-  --foreground: 17 47% 12%;
-  --card: 0 0% 100%;
-  --card-foreground: 17 47% 12%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 17 47% 12%;
-  --primary: 25 34% 33%;
-  --primary-foreground: 38 44% 96%;
-  --secondary: 25 58% 60%;
-  --secondary-foreground: 17 47% 12%;
-  --muted: 34 63% 89%;
-  --muted-foreground: 25 34% 33%;
-  --accent: 25 58% 60%;
-  --accent-foreground: 17 47% 12%;
-  --destructive: 0 49% 57%;
-  --destructive-foreground: 38 44% 96%;
-  --border: 34 63% 89%;
-  --input: 34 63% 89%;
-  --ring: 25 34% 33%;
+  --background: 0 0% 6%;
+  --foreground: 0 0% 100%;
+  --card: 0 0% 8%;
+  --card-foreground: 0 0% 100%;
+  --popover: 0 0% 8%;
+  --popover-foreground: 0 0% 100%;
+  --primary: 38 60% 58%;
+  --primary-foreground: 0 0% 6%;
+  --secondary: 0 0% 12%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 0 0% 12%;
+  --muted-foreground: 0 0% 63%;
+  --accent: 0 0% 12%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 0 0% 16%;
+  --input: 0 0% 16%;
+  --ring: 38 60% 58%;
   --radius: 0.75rem;
 }
 
@@ -33,10 +33,10 @@
   --color-popover-foreground: hsl(var(--popover-foreground));
   --color-primary: hsl(var(--primary));
   --color-primary-foreground: hsl(var(--primary-foreground));
-  --color-primary-hover: #5A3E2E;
+  --color-primary-hover: #E8B86D;
   --color-secondary: hsl(var(--secondary));
   --color-secondary-foreground: hsl(var(--secondary-foreground));
-  --color-secondary-hover: #C47A4A;
+  --color-secondary-hover: #1A1A1A;
   --color-muted: hsl(var(--muted));
   --color-muted-foreground: hsl(var(--muted-foreground));
   --color-accent: hsl(var(--accent));
@@ -50,34 +50,34 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
 
-  /* Warm Amber Gold & Dark Theme Palette */
+  /* Softened Dark Theme Palette (#101010) */
   --color-amber-gold: #D4A057;
   --color-amber-gold-hover: #E8B86D;
-  --color-dark-bg: #1A0F0A;
-  --color-dark-roast: #2C1810;
-  --color-dark-border: #3D2A1E;
-  --color-cream-white: #FAF7F2;
-  --color-soft-beige: #D4C4B8;
-  --color-warm-gray: #A8988E;
+  --color-dark-bg: #101010;
+  --color-dark-roast: #141414;
+  --color-dark-border: #2A2A2A;
+  --color-cream-white: #FFFFFF;
+  --color-soft-beige: #D0D0D0;
+  --color-warm-gray: #A0A0A0;
 
-  --color-phin-50: #FAF7F2;
-  --color-phin-100: #F5E6D3;
-  --color-phin-200: #E8D5C0;
-  --color-phin-300: #D48B5C;
-  --color-phin-400: #C68E5C;
-  --color-phin-500: #8B6B4A;
-  --color-phin-600: #6F4E37;
-  --color-phin-700: #5A3E2E;
-  --color-phin-800: #4D3427;
-  --color-phin-900: #2C1810;
-  --color-phin-950: #1A0E0A;
+  --color-phin-50: #FFFFFF;
+  --color-phin-100: #EBEBEB;
+  --color-phin-200: #D0D0D0;
+  --color-phin-300: #D4A057;
+  --color-phin-400: #D4A057;
+  --color-phin-500: #D4A057;
+  --color-phin-600: #D0D0D0;
+  --color-phin-700: #A0A0A0;
+  --color-phin-800: #2A2A2A;
+  --color-phin-900: #141414;
+  --color-phin-950: #101010;
 
   --font-body: var(--font-inter), sans-serif;
   --font-display: var(--font-inter), sans-serif;
   --font-serif: var(--font-serif), Georgia, serif;
 
-  --shadow-card: 0 4px 12px -2px rgba(44, 24, 16, 0.08), 0 2px 6px -1px rgba(44, 24, 16, 0.04);
-  --shadow-card-hover: 0 12px 24px -4px rgba(44, 24, 16, 0.14), 0 6px 12px -2px rgba(44, 24, 16, 0.08);
+  --shadow-card: 0 4px 12px -2px rgba(0, 0, 0, 0.5), 0 2px 6px -1px rgba(0, 0, 0, 0.3);
+  --shadow-card-hover: 0 12px 24px -4px rgba(0, 0, 0, 0.7), 0 6px 12px -2px rgba(0, 0, 0, 0.4);
 
   --animate-float: float 3s ease-in-out infinite;
   --animate-pulse-ring: pulse-ring 2s ease-out infinite;
@@ -139,8 +139,8 @@
 
 html,
 body {
-  background-color: #1A0F0A;
-  color: #FAF7F2;
+  background-color: #101010;
+  color: #FFFFFF;
   font-family: var(--font-body);
   -webkit-tap-highlight-color: transparent;
 }
@@ -149,13 +149,13 @@ body {
 ::selection,
 *::selection {
   background-color: rgba(212, 160, 87, 0.35);
-  color: #FAF7F2;
+  color: #FFFFFF;
 }
 
 ::-moz-selection,
 *::-moz-selection {
   background-color: rgba(212, 160, 87, 0.35);
-  color: #FAF7F2;
+  color: #FFFFFF;
 }
 
 html[data-scroll-locked][data-scroll-locked],
@@ -180,7 +180,7 @@ html.overflow-hidden body {
 html,
 body,
 * {
-  scrollbar-color: rgba(212, 160, 87, 0.4) #1A0F0A;
+  scrollbar-color: rgba(212, 160, 87, 0.4) #101010;
   scrollbar-width: thin;
 }
 
@@ -195,7 +195,7 @@ body::-webkit-scrollbar {
 ::-webkit-scrollbar-track,
 html::-webkit-scrollbar-track,
 body::-webkit-scrollbar-track {
-  background: #1A0F0A !important;
+  background: #101010 !important;
 }
 
 ::-webkit-scrollbar-thumb,
@@ -216,7 +216,7 @@ body::-webkit-scrollbar-thumb:hover {
 [data-radix-popper-content-wrapper],
 [data-radix-select-viewport] {
   scrollbar-width: thin;
-  scrollbar-color: rgba(212, 160, 87, 0.4) #2C1810;
+  scrollbar-color: rgba(212, 160, 87, 0.4) #141414;
 }
 
 [data-radix-select-content]::-webkit-scrollbar,
@@ -229,7 +229,7 @@ body::-webkit-scrollbar-thumb:hover {
 [data-radix-select-content]::-webkit-scrollbar-track,
 [data-radix-popper-content-wrapper]::-webkit-scrollbar-track,
 [data-radix-select-viewport]::-webkit-scrollbar-track {
-  background: #2C1810;
+  background: #141414;
   border-radius: 4px;
 }
 
@@ -306,17 +306,12 @@ body::-webkit-scrollbar-thumb:hover {
   animation: border-travel 2.2s linear infinite;
 }
 
-/* Warm Espresso Theme Filter for Leaflet Dark Tiles */
-.leaflet-tile-pane {
-  filter: sepia(30%) saturate(135%) hue-rotate(330deg) contrast(112%) brightness(96%);
-}
-
 /* Leaflet Dark Theme Popup & Marker Styles */
 .leaflet-popup-content-wrapper {
-  background: rgba(26, 15, 10, 0.96) !important;
-  border: 1px solid #3D2A1E !important;
+  background: rgba(16, 16, 16, 0.96) !important;
+  border: 1px solid #2A2A2A !important;
   border-radius: 1rem !important;
-  color: #FAF7F2 !important;
+  color: #FFFFFF !important;
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.8) !important;
   backdrop-filter: blur(16px) !important;
   padding: 0 !important;
@@ -328,12 +323,12 @@ body::-webkit-scrollbar-thumb:hover {
 }
 
 .leaflet-container {
-  background-color: #120A07 !important;
+  background-color: #101010 !important;
 }
 
 .leaflet-popup-tip {
-  background: #1A0F0A !important;
-  border: 1px solid #3D2A1E !important;
+  background: #101010 !important;
+  border: 1px solid #2A2A2A !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6) !important;
 }
 
@@ -344,7 +339,7 @@ body::-webkit-scrollbar-thumb:hover {
 }
 
 .leaflet-container a.leaflet-popup-close-button {
-  color: #A8988E !important;
+  color: #A0A0A0 !important;
   top: 8px !important;
   right: 8px !important;
   padding: 4px !important;
@@ -359,13 +354,13 @@ body::-webkit-scrollbar-thumb:hover {
 
 /* Leaflet Attribution Styling */
 .leaflet-control-attribution {
-  background: rgba(26, 15, 10, 0.8) !important;
+  background: rgba(16, 16, 16, 0.8) !important;
   backdrop-filter: blur(8px) !important;
-  color: #A8988E !important;
+  color: #A0A0A0 !important;
   font-size: 10px !important;
   border-top-left-radius: 8px !important;
   padding: 2px 8px !important;
-  border: 1px solid rgba(61, 42, 30, 0.5) !important;
+  border: 1px solid rgba(42, 42, 42, 0.5) !important;
   border-bottom: none !important;
   border-right: none !important;
 }
@@ -383,10 +378,10 @@ body::-webkit-scrollbar-thumb:hover {
 
 /* Leaflet Dark Tooltip Styles */
 .leaflet-tooltip.custom-dark-tooltip {
-  background: rgba(26, 15, 10, 0.95) !important;
-  border: 1px solid #3D2A1E !important;
+  background: rgba(16, 16, 16, 0.95) !important;
+  border: 1px solid #2A2A2A !important;
   border-radius: 0.625rem !important;
-  color: #FAF7F2 !important;
+  color: #FFFFFF !important;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.85) !important;
   backdrop-filter: blur(12px) !important;
   padding: 4px 8px !important;
@@ -394,11 +389,11 @@ body::-webkit-scrollbar-thumb:hover {
 }
 
 .leaflet-tooltip-top.custom-dark-tooltip::before {
-  border-top-color: #1A0F0A !important;
+  border-top-color: #101010 !important;
 }
 
 .leaflet-tooltip-bottom.custom-dark-tooltip::before {
-  border-bottom-color: #1A0F0A !important;
+  border-bottom-color: #101010 !important;
 }
 
 /* Selected Marker Subtle Pulse Ring Animation */

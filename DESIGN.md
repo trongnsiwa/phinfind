@@ -6,18 +6,18 @@ Comprehensive documentation of PhinFind's dark, artisan coffeehouse visual langu
 
 ## 1. Global Theme & Color Palette
 
-The default experience is a rich dark theme inspired by artisanal Vietnamese coffee brewing (*phin* drip roasts and warm golden crema).
+The default experience is a high-contrast near-black dark theme with signature amber-gold accents inspired by artisanal Vietnamese coffee brewing.
 
 ### Color Tokens
-* **Main Background (`bg-dark-bg`)**: `#1A0F0A` — Deep espresso background base.
-* **Surface & Card Base (`bg-dark-roast`)**: `#2C1810` — Warm dark roasted bean tone for cards, elevated surfaces, and inputs.
-* **Card Gradient Midtones**: `#25140d` — Subtle gradient layer between dark roast and background.
-* **Borders & Dividers (`border-dark-border`)**: `#3D2A1E` / `rgba(61, 42, 30, 0.8)` — Muted organic border separating panels.
-* **Primary Text (`text-cream-white`)**: `#FAF7F2` — High-contrast cream tone for headings, titles, and active labels.
-* **Secondary Text (`text-soft-beige`)**: `#D4C4B8` — Soft warm beige for descriptions, addresses, and secondary labels.
-* **Muted / Inactive Text (`text-warm-gray`)**: `#9E8B7E` — Subdued warm gray for review counts, inactive tabs, and placeholders.
+* **Main Background (`bg-[#101010]`)**: `#101010` — Softened modern dark background base (Threads style).
+* **Surface & Card Base (`bg-[#141414]`)**: `#141414` — High-contrast dark surface for cards, elevated surfaces, and inputs.
+* **Card Gradient Midtones / Elevated**: `#1A1A1A` — Subtle elevated layer between surface and background.
+* **Borders & Dividers (`border-[#2A2A2A]`)**: `#2A2A2A` — Clean dark border separating panels.
+* **Primary Text (`text-white`)**: `#FFFFFF` — Pure white tone for headings, titles, and active labels.
+* **Secondary Text (`text-[#D0D0D0]`)**: `#D0D0D0` — Soft secondary gray for descriptions, addresses, and secondary labels.
+* **Muted / Inactive Text (`text-[#A0A0A0]`)**: `#A0A0A0` — Subdued neutral gray for review counts, inactive tabs, and placeholders.
 * **Brand Accent (`--color-amber-gold`)**: `#D4A057` — Warm golden highlight for active states, badges, stars, and interactive borders.
-* **Brand Accent Hover (`--color-amber-gold-hover`)**: `#E0B26E` — Brightened gold on hover states.
+* **Brand Accent Hover (`--color-amber-gold-hover`)**: `#E8B86D` — Brightened gold on hover states.
 
 ---
 
@@ -30,7 +30,7 @@ The default experience is a rich dark theme inspired by artisanal Vietnamese cof
   * Indicator: Subtle bottom underline / active highlight.
   * Icon: Highlighted gold accent.
 * **Inactive Navigation State**:
-  * Default: `text-soft-beige/80`, transparent background.
+  * Default: `text-[#D0D0D0]/80`, transparent background.
   * Hover: Text transitions to gold (`text-amber-gold`), background fills to `bg-white/5`, and inline Lucide icon turns gold with `transition-colors duration-200`.
 * **Active Hover State**:
   * Icon and label brighten to `text-amber-gold-hover`.
@@ -92,10 +92,10 @@ The default experience is a rich dark theme inspired by artisanal Vietnamese cof
 
 * **Font Family**: Inter (sans-serif) exclusively across all headings, body text, and interactive buttons.
 * **Visual Hierarchy**:
-  * **Shop Names / Card Titles**: `font-bold text-lg sm:text-xl md:text-2xl text-cream-white tracking-tight`.
-  * **Addresses & Locations**: `font-normal text-xs sm:text-sm text-soft-beige/90`.
-  * **Atmosphere Taglines & Excerpts**: `font-normal text-xs sm:text-sm text-soft-beige/90 leading-relaxed`.
-  * **Metadata & Badges**: `font-medium text-xs text-soft-beige`.
+  * **Shop Names / Card Titles**: `font-bold text-lg sm:text-xl md:text-2xl text-white tracking-tight`.
+  * **Addresses & Locations**: `font-normal text-xs sm:text-sm text-[#D0D0D0]/90`.
+  * **Atmosphere Taglines & Excerpts**: `font-normal text-xs sm:text-sm text-[#D0D0D0]/90 leading-relaxed`.
+  * **Metadata & Badges**: `font-medium text-xs text-[#D0D0D0]`.
 
 ---
 
@@ -109,8 +109,8 @@ The default experience is a rich dark theme inspired by artisanal Vietnamese cof
 
 ## 7. Skeleton Loading Architecture
 
-* **Backgrounds & Shimmer**: Skeletons use `bg-dark-roast/80` and `bg-dark-roast/90` with muted warm gold pulsing accents (`border border-dark-border/30 animate-pulse`). No bright white flashes.
+* **Backgrounds & Shimmer**: Skeletons use `bg-[#141414]/80` and `bg-[#141414]/90` with muted warm gold pulsing accents (`border border-[#2A2A2A]/30 animate-pulse`). No bright white flashes.
 * **Component Parity**:
   * `CardSkeleton`: Supports `small`, `medium`, `large`, and `featured` size variants matching actual card dimensions and 60/40 gallery headers.
   * `ListSkeleton`: Matches the exact Bento Grid layout (`grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 auto-rows-[255px]`) with mixed card skeletons.
-  * `LoadingSpinner`: Amber-gold spinner border (`border-amber-gold/20 border-t-amber-gold`) and cream typography for map and data transitions.
+  * `LoadingSpinner`: Amber-gold spinner border (`border-amber-gold/20 border-t-amber-gold`) and white typography for map and data transitions.

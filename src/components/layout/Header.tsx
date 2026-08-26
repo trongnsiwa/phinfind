@@ -159,7 +159,7 @@ export function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-40 bg-dark-bg/95 backdrop-blur-md border-b border-dark-border text-cream-white shadow-lg px-3 sm:px-4 py-2.5 transition-all duration-300">
+    <header className="sticky top-0 z-40 bg-[#101010]/95 backdrop-blur-md border-b border-[#2A2A2A] text-white shadow-lg px-3 sm:px-4 py-2.5 transition-all duration-300">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 sm:gap-4">
         {/* Left Side: Brand Logo + Desktop Navigation Links */}
         <div className="flex items-center gap-5 lg:gap-7 flex-shrink-0">
@@ -168,14 +168,14 @@ export function Header() {
             className="flex items-center gap-2 group rounded-2xl p-1 -m-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold transition-all duration-200"
             aria-label="PhinFind Homepage"
           >
-            <span className="w-8.5 h-8.5 sm:w-9 sm:h-9 rounded-2xl bg-gradient-to-br from-amber-gold to-phin-600 text-dark-bg flex items-center justify-center font-bold text-lg sm:text-xl shadow-md group-hover:scale-105 transition-transform duration-200">
+            <span className="w-8.5 h-8.5 sm:w-9 sm:h-9 rounded-2xl bg-gradient-to-br from-amber-gold to-phin-600 text-[#101010] flex items-center justify-center font-bold text-lg sm:text-xl shadow-md group-hover:scale-105 transition-transform duration-200">
               ☕
             </span>
             <div>
-              <h1 className="font-sans font-bold text-lg sm:text-xl leading-none text-cream-white tracking-tight group-hover:text-amber-gold-hover transition-colors duration-200">
+              <h1 className="font-sans font-bold text-lg sm:text-xl leading-none text-white tracking-tight group-hover:text-amber-gold-hover transition-colors duration-200">
                 PhinFind
               </h1>
-              <p className="text-[9px] text-soft-beige tracking-wider font-semibold uppercase mt-0.5 group-hover:text-cream-white transition-colors duration-200">
+              <p className="text-[9px] text-[#D0D0D0] tracking-wider font-semibold uppercase mt-0.5 group-hover:text-white transition-colors duration-200">
                 Coffee PWA
               </p>
             </div>
@@ -191,7 +191,7 @@ export function Header() {
                 'relative group text-xs font-semibold px-3 h-8.5 rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold',
                 pathname === APP_ROUTES.HOME
                   ? 'text-amber-gold bg-white/10 font-bold'
-                  : 'text-soft-beige hover:text-amber-gold-hover hover:bg-white/5'
+                  : 'text-[#D0D0D0] hover:text-amber-gold-hover hover:bg-white/5'
               )}
             >
               <Link href={APP_ROUTES.HOME} className="flex items-center gap-1.5">
@@ -200,7 +200,7 @@ export function Header() {
                   strokeWidth={2.2}
                   className={cn(
                     'transition-all duration-200 group-hover:scale-110 group-hover:text-amber-gold-hover',
-                    pathname === APP_ROUTES.HOME ? 'text-amber-gold' : 'text-warm-gray'
+                    pathname === APP_ROUTES.HOME ? 'text-amber-gold' : 'text-[#A0A0A0]'
                   )}
                 />
                 <span>Discover</span>
@@ -218,7 +218,7 @@ export function Header() {
                 'relative group text-xs font-semibold px-3 h-8.5 rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold',
                 pathname === APP_ROUTES.MAP
                   ? 'text-amber-gold bg-white/10 font-bold'
-                  : 'text-soft-beige hover:text-amber-gold-hover hover:bg-white/5'
+                  : 'text-[#D0D0D0] hover:text-amber-gold-hover hover:bg-white/5'
               )}
             >
               <Link href={APP_ROUTES.MAP} className="flex items-center gap-1.5">
@@ -227,7 +227,7 @@ export function Header() {
                   strokeWidth={2.2}
                   className={cn(
                     'transition-all duration-200 group-hover:scale-110 group-hover:text-amber-gold-hover',
-                    pathname === APP_ROUTES.MAP ? 'text-amber-gold' : 'text-warm-gray'
+                    pathname === APP_ROUTES.MAP ? 'text-amber-gold' : 'text-[#A0A0A0]'
                   )}
                 />
                 <span>Map</span>
@@ -250,7 +250,7 @@ export function Header() {
                 size="icon"
                 onClick={() => setIsSearchOpen(true)}
                 aria-label="Search coffee shops (Cmd+K)"
-                className="h-9 w-9 rounded-full text-warm-gray hover:text-amber-gold hover:bg-white/5 border border-dark-border/60 hover:border-amber-gold/40 transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold flex-shrink-0"
+                className="h-9 w-9 rounded-full text-[#A0A0A0] hover:text-amber-gold hover:bg-white/5 border border-[#2A2A2A]/60 hover:border-amber-gold/40 transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold flex-shrink-0"
               >
                 <Search size={16} className="text-amber-gold" />
               </Button>
@@ -260,7 +260,7 @@ export function Header() {
                 <div className="relative flex items-center">
                   <Search
                     size={15}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-warm-gray pointer-events-none z-10"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A0A0A0] pointer-events-none z-10"
                     aria-hidden="true"
                   />
                   <Input
@@ -274,7 +274,7 @@ export function Header() {
                     onKeyDown={handleKeyDown}
                     placeholder="Search shops, streets, areas..."
                     aria-label="Search coffee shops"
-                    className="w-48 sm:w-64 h-9 pl-9 pr-8 text-xs sm:text-sm bg-dark-roast text-cream-white border-dark-border rounded-xl focus-visible:ring-1 focus-visible:ring-amber-gold placeholder:text-warm-gray shadow-inner"
+                    className="w-48 sm:w-64 h-9 pl-9 pr-8 text-xs sm:text-sm bg-[#141414] text-white border-[#2A2A2A] rounded-xl focus-visible:ring-1 focus-visible:ring-amber-gold placeholder:text-[#A0A0A0] shadow-inner"
                   />
                   {localValue && (
                     <Button
@@ -288,7 +288,7 @@ export function Header() {
                         inputRef.current?.focus();
                       }}
                       aria-label="Clear search text"
-                      className="absolute right-1.5 top-1/2 -translate-y-1/2 h-6 w-6 text-warm-gray hover:text-cream-white hover:bg-dark-border/80 rounded-full p-0 transition-colors"
+                      className="absolute right-1.5 top-1/2 -translate-y-1/2 h-6 w-6 text-[#A0A0A0] hover:text-white hover:bg-[#2A2A2A]/80 rounded-full p-0 transition-colors"
                     >
                       <X size={13} />
                     </Button>
@@ -299,7 +299,7 @@ export function Header() {
                   size="icon"
                   onClick={handleCloseSearch}
                   aria-label="Close search"
-                  className="h-9 w-9 text-warm-gray hover:text-cream-white hover:bg-dark-border/80 rounded-xl p-0 flex-shrink-0 transition-colors"
+                  className="h-9 w-9 text-[#A0A0A0] hover:text-white hover:bg-[#2A2A2A]/80 rounded-xl p-0 flex-shrink-0 transition-colors"
                 >
                   <X size={16} />
                 </Button>
@@ -308,20 +308,20 @@ export function Header() {
 
             {/* Autocomplete Suggestions Dropdown Attached Below Right-Aligned Search */}
             {isSearchOpen && localValue.trim().length > 0 && (
-              <div className="absolute right-0 top-full mt-2 w-72 sm:w-80 md:w-96 bg-dark-bg/98 backdrop-blur-xl border border-dark-border/80 rounded-2xl shadow-[0_10px_35px_rgba(0,0,0,0.6)] shadow-amber-gold/5 p-2 z-[100] max-h-80 overflow-y-auto space-y-1 animate-in fade-in slide-in-from-top-1 duration-150 text-left">
+              <div className="absolute right-0 top-full mt-2 w-72 sm:w-80 md:w-96 bg-[#101010]/98 backdrop-blur-xl border border-[#2A2A2A]/80 rounded-2xl shadow-[0_10px_35px_rgba(0,0,0,0.6)] shadow-amber-gold/5 p-2 z-[100] max-h-80 overflow-y-auto space-y-1 animate-in fade-in slide-in-from-top-1 duration-150 text-left">
                 {isSearching ? (
-                  <div className="py-6 text-center text-xs text-soft-beige/70 flex items-center justify-center gap-2 font-medium">
+                  <div className="py-6 text-center text-xs text-[#D0D0D0]/70 flex items-center justify-center gap-2 font-medium">
                     <span className="w-3.5 h-3.5 rounded-full border-2 border-amber-gold border-t-transparent animate-spin" />
                     Searching coffee spots...
                   </div>
                 ) : searchResults.length === 0 ? (
-                  <div className="py-6 text-center text-xs text-soft-beige/70">
-                    <p className="font-semibold text-cream-white mb-0.5">No coffee spots found</p>
+                  <div className="py-6 text-center text-xs text-[#D0D0D0]/70">
+                    <p className="font-semibold text-white mb-0.5">No coffee spots found</p>
                     <p className="text-[11px]">Try searching by street or district name</p>
                   </div>
                 ) : (
                   <>
-                    <div className="px-2.5 py-1 text-[10px] font-bold text-soft-beige/60 uppercase tracking-wider flex items-center justify-between border-b border-dark-border/40 mb-1">
+                    <div className="px-2.5 py-1 text-[10px] font-bold text-[#D0D0D0]/60 uppercase tracking-wider flex items-center justify-between border-b border-[#2A2A2A]/40 mb-1">
                       <span>Matching Coffee Spots</span>
                       <span>{searchResults.length} results</span>
                     </div>
@@ -337,8 +337,8 @@ export function Header() {
                           className={cn(
                             'p-2.5 rounded-xl cursor-pointer flex items-center justify-between gap-2.5 transition-all duration-150',
                             isSelected
-                              ? 'bg-dark-roast text-amber-gold border border-amber-gold/30 shadow-sm'
-                              : 'hover:bg-dark-roast/60 text-cream-white border border-transparent'
+                              ? 'bg-[#141414] text-amber-gold border border-amber-gold/30 shadow-sm'
+                              : 'hover:bg-[#141414]/60 text-white border border-transparent'
                           )}
                         >
                           <div className="min-w-0 flex-1">
@@ -350,7 +350,7 @@ export function Header() {
                                 <span className="w-1.5 h-1.5 rounded-full bg-[#7CAE8E] flex-shrink-0" title="Open now" />
                               )}
                             </div>
-                            <p className="text-[11px] text-soft-beige/80 truncate flex items-center gap-1 mt-0.5">
+                            <p className="text-[11px] text-[#D0D0D0]/80 truncate flex items-center gap-1 mt-0.5">
                               <MapPin size={10} className="text-amber-gold flex-shrink-0" />
                               {shop.address || 'Address unavailable'}
                             </p>
@@ -362,8 +362,8 @@ export function Header() {
                               className={cn(
                                 'px-2 py-0.5 rounded-md font-bold text-[10px] border flex items-center gap-0.5',
                                 hasRating
-                                  ? 'bg-dark-bg/80 text-amber-gold border-amber-gold/30'
-                                  : 'bg-dark-bg/80 text-soft-beige border-dark-border'
+                                  ? 'bg-[#101010]/80 text-amber-gold border-amber-gold/30'
+                                  : 'bg-[#101010]/80 text-[#D0D0D0] border-[#2A2A2A]'
                               )}
                             >
                               {hasRating ? (
@@ -379,7 +379,7 @@ export function Header() {
                               )}
                             </Badge>
                             {shop.distance_text && shop.distance_text !== '0 m' && (
-                              <span className="text-soft-beige/70 font-medium hidden sm:inline">
+                              <span className="text-[#D0D0D0]/70 font-medium hidden sm:inline">
                                 {shop.distance_text}
                               </span>
                             )}
@@ -407,7 +407,7 @@ export function Header() {
                 >
                   <Avatar className="h-9 w-9">
                     {avatarUrl && <AvatarImage src={avatarUrl} alt={displayName} className="object-cover" />}
-                    <AvatarFallback className="bg-dark-roast text-amber-gold font-bold text-xs">
+                    <AvatarFallback className="bg-[#141414] text-amber-gold font-bold text-xs">
                       {displayName.charAt(0).toUpperCase() || <User size={15} />}
                     </AvatarFallback>
                   </Avatar>
@@ -415,13 +415,13 @@ export function Header() {
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
-                className="w-56 bg-dark-bg/95 backdrop-blur-md border border-dark-border text-cream-white shadow-2xl rounded-2xl p-1.5 space-y-1 z-[500]"
+                className="w-56 bg-[#101010]/95 backdrop-blur-md border border-[#2A2A2A] text-white shadow-2xl rounded-2xl p-1.5 space-y-1 z-[500]"
               >
                 <DropdownMenuLabel className="font-sans px-2.5 py-2 select-none">
                   <div className="flex items-center gap-2.5">
-                    <Avatar className="h-9 w-9 rounded-full border border-dark-border/40 shrink-0">
+                    <Avatar className="h-9 w-9 rounded-full border border-[#2A2A2A]/40 shrink-0">
                       {avatarUrl && <AvatarImage src={avatarUrl} alt={displayName} className="object-cover" />}
-                      <AvatarFallback className="bg-dark-roast text-amber-gold font-bold text-xs">
+                      <AvatarFallback className="bg-[#141414] text-amber-gold font-bold text-xs">
                         {displayName.charAt(0).toUpperCase() || <User size={16} />}
                       </AvatarFallback>
                     </Avatar>
@@ -429,41 +429,41 @@ export function Header() {
                       <span className="text-xs font-bold text-amber-gold truncate">
                         {displayName}
                       </span>
-                      <span className="text-[10px] font-normal text-warm-gray truncate">
+                      <span className="text-[10px] font-normal text-[#A0A0A0] truncate">
                         {userEmail || 'Coffee Explorer'}
                       </span>
                     </div>
                   </div>
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator className="bg-dark-border my-1" />
+                <DropdownMenuSeparator className="bg-[#2A2A2A] my-1" />
                 <DropdownMenuItem asChild>
                   <Link
                     href={APP_ROUTES.PROFILE}
-                    className="cursor-pointer text-xs font-medium text-soft-beige hover:text-amber-gold focus:bg-dark-roast/60 focus:text-amber-gold rounded-xl px-2.5 py-2 transition-colors flex items-center gap-2 group"
+                    className="cursor-pointer text-xs font-medium text-[#D0D0D0] hover:text-amber-gold focus:bg-[#141414]/60 focus:text-amber-gold rounded-xl px-2.5 py-2 transition-colors flex items-center gap-2 group"
                   >
-                    <User size={16} className="text-warm-gray group-hover:text-amber-gold transition-colors shrink-0" />
+                    <User size={16} className="text-[#A0A0A0] group-hover:text-amber-gold transition-colors shrink-0" />
                     <span>Profile</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link
                     href={APP_ROUTES.FAVORITES}
-                    className="cursor-pointer text-xs font-medium text-soft-beige hover:text-amber-gold focus:bg-dark-roast/60 focus:text-amber-gold rounded-xl px-2.5 py-2 transition-colors flex items-center gap-2 group"
+                    className="cursor-pointer text-xs font-medium text-[#D0D0D0] hover:text-amber-gold focus:bg-[#141414]/60 focus:text-amber-gold rounded-xl px-2.5 py-2 transition-colors flex items-center gap-2 group"
                   >
-                    <Heart size={16} className="text-warm-gray group-hover:text-amber-gold transition-colors shrink-0" />
+                    <Heart size={16} className="text-[#A0A0A0] group-hover:text-amber-gold transition-colors shrink-0" />
                     <span>Favorites</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link
                     href={APP_ROUTES.PROFILE}
-                    className="cursor-pointer text-xs font-medium text-soft-beige hover:text-amber-gold focus:bg-dark-roast/60 focus:text-amber-gold rounded-xl px-2.5 py-2 transition-colors flex items-center gap-2 group"
+                    className="cursor-pointer text-xs font-medium text-[#D0D0D0] hover:text-amber-gold focus:bg-[#141414]/60 focus:text-amber-gold rounded-xl px-2.5 py-2 transition-colors flex items-center gap-2 group"
                   >
-                    <Settings size={16} className="text-warm-gray group-hover:text-amber-gold transition-colors shrink-0" />
+                    <Settings size={16} className="text-[#A0A0A0] group-hover:text-amber-gold transition-colors shrink-0" />
                     <span>Settings</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-dark-border my-1" />
+                <DropdownMenuSeparator className="bg-[#2A2A2A] my-1" />
                 <DropdownMenuItem
                   onClick={async () => {
                     await signOut();
@@ -479,7 +479,7 @@ export function Header() {
           ) : (
             <Button
               asChild
-              className="bg-amber-gold hover:bg-amber-gold-hover text-dark-bg font-bold text-xs rounded-xl px-3.5 py-1.5 h-9 shadow-md hover:scale-[1.02] active:scale-95 transition-all duration-200 flex items-center gap-1.5 cursor-pointer"
+              className="bg-amber-gold hover:bg-amber-gold-hover text-[#101010] font-bold text-xs rounded-xl px-3.5 py-1.5 h-9 shadow-md hover:scale-[1.02] active:scale-95 transition-all duration-200 flex items-center gap-1.5 cursor-pointer"
             >
               <Link href={APP_ROUTES.LOGIN}>
                 <LogIn size={15} />
@@ -494,18 +494,18 @@ export function Header() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden h-9 w-9 text-soft-beige hover:text-amber-gold hover:bg-white/5 border border-transparent rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold"
+                className="md:hidden h-9 w-9 text-[#D0D0D0] hover:text-amber-gold hover:bg-white/5 border border-transparent rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold"
                 aria-label="Toggle mobile menu"
               >
                 <Menu size={18} />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="bg-dark-bg text-cream-white border-l border-dark-border p-6 w-72">
+            <SheetContent side="right" className="bg-[#101010] text-white border-l border-[#2A2A2A] p-6 w-72">
               <SheetHeader className="text-left space-y-1 mb-6">
                 <SheetTitle className="font-sans font-bold text-lg text-amber-gold flex items-center gap-2">
                   ☕ PhinFind Navigation
                 </SheetTitle>
-                <SheetDescription className="text-xs text-warm-gray">
+                <SheetDescription className="text-xs text-[#A0A0A0]">
                   Explore Vietnamese coffee culture
                 </SheetDescription>
               </SheetHeader>
@@ -518,7 +518,7 @@ export function Header() {
                       'relative group flex items-center gap-2.5 p-2.5 rounded-xl text-xs transition-colors duration-200',
                       pathname === APP_ROUTES.HOME
                         ? 'text-amber-gold bg-white/10 font-bold'
-                        : 'text-soft-beige hover:text-amber-gold-hover hover:bg-white/5 font-semibold'
+                        : 'text-[#D0D0D0] hover:text-amber-gold-hover hover:bg-white/5 font-semibold'
                     )}
                   >
                     <Compass
@@ -526,7 +526,7 @@ export function Header() {
                       strokeWidth={2.2}
                       className={cn(
                         'transition-all duration-200 group-hover:scale-110 group-hover:text-amber-gold-hover',
-                        pathname === APP_ROUTES.HOME ? 'text-amber-gold' : 'text-warm-gray'
+                        pathname === APP_ROUTES.HOME ? 'text-amber-gold' : 'text-[#A0A0A0]'
                       )}
                     />
                     <span>Discover</span>
@@ -543,7 +543,7 @@ export function Header() {
                       'relative group flex items-center gap-2.5 p-2.5 rounded-xl text-xs transition-colors duration-200',
                       pathname === APP_ROUTES.MAP
                         ? 'text-amber-gold bg-white/10 font-bold'
-                        : 'text-soft-beige hover:text-amber-gold-hover hover:bg-white/5 font-semibold'
+                        : 'text-[#D0D0D0] hover:text-amber-gold-hover hover:bg-white/5 font-semibold'
                     )}
                   >
                     <MapPin
@@ -551,7 +551,7 @@ export function Header() {
                       strokeWidth={2.2}
                       className={cn(
                         'transition-all duration-200 group-hover:scale-110 group-hover:text-amber-gold-hover',
-                        pathname === APP_ROUTES.MAP ? 'text-amber-gold' : 'text-warm-gray'
+                        pathname === APP_ROUTES.MAP ? 'text-amber-gold' : 'text-[#A0A0A0]'
                       )}
                     />
                     <span>Map View</span>
@@ -568,7 +568,7 @@ export function Header() {
                       'relative group flex items-center gap-2.5 p-2.5 rounded-xl text-xs transition-colors duration-200',
                       pathname === APP_ROUTES.FAVORITES
                         ? 'text-amber-gold bg-white/10 font-bold'
-                        : 'text-soft-beige hover:text-amber-gold-hover hover:bg-white/5 font-semibold'
+                        : 'text-[#D0D0D0] hover:text-amber-gold-hover hover:bg-white/5 font-semibold'
                     )}
                   >
                     <Heart
@@ -593,7 +593,7 @@ export function Header() {
                       'relative group flex items-center gap-2.5 p-2.5 rounded-xl text-xs transition-colors duration-200',
                       pathname === APP_ROUTES.PROFILE
                         ? 'text-amber-gold bg-white/10 font-bold'
-                        : 'text-soft-beige hover:text-amber-gold-hover hover:bg-white/5 font-semibold'
+                        : 'text-[#D0D0D0] hover:text-amber-gold-hover hover:bg-white/5 font-semibold'
                     )}
                   >
                     <User
@@ -601,7 +601,7 @@ export function Header() {
                       strokeWidth={2.2}
                       className={cn(
                         'transition-all duration-200 group-hover:scale-110 group-hover:text-amber-gold-hover',
-                        pathname === APP_ROUTES.PROFILE ? 'text-amber-gold' : 'text-warm-gray'
+                        pathname === APP_ROUTES.PROFILE ? 'text-amber-gold' : 'text-[#A0A0A0]'
                       )}
                     />
                     <span>My Profile</span>
@@ -611,7 +611,7 @@ export function Header() {
                   </Link>
                 </SheetClose>
 
-                <div className="my-2 border-t border-dark-border" />
+                <div className="my-2 border-t border-[#2A2A2A]" />
 
                 {isAuthenticated ? (
                   <Button

@@ -75,12 +75,12 @@ export const ShopCardLarge = memo(function ShopCardLarge({
   return (
     <Card
       onClick={() => onSelect?.(shop)}
-      className="col-span-1 sm:col-span-2 row-span-2 w-full h-full card-glow-border bg-gradient-to-b from-dark-roast via-[#25140d] to-dark-bg rounded-3xl border border-dark-border/80 shadow-2xl hover:shadow-[0_20px_50px_rgba(212,160,87,0.15)] hover:border-amber-gold/50 hover:-translate-y-1.5 transition-all duration-300 p-0 flex flex-col justify-between cursor-pointer group relative overflow-hidden"
+      className="col-span-1 sm:col-span-2 row-span-2 w-full h-full card-glow-border bg-gradient-to-b from-[#141414] via-[#1A1A1A] to-[#101010] rounded-3xl border border-[#2A2A2A]/80 shadow-2xl hover:shadow-[0_20px_50px_rgba(212,160,87,0.15)] hover:border-amber-gold/50 hover:-translate-y-1.5 transition-all duration-300 p-0 flex flex-col justify-between cursor-pointer group relative overflow-hidden"
     >
       {/* 2-Column Magazine-Style Gallery (60% Left, 40% Right Stacked) */}
-      <div className="relative w-full h-52 sm:h-60 p-1.5 flex gap-1.5 bg-dark-bg/60 border-b border-dark-border/60 overflow-hidden flex-shrink-0">
+      <div className="relative w-full h-52 sm:h-60 p-1.5 flex gap-1.5 bg-[#101010]/60 border-b border-[#2A2A2A]/60 overflow-hidden flex-shrink-0">
         {/* Left Column (60% Width) - Primary Image */}
-        <div className="w-[60%] h-full rounded-2xl overflow-hidden relative bg-dark-roast border border-dark-border/40">
+        <div className="w-[60%] h-full rounded-2xl overflow-hidden relative bg-[#141414] border border-[#2A2A2A]/40">
           {!imgError ? (
             <img
               src={photo1}
@@ -89,18 +89,18 @@ export const ShopCardLarge = memo(function ShopCardLarge({
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
             />
           ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center bg-dark-roast text-warm-gray gap-1.5 p-2">
+            <div className="w-full h-full flex flex-col items-center justify-center bg-[#141414] text-[#A0A0A0] gap-1.5 p-2">
               <Coffee size={24} className="text-amber-gold opacity-60" />
-              <span className="text-[10px] font-sans font-bold text-soft-beige truncate">{shop.name}</span>
+              <span className="text-[10px] font-sans font-bold text-[#D0D0D0] truncate">{shop.name}</span>
             </div>
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-dark-bg/60 via-transparent to-black/20 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#101010]/60 via-transparent to-black/20 pointer-events-none" />
         </div>
 
         {/* Right Column (40% Width) - Two 50% Height Rows */}
         <div className="w-[40%] h-full flex flex-col gap-1.5">
           {/* Top Row (50% Height) */}
-          <div className="h-1/2 rounded-xl overflow-hidden relative bg-dark-roast border border-dark-border/40">
+          <div className="h-1/2 rounded-xl overflow-hidden relative bg-[#141414] border border-[#2A2A2A]/40">
             <img
               src={photo2}
               alt={`${shop.name} secondary`}
@@ -109,7 +109,7 @@ export const ShopCardLarge = memo(function ShopCardLarge({
           </div>
 
           {/* Bottom Row (50% Height) with +N More Overlay */}
-          <div className="h-1/2 rounded-xl overflow-hidden relative bg-dark-roast border border-dark-border/40">
+          <div className="h-1/2 rounded-xl overflow-hidden relative bg-[#141414] border border-[#2A2A2A]/40">
             <img
               src={photo3}
               alt={`${shop.name} detail`}
@@ -146,12 +146,12 @@ export const ShopCardLarge = memo(function ShopCardLarge({
           size="icon"
           onClick={handleFav}
           aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-          className="absolute top-2.5 right-2.5 z-10 h-7 w-7 rounded-full bg-dark-bg/80 backdrop-blur-md hover:bg-dark-roast border border-dark-border/60 text-cream-white shadow-md transition-all focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0"
+          className="absolute top-2.5 right-2.5 z-10 h-7 w-7 rounded-full bg-[#101010]/80 backdrop-blur-md hover:bg-[#141414] border border-[#2A2A2A]/60 text-white shadow-md transition-all focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0"
         >
           <Heart
             size={14}
             className={cn(
-              isFavorite ? 'fill-rose-500 text-rose-500' : 'text-cream-white/80',
+              isFavorite ? 'fill-rose-500 text-rose-500' : 'text-white/80',
               isHeartAnimating && 'animate-heart-beat'
             )}
           />
@@ -162,52 +162,52 @@ export const ShopCardLarge = memo(function ShopCardLarge({
       <CardContent className="p-3.5 sm:p-4 space-y-2 flex-1 flex flex-col justify-between overflow-visible min-h-0">
         {/* Section 1: Shop Name & Address */}
         <div>
-          <h3 className="font-sans font-bold text-base sm:text-lg text-cream-white tracking-tight line-clamp-1 group-hover:text-amber-gold-hover transition-colors">
+          <h3 className="font-sans font-bold text-base sm:text-lg text-white tracking-tight line-clamp-1 group-hover:text-amber-gold-hover transition-colors">
             {shop.name}
           </h3>
-          <p className="text-xs text-soft-beige/90 flex items-center gap-1 mt-0.5 line-clamp-1">
+          <p className="text-xs text-[#D0D0D0]/90 flex items-center gap-1 mt-0.5 line-clamp-1">
             <MapPin size={11} className="text-amber-gold flex-shrink-0" />
             {addressDisplay}
           </p>
         </div>
 
         {/* Section 2: Excerpt / Atmosphere Tagline Panel */}
-        <div className="bg-dark-bg/70 px-2.5 py-1.5 rounded-xl border border-dark-border/60 text-xs text-soft-beige/90 leading-relaxed flex items-start gap-1.5 shadow-inner">
+        <div className="bg-[#101010]/70 px-2.5 py-1.5 rounded-xl border border-[#2A2A2A]/60 text-xs text-[#D0D0D0]/90 leading-relaxed flex items-start gap-1.5 shadow-inner">
           <Quote size={12} className="text-amber-gold flex-shrink-0 mt-0.5" />
           <span className="line-clamp-2 text-[11px] sm:text-xs">{categoryTagline}</span>
         </div>
 
         {/* Section 3: 4-Box Metadata Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 bg-dark-roast/50 p-1.5 rounded-xl border border-dark-border/50 text-xs">
-          <div className="flex items-center gap-1 bg-dark-bg/60 p-1 rounded-lg border border-dark-border/40">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 bg-[#141414]/50 p-1.5 rounded-xl border border-[#2A2A2A]/50 text-xs">
+          <div className="flex items-center gap-1 bg-[#101010]/60 p-1 rounded-lg border border-[#2A2A2A]/40">
             {hasRating ? (
               <>
                 <Star size={11} className="fill-amber-gold text-amber-gold flex-shrink-0" />
-                <span className="font-bold text-cream-white text-xs">{shop.rating.toFixed(1)}</span>
+                <span className="font-bold text-white text-xs">{shop.rating.toFixed(1)}</span>
                 {hasTotalRatings && (
-                  <span className="text-[10px] text-warm-gray truncate">({shop.total_ratings})</span>
+                  <span className="text-[10px] text-[#A0A0A0] truncate">({shop.total_ratings})</span>
                 )}
               </>
             ) : (
               <>
                 <Star size={11} className="text-amber-gold/50 flex-shrink-0" />
-                <span className="font-medium text-soft-beige text-xs">New</span>
+                <span className="font-medium text-[#D0D0D0] text-xs">New</span>
               </>
             )}
           </div>
 
-          <div className="flex items-center gap-1 bg-dark-bg/60 p-1 rounded-lg border border-dark-border/40 text-soft-beige font-medium">
+          <div className="flex items-center gap-1 bg-[#101010]/60 p-1 rounded-lg border border-[#2A2A2A]/40 text-[#D0D0D0] font-medium">
             <Footprints size={11} className="text-amber-gold/80 flex-shrink-0" />
             <span className="truncate text-[10px] sm:text-[11px]">{distanceDisplay}</span>
           </div>
 
-          <div className="flex items-center gap-1 bg-dark-bg/60 p-1 rounded-lg border border-dark-border/40 text-soft-beige/90 font-medium">
+          <div className="flex items-center gap-1 bg-[#101010]/60 p-1 rounded-lg border border-[#2A2A2A]/40 text-[#D0D0D0]/90 font-medium">
             <Clock size={11} className="text-amber-gold/80 flex-shrink-0" />
             <span className="truncate text-[10px] sm:text-[11px]">{isOpen ? 'Closes 10:30 PM' : 'Opens 07:00 AM'}</span>
           </div>
 
-          <div className="flex items-center gap-1 bg-dark-bg/60 p-1 rounded-lg border border-dark-border/40 text-soft-beige/90 font-medium">
-            <Wifi size={11} className="text-soft-beige/70 flex-shrink-0" />
+          <div className="flex items-center gap-1 bg-[#101010]/60 p-1 rounded-lg border border-[#2A2A2A]/40 text-[#D0D0D0]/90 font-medium">
+            <Wifi size={11} className="text-[#D0D0D0]/70 flex-shrink-0" />
             <span className="truncate text-[10px] sm:text-[11px]">{shop.price_range || '€€'} · Wi-Fi</span>
           </div>
         </div>
@@ -223,7 +223,7 @@ export const ShopCardLarge = memo(function ShopCardLarge({
             <Button
               variant="outline"
               size="sm"
-              className="h-7 px-2.5 text-xs bg-dark-roast/70 border-dark-border text-cream-white hover:text-amber-gold-hover hover:border-amber-gold/40 hover:bg-dark-roast rounded-xl font-medium transition-all"
+              className="h-7 px-2.5 text-xs bg-[#141414]/70 border-[#2A2A2A] text-white hover:text-amber-gold-hover hover:border-amber-gold/40 hover:bg-[#141414] rounded-xl font-medium transition-all"
             >
               <Navigation size={11} className="mr-1 text-amber-gold" /> Directions
             </Button>
@@ -233,7 +233,7 @@ export const ShopCardLarge = memo(function ShopCardLarge({
             <Button
               variant="default"
               size="sm"
-              className="h-7 px-3 text-xs bg-amber-gold text-dark-bg hover:bg-amber-gold-hover rounded-xl font-bold transition-all shadow-md"
+              className="h-7 px-3 text-xs bg-amber-gold text-[#101010] hover:bg-amber-gold-hover rounded-xl font-bold transition-all shadow-md"
             >
               Explore Details <ExternalLink size={11} className="ml-1 opacity-90" />
             </Button>
