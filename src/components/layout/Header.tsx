@@ -9,6 +9,7 @@ import { useUIStore } from '@/stores/useUIStore';
 import { useShopStore } from '@/stores/useShopStore';
 import { useAuth } from '@/hooks/useAuth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,7 +40,7 @@ export function Header() {
   const router = useRouter();
   const { searchQuery, setSearchQuery } = useUIStore();
   const { setSelectedShop } = useShopStore();
-  const { user, profile, isAuthenticated, signOut } = useAuth();
+  const { user, profile, isAuthenticated, signOut, loading } = useAuth();
   const { lat, lng } = useLocation();
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -393,7 +394,9 @@ export function Header() {
           </div>
 
           {/* Profile Avatar Dropdown Menu (Authenticated) or Sign In Button (Guest) */}
-          {isAuthenticated ? (
+          {loading ? (
+            <Skeleton className="h-9 w-9 rounded-full" />
+          ) : isAuthenticated ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -415,8 +418,13 @@ export function Header() {
                 className="w-56 bg-dark-bg/95 backdrop-blur-md border border-dark-border text-cream-white shadow-2xl rounded-2xl p-1.5 space-y-1 z-[500]"
               >
                 <DropdownMenuLabel className="font-sans px-2.5 py-2 select-none">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm">☕</span>
+                  <div className="flex items-center gap-2.5">
+                    <Avatar className="h-9 w-9 rounded-full border border-dark-border/40 shrink-0">
+                      {avatarUrl && <AvatarImage src={avatarUrl} alt={displayName} className="object-cover" />}
+                      <AvatarFallback className="bg-dark-roast text-amber-gold font-bold text-xs">
+                        {displayName.charAt(0).toUpperCase() || <User size={16} />}
+                      </AvatarFallback>
+                    </Avatar>
                     <div className="flex flex-col min-w-0">
                       <span className="text-xs font-bold text-amber-gold truncate">
                         {displayName}
@@ -433,7 +441,7 @@ export function Header() {
                     href={APP_ROUTES.PROFILE}
                     className="cursor-pointer text-xs font-medium text-soft-beige hover:text-amber-gold focus:bg-dark-roast/60 focus:text-amber-gold rounded-xl px-2.5 py-2 transition-colors flex items-center gap-2 group"
                   >
-                    <User size={15} className="text-warm-gray group-hover:text-amber-gold transition-colors" />
+                    <User size={16} className="text-warm-gray group-hover:text-amber-gold transition-colors shrink-0" />
                     <span>Profile</span>
                   </Link>
                 </DropdownMenuItem>
@@ -442,7 +450,7 @@ export function Header() {
                     href={APP_ROUTES.FAVORITES}
                     className="cursor-pointer text-xs font-medium text-soft-beige hover:text-amber-gold focus:bg-dark-roast/60 focus:text-amber-gold rounded-xl px-2.5 py-2 transition-colors flex items-center gap-2 group"
                   >
-                    <Heart size={15} className="text-rose-400 group-hover:scale-105 transition-transform" />
+                    <Heart size={16} className="text-warm-gray group-hover:text-amber-gold transition-colors shrink-0" />
                     <span>Favorites</span>
                   </Link>
                 </DropdownMenuItem>
@@ -451,7 +459,7 @@ export function Header() {
                     href={APP_ROUTES.PROFILE}
                     className="cursor-pointer text-xs font-medium text-soft-beige hover:text-amber-gold focus:bg-dark-roast/60 focus:text-amber-gold rounded-xl px-2.5 py-2 transition-colors flex items-center gap-2 group"
                   >
-                    <Settings size={15} className="text-warm-gray group-hover:text-amber-gold transition-colors" />
+                    <Settings size={16} className="text-warm-gray group-hover:text-amber-gold transition-colors shrink-0" />
                     <span>Settings</span>
                   </Link>
                 </DropdownMenuItem>
@@ -461,9 +469,9 @@ export function Header() {
                     await signOut();
                     router.push(APP_ROUTES.LOGIN);
                   }}
-                  className="cursor-pointer text-xs font-medium text-rose-400 hover:text-rose-300 focus:bg-rose-950/30 focus:text-rose-300 rounded-xl px-2.5 py-2 transition-colors flex items-center gap-2"
+                  className="cursor-pointer text-xs font-medium text-rose-400 hover:text-rose-300 focus:bg-rose-950/30 focus:text-rose-300 rounded-xl px-2.5 py-2 transition-colors flex items-center gap-2 group"
                 >
-                  <LogOut size={15} className="text-rose-400" />
+                  <LogOut size={16} className="text-rose-400 group-hover:text-rose-300 transition-colors shrink-0" />
                   <span>Sign Out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
