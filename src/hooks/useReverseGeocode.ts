@@ -1,8 +1,8 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { DEFAULT_LOCATION } from '@/lib/utils/constants';
+
+import { useQuery } from '@tanstack/react-query';
 
 export function useReverseGeocode(lat: number, lng: number, isFallback: boolean) {
   return useQuery({
@@ -22,20 +22,23 @@ export function useReverseGeocode(lat: number, lng: number, isFallback: boolean)
           params: {
             lat,
             lon: lng,
-            apiKey,
-          },
+            apiKey
+          }
         });
 
         const feature = response.data?.features?.[0];
         const props = feature?.properties;
 
+        console.info('Reverse geocoding result:', props);
+
         const city =
-          props?.city ||
-          props?.town ||
-          props?.village ||
-          props?.municipality ||
           props?.county ||
           props?.state ||
+          props?.city ||
+          props?.town ||
+          props?.municipality ||
+          props?.suburb ||
+          props?.village ||
           props?.country;
 
         return city || 'Hà Nội';
@@ -45,6 +48,6 @@ export function useReverseGeocode(lat: number, lng: number, isFallback: boolean)
       }
     },
     staleTime: 10 * 60 * 1000, // 10 mins cache
-    enabled: Boolean(lat && lng),
+    enabled: Boolean(lat && lng)
   });
 }
