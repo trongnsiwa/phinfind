@@ -56,14 +56,28 @@ export const ShopCardLarge = memo(function ShopCardLarge({
       return 'Cà phê phin truyền thống, hạt rang mộc đặc sản & không gian sân vườn thoáng đãng.';
     }
     const cleaned = shop.categories
-      .map((c) => c.replace(/^catering\./, '').replace(/_/g, ' ').trim())
-      .filter((c) => c.length > 0 && c !== 'cafe' && c !== 'coffee')
+      .map((c) =>
+        c
+          .replace(/^catering\./i, '')
+          .replace(/^catering/i, '')
+          .replace(/^cafe\./i, '')
+          .replace(/_/g, ' ')
+          .replace(/\./g, ' ')
+          .trim()
+      )
+      .filter(
+        (c) =>
+          c.length > 0 &&
+          !['cafe', 'coffee', 'catering', 'coffee shop', 'internet access', 'cafe coffee'].includes(
+            c.toLowerCase()
+          )
+      )
       .map((c) => c.charAt(0).toUpperCase() + c.slice(1));
 
     if (cleaned.length === 0) {
       return 'Cà phê phin truyền thống, hạt rang mộc đặc sản & không gian sân vườn thoáng đãng.';
     }
-    return `Cà phê đặc sản ${cleaned.join(' • ')} với hương vị nguyên bản & không gian ấm cúng.`;
+    return `Cà phê đặc sản ${cleaned.slice(0, 2).join(' • ')} với hương vị nguyên bản & không gian ấm cúng.`;
   };
 
   const categoryTagline = formatCategories();
@@ -75,12 +89,12 @@ export const ShopCardLarge = memo(function ShopCardLarge({
   return (
     <Card
       onClick={() => onSelect?.(shop)}
-      className="col-span-1 sm:col-span-2 row-span-2 w-full h-full card-glow-border bg-gradient-to-b from-card via-card to-secondary/30 rounded-3xl border border-border/80 shadow-card hover:shadow-card-hover hover:border-amber-gold/50 hover:-translate-y-1.5 transition-all duration-300 p-0 flex flex-col justify-between cursor-pointer group relative overflow-hidden"
+      className="col-span-1 sm:col-span-2 row-span-2 w-full h-full card-glow-border bg-gradient-to-b from-card via-card to-secondary/30 rounded-2xl border border-border/80 shadow-card hover:shadow-card-hover hover:border-amber-gold/50 hover:-translate-y-1 transition-all duration-300 p-0 flex flex-col justify-between cursor-pointer group relative overflow-hidden"
     >
-      {/* 2-Column Magazine-Style Gallery (60% Left, 40% Right Stacked) */}
-      <div className="relative w-full h-52 sm:h-60 p-2 flex gap-2 bg-muted/60 border-b border-border/60 overflow-hidden flex-shrink-0">
+      {/* 2-Column Magazine-Style Gallery (60% Left, 40% Right Stacked) - Stretching flex-1 */}
+      <div className="relative w-full flex-1 min-h-[190px] p-1.5 flex gap-1.5 bg-muted/60 border-b border-border/60 overflow-hidden">
         {/* Left Column (60% Width) - Primary Image */}
-        <div className="w-[60%] h-full rounded-2xl overflow-hidden relative bg-secondary border border-border/40">
+        <div className="w-[60%] h-full rounded-xl overflow-hidden relative bg-secondary border border-border/40">
           {!imgError ? (
             <img
               src={photo1}
@@ -89,8 +103,8 @@ export const ShopCardLarge = memo(function ShopCardLarge({
               className="w-full h-full object-cover group-hover:scale-106 transition-transform duration-700 ease-out"
             />
           ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center bg-secondary text-muted-foreground gap-1.5 p-2">
-              <Coffee size={24} className="text-amber-gold opacity-60" />
+            <div className="w-full h-full flex flex-col items-center justify-center bg-secondary text-muted-foreground gap-1 p-2">
+              <Coffee size={22} className="text-amber-gold opacity-60" />
               <span className="text-[10px] font-sans font-bold text-secondary-foreground truncate">{shop.name}</span>
             </div>
           )}
@@ -98,9 +112,9 @@ export const ShopCardLarge = memo(function ShopCardLarge({
         </div>
 
         {/* Right Column (40% Width) - Two 50% Height Rows */}
-        <div className="w-[40%] h-full flex flex-col gap-2">
+        <div className="w-[40%] h-full flex flex-col gap-1.5">
           {/* Top Row (50% Height) */}
-          <div className="h-1/2 rounded-xl overflow-hidden relative bg-secondary border border-border/40">
+          <div className="h-1/2 rounded-lg overflow-hidden relative bg-secondary border border-border/40">
             <img
               src={photo2}
               alt={`${shop.name} secondary`}
@@ -109,32 +123,32 @@ export const ShopCardLarge = memo(function ShopCardLarge({
           </div>
 
           {/* Bottom Row (50% Height) with +N More Overlay */}
-          <div className="h-1/2 rounded-xl overflow-hidden relative bg-secondary border border-border/40">
+          <div className="h-1/2 rounded-lg overflow-hidden relative bg-secondary border border-border/40">
             <img
               src={photo3}
               alt={`${shop.name} detail`}
               className="w-full h-full object-cover group-hover:scale-106 transition-transform duration-700 ease-out"
             />
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex items-center justify-center text-amber-gold font-bold text-[11px] tracking-tight gap-1 hover:bg-black/50 transition-colors">
-              <Images size={12} className="text-amber-gold" />
-              <span>+{extraCount} ảnh</span>
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex items-center justify-center text-amber-gold font-bold text-[10px] sm:text-[11px] tracking-tight gap-1 hover:bg-black/50 transition-colors">
+              <Images size={11} className="text-amber-gold" />
+              <span>+{extraCount}</span>
             </div>
           </div>
         </div>
 
         {/* Floating Status Badge on Top-Left */}
         {hasOpenInfo && (
-          <div className="absolute top-4 left-4 z-10">
+          <div className="absolute top-2.5 left-2.5 z-10">
             <Badge
               variant="outline"
               className={cn(
-                'text-[10px] font-bold px-2.5 py-0.5 rounded-full border backdrop-blur-md shadow-sm tracking-wide',
+                'text-[9px] font-bold px-2 py-0.5 rounded-full border backdrop-blur-md shadow-sm tracking-wide',
                 isOpen
                   ? 'bg-teal/20 text-teal border-teal/40'
                   : 'bg-[#C97A7A]/25 text-[#E8A5A5] border-[#C97A7A]/40'
               )}
             >
-              <span className={cn('w-1.5 h-1.5 rounded-full mr-1.5', isOpen ? 'bg-teal animate-pulse' : 'bg-[#C97A7A]')} />
+              <span className={cn('w-1.5 h-1.5 rounded-full mr-1', isOpen ? 'bg-teal animate-pulse' : 'bg-[#C97A7A]')} />
               {isOpen ? 'Đang mở cửa' : 'Đã đóng cửa'}
             </Badge>
           </div>
@@ -146,10 +160,10 @@ export const ShopCardLarge = memo(function ShopCardLarge({
           size="icon"
           onClick={handleFav}
           aria-label={isFavorite ? 'Xóa khỏi danh sách yêu thích' : 'Thêm vào danh sách yêu thích'}
-          className="absolute top-4 right-4 z-10 h-8 w-8 rounded-full bg-background/80 backdrop-blur-md hover:bg-secondary border border-border/60 text-foreground shadow-md transition-all active:scale-90 focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0"
+          className="absolute top-2.5 right-2.5 z-10 h-7 w-7 rounded-full bg-background/80 backdrop-blur-md hover:bg-secondary border border-border/60 text-foreground shadow-md transition-all active:scale-90 focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0"
         >
           <Heart
-            size={15}
+            size={13}
             className={cn(
               isFavorite ? 'fill-rose-500 text-rose-500' : 'text-foreground/80',
               isHeartAnimating && 'animate-heart-beat'
@@ -159,61 +173,61 @@ export const ShopCardLarge = memo(function ShopCardLarge({
       </div>
 
       {/* Structured Content Area */}
-      <CardContent className="p-4 sm:p-5 space-y-3 flex-1 flex flex-col justify-between overflow-visible min-h-0">
+      <CardContent className="flex-shrink-0 p-3.5 space-y-1.5 overflow-visible min-h-0">
         {/* Section 1: Shop Name & Address */}
         <div>
-          <h3 className="font-sans font-extrabold text-base sm:text-lg text-foreground tracking-tight line-clamp-1 group-hover:text-amber-gold-hover transition-colors">
+          <h3 className="font-sans font-bold text-sm sm:text-base text-foreground tracking-tight line-clamp-1 group-hover:text-amber-gold-hover transition-colors">
             {shop.name}
           </h3>
-          <p className="text-xs text-muted-foreground flex items-center gap-1.5 mt-1 line-clamp-1">
-            <MapPin size={12} className="text-amber-gold flex-shrink-0" />
+          <p className="text-[11px] sm:text-xs text-muted-foreground flex items-center gap-1 mt-0.5 line-clamp-1">
+            <MapPin size={11} className="text-amber-gold flex-shrink-0" />
             {addressDisplay}
           </p>
         </div>
 
         {/* Section 2: Excerpt / Atmosphere Tagline Panel */}
-        <div className="bg-secondary/80 px-3 py-2 rounded-2xl border border-border/70 text-xs text-secondary-foreground leading-relaxed flex items-start gap-2 shadow-xs">
-          <Quote size={13} className="text-amber-gold flex-shrink-0 mt-0.5" />
-          <span className="line-clamp-2 text-[11px] sm:text-xs font-normal">{categoryTagline}</span>
+        <div className="bg-secondary/70 px-2.5 py-1 rounded-xl border border-border/60 text-[11px] sm:text-xs text-secondary-foreground leading-snug flex items-start gap-1.5 shadow-xs">
+          <Quote size={11} className="text-amber-gold flex-shrink-0 mt-0.5" />
+          <span className="line-clamp-1 sm:line-clamp-2 font-normal">{categoryTagline}</span>
         </div>
 
         {/* Section 3: 4-Box Metadata Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-secondary/50 p-2 rounded-2xl border border-border/60 text-xs">
-          <div className="flex items-center gap-1.5 bg-background/90 p-1.5 rounded-xl border border-border/50 shadow-xs">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 bg-secondary/40 p-1 rounded-xl border border-border/50 text-xs">
+          <div className="flex items-center gap-1 bg-background/90 p-1 rounded-lg border border-border/40 shadow-xs">
             {hasRating ? (
               <>
-                <Star size={12} className="fill-amber-gold text-amber-gold flex-shrink-0" />
-                <span className="font-extrabold text-foreground text-xs">{shop.rating.toFixed(1)}</span>
+                <Star size={11} className="fill-amber-gold text-amber-gold flex-shrink-0" />
+                <span className="font-bold text-foreground text-[11px]">{shop.rating.toFixed(1)}</span>
                 {hasTotalRatings && (
-                  <span className="text-[10px] text-muted-foreground truncate">({shop.total_ratings})</span>
+                  <span className="text-[9px] text-muted-foreground truncate">({shop.total_ratings})</span>
                 )}
               </>
             ) : (
               <>
-                <Star size={12} className="text-amber-gold/50 flex-shrink-0" />
-                <span className="font-semibold text-secondary-foreground text-xs">Mới</span>
+                <Star size={11} className="text-amber-gold/50 flex-shrink-0" />
+                <span className="font-semibold text-secondary-foreground text-[11px]">Mới</span>
               </>
             )}
           </div>
 
-          <div className="flex items-center gap-1.5 bg-background/90 p-1.5 rounded-xl border border-border/50 text-secondary-foreground font-medium shadow-xs">
-            <Footprints size={12} className="text-amber-gold flex-shrink-0" />
+          <div className="flex items-center gap-1 bg-background/90 p-1 rounded-lg border border-border/40 text-secondary-foreground font-medium shadow-xs">
+            <Footprints size={11} className="text-amber-gold flex-shrink-0" />
             <span className="truncate text-[10px] sm:text-[11px] font-semibold">{distanceDisplay}</span>
           </div>
 
-          <div className="flex items-center gap-1.5 bg-background/90 p-1.5 rounded-xl border border-border/50 text-secondary-foreground font-medium shadow-xs">
-            <Clock size={12} className="text-amber-gold flex-shrink-0" />
+          <div className="flex items-center gap-1 bg-background/90 p-1 rounded-lg border border-border/40 text-secondary-foreground font-medium shadow-xs">
+            <Clock size={11} className="text-amber-gold flex-shrink-0" />
             <span className="truncate text-[10px] sm:text-[11px]">{isOpen ? 'Đóng 22:30' : 'Mở 07:00'}</span>
           </div>
 
-          <div className="flex items-center gap-1.5 bg-background/90 p-1.5 rounded-xl border border-border/50 text-secondary-foreground font-medium shadow-xs">
-            <Wifi size={12} className="text-muted-foreground flex-shrink-0" />
+          <div className="flex items-center gap-1 bg-background/90 p-1 rounded-lg border border-border/40 text-secondary-foreground font-medium shadow-xs">
+            <Wifi size={11} className="text-muted-foreground flex-shrink-0" />
             <span className="truncate text-[10px] sm:text-[11px]">{shop.price_range || '25k - 65k'}</span>
           </div>
         </div>
 
         {/* Section 4: Call-To-Action Row Aligned Bottom Right */}
-        <div className="flex items-center justify-end gap-2.5 pt-1">
+        <div className="flex items-center justify-end gap-2 mt-auto pt-1.5 border-t border-border/40">
           <a
             href={`https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lon}`}
             target="_blank"
@@ -223,9 +237,9 @@ export const ShopCardLarge = memo(function ShopCardLarge({
             <Button
               variant="outline"
               size="sm"
-              className="h-8 px-3 text-xs bg-secondary border-border text-foreground hover:text-amber-gold-hover hover:border-amber-gold/40 hover:bg-accent rounded-xl font-semibold active:scale-95 transition-all shadow-xs"
+              className="h-7 px-2.5 text-[11px] bg-secondary border-border text-foreground hover:text-amber-gold-hover hover:border-amber-gold/40 hover:bg-accent rounded-lg font-semibold active:scale-95 transition-all shadow-xs"
             >
-              <Navigation size={12} className="mr-1.5 text-amber-gold" /> Chỉ đường
+              <Navigation size={11} className="mr-1 text-amber-gold" /> Chỉ đường
             </Button>
           </a>
 
@@ -233,9 +247,9 @@ export const ShopCardLarge = memo(function ShopCardLarge({
             <Button
               variant="default"
               size="sm"
-              className="h-8 px-4 text-xs bg-gradient-to-r from-amber-gold to-amber-gold-hover text-primary-foreground font-bold hover:brightness-105 rounded-xl transition-all shadow-sm shadow-amber-gold/25 active:scale-95"
+              className="h-7 px-3 text-[11px] bg-gradient-to-r from-amber-gold to-amber-gold-hover text-primary-foreground font-bold hover:brightness-105 rounded-lg transition-all shadow-sm shadow-amber-gold/25 active:scale-95"
             >
-              Xem chi tiết <ExternalLink size={12} className="ml-1.5 opacity-90" />
+              Xem chi tiết <ExternalLink size={11} className="ml-1 opacity-90" />
             </Button>
           </Link>
         </div>
