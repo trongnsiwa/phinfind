@@ -10,7 +10,7 @@ export function BentoGrid({ children, className }: BentoGridProps) {
   return (
     <div
       className={cn(
-        'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5 auto-rows-[255px] [grid-auto-flow:dense]',
+        'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 auto-rows-[265px] sm:auto-rows-[275px] [grid-auto-flow:dense]',
         className
       )}
     >

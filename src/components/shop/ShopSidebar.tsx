@@ -107,11 +107,11 @@ export function ShopSidebar({
   return (
     <aside
       aria-label={`Bảng thông tin chi tiết ${shop.name}`}
-      className='fixed top-14 right-0 bottom-0 w-full sm:w-[440px] lg:w-[440px] xl:w-[460px] 2xl:w-[480px] max-w-[90vw] z-40 bg-[#101010]/95 backdrop-blur-xl border-l border-[#2A2A2A]/80 shadow-2xl flex flex-col transition-all duration-300 ease-out animate-in slide-in-from-right select-none'
+      className='fixed top-14 right-0 bottom-0 w-full sm:w-[440px] lg:w-[440px] xl:w-[460px] 2xl:w-[480px] max-w-[90vw] z-40 bg-card/95 backdrop-blur-xl border-l border-border shadow-2xl flex flex-col transition-all duration-300 ease-out animate-in slide-in-from-right select-none text-foreground'
     >
       {/* Top Header Bar with Close Button */}
-      <div className='flex items-center justify-between px-4 py-2.5 border-b border-[#2A2A2A]/60 bg-[#101010]/80 flex-shrink-0'>
-        <span className='text-xs font-bold text-[#A0A0A0] uppercase tracking-wider'>
+      <div className='flex items-center justify-between px-4 py-2.5 border-b border-border/60 bg-card/80 flex-shrink-0'>
+        <span className='text-xs font-bold text-muted-foreground uppercase tracking-wider'>
           Thông Tin Chi Tiết
         </span>
         <Button
@@ -119,7 +119,7 @@ export function ShopSidebar({
           size='icon'
           onClick={handleClose}
           aria-label='Đóng bảng chi tiết'
-          className='h-8 w-8 rounded-full text-[#A0A0A0] hover:text-white hover:bg-white/10 transition-colors cursor-pointer'
+          className='h-8 w-8 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer'
         >
           <X size={17} />
         </Button>
@@ -138,18 +138,18 @@ export function ShopSidebar({
       <div
         onClick={(e) => e.stopPropagation()}
         onPointerDown={(e) => e.stopPropagation()}
-        className='flex-shrink-0 bg-[#101010]/95 backdrop-blur-xl border-t border-[#2A2A2A]/70 px-4 py-3 shadow-2xl select-none'
+        className='flex-shrink-0 bg-card/95 backdrop-blur-xl border-t border-border px-4 py-3 shadow-2xl select-none'
       >
         <div className='grid grid-cols-3 gap-2'>
           <a
             href={getDirectionsUrl()}
             target='_blank'
             rel='noopener noreferrer'
-            className='flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 px-3 rounded-full bg-amber-gold text-[#101010] font-bold hover:bg-amber-gold-hover transition-all text-xs shadow-md group active:scale-95 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#101010]'
+            className='flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 px-3 rounded-full bg-amber-gold text-primary-foreground font-bold hover:bg-amber-gold-hover transition-all text-xs shadow-md group active:scale-95 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background'
           >
             <Navigation
               size={15}
-              className='fill-[#101010] group-hover:scale-110 transition-transform flex-shrink-0'
+              className='fill-primary-foreground group-hover:scale-110 transition-transform flex-shrink-0'
             />
             <span className='truncate'>Chỉ đường</span>
           </a>
@@ -158,17 +158,17 @@ export function ShopSidebar({
             type='button'
             onClick={handleFavoriteClick}
             className={cn(
-              'flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 px-3 rounded-full border transition-all text-xs font-semibold shadow-xs active:scale-95 min-h-[44px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#101010]',
+              'flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 px-3 rounded-full border transition-all text-xs font-semibold shadow-xs active:scale-95 min-h-[44px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background',
               isFavorite
                 ? 'bg-rose-500/15 border-rose-500/40 text-rose-400 hover:bg-rose-500/25 hover:border-rose-500/60'
-                : 'bg-[#141414]/90 border-[#2A2A2A]/80 text-[#D0D0D0] hover:text-white hover:bg-white/10 hover:border-amber-gold/40'
+                : 'bg-secondary border-border text-secondary-foreground hover:text-foreground hover:bg-accent hover:border-amber-gold/40'
             )}
           >
             <Heart
               size={15}
               className={cn(
                 'transition-all duration-200 flex-shrink-0',
-                isFavorite ? 'fill-rose-500 text-rose-500' : 'text-[#A0A0A0]',
+                isFavorite ? 'fill-rose-500 text-rose-500' : 'text-muted-foreground',
                 isHeartAnimating && 'scale-125'
               )}
             />
@@ -179,7 +179,7 @@ export function ShopSidebar({
             type='button'
             onClick={handleShare}
             onPointerDown={(e) => e.stopPropagation()}
-            className='flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 px-3 rounded-full bg-[#141414]/90 border border-[#2A2A2A]/80 text-[#D0D0D0] hover:text-white hover:bg-white/10 hover:border-amber-gold/40 transition-all text-xs font-semibold shadow-xs active:scale-95 min-h-[44px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#101010]'
+            className='flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 px-3 rounded-full bg-secondary border border-border text-secondary-foreground hover:text-foreground hover:bg-accent hover:border-amber-gold/40 transition-all text-xs font-semibold shadow-xs active:scale-95 min-h-[44px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background'
           >
             <Share2 size={15} className='text-amber-gold flex-shrink-0' />
             <span className='truncate'>Chia sẻ</span>

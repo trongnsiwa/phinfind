@@ -31,31 +31,25 @@ const createShopMarkerIcon = (name = 'Quán cà phê', rating?: number, isSelect
     return L.divIcon({
       className: 'custom-shop-marker-selected',
       html: `
-        <div role="button" title="${escapedName}" aria-label="Đã chọn ${escapedName}, đánh giá ${ratingText}" class="relative flex flex-col items-center cursor-pointer select-none origin-bottom transition-transform duration-300 ease-out scale-140 -translate-y-1 z-50">
-          <!-- Gentle Glowing Amber Pulse Halo -->
-          <div class="absolute -inset-2.5 rounded-2xl bg-[#D4A057]/40 animate-pulse-ring-halo pointer-events-none ring-1 ring-[#D4A057]/60"></div>
-          
-          <!-- Compact Card Body in Default Dark Theme with Amber Accent -->
-          <div class="relative flex flex-col items-center w-[86px] bg-[#101010]/95 backdrop-blur-md px-1.5 py-1 rounded-xl shadow-2xl shadow-black/95 border border-[#D4A057] ring-1 ring-[#D4A057]/50">
-            <!-- Top Row: Outlined Cup Icon & Outlined Rating Badge -->
-            <div class="flex items-center justify-center gap-1.5 w-full">
-              <span class="w-4 h-4 rounded-full bg-[#141414] border border-[#D4A057] flex items-center justify-center text-[#D4A057] shadow-xs flex-shrink-0">
+        <div role="button" title="${escapedName}" aria-label="Đã chọn ${escapedName}, đánh giá ${ratingText}" class="shop-marker-wrapper is-selected">
+          <div class="shop-marker-halo"></div>
+          <div class="shop-marker-card">
+            <div class="shop-marker-top-row">
+              <span class="shop-marker-cup">
                 <svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h12Z"/><path d="M6 2v2"/><path d="M17 11h1a3 3 0 0 1 0 6h-1"/>
                 </svg>
               </span>
-              <span class="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-[#101010] border border-[#D4A057] text-[9px] font-black text-[#D4A057] leading-none shadow-xs flex-shrink-0">
-                <span class="text-[8px] text-[#E8B86D]">★</span>
+              <span class="shop-marker-rating">
+                <span class="shop-marker-star">★</span>
                 <span>${ratingText}</span>
               </span>
             </div>
-            <!-- Bottom Row: 2-Line Clamped Name -->
-            <div class="text-[9px] font-bold text-[#FFFFFF] text-center leading-tight mt-1" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; word-break: break-word; line-height: 1.15;">
+            <div class="shop-marker-name">
               ${escapedName}
             </div>
           </div>
-          <!-- Bottom Arrow Tip -->
-          <div class="w-2 h-2 bg-[#101010] border-r border-b border-[#D4A057] rotate-45 -mt-1 shadow-sm"></div>
+          <div class="shop-marker-tip"></div>
         </div>
       `,
       iconSize: [90, 50],
@@ -67,28 +61,24 @@ const createShopMarkerIcon = (name = 'Quán cà phê', rating?: number, isSelect
   return L.divIcon({
     className: 'custom-shop-marker',
     html: `
-      <div role="button" title="${escapedName}" aria-label="${escapedName}, đánh giá ${ratingText}" class="relative flex flex-col items-center cursor-pointer group select-none transition-transform duration-200 ease-out hover:scale-110 hover:-translate-y-1">
-        <!-- Compact Card Body with Subtle White Border -->
-        <div class="flex flex-col items-center w-[86px] bg-[#101010]/95 backdrop-blur-md px-1.5 py-1 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.9)] border border-white/20 group-hover:border-[#D4A057] group-hover:bg-[#141414] transition-all">
-          <!-- Top Row: Outlined Cup Icon & Outlined Rating Badge -->
-          <div class="flex items-center justify-center gap-1.5 w-full">
-            <span class="w-4 h-4 rounded-full bg-[#141414] border border-white/40 group-hover:border-[#D4A057] flex items-center justify-center text-[#D4A057] shadow-xs flex-shrink-0 transition-colors">
+      <div role="button" title="${escapedName}" aria-label="${escapedName}, đánh giá ${ratingText}" class="shop-marker-wrapper">
+        <div class="shop-marker-card">
+          <div class="shop-marker-top-row">
+            <span class="shop-marker-cup">
               <svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h12Z"/><path d="M6 2v2"/><path d="M17 11h1a3 3 0 0 1 0 6h-1"/>
               </svg>
             </span>
-            <span class="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-[#101010] border border-[#D4A057]/60 text-[9px] font-black text-[#D4A057] leading-none shadow-xs flex-shrink-0">
-              <span class="text-[8px] text-[#E8B86D]">★</span>
+            <span class="shop-marker-rating">
+              <span class="shop-marker-star">★</span>
               <span>${ratingText}</span>
             </span>
           </div>
-          <!-- Bottom Row: 2-Line Clamped Name -->
-          <div class="text-[9px] font-semibold text-[#FFFFFF] text-center leading-tight mt-1 group-hover:text-[#E8B86D] transition-colors" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; word-break: break-word; line-height: 1.15;">
+          <div class="shop-marker-name">
             ${escapedName}
           </div>
         </div>
-        <!-- Bottom Arrow Tip -->
-        <div class="w-2 h-2 bg-[#101010] border-r border-b border-white/20 rotate-45 -mt-1 shadow-sm group-hover:border-[#D4A057] transition-colors"></div>
+        <div class="shop-marker-tip"></div>
       </div>
     `,
     iconSize: [90, 50],
@@ -128,11 +118,11 @@ const userIcon = L.divIcon({
   popupAnchor: [0, -16],
 });
 
-// Custom amber-gold cluster badge with bold dark text
+// Custom theme-adaptive cluster badge with bold text
 const createCustomClusterIcon = (cluster: L.MarkerCluster) => {
   const count = cluster.getChildCount();
   let size = 38;
-  let textSize = 'text-xs font-bold';
+  let textSize = 'text-xs font-black';
   if (count >= 50) {
     size = 48;
     textSize = 'text-sm font-black';
@@ -143,8 +133,8 @@ const createCustomClusterIcon = (cluster: L.MarkerCluster) => {
 
   return L.divIcon({
     html: `
-      <div role="button" aria-label="Cụm ${count} quán cà phê" style="width: ${size}px; height: ${size}px;" class="flex items-center justify-center rounded-full bg-gradient-to-br from-[#E8B86D] via-[#D4A057] to-[#141414] text-[#101010] ${textSize} shadow-[0_8px_22px_rgba(0,0,0,0.7)] border-2 border-white ring-4 ring-[#D4A057]/35 transition-transform duration-300 ease-out hover:scale-115 active:scale-95 select-none">
-        <span class="leading-none drop-shadow-xs font-black">${count}</span>
+      <div role="button" aria-label="Cụm ${count} quán cà phê" style="width: ${size}px; height: ${size}px;" class="shop-cluster-badge ${textSize}">
+        <span>${count}</span>
       </div>
     `,
     className: 'custom-marker-cluster-icon',
@@ -264,20 +254,20 @@ function MapFloatingControls({
           size="icon"
           onClick={handleRecenter}
           aria-label="Định vị lại bản đồ theo vị trí GPS"
-          className="h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-[#101010]/90 backdrop-blur-md border border-[#2A2A2A]/80 text-sky-400 hover:text-sky-300 hover:bg-[#141414] hover:border-sky-400/50 shadow-xl shadow-black/50 transition-all active:scale-95 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+          className="h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-card/90 backdrop-blur-md border border-border text-sky-500 hover:text-sky-400 hover:bg-secondary shadow-xl transition-all active:scale-95 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
         >
-          <Navigation size={17} className="fill-sky-400/20 text-sky-400 group-hover:scale-110 transition-transform" />
+          <Navigation size={17} className="fill-sky-400/20 text-sky-500 group-hover:scale-110 transition-transform" />
         </Button>
       )}
 
       {/* Grouped Zoom In / Zoom Out Capsule */}
-      <div className="w-10 sm:w-11 flex flex-col bg-[#101010]/90 backdrop-blur-md border border-[#2A2A2A]/80 rounded-2xl shadow-xl shadow-black/50 overflow-hidden divide-y divide-[#2A2A2A]/60">
+      <div className="w-10 sm:w-11 flex flex-col bg-card/90 backdrop-blur-md border border-border rounded-2xl shadow-xl overflow-hidden divide-y divide-border/60">
         <Button
           type="button"
           variant="ghost"
           onClick={handleZoomIn}
           aria-label="Phóng to"
-          className="w-full h-10 sm:h-11 p-0 rounded-none text-white hover:text-amber-gold hover:bg-white/10 active:bg-white/15 transition-colors cursor-pointer flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold"
+          className="w-full h-10 sm:h-11 p-0 rounded-none text-foreground hover:text-amber-gold hover:bg-secondary transition-colors cursor-pointer flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold"
         >
           <Plus size={16} />
         </Button>
@@ -286,7 +276,7 @@ function MapFloatingControls({
           variant="ghost"
           onClick={handleZoomOut}
           aria-label="Thu nhỏ"
-          className="w-full h-10 sm:h-11 p-0 rounded-none text-white hover:text-amber-gold hover:bg-white/10 active:bg-white/15 transition-colors cursor-pointer flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold"
+          className="w-full h-10 sm:h-11 p-0 rounded-none text-foreground hover:text-amber-gold hover:bg-secondary transition-colors cursor-pointer flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold"
         >
           <Minus size={16} />
         </Button>

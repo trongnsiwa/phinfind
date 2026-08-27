@@ -268,32 +268,32 @@ export const OverviewTab = memo(function OverviewTab({
   return (
     <div className='space-y-4 pb-16'>
       {/* 1. Popular Spot in Town Banner with Social Proof */}
-      <div className='bg-gradient-to-r from-amber-gold/15 via-[#141414] to-[#141414]/80 p-3.5 rounded-2xl border border-amber-gold/30 space-y-2 shadow-inner'>
+      <div className='bg-secondary p-3.5 rounded-2xl border border-border/80 space-y-2 shadow-inner'>
         <div className='flex items-center justify-between gap-2'>
-          <div className='flex items-center gap-1.5 text-amber-gold font-bold text-xs tracking-wide flex-shrink-0'>
+          <div className='flex items-center gap-1.5 text-foreground font-bold text-xs tracking-wide flex-shrink-0'>
             <Flame size={14} className='text-amber-gold animate-pulse' />
             <span>Quán Nổi Bật Được Yêu Thích</span>
           </div>
-          <span className='text-[10.5px] text-[#D0D0D0]/90 bg-[#101010]/70 px-2 py-0.5 rounded-full border border-[#2A2A2A]/50 font-medium whitespace-nowrap'>
+          <span className='text-[10.5px] text-muted-foreground bg-card px-2 py-0.5 rounded-full border border-border/50 font-medium whitespace-nowrap'>
             ⚡️ 32 tín đồ cà phê đã ghé hôm nay
           </span>
         </div>
-        <p className='text-xs text-[#D0D0D0] leading-relaxed font-medium break-words'>{experienceTagline}</p>
+        <p className='text-xs text-muted-foreground leading-relaxed font-medium break-words'>{experienceTagline}</p>
       </div>
 
       {/* 2. Signature Recommendation Section */}
-      <div className='bg-[#141414]/50 p-3.5 rounded-2xl border border-[#2A2A2A]/60 flex items-start gap-3'>
-        <div className='w-8 h-8 rounded-xl bg-amber-gold/10 border border-amber-gold/30 flex items-center justify-center text-amber-gold flex-shrink-0 mt-0.5'>
+      <div className='bg-secondary/50 p-3.5 rounded-2xl border border-border/60 flex items-start gap-3'>
+        <div className='w-8 h-8 rounded-xl bg-amber-gold/15 border border-amber-gold/30 flex items-center justify-center text-amber-gold flex-shrink-0 mt-0.5'>
           <Coffee size={16} />
         </div>
         <div className='space-y-0.5 flex-1 min-w-0'>
-          <span className='text-[10px] font-bold text-amber-gold uppercase tracking-wider block'>
+          <span className='text-[10px] font-bold text-muted-foreground uppercase tracking-wider block'>
             Gợi ý đặc biệt
           </span>
-          <p className='text-xs font-semibold text-white leading-snug break-words'>
+          <p className='text-xs font-semibold text-foreground leading-snug break-words'>
             Cà phê phin truyền thống với sữa đặc &amp; bọt kem trứng muối
           </p>
-          <p className='text-[11px] text-[#D0D0D0]/75 break-words'>
+          <p className='text-[11px] text-muted-foreground break-words'>
             Pha chế thủ công từ hạt cà phê đặc sản Đà Lạt chất lượng cao.
           </p>
         </div>
@@ -301,43 +301,45 @@ export const OverviewTab = memo(function OverviewTab({
 
       {/* 3. Amenities Grid */}
       <div className='grid grid-cols-2 gap-2'>
-        <div className='flex items-center gap-2 bg-[#141414]/70 border border-[#2A2A2A]/60 p-2.5 rounded-xl text-[#D0D0D0] shadow-xs min-w-0'>
+        <div className='flex items-center gap-2 bg-secondary/70 border border-border/60 p-2.5 rounded-xl text-secondary-foreground shadow-xs min-w-0'>
           <Wifi size={14} className='text-amber-gold flex-shrink-0' />
           <span className='text-xs font-medium truncate'>Wi-Fi Tốc Độ Cao</span>
         </div>
-        <div className='flex items-center gap-2 bg-[#141414]/70 border border-[#2A2A2A]/60 p-2.5 rounded-xl text-[#D0D0D0] shadow-xs min-w-0'>
+        <div className='flex items-center gap-2 bg-secondary/70 border border-border/60 p-2.5 rounded-xl text-secondary-foreground shadow-xs min-w-0'>
           <Zap size={14} className='text-amber-gold flex-shrink-0' />
           <span className='text-xs font-medium truncate'>Ổ Cắm Điện</span>
         </div>
-        <div className='flex items-center gap-2 bg-[#141414]/70 border border-[#2A2A2A]/60 p-2.5 rounded-xl text-[#D0D0D0] shadow-xs min-w-0'>
+        <div className='flex items-center gap-2 bg-secondary/70 border border-border/60 p-2.5 rounded-xl text-secondary-foreground shadow-xs min-w-0'>
           <Wind size={14} className='text-amber-gold flex-shrink-0' />
           <span className='text-xs font-medium truncate'>Điều Hòa Mát Lạnh</span>
         </div>
-        <div className='flex items-center gap-2 bg-[#141414]/70 border border-[#2A2A2A]/60 p-2.5 rounded-xl text-[#D0D0D0] shadow-xs min-w-0'>
+        <div className='flex items-center gap-2 bg-secondary/70 border border-border/60 p-2.5 rounded-xl text-secondary-foreground shadow-xs min-w-0'>
           <Sun size={14} className='text-amber-gold flex-shrink-0' />
           <span className='text-xs font-medium truncate'>Chỗ Ngồi Ngoài Trời</span>
         </div>
       </div>
 
       {/* 4. Explorer Satisfaction Rating Card */}
-      <div className='bg-[#141414]/40 p-3.5 rounded-2xl border border-[#2A2A2A]/50 space-y-1.5'>
+      <div className='bg-secondary/40 p-3.5 rounded-2xl border border-border/50 space-y-1.5'>
         <div className='flex items-center justify-between text-xs'>
-          <span className='text-[#D0D0D0] font-medium'>Mức Độ Hài Lòng Của Khách Hàng</span>
+          <span className='text-secondary-foreground font-medium'>Mức Độ Hài Lòng Của Khách Hàng</span>
           <span className='font-bold text-teal'>{ratingScorePercent}% hài lòng</span>
         </div>
         <Progress
           value={ratingScorePercent}
           indicatorClassName='bg-gradient-to-r from-teal to-teal-hover'
-          className='h-2 bg-[#101010] border border-[#2A2A2A]/50'
+          className='h-2 bg-muted border border-border/50'
         />
-        <div className='flex items-center justify-between text-[11px] text-[#A0A0A0] pt-0.5'>
+        <div className='flex items-center justify-between text-[11px] text-muted-foreground pt-0.5'>
           <span>Dựa trên {shop.total_ratings || 120}+ lượt đánh giá đã xác thực</span>
-          <span className='text-amber-gold font-semibold'>★ {validRating.toFixed(1)} / 5.0</span>
+          <span className='text-foreground font-semibold flex items-center gap-1'>
+            <Star size={11} className='fill-amber-gold text-amber-gold' /> {validRating.toFixed(1)} / 5.0
+          </span>
         </div>
       </div>
 
       {/* 5. Opening Hours & Contact Card */}
-      <div className='bg-[#141414]/40 p-3.5 rounded-2xl border border-[#2A2A2A]/50 space-y-2.5 text-xs transition-all'>
+      <div className='bg-secondary/40 p-3.5 rounded-2xl border border-border/50 space-y-2.5 text-xs transition-all'>
         <button
           type='button'
           onClick={() => setIsHoursExpanded((prev) => !prev)}
@@ -346,12 +348,12 @@ export const OverviewTab = memo(function OverviewTab({
           className='w-full flex items-center justify-between gap-3 text-left group/hours focus:outline-none cursor-pointer'
         >
           <div className='flex items-center gap-2.5 min-w-0'>
-            <div className='w-8 h-8 rounded-xl bg-amber-gold/10 border border-amber-gold/25 flex items-center justify-center text-amber-gold flex-shrink-0'>
+            <div className='w-8 h-8 rounded-xl bg-amber-gold/15 border border-amber-gold/25 flex items-center justify-center text-amber-gold flex-shrink-0'>
               <Clock size={16} />
             </div>
             <div className='min-w-0'>
               <div className='flex items-center gap-1.5'>
-                <span className='font-bold text-white text-xs block group-hover/hours:text-amber-gold transition-colors'>
+                <span className='font-bold text-foreground text-xs block group-hover/hours:text-primary transition-colors'>
                   Giờ Mở Cửa
                 </span>
                 <span
@@ -361,7 +363,7 @@ export const OverviewTab = memo(function OverviewTab({
                   )}
                 />
               </div>
-              <p className='text-[11px] text-[#D0D0D0]/80 truncate'>
+              <p className='text-[11px] text-muted-foreground truncate'>
                 <span
                   className={cn(
                     'font-semibold',
@@ -371,7 +373,7 @@ export const OverviewTab = memo(function OverviewTab({
                   {scheduleInfo.isOpenNow ? 'Đang mở cửa' : 'Đã đóng cửa'}
                 </span>
                 {scheduleInfo.todaySchedule && (
-                  <span className='text-[#D0D0D0]/65'>
+                  <span className='text-muted-foreground'>
                     {' '}
                     • Hôm nay: {scheduleInfo.todaySchedule.timeText}
                   </span>
@@ -380,14 +382,14 @@ export const OverviewTab = memo(function OverviewTab({
             </div>
           </div>
 
-          <div className='flex items-center gap-1.5 flex-shrink-0 bg-[#101010]/60 border border-[#2A2A2A]/40 px-2 py-1 rounded-xl group-hover/hours:border-amber-gold/40 transition-colors'>
-            <span className='text-[10px] font-semibold text-amber-gold'>
+          <div className='flex items-center gap-1.5 flex-shrink-0 bg-card border border-border/40 px-2 py-1 rounded-xl group-hover/hours:border-border transition-colors'>
+            <span className='text-[10px] font-semibold text-foreground'>
               {isHoursExpanded ? 'Thu gọn' : 'Xem tất cả'}
             </span>
             <ChevronDown
               size={14}
               className={cn(
-                'text-[#A0A0A0] group-hover/hours:text-amber-gold transition-transform duration-300',
+                'text-muted-foreground group-hover/hours:text-foreground transition-transform duration-300',
                 isHoursExpanded && 'rotate-180'
               )}
             />
@@ -399,39 +401,39 @@ export const OverviewTab = memo(function OverviewTab({
           className={cn(
             'grid transition-all duration-300 ease-in-out overflow-hidden',
             isHoursExpanded
-              ? 'grid-rows-[1fr] opacity-100 mt-2.5 pt-2.5 border-t border-[#2A2A2A]/40'
+              ? 'grid-rows-[1fr] opacity-100 mt-2.5 pt-2.5 border-t border-border/40'
               : 'grid-rows-[0fr] opacity-0 mt-0 pt-0'
           )}
         >
           <div className='min-h-0 space-y-2.5'>
-            <div className='flex items-center gap-2 bg-[#101010]/70 border border-[#2A2A2A]/40 px-3 py-2 rounded-xl text-[11px] text-amber-gold'>
+            <div className='flex items-center gap-2 bg-card border border-border/40 px-3 py-2 rounded-xl text-[11px] text-foreground'>
               <Sparkles size={13} className='text-amber-gold flex-shrink-0' />
               <span className='font-medium'>
-                <strong className='text-white font-semibold'>Thời điểm lý tưởng:</strong>{' '}
+                <strong className='text-foreground font-semibold'>Thời điểm lý tưởng:</strong>{' '}
                 {scheduleInfo.peakVibeTime} — thời gian tuyệt nhất để thưởng thức cà phê và tận hưởng không gian yên tĩnh.
               </span>
             </div>
 
-            <div className='bg-[#101010]/80 rounded-xl border border-[#2A2A2A]/40 p-2 space-y-1'>
+            <div className='bg-card rounded-xl border border-border/40 p-2 space-y-1'>
               {scheduleInfo.scheduleList.map((day) => (
                 <div
                   key={day.dayName}
                   className={cn(
                     'flex items-center justify-between text-xs py-1 px-2 rounded-lg transition-colors',
                     day.isToday
-                      ? 'bg-amber-gold/15 text-white font-bold border border-amber-gold/30 shadow-xs'
-                      : 'text-[#D0D0D0]/80 hover:text-white'
+                      ? 'bg-primary/20 text-foreground font-bold border border-primary/40 shadow-xs'
+                      : 'text-muted-foreground hover:text-foreground'
                   )}
                 >
                   <div className='flex items-center gap-2'>
                     {day.isToday ? (
-                      <span className='w-1.5 h-1.5 rounded-full bg-amber-gold animate-pulse' />
+                      <span className='w-1.5 h-1.5 rounded-full bg-primary animate-pulse' />
                     ) : (
-                      <span className='w-1.5 h-1.5 rounded-full bg-[#A0A0A0]/30' />
+                      <span className='w-1.5 h-1.5 rounded-full bg-muted-foreground/30' />
                     )}
-                    <span className={cn(day.isToday && 'text-amber-gold')}>{day.dayName}</span>
+                    <span className={cn(day.isToday ? 'text-foreground font-bold' : 'text-muted-foreground')}>{day.dayName}</span>
                     {day.isToday && (
-                      <span className='text-[9px] uppercase tracking-wider bg-amber-gold text-[#101010] px-1.5 py-0.2 rounded font-extrabold ml-1'>
+                      <span className='text-[9px] uppercase tracking-wider bg-amber-gold text-primary-foreground px-1.5 py-0.2 rounded font-extrabold ml-1'>
                         Hôm nay
                       </span>
                     )}
@@ -439,7 +441,7 @@ export const OverviewTab = memo(function OverviewTab({
                   <span
                     className={cn(
                       'text-[11px]',
-                      day.isToday ? 'text-white font-bold' : 'text-[#D0D0D0]/70'
+                      day.isToday ? 'text-foreground font-bold' : 'text-muted-foreground'
                     )}
                   >
                     {day.timeText}
@@ -452,14 +454,14 @@ export const OverviewTab = memo(function OverviewTab({
 
         {/* Contact Info (Phone & Website) */}
         {(shop.phone || shop.website) && (
-          <div className='pt-2 border-t border-[#2A2A2A]/40 space-y-2'>
+          <div className='pt-2 border-t border-border/40 space-y-2'>
             {shop.phone && (
               <div className='flex items-center gap-2.5'>
                 <Phone size={14} className='text-amber-gold flex-shrink-0' />
-                <span className='text-[11px] text-[#A0A0A0]'>Điện thoại:</span>
+                <span className='text-[11px] text-muted-foreground'>Điện thoại:</span>
                 <a
                   href={`tel:${shop.phone}`}
-                  className='text-amber-gold hover:text-amber-gold-hover hover:underline transition-colors font-medium text-xs ml-auto'
+                  className='text-foreground hover:text-primary hover:underline transition-colors font-medium text-xs ml-auto'
                 >
                   {shop.phone}
                 </a>
@@ -469,12 +471,12 @@ export const OverviewTab = memo(function OverviewTab({
             {shop.website && (
               <div className='flex items-center gap-2.5'>
                 <Globe size={14} className='text-amber-gold flex-shrink-0' />
-                <span className='text-[11px] text-[#A0A0A0]'>Website:</span>
+                <span className='text-[11px] text-muted-foreground'>Website:</span>
                 <a
                   href={shop.website}
                   target='_blank'
                   rel='noopener noreferrer'
-                  className='text-amber-gold hover:text-amber-gold-hover hover:underline transition-colors font-medium truncate block max-w-[200px] text-xs ml-auto text-right'
+                  className='text-foreground hover:text-primary hover:underline transition-colors font-medium truncate block max-w-[200px] text-xs ml-auto text-right'
                 >
                   {shop.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}
                 </a>
@@ -485,13 +487,13 @@ export const OverviewTab = memo(function OverviewTab({
       </div>
 
       {/* 6. Physical Location & Navigation CTA */}
-      <div className='bg-[#141414]/60 p-4 rounded-2xl border border-[#2A2A2A]/60 space-y-3.5 shadow-md'>
+      <div className='bg-secondary/60 p-4 rounded-2xl border border-border/60 space-y-3.5 shadow-md'>
         <div className='flex items-start justify-between gap-2'>
           <div className='space-y-1 min-w-0'>
-            <span className='text-[10px] font-bold text-amber-gold uppercase tracking-wider block'>
+            <span className='text-[10px] font-bold text-muted-foreground uppercase tracking-wider block'>
               Địa Chỉ Quán
             </span>
-            <p className='text-xs sm:text-sm font-semibold text-white leading-snug'>
+            <p className='text-xs sm:text-sm font-semibold text-foreground leading-snug'>
               {shop.address || 'Chưa có thông tin địa chỉ'}
             </p>
           </div>
@@ -500,26 +502,26 @@ export const OverviewTab = memo(function OverviewTab({
             size='icon'
             onClick={handleCopyAddress}
             aria-label='Sao chép địa chỉ'
-            className='h-8 w-8 rounded-xl bg-[#101010]/80 text-[#D0D0D0] hover:text-amber-gold hover:bg-[#141414] border border-[#2A2A2A]/60 flex-shrink-0 cursor-pointer'
+            className='h-8 w-8 rounded-xl bg-card text-muted-foreground hover:text-amber-gold hover:bg-accent border border-border/60 flex-shrink-0 cursor-pointer'
           >
             {copied ? <Check size={14} className='text-teal' /> : <Copy size={14} />}
           </Button>
         </div>
 
         <div className='grid grid-cols-2 gap-2 text-xs'>
-          <div className='bg-[#101010]/70 p-2.5 rounded-xl border border-[#2A2A2A]/40 flex items-center gap-2'>
+          <div className='bg-card p-2.5 rounded-xl border border-border/40 flex items-center gap-2'>
             <Footprints size={15} className='text-amber-gold flex-shrink-0' />
             <div>
-              <span className='text-[10px] text-[#A0A0A0] block'>Khoảng cách</span>
-              <span className='font-bold text-white text-xs'>{distanceText}</span>
+              <span className='text-[10px] text-muted-foreground block'>Khoảng cách</span>
+              <span className='font-bold text-foreground text-xs'>{distanceText}</span>
             </div>
           </div>
 
-          <div className='bg-[#101010]/70 p-2.5 rounded-xl border border-[#2A2A2A]/40 flex items-center gap-2'>
+          <div className='bg-card p-2.5 rounded-xl border border-border/40 flex items-center gap-2'>
             <Compass size={15} className='text-amber-gold flex-shrink-0' />
             <div>
-              <span className='text-[10px] text-[#A0A0A0] block'>Tọa độ GPS</span>
-              <span className='font-bold text-white text-xs'>
+              <span className='text-[10px] text-muted-foreground block'>Tọa độ GPS</span>
+              <span className='font-bold text-foreground text-xs'>
                 {shop.lat.toFixed(4)}, {shop.lon.toFixed(4)}
               </span>
             </div>
@@ -532,8 +534,8 @@ export const OverviewTab = memo(function OverviewTab({
           rel='noopener noreferrer'
           className='block pt-1'
         >
-          <Button className='w-full h-12 bg-gradient-to-r from-amber-gold to-[#E5B56D] text-[#101010] hover:brightness-110 font-bold text-sm rounded-xl shadow-lg shadow-amber-gold/20 transition-all transform active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer'>
-            <Navigation size={16} className='fill-[#101010]' />
+          <Button className='w-full h-12 bg-amber-gold text-primary-foreground hover:bg-amber-gold-hover font-bold text-sm rounded-xl shadow-lg shadow-amber-gold/20 transition-all transform active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer'>
+            <Navigation size={16} className='fill-primary-foreground' />
             Đến Quán Ngay • Mở Google Maps
           </Button>
         </a>
@@ -543,11 +545,11 @@ export const OverviewTab = memo(function OverviewTab({
       {similarShops.length > 0 && (
         <div className='space-y-2.5 pt-2'>
           <div className='flex items-center justify-between'>
-            <span className='text-xs font-bold text-white flex items-center gap-1.5'>
+            <span className='text-xs font-bold text-foreground flex items-center gap-1.5'>
               <Sparkles size={13} className='text-amber-gold' />
               Có Thể Bạn Cũng Thích
             </span>
-            <span className='text-[11px] text-[#D0D0D0]/70'>Quán cà phê lân cận</span>
+            <span className='text-[11px] text-muted-foreground'>Quán cà phê lân cận</span>
           </div>
 
           <div className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
@@ -555,9 +557,9 @@ export const OverviewTab = memo(function OverviewTab({
               <div
                 key={simShop.id}
                 onClick={() => onSelectShop(simShop)}
-                className='bg-[#141414]/40 hover:bg-[#141414]/80 p-2.5 rounded-2xl border border-[#2A2A2A]/50 flex items-center gap-2.5 cursor-pointer transition-all hover:border-amber-gold/40 group'
+                className='bg-secondary/40 hover:bg-secondary/80 p-2.5 rounded-2xl border border-border/50 flex items-center gap-2.5 cursor-pointer transition-all hover:border-amber-gold/40 group'
               >
-                <div className='w-12 h-12 rounded-xl bg-[#101010] overflow-hidden flex-shrink-0 border border-[#2A2A2A]/40'>
+                <div className='w-12 h-12 rounded-xl bg-muted overflow-hidden flex-shrink-0 border border-border/40'>
                   <img
                     src={simShop.photos?.[0] || SAMPLE_GALLERY[0].url}
                     alt={simShop.name}
@@ -565,10 +567,10 @@ export const OverviewTab = memo(function OverviewTab({
                   />
                 </div>
                 <div className='min-w-0 flex-1 space-y-0.5'>
-                  <span className='font-bold text-white text-xs block truncate group-hover:text-amber-gold transition-colors'>
+                  <span className='font-bold text-foreground text-xs block truncate group-hover:text-amber-gold transition-colors'>
                     {simShop.name}
                   </span>
-                  <div className='flex items-center gap-1 text-[10px] text-[#A0A0A0]'>
+                  <div className='flex items-center gap-1 text-[10px] text-muted-foreground'>
                     <Star size={10} className='fill-amber-gold text-amber-gold' />
                     <span>{(simShop.rating || 4.5).toFixed(1)}</span>
                     <span>•</span>
@@ -577,7 +579,7 @@ export const OverviewTab = memo(function OverviewTab({
                 </div>
                 <ChevronRight
                   size={14}
-                  className='text-[#A0A0A0] group-hover:text-amber-gold transition-colors flex-shrink-0'
+                  className='text-muted-foreground group-hover:text-amber-gold transition-colors flex-shrink-0'
                 />
               </div>
             ))}
@@ -609,14 +611,14 @@ export const PhotosTab = memo(function PhotosTab({ shop }: { shop: CoffeeShop })
     <div className='space-y-4 pb-16'>
       <div className='flex items-center justify-between'>
         <div>
-          <span className='text-xs font-bold text-white block'>Không gian &amp; Hình ảnh</span>
-          <span className='text-[11px] text-[#D0D0D0]/70'>
+          <span className='text-xs font-bold text-foreground block'>Không gian &amp; Hình ảnh</span>
+          <span className='text-[11px] text-muted-foreground'>
             {photoList.length} hình ảnh thực tế từ cộng đồng
           </span>
         </div>
         <Badge
           variant='outline'
-          className='bg-[#141414] text-amber-gold border-[#2A2A2A] text-[10px] font-bold'
+          className='bg-secondary text-amber-gold border-border text-[10px] font-bold'
         >
           Xem toàn màn hình
         </Badge>
@@ -627,7 +629,7 @@ export const PhotosTab = memo(function PhotosTab({ shop }: { shop: CoffeeShop })
           <div
             key={idx}
             onClick={() => openImagePreview(photoList, idx)}
-            className='group relative aspect-square rounded-2xl overflow-hidden bg-[#141414] border border-[#2A2A2A]/60 cursor-pointer shadow-md active:scale-95 transition-transform select-none pointer-events-auto'
+            className='group relative aspect-square rounded-2xl overflow-hidden bg-secondary border border-border/60 cursor-pointer shadow-md active:scale-95 transition-transform select-none pointer-events-auto'
           >
             <img
               draggable={false}
@@ -640,7 +642,7 @@ export const PhotosTab = memo(function PhotosTab({ shop }: { shop: CoffeeShop })
                 {item.title}
               </span>
             </div>
-            <div className='absolute top-1.5 right-1.5 bg-[#101010]/80 backdrop-blur-md px-1.5 py-0.5 rounded-md text-[8.5px] sm:text-[9px] font-bold text-amber-gold border border-[#2A2A2A]/40'>
+            <div className='absolute top-1.5 right-1.5 bg-card/80 backdrop-blur-md px-1.5 py-0.5 rounded-md text-[8.5px] sm:text-[9px] font-bold text-amber-gold border border-border/40'>
               {item.category}
             </div>
           </div>
@@ -785,9 +787,9 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
   return (
     <div className='space-y-4 pb-16'>
       {/* 1. Rating Breakdown Score Card (Horizontal Row) */}
-      <div className='bg-[#141414]/50 p-3.5 rounded-2xl border border-[#2A2A2A]/60 grid grid-cols-[110px_1fr] items-center gap-4 shadow-sm'>
-        <div className='flex flex-col items-center justify-center text-center pr-3 border-r border-[#2A2A2A]/50'>
-          <span className='text-3xl font-black text-white tracking-tight leading-none'>
+      <div className='bg-secondary/50 p-3.5 rounded-2xl border border-border/60 grid grid-cols-[110px_1fr] items-center gap-4 shadow-sm'>
+        <div className='flex flex-col items-center justify-center text-center pr-3 border-r border-border/50'>
+          <span className='text-3xl font-black text-foreground tracking-tight leading-none'>
             {shopRating.toFixed(1)}
           </span>
           <div className='flex items-center gap-0.5 text-amber-gold my-1'>
@@ -798,18 +800,18 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
                 className={
                   star <= Math.round(shopRating)
                     ? 'fill-amber-gold text-amber-gold'
-                    : 'text-[#2A2A2A]'
+                    : 'text-border'
                 }
               />
             ))}
           </div>
-          <span className='text-[10px] text-[#A0A0A0] font-medium leading-none'>
+          <span className='text-[10px] text-muted-foreground font-medium leading-none'>
             {totalReviews} Đánh giá
           </span>
         </div>
 
         {/* Rating Distribution Bars */}
-        <div className='space-y-1 text-xs text-[#D0D0D0]'>
+        <div className='space-y-1 text-xs text-secondary-foreground'>
           {[
             { star: 5, pct: 84 },
             { star: 4, pct: 11 },
@@ -818,14 +820,14 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
             { star: 1, pct: 1 }
           ].map((bar) => (
             <div key={bar.star} className='flex items-center gap-2'>
-              <span className='w-2.5 text-right text-[10px] text-[#A0A0A0] font-bold'>{bar.star}</span>
-              <div className='flex-1 h-1.5 bg-[#101010] rounded-full overflow-hidden border border-[#2A2A2A]/40'>
+              <span className='w-2.5 text-right text-[10px] text-muted-foreground font-bold'>{bar.star}</span>
+              <div className='flex-1 h-1.5 bg-muted rounded-full overflow-hidden border border-border/40'>
                 <div
                   className='h-full bg-amber-gold rounded-full transition-all duration-500'
                   style={{ width: `${bar.pct}%` }}
                 />
               </div>
-              <span className='w-7 text-right text-[9.5px] text-[#A0A0A0] font-semibold'>
+              <span className='w-7 text-right text-[9.5px] text-muted-foreground font-semibold'>
                 {bar.pct}%
               </span>
             </div>
@@ -835,16 +837,16 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
 
       {/* 2. Write a Review Action / Guest Auth Prompt (Vertical Stack) */}
       {!isAuthenticated ? (
-        <div className='bg-[#141414]/40 p-3.5 rounded-2xl border border-amber-gold/30 flex flex-col gap-3 shadow-xs'>
+        <div className='bg-secondary/40 p-3.5 rounded-2xl border border-amber-gold/30 flex flex-col gap-3 shadow-xs'>
           <div className='flex items-center gap-2.5 min-w-0'>
             <div className='w-8 h-8 rounded-xl bg-amber-gold/15 border border-amber-gold/30 flex items-center justify-center text-amber-gold flex-shrink-0'>
               <Edit3 size={15} />
             </div>
             <div className='min-w-0'>
-              <span className='font-bold text-white text-xs block'>
+              <span className='font-bold text-foreground text-xs block'>
                 Bạn đã từng ghé quán cà phê này?
               </span>
-              <p className='text-[11px] text-[#D0D0D0]/75 leading-tight'>
+              <p className='text-[11px] text-muted-foreground leading-tight'>
                 Chia sẻ cảm nhận và trải nghiệm của bạn cùng cộng đồng.
               </p>
             </div>
@@ -855,8 +857,7 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
           >
             <Button
               type='button'
-              variant='outline'
-              className='w-full bg-amber-gold/20 hover:bg-amber-gold/30 text-amber-gold hover:text-amber-gold-hover border-amber-gold/40 hover:border-amber-gold/60 text-xs font-bold rounded-xl py-2 h-9 flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer'
+              className='w-full bg-primary hover:bg-primary-hover text-primary-foreground text-xs font-bold rounded-xl py-2 h-9 flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-md'
             >
               <LogIn size={14} />
               <span>Đăng nhập để viết đánh giá</span>
@@ -866,24 +867,24 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
       ) : isFormOpen ? (
         <form
           onSubmit={handleSubmitReview}
-          className='bg-[#141414]/70 p-3.5 rounded-2xl border border-amber-gold/40 shadow-lg space-y-3 animate-in fade-in zoom-in-95 duration-200'
+          className='bg-secondary/70 p-3.5 rounded-2xl border border-border shadow-lg space-y-3 animate-in fade-in zoom-in-95 duration-200'
         >
-          <div className='flex items-center justify-between border-b border-[#2A2A2A]/50 pb-2'>
+          <div className='flex items-center justify-between border-b border-border/50 pb-2'>
             <div className='flex items-center gap-2'>
               <Edit3 size={15} className='text-amber-gold' />
-              <span className='font-bold text-xs text-white'>Viết Đánh Giá Của Bạn</span>
+              <span className='font-bold text-xs text-foreground'>Viết Đánh Giá Của Bạn</span>
             </div>
             <button
               type='button'
               onClick={() => setIsFormOpen(false)}
-              className='text-[#A0A0A0] hover:text-white p-1 rounded-lg transition-colors cursor-pointer'
+              className='text-muted-foreground hover:text-foreground p-1 rounded-lg transition-colors cursor-pointer'
             >
               <X size={15} />
             </button>
           </div>
 
           <div className='space-y-1'>
-            <span className='text-[11px] font-semibold text-[#D0D0D0] block'>Đánh giá tổng quan</span>
+            <span className='text-[11px] font-semibold text-muted-foreground block'>Đánh giá tổng quan</span>
             <div className='flex items-center gap-1.5 py-0.5'>
               {[1, 2, 3, 4, 5].map((star) => {
                 const active = (hoverRating || rating) >= star;
@@ -900,26 +901,26 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
                       size={20}
                       className={cn(
                         'transition-colors',
-                        active ? 'fill-amber-gold text-amber-gold' : 'text-[#A0A0A0]/40'
+                        active ? 'fill-amber-gold text-amber-gold' : 'text-muted-foreground/40'
                       )}
                     />
                   </button>
                 );
               })}
-              <span className='text-xs font-bold text-amber-gold ml-2'>
+              <span className='text-xs font-bold text-foreground ml-2'>
                 {hoverRating || rating} / 5 Sao
               </span>
             </div>
           </div>
 
           <div className='space-y-1'>
-            <span className='text-[11px] font-semibold text-[#D0D0D0] block'>Cảm nhận của bạn</span>
+            <span className='text-[11px] font-semibold text-muted-foreground block'>Cảm nhận của bạn</span>
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               placeholder='Bạn cảm thấy thế nào về hương vị cà phê, chỗ ngồi, tốc độ Wi-Fi hay không gian quán?'
               rows={3}
-              className='w-full bg-[#101010]/80 border border-[#2A2A2A]/80 rounded-xl p-2.5 text-xs text-white placeholder:text-[#A0A0A0]/60 focus:outline-none focus:border-amber-gold resize-none transition-colors'
+              className='w-full bg-card border border-border rounded-xl p-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-amber-gold resize-none transition-colors'
             />
           </div>
 
@@ -929,14 +930,14 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
               variant='ghost'
               onClick={() => setIsFormOpen(false)}
               disabled={isSubmitting}
-              className='text-xs text-[#A0A0A0] hover:text-white hover:bg-white/5 rounded-xl px-3 py-1.5 h-8 cursor-pointer'
+              className='text-xs text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl px-3 py-1.5 h-8 cursor-pointer'
             >
               Hủy
             </Button>
             <Button
               type='submit'
               disabled={isSubmitting || comment.trim().length < 3}
-              className='bg-amber-gold hover:bg-amber-gold-hover text-[#101010] font-bold text-xs rounded-xl px-3.5 py-1.5 h-8 shadow-md flex items-center gap-1.5 disabled:opacity-50 cursor-pointer'
+              className='bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground font-bold text-xs rounded-xl px-3.5 py-1.5 h-8 shadow-md flex items-center gap-1.5 disabled:opacity-50 cursor-pointer'
             >
               {isSubmitting ? (
                 <>
@@ -953,9 +954,9 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
           </div>
         </form>
       ) : (
-        <div className='flex items-center justify-between bg-[#141414]/40 p-3 rounded-2xl border border-[#2A2A2A]/60 gap-3'>
+        <div className='flex items-center justify-between bg-secondary/40 p-3 rounded-2xl border border-border/60 gap-3'>
           <div className='flex items-center gap-2.5 min-w-0 flex-1'>
-            <div className='w-8 h-8 rounded-full overflow-hidden border border-amber-gold/40 bg-[#101010] flex-shrink-0'>
+            <div className='w-8 h-8 rounded-full overflow-hidden border border-amber-gold/40 bg-muted flex-shrink-0'>
               <img
                 src={
                   profile?.avatar_url ||
@@ -967,10 +968,10 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
               />
             </div>
             <div className='min-w-0'>
-              <span className='text-xs font-bold text-white block truncate'>
+              <span className='text-xs font-bold text-foreground block truncate'>
                 Đánh giá với tư cách {profile?.full_name || user?.user_metadata?.full_name || 'Tín đồ cà phê'}
               </span>
-              <p className='text-[11px] text-[#D0D0D0]/70 truncate'>
+              <p className='text-[11px] text-muted-foreground truncate'>
                 Chia sẻ cảm nhận của bạn cùng cộng đồng
               </p>
             </div>
@@ -978,7 +979,7 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
           <Button
             type='button'
             onClick={() => setIsFormOpen(true)}
-            className='bg-amber-gold hover:bg-amber-gold-hover text-[#101010] font-bold text-xs rounded-xl px-3 py-1.5 h-8.5 shadow-md flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer flex-shrink-0'
+            className='bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground font-bold text-xs rounded-xl px-3 py-1.5 h-8.5 shadow-md flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer flex-shrink-0'
           >
             <Edit3 size={13} />
             <span>Viết đánh giá</span>
@@ -988,7 +989,7 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
 
       {/* Review Comments Feed */}
       <div className='space-y-2.5'>
-        <span className='text-xs font-bold text-white block'>
+        <span className='text-xs font-bold text-foreground block'>
           Đánh giá &amp; Trải nghiệm cộng đồng ({reviewsList.length})
         </span>
         <div className='grid grid-cols-1 gap-2.5'>
@@ -999,13 +1000,13 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
                 'p-3.5 rounded-2xl border flex flex-col gap-2 transition-all shadow-xs',
                 rev.isUserSubmission
                   ? 'bg-amber-gold/10 border-amber-gold/40 shadow-sm'
-                  : 'bg-[#141414]/50 border-[#2A2A2A]/60 hover:border-[#2A2A2A]/90'
+                  : 'bg-secondary/50 border-border/60 hover:border-border/90'
               )}
             >
               {/* Header Row: Avatar, Author, Verified, Rating, and Date */}
               <div className='flex items-start justify-between gap-2 min-w-0'>
                 <div className='flex items-center gap-2.5 min-w-0'>
-                  <div className='w-7 h-7 rounded-full overflow-hidden border border-amber-gold/30 bg-[#101010] flex-shrink-0'>
+                  <div className='w-7 h-7 rounded-full overflow-hidden border border-amber-gold/30 bg-muted flex-shrink-0'>
                     <img
                       src={
                         rev.avatar ||
@@ -1017,10 +1018,10 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
                   </div>
                   <div className='min-w-0 flex flex-col'>
                     <div className='flex items-center gap-1.5 min-w-0'>
-                      <span className='font-bold text-white text-xs truncate'>{rev.author}</span>
+                      <span className='font-bold text-foreground text-xs truncate'>{rev.author}</span>
                       <CheckCircle2 size={12} className='text-teal flex-shrink-0' />
                       {rev.isUserSubmission && (
-                        <span className='text-[9px] bg-amber-gold text-[#101010] font-extrabold px-1.5 py-0.2 rounded uppercase tracking-wider flex-shrink-0'>
+                        <span className='text-[9px] bg-amber-gold text-primary-foreground font-extrabold px-1.5 py-0.2 rounded uppercase tracking-wider flex-shrink-0'>
                           Bạn
                         </span>
                       )}
@@ -1032,13 +1033,13 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
                     </div>
                   </div>
                 </div>
-                <span className='text-[10px] text-[#A0A0A0] font-medium whitespace-nowrap flex-shrink-0 pt-0.5'>
+                <span className='text-[10px] text-muted-foreground font-medium whitespace-nowrap flex-shrink-0 pt-0.5'>
                   {rev.date}
                 </span>
               </div>
 
               {/* Review Comment Body with natural wrapping */}
-              <p className='text-xs text-[#D0D0D0]/90 leading-relaxed break-words whitespace-normal'>
+              <p className='text-xs text-secondary-foreground leading-relaxed break-words whitespace-normal'>
                 {rev.comment}
               </p>
             </div>
@@ -1109,26 +1110,26 @@ export const AmenitiesTab = memo(function AmenitiesTab() {
           return (
             <div
               key={idx}
-              className='flex items-start gap-3 bg-[#141414]/50 p-3 rounded-2xl border border-[#2A2A2A]/50 text-xs shadow-xs'
+              className='flex items-start gap-3 bg-secondary/50 p-3 rounded-2xl border border-border/50 text-xs shadow-xs'
             >
-              <div className='w-8 h-8 rounded-xl bg-[#101010] border border-[#2A2A2A]/70 flex items-center justify-center text-amber-gold flex-shrink-0'>
+              <div className='w-8 h-8 rounded-xl bg-muted border border-border/70 flex items-center justify-center text-amber-gold flex-shrink-0'>
                 <Icon size={16} />
               </div>
               <div className='flex flex-col items-start gap-1 min-w-0 flex-1 text-left'>
-                <span className='font-bold text-white text-xs leading-snug text-left'>
+                <span className='font-bold text-foreground text-xs leading-snug text-left'>
                   {item.title}
                 </span>
-                <span className='inline-flex items-center text-[9px] bg-[#101010] px-1.5 py-0.5 rounded-md text-amber-gold font-semibold border border-[#2A2A2A]/40 self-start text-left'>
+                <span className='inline-flex items-center text-[9px] bg-muted px-1.5 py-0.5 rounded-md text-amber-gold font-semibold border border-border/40 self-start text-left'>
                   {item.badge}
                 </span>
-                <p className='text-[11px] text-[#D0D0D0]/75 leading-relaxed text-left'>{item.desc}</p>
+                <p className='text-[11px] text-secondary-foreground leading-relaxed text-left'>{item.desc}</p>
               </div>
             </div>
           );
         })}
       </div>
 
-      <div className='bg-[#141414]/30 p-3.5 rounded-2xl border border-[#2A2A2A]/40 text-xs text-[#D0D0D0]/85'>
+      <div className='bg-secondary/30 p-3.5 rounded-2xl border border-border/40 text-xs text-secondary-foreground'>
         <p className='flex items-center gap-2 font-medium text-xs'>
           <Sparkles size={14} className='text-amber-gold flex-shrink-0' />
           Không gian: Thân thiện với laptop, khu vực học tập yên tĩnh &amp; chỗ ngồi thư giãn.
@@ -1207,14 +1208,14 @@ export function ShopDetailsContent({
       {/* HEADER SECTION: Gallery collage, title, metrics, and tab navigation */}
       <div className={cn('flex-shrink-0 space-y-3.5 select-none', isSidebar ? 'px-4 pt-3' : 'px-4 sm:px-6 pt-2')}>
         {/* 1. Curated Interactive Visual Collage Banner */}
-        <div className='relative w-full h-36 sm:h-44 rounded-2xl overflow-hidden bg-[#141414] shadow-lg border border-[#2A2A2A]/60 group'>
+        <div className='relative w-full h-36 sm:h-44 rounded-2xl overflow-hidden bg-secondary shadow-lg border border-border/60 group'>
           {imgError || !galleryPhotos[0]?.url ? (
-            <div className='w-full h-full flex flex-col items-center justify-center text-[#A0A0A0] bg-[#141414]'>
+            <div className='w-full h-full flex flex-col items-center justify-center text-muted-foreground bg-secondary'>
               <Coffee size={36} className='text-amber-gold mb-2 opacity-80 animate-pulse' />
-              <span className='text-xs font-medium text-white'>Tiêu điểm Cà phê PhinFind</span>
+              <span className='text-xs font-medium text-foreground'>Tiêu điểm Cà phê PhinFind</span>
             </div>
           ) : (
-            <div className='w-full h-full flex gap-1 p-1 bg-[#101010]/60'>
+            <div className='w-full h-full flex gap-1 p-1 bg-black/60'>
               <div
                 onClick={() => openImagePreview(galleryPhotos, 0)}
                 className='flex-1 h-full rounded-xl overflow-hidden relative cursor-pointer group select-none pointer-events-auto'
@@ -1238,7 +1239,7 @@ export function ShopDetailsContent({
                 <div className='hidden xs:flex sm:flex flex-col w-28 sm:w-36 gap-1'>
                   <div
                     onClick={() => openImagePreview(galleryPhotos, 1)}
-                    className='h-[calc(50%-2px)] rounded-xl overflow-hidden relative bg-[#141414] border border-[#2A2A2A]/40 cursor-pointer group select-none pointer-events-auto'
+                    className='h-[calc(50%-2px)] rounded-xl overflow-hidden relative bg-secondary border border-border/40 cursor-pointer group select-none pointer-events-auto'
                   >
                     <img
                       draggable={false}
@@ -1250,7 +1251,7 @@ export function ShopDetailsContent({
 
                   <div
                     onClick={() => openImagePreview(galleryPhotos, 2)}
-                    className='h-[calc(50%-2px)] rounded-xl overflow-hidden relative bg-[#141414] border border-[#2A2A2A]/40 cursor-pointer group select-none pointer-events-auto'
+                    className='h-[calc(50%-2px)] rounded-xl overflow-hidden relative bg-secondary border border-border/40 cursor-pointer group select-none pointer-events-auto'
                   >
                     <img
                       draggable={false}
@@ -1273,11 +1274,11 @@ export function ShopDetailsContent({
 
         {/* 2. Shop Title, Address & Metrics */}
         <div className='space-y-1.5'>
-          <h2 className='font-sans font-bold text-lg sm:text-xl text-white tracking-tight leading-snug break-words'>
+          <h2 className='font-sans font-bold text-lg sm:text-xl text-foreground tracking-tight leading-snug break-words'>
             {shop.name}
           </h2>
 
-          <div className='text-xs text-[#D0D0D0]/85 flex items-start gap-1.5'>
+          <div className='text-xs text-secondary-foreground flex items-start gap-1.5'>
             <MapPin size={13} className='text-amber-gold flex-shrink-0 mt-0.5' />
             <span className='break-words leading-relaxed'>{shop.address || 'Chưa có địa chỉ'}</span>
           </div>
@@ -1286,14 +1287,14 @@ export function ShopDetailsContent({
           <div className='flex flex-wrap items-center gap-1.5 pt-0.5'>
             <Badge
               variant='outline'
-              className='bg-[#141414] text-amber-gold border-[#2A2A2A] flex items-center gap-1 font-bold text-[11px] py-0.5 px-2 rounded-xl shadow-xs'
+              className='bg-secondary text-amber-gold border-border flex items-center gap-1 font-bold text-[11px] py-0.5 px-2 rounded-xl shadow-xs'
             >
               {hasRating ? (
                 <>
                   <Star size={11} className='fill-amber-gold text-amber-gold' />
                   <span>{shop.rating.toFixed(1)}</span>
                   {shop.total_ratings ? (
-                    <span className='text-[10px] text-[#A0A0A0] font-normal'>
+                    <span className='text-[10px] text-muted-foreground font-normal'>
                       ({shop.total_ratings})
                     </span>
                   ) : null}
@@ -1308,7 +1309,7 @@ export function ShopDetailsContent({
 
             <Badge
               variant='outline'
-              className='bg-[#141414] text-[#D0D0D0] border-[#2A2A2A] flex items-center gap-1 font-medium text-[11px] py-0.5 px-2 rounded-xl shadow-xs'
+              className='bg-secondary text-secondary-foreground border-border flex items-center gap-1 font-medium text-[11px] py-0.5 px-2 rounded-xl shadow-xs'
             >
               <Footprints size={11} className='text-amber-gold/80' />
               <span>{distanceText}</span>
@@ -1316,7 +1317,7 @@ export function ShopDetailsContent({
 
             <Badge
               variant='outline'
-              className='bg-[#141414] text-[#D0D0D0] border-[#2A2A2A] flex items-center gap-1 font-medium text-[11px] py-0.5 px-2 rounded-xl shadow-xs'
+              className='bg-secondary text-secondary-foreground border-border flex items-center gap-1 font-medium text-[11px] py-0.5 px-2 rounded-xl shadow-xs'
             >
               <Clock size={11} className='text-amber-gold/80' />
               <span>{isOpenNow ? 'Đang mở cửa' : 'Đã đóng cửa'}</span>
@@ -1325,29 +1326,29 @@ export function ShopDetailsContent({
         </div>
 
         {/* 3. Underline Navigation Tabs */}
-        <div className='pt-1.5 border-b border-[#2A2A2A]/50'>
+        <div className='pt-1.5 border-b border-border/50'>
           <TabsList className='flex items-center justify-between bg-transparent p-0 h-auto rounded-none w-full gap-2'>
             <TabsTrigger
               value='overview'
-              className='flex-1 pb-2 pt-1 px-1 font-semibold text-xs text-[#D0D0D0]/70 hover:text-white data-[state=active]:text-amber-gold data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-amber-gold rounded-none transition-all cursor-pointer'
+              className='flex-1 pb-2 pt-1 px-1 font-semibold text-xs text-muted-foreground hover:text-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none transition-all cursor-pointer'
             >
               Tổng quan
             </TabsTrigger>
             <TabsTrigger
               value='photos'
-              className='flex-1 pb-2 pt-1 px-1 font-semibold text-xs text-[#D0D0D0]/70 hover:text-white data-[state=active]:text-amber-gold data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-amber-gold rounded-none transition-all cursor-pointer'
+              className='flex-1 pb-2 pt-1 px-1 font-semibold text-xs text-muted-foreground hover:text-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none transition-all cursor-pointer'
             >
               Hình ảnh
             </TabsTrigger>
             <TabsTrigger
               value='reviews'
-              className='flex-1 pb-2 pt-1 px-1 font-semibold text-xs text-[#D0D0D0]/70 hover:text-white data-[state=active]:text-amber-gold data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-amber-gold rounded-none transition-all cursor-pointer'
+              className='flex-1 pb-2 pt-1 px-1 font-semibold text-xs text-muted-foreground hover:text-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none transition-all cursor-pointer'
             >
               Đánh giá
             </TabsTrigger>
             <TabsTrigger
               value='amenities'
-              className='flex-1 pb-2 pt-1 px-1 font-semibold text-xs text-[#D0D0D0]/70 hover:text-white data-[state=active]:text-amber-gold data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-amber-gold rounded-none transition-all cursor-pointer'
+              className='flex-1 pb-2 pt-1 px-1 font-semibold text-xs text-muted-foreground hover:text-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none transition-all cursor-pointer'
             >
               Tiện ích
             </TabsTrigger>

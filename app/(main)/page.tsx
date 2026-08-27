@@ -217,27 +217,27 @@ export default function DiscoverPage() {
   }, []);
 
   return (
-    <div className="space-y-5 max-w-7xl mx-auto text-white">
+    <div className="space-y-6 max-w-7xl mx-auto text-foreground">
       {/* Compact Premium Top Filter Card */}
       <div
         ref={topFilterRef}
-        className="bg-[#101010]/95 backdrop-blur-md rounded-3xl p-3.5 sm:p-4 border border-[#2A2A2A] shadow-xl shadow-black/30 space-y-3"
+        className="bg-gradient-to-b from-card to-card/95 backdrop-blur-md rounded-3xl p-5 sm:p-6 border border-border/80 shadow-card hover:border-amber-gold/30 transition-all duration-300 space-y-4"
       >
         {/* Row 1: Prominent Full-Width Search Bar */}
         <SearchBar />
 
         {/* Row 2: Single Cohesive Controls Bar (Filter Chips + Results Count & Location + Sort Dropdown) */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1 border-t border-[#2A2A2A]/60">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-2 border-t border-border/50">
           {/* Left: Scrollable Filter Chips */}
           <div className="flex-1 min-w-0">
             <FilterChips />
           </div>
 
           {/* Right: Results Count, Location Badge, & Sort Selector */}
-          <div className="flex items-center justify-between sm:justify-end gap-3 text-xs flex-shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-[#2A2A2A]/40">
+          <div className="flex items-center justify-between sm:justify-end gap-3 text-xs flex-shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-border/40">
             <div className="flex items-center gap-1.5">
-              <span className="font-bold text-white tracking-tight">{displayedShops.length} quán gần bạn</span>
-              <Badge variant="outline" className="bg-[#141414] text-[#D0D0D0] border-[#2A2A2A] text-[10px] px-2 py-0.5 rounded-full font-medium transition-all duration-200">
+              <span className="font-extrabold text-foreground tracking-tight">{displayedShops.length} quán gần bạn</span>
+              <Badge variant="outline" className="bg-secondary text-secondary-foreground border-input text-[10px] px-2.5 py-0.5 rounded-full font-medium transition-all duration-200 shadow-xs">
                 {locationLoading || isCityLoading ? 'Đang định vị...' : cityName}
               </Badge>
             </div>
@@ -249,19 +249,19 @@ export default function DiscoverPage() {
               >
                 <SelectTrigger
                   aria-label="Sắp xếp quán cà phê theo"
-                  className="h-8 text-xs font-semibold bg-[#141414] text-white border-[#2A2A2A] rounded-xl focus:outline-none focus:ring-1 focus:ring-amber-gold/60 focus:ring-offset-0 focus:border-amber-gold/60 focus:scale-[1.01] hover:border-amber-gold/40 hover:text-amber-gold-hover hover:bg-white/10 transition-all duration-200 ease-out w-auto gap-2 px-3 group"
+                  className="h-8 text-xs font-semibold bg-input-bg text-foreground border-input rounded-xl focus:outline-none focus:ring-1 focus:ring-amber-gold/60 focus:ring-offset-0 focus:border-amber-gold/60 focus:scale-[1.01] hover:border-amber-gold/40 hover:text-foreground hover:bg-accent transition-all duration-200 ease-out w-auto gap-2 px-3 group shadow-xs"
                 >
-                  <ArrowUpDown size={14} className="text-amber-gold flex-shrink-0 transition-colors duration-200 group-hover:text-amber-gold-hover group-focus-within:text-amber-gold-hover" />
+                  <ArrowUpDown size={13} className="text-amber-gold flex-shrink-0 transition-colors duration-200 group-hover:text-amber-gold-hover group-focus-within:text-amber-gold-hover" />
                   <SelectValue placeholder="Sắp xếp..." />
                 </SelectTrigger>
-                <SelectContent className="bg-[#141414] border-[#2A2A2A] text-white rounded-xl shadow-xl">
-                  <SelectItem value="distance" className="focus:bg-[#101010] focus:text-amber-gold text-xs transition-colors cursor-pointer">
+                <SelectContent className="bg-popover border-input text-popover-foreground rounded-xl shadow-xl">
+                  <SelectItem value="distance" className="focus:bg-primary/15 focus:text-foreground text-xs transition-colors cursor-pointer">
                     Khoảng cách
                   </SelectItem>
-                  <SelectItem value="rating" className="focus:bg-[#101010] focus:text-amber-gold text-xs transition-colors cursor-pointer">
+                  <SelectItem value="rating" className="focus:bg-primary/15 focus:text-foreground text-xs transition-colors cursor-pointer">
                     Đánh giá
                   </SelectItem>
-                  <SelectItem value="name" className="focus:bg-[#101010] focus:text-amber-gold text-xs transition-colors cursor-pointer">
+                  <SelectItem value="name" className="focus:bg-primary/15 focus:text-foreground text-xs transition-colors cursor-pointer">
                     Tên quán
                   </SelectItem>
                 </SelectContent>
@@ -275,29 +275,29 @@ export default function DiscoverPage() {
       {isInitialLoading ? (
         <ListSkeleton count={12} />
       ) : isError && rawShops.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 px-4 text-center bg-[#101010]/60 rounded-3xl border border-[#2A2A2A]/60">
+        <div className="flex flex-col items-center justify-center py-16 px-4 text-center bg-card/60 rounded-3xl border border-border/60">
           <Coffee size={40} className="text-rose-400 mb-3" />
-          <h3 className="font-sans font-bold text-lg text-white mb-1">Không thể tải danh sách quán cà phê</h3>
-          <p className="text-xs text-[#D0D0D0]/80 max-w-sm mb-4">
+          <h3 className="font-sans font-bold text-lg text-foreground mb-1">Không thể tải danh sách quán cà phê</h3>
+          <p className="text-xs text-muted-foreground max-w-sm mb-4">
             Đã xảy ra sự cố khi tải các quán cà phê gần bạn. Vui lòng thử lại.
           </p>
           <Button
             onClick={() => refetch()}
-            className="bg-amber-gold text-[#101010] hover:bg-amber-gold-hover font-bold rounded-xl text-xs px-4 py-2"
+            className="bg-amber-gold text-primary-foreground hover:bg-amber-gold-hover font-bold rounded-xl text-xs px-4 py-2"
           >
             Thử lại
           </Button>
         </div>
       ) : displayedShops.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 px-4 text-center bg-[#101010]/60 rounded-3xl border border-[#2A2A2A]/60 animate-in fade-in duration-300">
+        <div className="flex flex-col items-center justify-center py-16 px-4 text-center bg-card/60 rounded-3xl border border-border/60 animate-in fade-in duration-300">
           <Coffee size={40} className="text-amber-gold/60 mb-3" />
-          <h3 className="font-sans font-bold text-lg text-white mb-1">Không tìm thấy quán cà phê nào</h3>
-          <p className="text-xs text-[#D0D0D0]/80 max-w-sm mb-4">
+          <h3 className="font-sans font-bold text-lg text-foreground mb-1">Không tìm thấy quán cà phê nào</h3>
+          <p className="text-xs text-muted-foreground max-w-sm mb-4">
             Hãy thử thay đổi từ khóa tìm kiếm hoặc các bộ lọc để tìm thêm các quán gần bạn.
           </p>
           <Button
             onClick={resetFilters}
-            className="bg-amber-gold text-[#101010] hover:bg-amber-gold-hover font-bold rounded-xl text-xs px-4 py-2"
+            className="bg-amber-gold text-primary-foreground hover:bg-amber-gold-hover font-bold rounded-xl text-xs px-4 py-2"
           >
             Đặt lại bộ lọc
           </Button>

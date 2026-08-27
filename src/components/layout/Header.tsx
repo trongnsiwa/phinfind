@@ -7,10 +7,12 @@ import {
   LogOut,
   MapPin,
   Menu,
+  Moon,
   Search,
   Settings,
   Sparkles,
   Star,
+  Sun,
   User,
   X
 } from 'lucide-react';
@@ -46,6 +48,7 @@ import { useSearchShops } from '@/hooks/useShops';
 import { cn } from '@/lib/utils';
 import { APP_ROUTES } from '@/lib/utils/constants';
 import { useShopStore } from '@/stores/useShopStore';
+import { useThemeStore } from '@/stores/useThemeStore';
 import { useUIStore } from '@/stores/useUIStore';
 import { CoffeeShop } from '@/types/shop';
 
@@ -53,6 +56,7 @@ export function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const { searchQuery, setSearchQuery } = useUIStore();
+  const { theme, toggleTheme } = useThemeStore();
   const { setSelectedShop } = useShopStore();
   const { user, profile, isAuthenticated, signOut, loading } = useAuth();
   const { lat, lng } = useLocation();
@@ -173,7 +177,7 @@ export function Header() {
   }
 
   return (
-    <header className='sticky top-0 z-40 bg-[#101010]/95 backdrop-blur-md border-b border-[#2A2A2A] text-white shadow-lg px-3 sm:px-4 py-2.5 transition-all duration-300'>
+    <header className='sticky top-0 z-40 bg-card/95 backdrop-blur-md border-b border-border text-foreground shadow-lg px-3 sm:px-4 py-2.5 transition-all duration-300'>
       <div className='max-w-7xl mx-auto flex items-center justify-between gap-3 sm:gap-4'>
         {/* Left Side: Brand Logo + Desktop Navigation Links */}
         <div className='flex items-center gap-5 lg:gap-7 flex-shrink-0'>
@@ -182,14 +186,14 @@ export function Header() {
             className='flex items-center gap-2 group rounded-2xl p-1 -m-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold transition-all duration-200'
             aria-label='Trang chủ PhinFind'
           >
-            <span className='w-8.5 h-8.5 sm:w-9 sm:h-9 rounded-2xl bg-gradient-to-br from-amber-gold to-phin-600 text-[#101010] flex items-center justify-center font-bold text-lg sm:text-xl shadow-md group-hover:scale-105 transition-transform duration-200'>
+            <span className='w-8.5 h-8.5 sm:w-9 sm:h-9 rounded-2xl bg-gradient-to-br from-amber-gold to-phin-600 text-primary-foreground flex items-center justify-center font-bold text-lg sm:text-xl shadow-md group-hover:scale-105 transition-transform duration-200'>
               ☕
             </span>
             <div>
-              <h1 className='font-sans font-bold text-lg sm:text-xl leading-none text-amber-gold tracking-tight group-hover:text-amber-gold-hover transition-colors duration-200'>
+              <h1 className='font-sans font-bold text-lg sm:text-xl leading-none text-foreground tracking-tight group-hover:text-primary transition-colors duration-200'>
                 PhinFind
               </h1>
-              <p className='text-[9px] text-[#D0D0D0] tracking-wider font-semibold uppercase mt-0.5 group-hover:text-white transition-colors duration-200'>
+              <p className='text-[9px] text-muted-foreground tracking-wider font-semibold uppercase mt-0.5 group-hover:text-foreground transition-colors duration-200'>
                 Bản đồ cà phê Việt
               </p>
             </div>
@@ -202,10 +206,10 @@ export function Header() {
               size='sm'
               asChild
               className={cn(
-                'relative group text-xs font-semibold px-3 h-8.5 rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold',
+                'relative group text-xs font-semibold px-3 h-8.5 rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary',
                 pathname === APP_ROUTES.HOME
-                  ? 'text-amber-gold bg-white/10 font-bold'
-                  : 'text-[#D0D0D0] hover:text-amber-gold-hover hover:bg-white/5'
+                  ? 'text-foreground bg-primary/20 font-bold'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               )}
             >
               <Link href={APP_ROUTES.HOME} className='flex items-center gap-1.5'>
@@ -213,13 +217,13 @@ export function Header() {
                   size={15}
                   strokeWidth={2.2}
                   className={cn(
-                    'transition-all duration-200 group-hover:scale-110 group-hover:text-amber-gold-hover',
-                    pathname === APP_ROUTES.HOME ? 'text-amber-gold' : 'text-[#A0A0A0]'
+                    'transition-all duration-200 group-hover:scale-110',
+                    pathname === APP_ROUTES.HOME ? 'text-primary' : 'text-muted-foreground'
                   )}
                 />
                 <span>Khám phá</span>
                 {pathname === APP_ROUTES.HOME && (
-                  <span className='absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-[2px] bg-amber-gold rounded-full' />
+                  <span className='absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-[2px] bg-primary rounded-full' />
                 )}
               </Link>
             </Button>
@@ -229,10 +233,10 @@ export function Header() {
               size='sm'
               asChild
               className={cn(
-                'relative group text-xs font-semibold px-3 h-8.5 rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold',
+                'relative group text-xs font-semibold px-3 h-8.5 rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary',
                 pathname === APP_ROUTES.MAP
-                  ? 'text-amber-gold bg-white/10 font-bold'
-                  : 'text-[#D0D0D0] hover:text-amber-gold-hover hover:bg-white/5'
+                  ? 'text-foreground bg-primary/20 font-bold'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               )}
             >
               <Link href={APP_ROUTES.MAP} className='flex items-center gap-1.5'>
@@ -240,21 +244,36 @@ export function Header() {
                   size={15}
                   strokeWidth={2.2}
                   className={cn(
-                    'transition-all duration-200 group-hover:scale-110 group-hover:text-amber-gold-hover',
-                    pathname === APP_ROUTES.MAP ? 'text-amber-gold' : 'text-[#A0A0A0]'
+                    'transition-all duration-200 group-hover:scale-110',
+                    pathname === APP_ROUTES.MAP ? 'text-primary' : 'text-muted-foreground'
                   )}
                 />
                 <span>Bản đồ</span>
                 {pathname === APP_ROUTES.MAP && (
-                  <span className='absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-[2px] bg-amber-gold rounded-full' />
+                  <span className='absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-[2px] bg-primary rounded-full' />
                 )}
               </Link>
             </Button>
           </nav>
         </div>
 
-        {/* Right Side: Right-Anchored Search + Profile Avatar + Mobile Hamburger Menu */}
+        {/* Right Side: Theme Toggle + Right-Anchored Search + Profile Avatar + Mobile Hamburger Menu */}
         <div className='flex items-center gap-2 sm:gap-2.5 flex-shrink-0'>
+          {/* Theme Toggle Button */}
+          <Button
+            variant='ghost'
+            size='icon'
+            onClick={toggleTheme}
+            aria-label={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
+            className='h-9 w-9 rounded-full text-muted-foreground hover:text-amber-gold hover:bg-muted border border-border hover:border-amber-gold/40 transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold flex-shrink-0'
+          >
+            {theme === 'dark' ? (
+              <Sun size={16} className='text-amber-gold' />
+            ) : (
+              <Moon size={16} className='text-muted-foreground' />
+            )}
+          </Button>
+
           {/* Search container */}
           <div ref={searchContainerRef} className='relative flex items-center'>
             {!isSearchOpen ? (
@@ -264,7 +283,7 @@ export function Header() {
                 size='icon'
                 onClick={() => setIsSearchOpen(true)}
                 aria-label='Tìm quán cà phê (Cmd+K)'
-                className='h-9 w-9 rounded-full text-[#A0A0A0] hover:text-amber-gold hover:bg-white/5 border border-[#2A2A2A]/60 hover:border-amber-gold/40 transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold flex-shrink-0'
+                className='h-9 w-9 rounded-full text-muted-foreground hover:text-amber-gold hover:bg-muted border border-border hover:border-amber-gold/40 transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold flex-shrink-0'
               >
                 <Search size={16} className='text-amber-gold' />
               </Button>
@@ -274,7 +293,7 @@ export function Header() {
                 <div className='relative flex items-center'>
                   <Search
                     size={15}
-                    className='absolute left-3 top-1/2 -translate-y-1/2 text-[#A0A0A0] pointer-events-none z-10'
+                    className='absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none z-10'
                     aria-hidden='true'
                   />
                   <Input
@@ -288,7 +307,7 @@ export function Header() {
                     onKeyDown={handleKeyDown}
                     placeholder='Tìm theo tên quán, đường phố, khu vực...'
                     aria-label='Tìm kiếm quán cà phê'
-                    className='w-48 sm:w-64 h-9 pl-9 pr-8 text-xs sm:text-sm bg-[#141414] text-white border-[#2A2A2A] rounded-xl focus-visible:ring-1 focus-visible:ring-amber-gold placeholder:text-[#A0A0A0] shadow-inner'
+                    className='w-48 sm:w-64 h-9 pl-9 pr-8 text-xs sm:text-sm bg-secondary text-foreground border-border rounded-xl focus-visible:ring-1 focus-visible:ring-amber-gold placeholder:text-muted-foreground shadow-inner'
                   />
                   {localValue && (
                     <Button
@@ -302,7 +321,7 @@ export function Header() {
                         inputRef.current?.focus();
                       }}
                       aria-label='Xóa nội dung tìm kiếm'
-                      className='absolute right-1.5 top-1/2 -translate-y-1/2 h-6 w-6 text-[#A0A0A0] hover:text-white hover:bg-[#2A2A2A]/80 rounded-full p-0 transition-colors'
+                      className='absolute right-1.5 top-1/2 -translate-y-1/2 h-6 w-6 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full p-0 transition-colors'
                     >
                       <X size={13} />
                     </Button>
@@ -313,7 +332,7 @@ export function Header() {
                   size='icon'
                   onClick={handleCloseSearch}
                   aria-label='Đóng tìm kiếm'
-                  className='h-9 w-9 text-[#A0A0A0] hover:text-white hover:bg-[#2A2A2A]/80 rounded-xl p-0 flex-shrink-0 transition-colors'
+                  className='h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl p-0 flex-shrink-0 transition-colors'
                 >
                   <X size={16} />
                 </Button>
@@ -322,22 +341,22 @@ export function Header() {
 
             {/* Autocomplete Suggestions Dropdown Attached Below Right-Aligned Search */}
             {isSearchOpen && localValue.trim().length > 0 && (
-              <div className='absolute right-0 top-full mt-2 w-72 sm:w-80 md:w-96 bg-[#101010]/98 backdrop-blur-xl border border-[#2A2A2A]/80 rounded-2xl shadow-[0_10px_35px_rgba(0,0,0,0.6)] shadow-amber-gold/5 p-2 z-[100] max-h-80 overflow-y-auto space-y-1 animate-in fade-in slide-in-from-top-1 duration-150 text-left'>
+              <div className='absolute right-0 top-full mt-2 w-72 sm:w-80 md:w-96 bg-popover/98 backdrop-blur-xl border border-border rounded-2xl shadow-2xl p-2 z-[100] max-h-80 overflow-y-auto space-y-1 animate-in fade-in slide-in-from-top-1 duration-150 text-left'>
                 {isSearching ? (
-                  <div className='py-6 text-center text-xs text-[#D0D0D0]/70 flex items-center justify-center gap-2 font-medium'>
+                  <div className='py-6 text-center text-xs text-muted-foreground flex items-center justify-center gap-2 font-medium'>
                     <span className='w-3.5 h-3.5 rounded-full border-2 border-amber-gold border-t-transparent animate-spin' />
                     Đang tìm kiếm quán cà phê...
                   </div>
                 ) : searchResults.length === 0 ? (
-                  <div className='py-6 text-center text-xs text-[#D0D0D0]/70'>
-                    <p className='font-semibold text-white mb-0.5'>
+                  <div className='py-6 text-center text-xs text-muted-foreground'>
+                    <p className='font-semibold text-foreground mb-0.5'>
                       Không tìm thấy quán cà phê nào
                     </p>
                     <p className='text-[11px]'>Thử tìm kiếm theo tên đường hoặc quận</p>
                   </div>
                 ) : (
                   <>
-                    <div className='px-2.5 py-1 text-[10px] font-bold text-[#D0D0D0]/60 uppercase tracking-wider flex items-center justify-between border-b border-[#2A2A2A]/40 mb-1'>
+                    <div className='px-2.5 py-1 text-[10px] font-bold text-muted-foreground uppercase tracking-wider flex items-center justify-between border-b border-border/40 mb-1'>
                       <span>Quán Cà Phê Phù Hợp</span>
                       <span>{searchResults.length} kết quả</span>
                     </div>
@@ -353,13 +372,13 @@ export function Header() {
                           className={cn(
                             'p-2.5 rounded-xl cursor-pointer flex items-center justify-between gap-2.5 transition-all duration-150',
                             isSelected
-                              ? 'bg-[#141414] text-amber-gold border border-amber-gold/30 shadow-sm'
-                              : 'hover:bg-[#141414]/60 text-white border border-transparent'
+                              ? 'bg-primary/20 text-foreground font-semibold border border-primary/40 shadow-sm'
+                              : 'hover:bg-muted text-foreground border border-transparent'
                           )}
                         >
                           <div className='min-w-0 flex-1'>
                             <div className='flex items-center gap-1.5'>
-                              <h4 className='font-sans font-bold text-xs truncate group-hover:text-amber-gold'>
+                              <h4 className='font-sans font-bold text-xs truncate group-hover:text-primary'>
                                 {shop.name}
                               </h4>
                               {shop.opening_hours?.open_now && (
@@ -369,7 +388,7 @@ export function Header() {
                                 />
                               )}
                             </div>
-                            <p className='text-[11px] text-[#D0D0D0]/80 truncate flex items-center gap-1 mt-0.5'>
+                            <p className='text-[11px] text-muted-foreground truncate flex items-center gap-1 mt-0.5'>
                               <MapPin size={10} className='text-amber-gold flex-shrink-0' />
                               {shop.address || 'Chưa có địa chỉ'}
                             </p>
@@ -381,8 +400,8 @@ export function Header() {
                               className={cn(
                                 'px-2 py-0.5 rounded-md font-bold text-[10px] border flex items-center gap-0.5',
                                 hasRating
-                                  ? 'bg-[#101010]/80 text-amber-gold border-amber-gold/30'
-                                  : 'bg-[#101010]/80 text-[#D0D0D0] border-[#2A2A2A]'
+                                  ? 'bg-secondary text-foreground border-border'
+                                  : 'bg-secondary text-secondary-foreground border-border'
                               )}
                             >
                               {hasRating ? (
@@ -392,13 +411,13 @@ export function Header() {
                                 </>
                               ) : (
                                 <>
-                                  <Sparkles size={9} className='text-amber-gold/60' />
+                                  <Sparkles size={9} className='text-amber-gold' />
                                   Mới
                                 </>
                               )}
                             </Badge>
                             {shop.distance_text && shop.distance_text !== '0 m' && (
-                              <span className='text-[#D0D0D0]/70 font-medium hidden sm:inline'>
+                              <span className='text-muted-foreground font-medium hidden sm:inline'>
                                 {shop.distance_text}
                               </span>
                             )}
@@ -421,14 +440,14 @@ export function Header() {
                 <Button
                   variant='ghost'
                   size='icon'
-                  className='rounded-full p-0 transition-all duration-200 hover:scale-105 hover:shadow-[0_0_15px_rgba(212,160,87,0.15)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold/30 cursor-pointer'
+                  className='rounded-full p-0 transition-all duration-200 hover:scale-105 hover:shadow-[0_0_15px_rgba(212,160,87,0.15)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/30 cursor-pointer'
                   aria-label={`Menu người dùng ${displayName}`}
                 >
                   <Avatar className='h-9 w-9'>
                     {avatarUrl && (
                       <AvatarImage src={avatarUrl} alt={displayName} className='object-cover' />
                     )}
-                    <AvatarFallback className='bg-[#141414] text-amber-gold font-bold text-xs'>
+                    <AvatarFallback className='bg-secondary text-foreground font-bold text-xs'>
                       {displayName.charAt(0).toUpperCase() || <User size={15} />}
                     </AvatarFallback>
                   </Avatar>
@@ -436,37 +455,37 @@ export function Header() {
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align='end'
-                className='w-56 bg-[#101010]/95 backdrop-blur-md border border-[#2A2A2A] text-white shadow-2xl rounded-2xl p-1.5 space-y-1 z-[500]'
+                className='w-56 bg-popover/95 backdrop-blur-md border border-border text-popover-foreground shadow-2xl rounded-2xl p-1.5 space-y-1 z-[500]'
               >
                 <DropdownMenuLabel className='font-sans px-2.5 py-2 select-none'>
                   <div className='flex items-center gap-2.5'>
-                    <Avatar className='h-9 w-9 rounded-full border border-[#2A2A2A]/40 shrink-0'>
+                    <Avatar className='h-9 w-9 rounded-full border border-border/40 shrink-0'>
                       {avatarUrl && (
                         <AvatarImage src={avatarUrl} alt={displayName} className='object-cover' />
                       )}
-                      <AvatarFallback className='bg-[#141414] text-amber-gold font-bold text-xs'>
+                      <AvatarFallback className='bg-secondary text-foreground font-bold text-xs'>
                         {displayName.charAt(0).toUpperCase() || <User size={16} />}
                       </AvatarFallback>
                     </Avatar>
                     <div className='flex flex-col min-w-0'>
-                      <span className='text-xs font-bold text-amber-gold truncate'>
+                      <span className='text-xs font-bold text-foreground truncate'>
                         {displayName}
                       </span>
-                      <span className='text-[10px] font-normal text-[#A0A0A0] truncate'>
+                      <span className='text-[10px] font-normal text-muted-foreground truncate'>
                         {userEmail || 'Người sành cà phê'}
                       </span>
                     </div>
                   </div>
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator className='bg-[#2A2A2A] my-1' />
+                <DropdownMenuSeparator className='bg-border my-1' />
                 <DropdownMenuItem asChild>
                   <Link
                     href={APP_ROUTES.PROFILE}
-                    className='cursor-pointer text-xs font-medium text-[#D0D0D0] hover:text-amber-gold focus:bg-[#141414]/60 focus:text-amber-gold rounded-xl px-2.5 py-2 transition-colors flex items-center gap-2 group'
+                    className='cursor-pointer text-xs font-medium text-secondary-foreground hover:text-foreground focus:bg-accent focus:text-foreground rounded-xl px-2.5 py-2 transition-colors flex items-center gap-2 group'
                   >
                     <User
                       size={16}
-                      className='text-[#A0A0A0] group-hover:text-amber-gold transition-colors shrink-0'
+                      className='text-muted-foreground group-hover:text-primary transition-colors shrink-0'
                     />
                     <span>Trang cá nhân</span>
                   </Link>
@@ -474,11 +493,11 @@ export function Header() {
                 <DropdownMenuItem asChild>
                   <Link
                     href={APP_ROUTES.FAVORITES}
-                    className='cursor-pointer text-xs font-medium text-[#D0D0D0] hover:text-amber-gold focus:bg-[#141414]/60 focus:text-amber-gold rounded-xl px-2.5 py-2 transition-colors flex items-center gap-2 group'
+                    className='cursor-pointer text-xs font-medium text-secondary-foreground hover:text-foreground focus:bg-accent focus:text-foreground rounded-xl px-2.5 py-2 transition-colors flex items-center gap-2 group'
                   >
                     <Heart
                       size={16}
-                      className='text-[#A0A0A0] group-hover:text-amber-gold transition-colors shrink-0'
+                      className='text-muted-foreground group-hover:text-rose-500 transition-colors shrink-0'
                     />
                     <span>Yêu thích</span>
                   </Link>
@@ -486,26 +505,26 @@ export function Header() {
                 <DropdownMenuItem asChild>
                   <Link
                     href={APP_ROUTES.PROFILE}
-                    className='cursor-pointer text-xs font-medium text-[#D0D0D0] hover:text-amber-gold focus:bg-[#141414]/60 focus:text-amber-gold rounded-xl px-2.5 py-2 transition-colors flex items-center gap-2 group'
+                    className='cursor-pointer text-xs font-medium text-secondary-foreground hover:text-foreground focus:bg-accent focus:text-foreground rounded-xl px-2.5 py-2 transition-colors flex items-center gap-2 group'
                   >
                     <Settings
                       size={16}
-                      className='text-[#A0A0A0] group-hover:text-amber-gold transition-colors shrink-0'
+                      className='text-muted-foreground group-hover:text-primary transition-colors shrink-0'
                     />
                     <span>Cài đặt</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator className='bg-[#2A2A2A] my-1' />
+                <DropdownMenuSeparator className='bg-border my-1' />
                 <DropdownMenuItem
                   onClick={async () => {
                     await signOut();
                     router.push(APP_ROUTES.LOGIN);
                   }}
-                  className='cursor-pointer text-xs font-medium text-rose-400 hover:text-rose-300 focus:bg-rose-950/30 focus:text-rose-300 rounded-xl px-2.5 py-2 transition-colors flex items-center gap-2 group'
+                  className='cursor-pointer text-xs font-medium text-rose-500 hover:text-rose-400 focus:bg-rose-500/10 focus:text-rose-400 rounded-xl px-2.5 py-2 transition-colors flex items-center gap-2 group'
                 >
                   <LogOut
                     size={16}
-                    className='text-rose-400 group-hover:text-rose-300 transition-colors shrink-0'
+                    className='text-rose-500 group-hover:text-rose-400 transition-colors shrink-0'
                   />
                   <span>Đăng xuất</span>
                 </DropdownMenuItem>
@@ -514,7 +533,7 @@ export function Header() {
           ) : (
             <Button
               asChild
-              className='bg-amber-gold hover:bg-amber-gold-hover text-[#101010] font-bold text-xs rounded-xl px-3.5 py-1.5 h-9 shadow-md hover:scale-[1.02] active:scale-95 transition-all duration-200 flex items-center gap-1.5 cursor-pointer'
+              className='bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground font-bold text-xs rounded-xl px-3.5 py-1.5 h-9 shadow-md hover:scale-[1.02] active:scale-95 transition-all duration-200 flex items-center gap-1.5 cursor-pointer'
             >
               <Link href={APP_ROUTES.LOGIN}>
                 <LogIn size={15} />
@@ -529,7 +548,7 @@ export function Header() {
               <Button
                 variant='ghost'
                 size='icon'
-                className='md:hidden h-9 w-9 text-[#D0D0D0] hover:text-amber-gold hover:bg-white/5 border border-transparent rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold'
+                className='md:hidden h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-muted border border-transparent rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary'
                 aria-label='Mở menu'
               >
                 <Menu size={18} />
@@ -537,13 +556,13 @@ export function Header() {
             </SheetTrigger>
             <SheetContent
               side='right'
-              className='bg-[#101010] text-white border-l border-[#2A2A2A] p-6 w-72'
+              className='bg-card text-foreground border-l border-border p-6 w-72'
             >
               <SheetHeader className='text-left space-y-1 mb-6'>
-                <SheetTitle className='font-sans font-bold text-lg text-amber-gold flex items-center gap-2'>
+                <SheetTitle className='font-sans font-bold text-lg text-foreground flex items-center gap-2'>
                   ☕ Menu PhinFind
                 </SheetTitle>
-                <SheetDescription className='text-xs text-[#A0A0A0]'>
+                <SheetDescription className='text-xs text-muted-foreground'>
                   Khám phá văn hóa cà phê Việt
                 </SheetDescription>
               </SheetHeader>
@@ -555,21 +574,21 @@ export function Header() {
                     className={cn(
                       'relative group flex items-center gap-2.5 p-2.5 rounded-xl text-xs transition-colors duration-200',
                       pathname === APP_ROUTES.HOME
-                        ? 'text-amber-gold bg-white/10 font-bold'
-                        : 'text-[#D0D0D0] hover:text-amber-gold-hover hover:bg-white/5 font-semibold'
+                        ? 'text-foreground bg-primary/20 font-bold'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted font-semibold'
                     )}
                   >
                     <Compass
                       size={16}
                       strokeWidth={2.2}
                       className={cn(
-                        'transition-all duration-200 group-hover:scale-110 group-hover:text-amber-gold-hover',
-                        pathname === APP_ROUTES.HOME ? 'text-amber-gold' : 'text-[#A0A0A0]'
+                        'transition-all duration-200 group-hover:scale-110',
+                        pathname === APP_ROUTES.HOME ? 'text-primary' : 'text-muted-foreground'
                       )}
                     />
                     <span>Khám phá</span>
                     {pathname === APP_ROUTES.HOME && (
-                      <span className='absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-amber-gold rounded-r-full' />
+                      <span className='absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-primary rounded-r-full' />
                     )}
                   </Link>
                 </SheetClose>
@@ -580,21 +599,21 @@ export function Header() {
                     className={cn(
                       'relative group flex items-center gap-2.5 p-2.5 rounded-xl text-xs transition-colors duration-200',
                       pathname === APP_ROUTES.MAP
-                        ? 'text-amber-gold bg-white/10 font-bold'
-                        : 'text-[#D0D0D0] hover:text-amber-gold-hover hover:bg-white/5 font-semibold'
+                        ? 'text-foreground bg-primary/20 font-bold'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted font-semibold'
                     )}
                   >
                     <MapPin
                       size={16}
                       strokeWidth={2.2}
                       className={cn(
-                        'transition-all duration-200 group-hover:scale-110 group-hover:text-amber-gold-hover',
-                        pathname === APP_ROUTES.MAP ? 'text-amber-gold' : 'text-[#A0A0A0]'
+                        'transition-all duration-200 group-hover:scale-110',
+                        pathname === APP_ROUTES.MAP ? 'text-primary' : 'text-muted-foreground'
                       )}
                     />
                     <span>Xem bản đồ</span>
                     {pathname === APP_ROUTES.MAP && (
-                      <span className='absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-amber-gold rounded-r-full' />
+                      <span className='absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-primary rounded-r-full' />
                     )}
                   </Link>
                 </SheetClose>
@@ -605,21 +624,21 @@ export function Header() {
                     className={cn(
                       'relative group flex items-center gap-2.5 p-2.5 rounded-xl text-xs transition-colors duration-200',
                       pathname === APP_ROUTES.FAVORITES
-                        ? 'text-amber-gold bg-white/10 font-bold'
-                        : 'text-[#D0D0D0] hover:text-amber-gold-hover hover:bg-white/5 font-semibold'
+                        ? 'text-foreground bg-primary/20 font-bold'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted font-semibold'
                     )}
                   >
                     <Heart
                       size={16}
                       strokeWidth={2.2}
                       className={cn(
-                        'transition-all duration-200 group-hover:scale-110 group-hover:text-amber-gold-hover',
-                        pathname === APP_ROUTES.FAVORITES ? 'text-amber-gold' : 'text-rose-400'
+                        'transition-all duration-200 group-hover:scale-110',
+                        pathname === APP_ROUTES.FAVORITES ? 'text-rose-500' : 'text-muted-foreground'
                       )}
                     />
                     <span>Đã lưu yêu thích</span>
                     {pathname === APP_ROUTES.FAVORITES && (
-                      <span className='absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-amber-gold rounded-r-full' />
+                      <span className='absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-primary rounded-r-full' />
                     )}
                   </Link>
                 </SheetClose>
@@ -630,26 +649,46 @@ export function Header() {
                     className={cn(
                       'relative group flex items-center gap-2.5 p-2.5 rounded-xl text-xs transition-colors duration-200',
                       pathname === APP_ROUTES.PROFILE
-                        ? 'text-amber-gold bg-white/10 font-bold'
-                        : 'text-[#D0D0D0] hover:text-amber-gold-hover hover:bg-white/5 font-semibold'
+                        ? 'text-foreground bg-primary/20 font-bold'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted font-semibold'
                     )}
                   >
                     <User
                       size={16}
                       strokeWidth={2.2}
                       className={cn(
-                        'transition-all duration-200 group-hover:scale-110 group-hover:text-amber-gold-hover',
-                        pathname === APP_ROUTES.PROFILE ? 'text-amber-gold' : 'text-[#A0A0A0]'
+                        'transition-all duration-200 group-hover:scale-110',
+                        pathname === APP_ROUTES.PROFILE ? 'text-primary' : 'text-muted-foreground'
                       )}
                     />
                     <span>Hồ sơ của tôi</span>
                     {pathname === APP_ROUTES.PROFILE && (
-                      <span className='absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-amber-gold rounded-r-full' />
+                      <span className='absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-primary rounded-r-full' />
                     )}
                   </Link>
                 </SheetClose>
 
-                <div className='my-2 border-t border-[#2A2A2A]' />
+                <div className='my-2 border-t border-border' />
+
+                <button
+                  type='button'
+                  onClick={toggleTheme}
+                  className='flex items-center justify-between p-2.5 rounded-xl text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-colors w-full text-left cursor-pointer'
+                >
+                  <div className='flex items-center gap-2.5'>
+                    {theme === 'dark' ? (
+                      <Sun size={16} className='text-amber-gold' />
+                    ) : (
+                      <Moon size={16} className='text-muted-foreground' />
+                    )}
+                    <span>Giao diện {theme === 'dark' ? 'Tối' : 'Sáng'}</span>
+                  </div>
+                  <Badge variant='outline' className='text-[10px] uppercase font-bold text-amber-gold border-border'>
+                    {theme === 'dark' ? 'Dark' : 'Light'}
+                  </Badge>
+                </button>
+
+                <div className='my-1 border-t border-border' />
 
                 {isAuthenticated ? (
                   <Button
@@ -658,9 +697,9 @@ export function Header() {
                       await signOut();
                       router.push(APP_ROUTES.LOGIN);
                     }}
-                    className='justify-start p-2.5 h-auto rounded-xl text-xs font-medium text-rose-400 hover:text-rose-300 hover:bg-rose-950/30 gap-2.5 transition-colors duration-200'
+                    className='justify-start p-2.5 h-auto rounded-xl text-xs font-medium text-rose-500 hover:text-rose-400 hover:bg-rose-500/10 gap-2.5 transition-colors duration-200'
                   >
-                    <LogOut size={16} className='text-rose-400' />
+                    <LogOut size={16} className='text-rose-500' />
                     <span>Đăng xuất</span>
                   </Button>
                 ) : (

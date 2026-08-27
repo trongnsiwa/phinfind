@@ -5,7 +5,7 @@ import { MainContent } from '@/components/layout/MainContent';
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen flex flex-col bg-[#101010] text-white overflow-x-hidden">
+    <div className="min-h-screen flex flex-col bg-background text-foreground overflow-x-hidden">
       <Header />
       <MainContent>{children}</MainContent>
       <BottomNav />

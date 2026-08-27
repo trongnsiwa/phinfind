@@ -34,14 +34,14 @@ export function FilterChips() {
         className={cn(
           'h-8 px-3 text-xs font-semibold rounded-full border transition-all duration-200 ease-out flex-shrink-0 flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-offset-0 focus-visible:scale-[1.01]',
           filters.openNowOnly
-            ? 'bg-teal text-[#101010] border-teal font-bold shadow-md shadow-teal/25 hover:bg-teal-hover hover:text-[#101010] focus-visible:ring-teal focus-visible:border-teal focus-visible:shadow-[0_0_0_2px_rgba(46,196,182,0.35)]'
-            : 'bg-[#141414] text-white border-[#2A2A2A] hover:bg-white/10 hover:text-amber-gold-hover hover:border-amber-gold/40 focus-visible:ring-amber-gold/60 focus-visible:border-amber-gold/60 focus-visible:bg-white/10'
+            ? 'bg-teal text-primary-foreground border-teal font-bold shadow-md shadow-teal/25 hover:bg-teal-hover hover:text-primary-foreground focus-visible:ring-teal focus-visible:border-teal focus-visible:shadow-[0_0_0_2px_rgba(46,196,182,0.35)]'
+            : 'bg-input-bg text-foreground border-input hover:bg-accent hover:text-foreground hover:border-amber-gold/40 focus-visible:ring-primary/60 focus-visible:border-primary/60 focus-visible:bg-accent'
         )}
       >
         <span
           className={cn(
             'w-2 h-2 rounded-full flex-shrink-0 transition-colors duration-200',
-            filters.openNowOnly ? 'bg-[#101010]' : 'bg-teal animate-pulse'
+            filters.openNowOnly ? 'bg-primary-foreground' : 'bg-teal animate-pulse'
           )}
           aria-hidden="true"
         />
@@ -56,21 +56,21 @@ export function FilterChips() {
         <SelectTrigger
           aria-label="Lọc theo đánh giá tối thiểu"
           className={cn(
-            'h-8 px-3 text-xs font-semibold rounded-full border border-[#2A2A2A] bg-[#141414] text-white focus:outline-none focus:ring-1 focus:ring-amber-gold/60 focus:ring-offset-0 focus:border-amber-gold/60 focus:scale-[1.01] hover:bg-white/10 hover:border-amber-gold/40 hover:text-amber-gold-hover transition-all duration-200 ease-out flex-shrink-0 w-auto gap-1.5',
-            filters.minRating && filters.minRating > 0 && 'bg-amber-gold text-[#101010] border-amber-gold font-bold shadow-md hover:bg-amber-gold-hover hover:text-[#101010] focus:ring-amber-gold focus:border-amber-gold'
+            'h-8 px-3 text-xs font-semibold rounded-full border border-input bg-input-bg text-foreground focus:outline-none focus:ring-1 focus:ring-primary/60 focus:ring-offset-0 focus:border-primary/60 focus:scale-[1.01] hover:bg-accent hover:border-amber-gold/40 hover:text-foreground transition-all duration-200 ease-out flex-shrink-0 w-auto gap-1.5',
+            filters.minRating && filters.minRating > 0 && 'bg-amber-gold text-primary-foreground border-amber-gold font-bold shadow-md hover:bg-amber-gold-hover hover:text-primary-foreground focus:ring-amber-gold focus:border-amber-gold'
           )}
         >
-          <Star size={14} className={cn('flex-shrink-0 transition-colors duration-200', filters.minRating && filters.minRating > 0 ? 'fill-[#101010] text-[#101010]' : 'text-amber-gold fill-amber-gold')} />
+          <Star size={14} className={cn('flex-shrink-0 transition-colors duration-200', filters.minRating && filters.minRating > 0 ? 'fill-primary-foreground text-primary-foreground' : 'text-amber-gold fill-amber-gold')} />
           <SelectValue placeholder="Đánh giá" />
         </SelectTrigger>
-        <SelectContent className="bg-[#141414] border-[#2A2A2A] text-white rounded-xl shadow-xl">
-          <SelectItem value="all" className="focus:bg-[#101010] focus:text-amber-gold text-xs transition-colors cursor-pointer">
+        <SelectContent className="bg-popover border-input text-popover-foreground rounded-xl shadow-xl">
+          <SelectItem value="all" className="focus:bg-primary/20 focus:text-foreground text-xs transition-colors cursor-pointer">
             Tất cả đánh giá
           </SelectItem>
-          <SelectItem value="4" className="focus:bg-[#101010] focus:text-amber-gold text-xs transition-colors cursor-pointer">
+          <SelectItem value="4" className="focus:bg-primary/20 focus:text-foreground text-xs transition-colors cursor-pointer">
             Từ 4.0+ sao
           </SelectItem>
-          <SelectItem value="4.5" className="focus:bg-[#101010] focus:text-amber-gold text-xs transition-colors cursor-pointer">
+          <SelectItem value="4.5" className="focus:bg-primary/20 focus:text-foreground text-xs transition-colors cursor-pointer">
             Từ 4.5+ sao
           </SelectItem>
         </SelectContent>
@@ -86,11 +86,11 @@ export function FilterChips() {
         className={cn(
           'h-8 px-3.5 text-xs font-semibold rounded-full border transition-all duration-200 ease-out flex-shrink-0 flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-offset-0 focus-visible:scale-[1.01]',
           filters.sortBy === 'distance'
-            ? 'bg-amber-gold text-[#101010] border-amber-gold font-bold shadow-md hover:bg-amber-gold-hover hover:text-[#101010] focus-visible:ring-amber-gold focus-visible:border-amber-gold'
-            : 'bg-[#141414] text-white border-[#2A2A2A] hover:bg-white/10 hover:text-amber-gold-hover hover:border-amber-gold/40 focus-visible:ring-amber-gold/60 focus-visible:border-amber-gold/60 focus-visible:bg-white/10'
+            ? 'bg-amber-gold text-primary-foreground border-amber-gold font-bold shadow-md hover:bg-amber-gold-hover hover:text-primary-foreground focus-visible:ring-amber-gold focus-visible:border-amber-gold'
+            : 'bg-input-bg text-foreground border-input hover:bg-accent hover:text-foreground hover:border-amber-gold/40 focus-visible:ring-primary/60 focus-visible:border-primary/60 focus-visible:bg-accent'
         )}
       >
-        <MapPin size={13} className={cn('flex-shrink-0 transition-colors duration-200', filters.sortBy === 'distance' ? 'text-[#101010]' : 'text-amber-gold')} />
+        <MapPin size={13} className={cn('flex-shrink-0 transition-colors duration-200', filters.sortBy === 'distance' ? 'text-primary-foreground' : 'text-amber-gold')} />
         <span>Gần tôi</span>
       </Button>
 
@@ -101,7 +101,7 @@ export function FilterChips() {
           size="sm"
           onClick={resetFilters}
           aria-label="Đặt lại tất cả bộ lọc"
-          className="h-8 px-3 text-xs text-[#D0D0D0] hover:text-teal hover:bg-teal/10 hover:border-teal/30 border border-transparent rounded-full flex-shrink-0 transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 focus-visible:ring-offset-0 focus-visible:border-teal/60"
+          className="h-8 px-3 text-xs text-muted-foreground hover:text-teal hover:bg-teal/10 hover:border-teal/30 border border-transparent rounded-full flex-shrink-0 transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 focus-visible:ring-offset-0 focus-visible:border-teal/60"
         >
           <RotateCcw size={13} className="mr-1" />
           Đặt lại

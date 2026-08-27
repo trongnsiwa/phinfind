@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import { Toaster } from '@/components/ui/sonner';
+import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { ReactQueryProvider } from '@/components/providers/ReactQueryProvider';
 import './globals.css';
 
@@ -25,7 +26,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#101010',
+  themeColor: '#F9F6F0',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
@@ -34,12 +35,14 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="vi" className={`${inter.variable}`}>
+    <html lang="vi" className={`${inter.variable}`} suppressHydrationWarning>
       <body className="min-h-screen bg-background text-foreground antialiased selection:bg-phin-200">
-        <ReactQueryProvider>
-          {children}
-          <Toaster position="top-right" richColors />
-        </ReactQueryProvider>
+        <ThemeProvider>
+          <ReactQueryProvider>
+            {children}
+            <Toaster position="top-right" richColors />
+          </ReactQueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
