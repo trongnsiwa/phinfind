@@ -316,9 +316,12 @@ export default function LeafletMapInner({
         <MapFocusController selectedShop={selectedShop} />
 
         {/* User Location Marker */}
-        <Marker position={center} icon={userIcon} title="Vị trí của bạn">
-          <Popup className="custom-dark-popup">
-            <span className="font-medium text-xs text-white">Vị trí của bạn</span>
+        <Marker position={center} icon={userIcon} title="Vị trí của bạn" zIndexOffset={800}>
+          <Popup className="custom-user-location-popup" closeButton={false} offset={[0, -10]}>
+            <div className="flex items-center gap-2 py-0.5 px-1 select-none">
+              <div className="w-2.5 h-2.5 rounded-full bg-sky-500 ring-4 ring-sky-500/20 flex-shrink-0 animate-pulse" />
+              <span className="font-bold text-xs text-foreground whitespace-nowrap">Vị trí của bạn</span>
+            </div>
           </Popup>
         </Marker>
 

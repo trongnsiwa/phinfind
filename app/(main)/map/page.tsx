@@ -138,7 +138,6 @@ export default function MapPage() {
 
   const handleRefetch = () => {
     refetchLocation();
-    toast.info('Đang cập nhật vị trí...');
   };
 
   const handleToggleFav = (placeId: string) => {
