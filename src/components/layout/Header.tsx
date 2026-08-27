@@ -265,7 +265,7 @@ export function Header() {
             size='icon'
             onClick={toggleTheme}
             aria-label={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
-            className='h-9 w-9 rounded-full text-muted-foreground hover:text-amber-gold hover:bg-muted border border-border hover:border-amber-gold/40 transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold flex-shrink-0'
+            className='h-9 w-9 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent/70 border border-border/60 hover:border-amber-gold/40 transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold flex-shrink-0'
           >
             {theme === 'dark' ? (
               <Sun size={16} className='text-amber-gold' />
@@ -283,9 +283,9 @@ export function Header() {
                 size='icon'
                 onClick={() => setIsSearchOpen(true)}
                 aria-label='Tìm quán cà phê (Cmd+K)'
-                className='h-9 w-9 rounded-full text-muted-foreground hover:text-amber-gold hover:bg-muted border border-border hover:border-amber-gold/40 transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold flex-shrink-0'
+                className='h-9 w-9 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent/70 border border-border/60 hover:border-amber-gold/40 transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold flex-shrink-0'
               >
-                <Search size={16} className='text-amber-gold' />
+                <Search size={16} className='text-muted-foreground' />
               </Button>
             ) : (
               /* Open state: Clean slide-in search input stretching leftward */
@@ -440,10 +440,10 @@ export function Header() {
                 <Button
                   variant='ghost'
                   size='icon'
-                  className='rounded-full p-0 transition-all duration-200 hover:scale-105 hover:shadow-[0_0_15px_rgba(212,160,87,0.15)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/30 cursor-pointer'
+                  className='h-9 w-9 rounded-full p-0 border border-border/60 hover:border-amber-gold/40 hover:scale-105 transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold cursor-pointer flex-shrink-0'
                   aria-label={`Menu người dùng ${displayName}`}
                 >
-                  <Avatar className='h-9 w-9'>
+                  <Avatar className='h-full w-full'>
                     {avatarUrl && (
                       <AvatarImage src={avatarUrl} alt={displayName} className='object-cover' />
                     )}
@@ -455,34 +455,31 @@ export function Header() {
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align='end'
-                className='w-56 bg-popover/95 backdrop-blur-md border border-border text-popover-foreground shadow-2xl rounded-2xl p-1.5 space-y-1 z-[500]'
+                className='w-64 bg-popover/95 backdrop-blur-xl border border-border/80 text-popover-foreground shadow-2xl rounded-2xl p-2 space-y-0.5 z-[500]'
               >
-                <DropdownMenuLabel className='font-sans px-2.5 py-2 select-none'>
-                  <div className='flex items-center gap-2.5'>
-                    <Avatar className='h-9 w-9 rounded-full border border-border/40 shrink-0'>
+                <DropdownMenuLabel className='font-sans px-3 pt-3 pb-3 border-b border-border/60 select-none'>
+                  <div className='flex items-center gap-3'>
+                    <Avatar className='h-10 w-10 rounded-full border border-border/60 shrink-0'>
                       {avatarUrl && (
                         <AvatarImage src={avatarUrl} alt={displayName} className='object-cover' />
                       )}
-                      <AvatarFallback className='bg-secondary text-foreground font-bold text-xs'>
+                      <AvatarFallback className='bg-secondary text-foreground font-bold text-sm'>
                         {displayName.charAt(0).toUpperCase() || <User size={16} />}
                       </AvatarFallback>
                     </Avatar>
                     <div className='flex flex-col min-w-0'>
-                      <span className='text-xs font-bold text-foreground truncate'>
+                      <span className='text-sm font-bold text-foreground truncate'>
                         {displayName}
                       </span>
-                      <span className='text-[10px] font-normal text-muted-foreground truncate'>
+                      <span className='text-[11px] font-normal text-muted-foreground truncate'>
                         {userEmail || 'Người sành cà phê'}
                       </span>
                     </div>
                   </div>
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator className='bg-border my-1' />
-                <DropdownMenuItem asChild>
-                  <Link
-                    href={APP_ROUTES.PROFILE}
-                    className='cursor-pointer text-xs font-medium text-secondary-foreground hover:text-foreground focus:bg-accent focus:text-foreground rounded-xl px-2.5 py-2 transition-colors flex items-center gap-2 group'
-                  >
+                <div className='my-1' />
+                <DropdownMenuItem asChild className='cursor-pointer px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-secondary-foreground hover:text-foreground hover:bg-accent/60 focus:bg-accent focus:text-foreground transition-all duration-200 group'>
+                  <Link href={APP_ROUTES.PROFILE} className='flex items-center gap-2.5 w-full'>
                     <User
                       size={16}
                       className='text-muted-foreground group-hover:text-primary transition-colors shrink-0'
@@ -490,11 +487,8 @@ export function Header() {
                     <span>Trang cá nhân</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link
-                    href={APP_ROUTES.FAVORITES}
-                    className='cursor-pointer text-xs font-medium text-secondary-foreground hover:text-foreground focus:bg-accent focus:text-foreground rounded-xl px-2.5 py-2 transition-colors flex items-center gap-2 group'
-                  >
+                <DropdownMenuItem asChild className='cursor-pointer px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-secondary-foreground hover:text-foreground hover:bg-accent/60 focus:bg-accent focus:text-foreground transition-all duration-200 group'>
+                  <Link href={APP_ROUTES.FAVORITES} className='flex items-center gap-2.5 w-full'>
                     <Heart
                       size={16}
                       className='text-muted-foreground group-hover:text-rose-500 transition-colors shrink-0'
@@ -502,11 +496,8 @@ export function Header() {
                     <span>Yêu thích</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link
-                    href={APP_ROUTES.PROFILE}
-                    className='cursor-pointer text-xs font-medium text-secondary-foreground hover:text-foreground focus:bg-accent focus:text-foreground rounded-xl px-2.5 py-2 transition-colors flex items-center gap-2 group'
-                  >
+                <DropdownMenuItem asChild className='cursor-pointer px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-secondary-foreground hover:text-foreground hover:bg-accent/60 focus:bg-accent focus:text-foreground transition-all duration-200 group'>
+                  <Link href={APP_ROUTES.PROFILE} className='flex items-center gap-2.5 w-full'>
                     <Settings
                       size={16}
                       className='text-muted-foreground group-hover:text-primary transition-colors shrink-0'
@@ -514,17 +505,17 @@ export function Header() {
                     <span>Cài đặt</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator className='bg-border my-1' />
+                <DropdownMenuSeparator className='bg-border/60 my-1' />
                 <DropdownMenuItem
                   onClick={async () => {
                     await signOut();
                     router.push(APP_ROUTES.LOGIN);
                   }}
-                  className='cursor-pointer text-xs font-medium text-rose-500 hover:text-rose-400 focus:bg-rose-500/10 focus:text-rose-400 rounded-xl px-2.5 py-2 transition-colors flex items-center gap-2 group'
+                  className='cursor-pointer px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent/60 focus:bg-accent focus:text-foreground transition-all duration-200 flex items-center gap-2.5 group'
                 >
                   <LogOut
                     size={16}
-                    className='text-rose-500 group-hover:text-rose-400 transition-colors shrink-0'
+                    className='text-muted-foreground group-hover:text-foreground transition-colors shrink-0'
                   />
                   <span>Đăng xuất</span>
                 </DropdownMenuItem>
@@ -533,7 +524,7 @@ export function Header() {
           ) : (
             <Button
               asChild
-              className='bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground font-bold text-xs rounded-xl px-3.5 py-1.5 h-9 shadow-md hover:scale-[1.02] active:scale-95 transition-all duration-200 flex items-center gap-1.5 cursor-pointer'
+              className='bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground font-bold text-xs rounded-full px-3.5 h-9 shadow-sm hover:scale-[1.02] active:scale-95 transition-all duration-200 flex items-center gap-1.5 cursor-pointer'
             >
               <Link href={APP_ROUTES.LOGIN}>
                 <LogIn size={15} />
@@ -548,10 +539,10 @@ export function Header() {
               <Button
                 variant='ghost'
                 size='icon'
-                className='md:hidden h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-muted border border-transparent rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary'
+                className='md:hidden h-9 w-9 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent/70 border border-border/60 hover:border-amber-gold/40 transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold flex-shrink-0'
                 aria-label='Mở menu'
               >
-                <Menu size={18} />
+                <Menu size={16} />
               </Button>
             </SheetTrigger>
             <SheetContent
@@ -697,9 +688,9 @@ export function Header() {
                       await signOut();
                       router.push(APP_ROUTES.LOGIN);
                     }}
-                    className='justify-start p-2.5 h-auto rounded-xl text-xs font-medium text-rose-500 hover:text-rose-400 hover:bg-rose-500/10 gap-2.5 transition-colors duration-200'
+                    className='justify-start p-2.5 h-auto rounded-xl text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent/60 gap-2.5 transition-colors duration-200 w-full'
                   >
-                    <LogOut size={16} className='text-rose-500' />
+                    <LogOut size={16} className='text-muted-foreground' />
                     <span>Đăng xuất</span>
                   </Button>
                 ) : (
