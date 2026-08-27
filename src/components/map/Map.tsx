@@ -10,6 +10,7 @@ interface MapProps {
   zoom?: number;
   shops: CoffeeShop[];
   selectedShop: CoffeeShop | null;
+  searchQuery?: string;
   onSelectShop: (shop: CoffeeShop) => void;
   onRecenter?: () => void;
   className?: string;

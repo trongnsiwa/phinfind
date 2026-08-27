@@ -144,11 +144,16 @@ const createCustomClusterIcon = (cluster: L.MarkerCluster) => {
 
 function MapFocusController({
   selectedShop,
+  searchQuery,
+  shops,
 }: {
   selectedShop: CoffeeShop | null;
+  searchQuery?: string;
+  shops?: CoffeeShop[];
 }) {
   const map = useMap();
   const prevShopIdRef = useRef<string | null>(null);
+  const prevQueryRef = useRef<string | undefined>(undefined);
 
   // Continuously invalidate size whenever the map container resizes (e.g. sidebar open/close CSS transition)
   useEffect(() => {
@@ -208,6 +213,23 @@ function MapFocusController({
       });
     }
   }, [selectedShop, map]);
+
+  // Auto-fit bounds when a new search query is submitted with matching results and no shop is currently selected
+  useEffect(() => {
+    if (searchQuery && searchQuery !== prevQueryRef.current && shops && shops.length > 0 && !selectedShop) {
+      prevQueryRef.current = searchQuery;
+      const validCoords = shops
+        .filter((s) => typeof s.lat === 'number' && typeof s.lon === 'number')
+        .map((s) => [s.lat, s.lon] as [number, number]);
+
+      if (validCoords.length > 0) {
+        const bounds = L.latLngBounds(validCoords);
+        map.fitBounds(bounds, { padding: [60, 60], maxZoom: 16, animate: true });
+      }
+    } else if (!searchQuery) {
+      prevQueryRef.current = '';
+    }
+  }, [searchQuery, shops, selectedShop, map]);
 
   return null;
 }
@@ -284,6 +306,7 @@ interface LeafletMapInnerProps {
   zoom?: number;
   shops: CoffeeShop[];
   selectedShop: CoffeeShop | null;
+  searchQuery?: string;
   onSelectShop: (shop: CoffeeShop) => void;
   onRecenter?: () => void;
   className?: string;
@@ -294,6 +317,7 @@ export default function LeafletMapInner({
   zoom = 14,
   shops,
   selectedShop,
+  searchQuery,
   onSelectShop,
   onRecenter,
   className,
@@ -313,7 +337,7 @@ export default function LeafletMapInner({
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           maxZoom={19}
         />
-        <MapFocusController selectedShop={selectedShop} />
+        <MapFocusController selectedShop={selectedShop} searchQuery={searchQuery} shops={shops} />
 
         {/* User Location Marker */}
         <Marker position={center} icon={userIcon} title="Vị trí của bạn" zIndexOffset={800}>

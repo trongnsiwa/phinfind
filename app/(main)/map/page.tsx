@@ -6,6 +6,7 @@ import { MapPin, Search, X, Star, SlidersHorizontal, Clock, RotateCcw } from 'lu
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Sheet,
   SheetContent,
@@ -30,6 +31,16 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { CoffeeShop } from '@/types/shop';
 
+function getShopDistance(shop: CoffeeShop, userLat: number, userLng: number): number {
+  if (typeof shop.distance === 'number') return shop.distance;
+  if (typeof shop.lat === 'number' && typeof shop.lon === 'number') {
+    const dLat = (shop.lat - userLat) * 111320;
+    const dLng = (shop.lon - userLng) * 111320 * Math.cos((userLat * Math.PI) / 180);
+    return Math.sqrt(dLat * dLat + dLng * dLng);
+  }
+  return Infinity;
+}
+
 export default function MapPage() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
@@ -37,13 +48,18 @@ export default function MapPage() {
   const { lat, lng, loading: locationLoading, isFallback, refetchLocation } = useLocation();
   const { selectedShop, setSelectedShop, favorites, toggleFavorite } = useShopStore();
   const { filters, setFilters, resetFilters } = useUIStore();
-  const { data: apiShops = [] } = useNearbyShops(lat, lng);
-  const { data: locationName } = useReverseGeocode(lat, lng, isFallback);
+  const { data: apiShops = [], isLoading: isShopsLoading } = useNearbyShops(lat, lng);
+  const { data: locationName, isLoading: isLocationNameLoading } = useReverseGeocode(lat, lng, isFallback);
+
+  const isLocationLoading = locationLoading || isLocationNameLoading || !locationName;
+  const isCountLoading = locationLoading || (isShopsLoading && apiShops.length === 0);
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [localQuery, setLocalQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [submittedQuery, setSubmittedQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -51,15 +67,19 @@ export default function MapPage() {
 
   const handleCloseSearch = () => {
     setIsSearchOpen(false);
+    setIsDropdownOpen(false);
     setLocalQuery('');
+    setDebouncedQuery('');
+    setSubmittedQuery('');
+    setSelectedShop(null);
     setSelectedIndex(-1);
   };
 
-  // Debounce search query
+  // Debounce autocomplete query for suggestions
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedQuery(localQuery);
-    }, 300);
+    }, 250);
     return () => clearTimeout(timer);
   }, [localQuery]);
 
@@ -69,8 +89,46 @@ export default function MapPage() {
     lng
   );
 
-  // Filter and sort shops displayed on map
+  // Match shops from API search results or local fallback, filter, and pick the single nearest shop
+  const searchMatchedShops = useMemo(() => {
+    const q = submittedQuery.trim().toLowerCase();
+    if (!q) return null;
+
+    const pool = searchResults && searchResults.length > 0 ? searchResults : apiShops;
+    let matches = pool.filter(
+      (s) =>
+        s.name.toLowerCase().includes(q) ||
+        (s.address && s.address.toLowerCase().includes(q))
+    );
+
+    // Apply active filters before picking nearest
+    if (filters.openNowOnly) {
+      matches = matches.filter((s) => s.opening_hours?.open_now === true);
+    }
+    if (filters.minRating > 0) {
+      matches = matches.filter((s) => (s.rating || 0) >= filters.minRating);
+    }
+
+    if (matches.length === 0) {
+      return [];
+    }
+
+    // Sort by distance to user to find the single nearest match
+    matches.sort((a, b) => {
+      const distA = getShopDistance(a, lat, lng);
+      const distB = getShopDistance(b, lat, lng);
+      return distA - distB;
+    });
+
+    return [matches[0]];
+  }, [submittedQuery, searchResults, apiShops, filters, lat, lng]);
+
+  // Filter and sort shops displayed on map (showing ONLY the nearest match when searching)
   const filteredShops = useMemo(() => {
+    if (searchMatchedShops !== null && searchMatchedShops.length > 0) {
+      return searchMatchedShops;
+    }
+
     let list = [...apiShops];
 
     if (filters.openNowOnly) {
@@ -88,7 +146,7 @@ export default function MapPage() {
     }
 
     return list;
-  }, [apiShops, filters]);
+  }, [apiShops, searchMatchedShops, filters]);
 
   const activeFilterCount = useMemo(() => {
     let count = 0;
@@ -120,7 +178,7 @@ export default function MapPage() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Click outside listener for search dropdown and search input
+  // Click outside listener for search dropdown
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (
@@ -129,7 +187,7 @@ export default function MapPage() {
         searchToggleRef.current &&
         !searchToggleRef.current.contains(e.target as Node)
       ) {
-        handleCloseSearch();
+        setIsDropdownOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -161,31 +219,77 @@ export default function MapPage() {
     }
   };
 
-  const handleSelectShop = (shop: CoffeeShop) => {
+  const handleSelectSuggestion = (shop: CoffeeShop) => {
     setSelectedShop(shop);
-    setIsSearchOpen(false);
-    setLocalQuery('');
+    setLocalQuery(shop.name);
+    setSubmittedQuery(shop.name);
+    setIsDropdownOpen(false);
     setSelectedIndex(-1);
+  };
+
+  const handleSearchSubmit = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    const q = localQuery.trim();
+    if (!q) {
+      handleCloseSearch();
+      return;
+    }
+    setSubmittedQuery(q);
+    setIsDropdownOpen(false);
+    setSelectedIndex(-1);
+    searchInputRef.current?.blur();
+
+    const lowerQ = q.toLowerCase();
+    const pool = searchResults.length > 0 ? searchResults : apiShops;
+    let matches = pool.filter(
+      (s) =>
+        s.name.toLowerCase().includes(lowerQ) ||
+        (s.address && s.address.toLowerCase().includes(lowerQ))
+    );
+
+    if (filters.openNowOnly) {
+      matches = matches.filter((s) => s.opening_hours?.open_now === true);
+    }
+    if (filters.minRating > 0) {
+      matches = matches.filter((s) => (s.rating || 0) >= filters.minRating);
+    }
+
+    if (matches.length > 0) {
+      matches.sort((a, b) => {
+        const distA = getShopDistance(a, lat, lng);
+        const distB = getShopDistance(b, lat, lng);
+        return distA - distB;
+      });
+      setSelectedShop(matches[0]);
+    } else {
+      toast.error('Không tìm thấy quán phù hợp');
+    }
   };
 
   const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Escape') {
-      setIsSearchOpen(false);
+      setIsDropdownOpen(false);
       return;
     }
 
-    if (searchResults.length === 0) return;
-
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      setSelectedIndex((prev) => (prev < searchResults.length - 1 ? prev + 1 : 0));
+      if (searchResults.length > 0) {
+        setIsDropdownOpen(true);
+        setSelectedIndex((prev) => (prev < searchResults.length - 1 ? prev + 1 : 0));
+      }
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      setSelectedIndex((prev) => (prev > 0 ? prev - 1 : searchResults.length - 1));
+      if (searchResults.length > 0) {
+        setIsDropdownOpen(true);
+        setSelectedIndex((prev) => (prev > 0 ? prev - 1 : searchResults.length - 1));
+      }
     } else if (e.key === 'Enter') {
       e.preventDefault();
       if (selectedIndex >= 0 && selectedIndex < searchResults.length) {
-        handleSelectShop(searchResults[selectedIndex]);
+        handleSelectSuggestion(searchResults[selectedIndex]);
+      } else {
+        handleSearchSubmit();
       }
     }
   };
@@ -247,23 +351,31 @@ export default function MapPage() {
         {!isSearchOpen ? (
           <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 rounded-full bg-secondary/80 border border-border/80 text-xs shadow-xs max-w-[170px] xs:max-w-[220px] sm:max-w-xs truncate animate-in fade-in duration-150">
             <MapPin size={13} className="text-amber-gold flex-shrink-0" />
-            <span className="font-semibold text-foreground truncate text-[11px] sm:text-xs">
-              {locationLoading ? 'Đang định vị...' : locationName || 'Hà Nội'}
-            </span>
+            {isLocationLoading ? (
+              <Skeleton className="h-3.5 w-16 sm:w-20 rounded-md bg-muted-foreground/20 animate-pulse flex-shrink-0" />
+            ) : (
+              <span className="font-semibold text-foreground truncate text-[11px] sm:text-xs animate-in fade-in duration-200">
+                {locationName}
+              </span>
+            )}
             <span className="text-[10px] text-muted-foreground flex-shrink-0">•</span>
-            <Badge
-              variant="outline"
-              className="bg-amber-gold/15 text-amber-gold border-amber-gold/30 text-[10px] font-bold px-1.5 py-0 rounded-full flex-shrink-0"
-            >
-              {filteredShops.length} quán
-            </Badge>
+            {isCountLoading ? (
+              <Skeleton className="h-4 w-12 rounded-full bg-amber-gold/20 animate-pulse flex-shrink-0" />
+            ) : (
+              <Badge
+                variant="outline"
+                className="bg-amber-gold/15 text-amber-gold border-amber-gold/30 text-[10px] font-bold px-1.5 py-0 rounded-full flex-shrink-0 animate-in fade-in duration-200"
+              >
+                {filteredShops.length} quán
+              </Badge>
+            )}
           </div>
         ) : (
           <div
             ref={searchContainerRef}
             className="flex-1 max-w-sm sm:max-w-md mx-2 sm:mx-4 relative flex items-center animate-in fade-in zoom-in-95 duration-200"
           >
-            <div className="relative w-full flex items-center">
+            <form onSubmit={handleSearchSubmit} className="relative w-full flex items-center">
               <Search
                 size={14}
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none z-10"
@@ -275,10 +387,16 @@ export default function MapPage() {
                 value={localQuery}
                 onChange={(e) => {
                   setLocalQuery(e.target.value);
+                  setIsDropdownOpen(true);
                   setSelectedIndex(-1);
                 }}
+                onFocus={() => {
+                  if (localQuery.trim().length > 0) {
+                    setIsDropdownOpen(true);
+                  }
+                }}
                 onKeyDown={handleSearchKeyDown}
-                placeholder="Tìm quán, đường phố, khu vực..."
+                placeholder="Tìm quán cà phê, đường phố, khu vực..."
                 aria-label="Tìm kiếm quán cà phê"
                 className="w-full h-8.5 pl-9 pr-8 text-xs bg-secondary text-foreground border-border rounded-xl focus-visible:ring-1 focus-visible:ring-amber-gold placeholder:text-muted-foreground shadow-inner"
               />
@@ -289,6 +407,10 @@ export default function MapPage() {
                   size="icon"
                   onClick={() => {
                     setLocalQuery('');
+                    setDebouncedQuery('');
+                    setSubmittedQuery('');
+                    setSelectedShop(null);
+                    setIsDropdownOpen(false);
                     setSelectedIndex(-1);
                     searchInputRef.current?.focus();
                   }}
@@ -298,10 +420,10 @@ export default function MapPage() {
                   <X size={11} />
                 </Button>
               )}
-            </div>
+            </form>
 
             {/* Autocomplete Suggestions Dropdown Attached Below Centered Search Bar */}
-            {debouncedQuery.trim().length > 0 && (
+            {isDropdownOpen && debouncedQuery.trim().length > 0 && (
               <div className="absolute left-0 right-0 top-full mt-2 bg-popover/98 backdrop-blur-xl border border-border/80 rounded-2xl shadow-2xl p-2 z-[100] max-h-72 overflow-y-auto space-y-1 animate-in fade-in slide-in-from-top-1 duration-150 text-left text-popover-foreground">
                 {isSearching ? (
                   <div className="py-5 text-center text-xs text-muted-foreground flex items-center justify-center gap-2 font-medium">
@@ -316,7 +438,7 @@ export default function MapPage() {
                 ) : (
                   <>
                     <div className="px-2.5 py-1 text-[10px] font-bold text-muted-foreground/60 uppercase tracking-wider flex items-center justify-between border-b border-border/40 mb-1">
-                      <span>Quán Cà Phê Phù Hợp</span>
+                      <span>Gợi Ý Quán Cà Phê</span>
                       <span>{searchResults.length} kết quả</span>
                     </div>
                     {searchResults.map((shop, index) => {
@@ -325,9 +447,9 @@ export default function MapPage() {
 
                       return (
                         <div
-                          key={shop.id}
+                          key={shop.id || shop.place_id || index}
                           onMouseEnter={() => setSelectedIndex(index)}
-                          onClick={() => handleSelectShop(shop)}
+                          onClick={() => handleSelectSuggestion(shop)}
                           className={cn(
                             'p-2 rounded-xl cursor-pointer flex items-center justify-between gap-2 transition-all duration-150',
                             isSelected
@@ -399,10 +521,32 @@ export default function MapPage() {
           center={[lat, lng]}
           shops={filteredShops}
           selectedShop={selectedShop}
+          searchQuery={submittedQuery.trim()}
           onSelectShop={setSelectedShop}
           onRecenter={handleRefetch}
           className="w-full h-full"
         />
+
+        {/* Floating Active Search Filter Chip */}
+        {submittedQuery.trim().length > 0 && searchMatchedShops && searchMatchedShops.length > 0 && (
+          <div className="absolute top-4 left-4 sm:left-6 z-[400] flex items-center gap-2 bg-card/95 backdrop-blur-md border border-border/80 px-3.5 py-1.5 rounded-full shadow-xl text-xs select-none animate-in fade-in slide-in-from-top-2 duration-200">
+            <Search size={13} className="text-amber-gold flex-shrink-0" />
+            <span className="text-foreground font-bold truncate max-w-[130px] sm:max-w-[200px]">
+              {searchMatchedShops[0].name}
+            </span>
+            <span className="text-muted-foreground/60 text-[10px] flex-shrink-0">
+              (Gần nhất)
+            </span>
+            <button
+              type="button"
+              onClick={handleCloseSearch}
+              aria-label="Xóa bộ lọc tìm kiếm"
+              className="ml-0.5 -mr-1 p-1 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            >
+              <X size={12} />
+            </button>
+          </div>
+        )}
 
         {/* Floating Quick Filters Bottom Sheet Trigger */}
         <div className="absolute bottom-5 left-4 sm:bottom-6 sm:left-6 z-[400]">
