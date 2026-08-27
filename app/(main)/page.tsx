@@ -221,23 +221,23 @@ export default function DiscoverPage() {
       {/* Compact Premium Top Filter Card */}
       <div
         ref={topFilterRef}
-        className="bg-gradient-to-b from-card to-card/95 backdrop-blur-md rounded-3xl p-5 sm:p-6 border border-border/80 shadow-card hover:border-amber-gold/30 transition-all duration-300 space-y-4"
+        className="bg-gradient-to-b from-card to-card/95 backdrop-blur-md rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 border border-border/80 shadow-card hover:border-amber-gold/30 transition-all duration-300 space-y-2.5"
       >
         {/* Row 1: Prominent Full-Width Search Bar */}
         <SearchBar />
 
         {/* Row 2: Single Cohesive Controls Bar (Filter Chips + Results Count & Location + Sort Dropdown) */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-2 border-t border-border/50">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pt-1.5 border-t border-border/50">
           {/* Left: Scrollable Filter Chips */}
           <div className="flex-1 min-w-0">
             <FilterChips />
           </div>
 
           {/* Right: Results Count, Location Badge, & Sort Selector */}
-          <div className="flex items-center justify-between sm:justify-end gap-3 text-xs flex-shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-border/40">
+          <div className="flex items-center justify-between sm:justify-end gap-2.5 text-[11px] flex-shrink-0 pt-1.5 sm:pt-0 border-t sm:border-t-0 border-border/40">
             <div className="flex items-center gap-1.5">
               <span className="font-extrabold text-foreground tracking-tight">{displayedShops.length} quán gần bạn</span>
-              <Badge variant="outline" className="bg-secondary text-secondary-foreground border-input text-[10px] px-2.5 py-0.5 rounded-full font-medium transition-all duration-200 shadow-xs">
+              <Badge variant="outline" className="bg-secondary text-secondary-foreground border-input text-[9px] px-2 py-0.5 rounded-full font-medium transition-all duration-200 shadow-xs">
                 {locationLoading || isCityLoading ? 'Đang định vị...' : cityName}
               </Badge>
             </div>
@@ -249,9 +249,9 @@ export default function DiscoverPage() {
               >
                 <SelectTrigger
                   aria-label="Sắp xếp quán cà phê theo"
-                  className="h-8 text-xs font-semibold bg-input-bg text-foreground border-input rounded-xl focus:outline-none focus:ring-1 focus:ring-amber-gold/60 focus:ring-offset-0 focus:border-amber-gold/60 focus:scale-[1.01] hover:border-amber-gold/40 hover:text-foreground hover:bg-accent transition-all duration-200 ease-out w-auto gap-2 px-3 group shadow-xs"
+                  className="h-7 text-[11px] font-semibold bg-input-bg text-foreground border-input rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-gold/60 focus:ring-offset-0 focus:border-amber-gold/60 focus:scale-[1.01] hover:border-amber-gold/40 hover:text-foreground hover:bg-accent transition-all duration-200 ease-out w-auto gap-1.5 px-2.5 group shadow-xs"
                 >
-                  <ArrowUpDown size={13} className="text-amber-gold flex-shrink-0 transition-colors duration-200 group-hover:text-amber-gold-hover group-focus-within:text-amber-gold-hover" />
+                  <ArrowUpDown size={12} className="text-amber-gold flex-shrink-0 transition-colors duration-200 group-hover:text-amber-gold-hover group-focus-within:text-amber-gold-hover" />
                   <SelectValue placeholder="Sắp xếp..." />
                 </SelectTrigger>
                 <SelectContent className="bg-popover border-input text-popover-foreground rounded-xl shadow-xl">
