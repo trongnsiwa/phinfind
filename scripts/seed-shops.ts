@@ -14,8 +14,11 @@ const supabaseAdmin = createClient(
 
 const GEOAPIFY_BASE_URL = 'https://api.geoapify.com/v2/places';
 const GEOAPIFY_API_KEY = process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY;
-const HANOI_LAT = 21.0285;
-const HANOI_LNG = 105.8542;
+
+const SEED_LAT = process.env.SEED_LAT ? parseFloat(process.env.SEED_LAT) : 21.0285;
+const SEED_LNG = process.env.SEED_LNG ? parseFloat(process.env.SEED_LNG) : 105.8542;
+const SEED_RADIUS = process.env.SEED_RADIUS ? parseInt(process.env.SEED_RADIUS, 10) : 5000;
+const SEED_LIMIT = process.env.SEED_LIMIT ? parseInt(process.env.SEED_LIMIT, 10) : 100;
 
 async function seedShops() {
   if (!GEOAPIFY_API_KEY) {
@@ -23,15 +26,15 @@ async function seedShops() {
     process.exit(1);
   }
 
-  console.log('📍 Fetching coffee shops from Geoapify (Hanoi, 5km radius)...');
+  console.log(`📍 Fetching coffee shops from Geoapify (Center: [${SEED_LAT}, ${SEED_LNG}], ${SEED_RADIUS}m radius, limit: ${SEED_LIMIT})...`);
 
   try {
     const response = await axios.get(GEOAPIFY_BASE_URL, {
       params: {
         categories: 'catering.cafe', // ✅ Fixed: removed "catering.coffee_shop"
-        filter: `circle:${HANOI_LNG},${HANOI_LAT},5000`,
-        bias: `proximity:${HANOI_LNG},${HANOI_LAT}`,
-        limit: 100,
+        filter: `circle:${SEED_LNG},${SEED_LAT},${SEED_RADIUS}`,
+        bias: `proximity:${SEED_LNG},${SEED_LAT}`,
+        limit: SEED_LIMIT,
         apiKey: GEOAPIFY_API_KEY
       }
     });
