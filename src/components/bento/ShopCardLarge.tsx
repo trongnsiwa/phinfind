@@ -173,7 +173,7 @@ export const ShopCardLarge = memo(function ShopCardLarge({
       </div>
 
       {/* Structured Content Area */}
-      <CardContent className="flex-shrink-0 p-3.5 space-y-1.5 overflow-visible min-h-0">
+      <CardContent className="flex-shrink-0 p-3.5 sm:p-4 space-y-2 overflow-visible min-h-0">
         {/* Section 1: Shop Name & Address */}
         <div>
           <h3 className="font-sans font-bold text-sm sm:text-base text-foreground tracking-tight line-clamp-1 group-hover:text-amber-gold-hover transition-colors">
@@ -186,17 +186,17 @@ export const ShopCardLarge = memo(function ShopCardLarge({
         </div>
 
         {/* Section 2: Excerpt / Atmosphere Tagline Panel */}
-        <div className="bg-secondary/70 px-2.5 py-1 rounded-xl border border-border/60 text-[11px] sm:text-xs text-foreground/90 font-medium leading-snug flex items-start gap-1.5 shadow-xs">
-          <Quote size={11} className="text-amber-gold flex-shrink-0 mt-0.5" />
+        <div className="bg-secondary/70 px-3 py-1.5 rounded-xl border border-border/60 text-[11px] sm:text-xs text-foreground font-medium leading-relaxed flex items-start gap-1.5 shadow-xs">
+          <Quote size={12} className="text-amber-gold flex-shrink-0 mt-0.5" />
           <span className="line-clamp-1 sm:line-clamp-2">{categoryTagline}</span>
         </div>
 
         {/* Section 3: 4-Box Metadata Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 bg-secondary/40 p-1 rounded-xl border border-border/50 text-xs">
-          <div className="flex items-center gap-1 bg-background/90 p-1 rounded-lg border border-border/40 shadow-xs">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 bg-secondary/40 p-1.5 rounded-xl border border-border/50 text-xs">
+          <div className="flex items-center gap-1 bg-background/90 px-2 py-1 rounded-lg border border-border/40 shadow-xs">
             {hasRating ? (
               <>
-                <Star size={11} className="fill-amber-gold text-amber-gold flex-shrink-0" />
+                <Star size={12} className="fill-amber-gold text-amber-gold flex-shrink-0" />
                 <span className="font-bold text-foreground text-[11px]">{shop.rating.toFixed(1)}</span>
                 {hasTotalRatings && (
                   <span className="text-[9px] text-foreground/70 truncate">({shop.total_ratings})</span>
@@ -204,24 +204,24 @@ export const ShopCardLarge = memo(function ShopCardLarge({
               </>
             ) : (
               <>
-                <Star size={11} className="text-amber-gold/50 flex-shrink-0" />
+                <Star size={12} className="text-amber-gold/50 flex-shrink-0" />
                 <span className="font-semibold text-foreground text-[11px]">Mới</span>
               </>
             )}
           </div>
 
-          <div className="flex items-center gap-1 bg-background/90 p-1 rounded-lg border border-border/40 text-foreground font-semibold shadow-xs">
-            <Footprints size={11} className="text-amber-gold flex-shrink-0" />
+          <div className="flex items-center gap-1 bg-background/90 px-2 py-1 rounded-lg border border-border/40 text-foreground font-semibold shadow-xs">
+            <Footprints size={12} className="text-amber-gold flex-shrink-0" />
             <span className="truncate text-[10px] sm:text-[11px]">{distanceDisplay}</span>
           </div>
 
-          <div className="flex items-center gap-1 bg-background/90 p-1 rounded-lg border border-border/40 text-foreground/90 font-semibold shadow-xs">
-            <Clock size={11} className="text-amber-gold flex-shrink-0" />
+          <div className="flex items-center gap-1 bg-background/90 px-2 py-1 rounded-lg border border-border/40 text-foreground font-semibold shadow-xs">
+            <Clock size={12} className="text-amber-gold flex-shrink-0" />
             <span className="truncate text-[10px] sm:text-[11px]">{isOpen ? 'Đóng 22:30' : 'Mở 07:00'}</span>
           </div>
 
-          <div className="flex items-center gap-1 bg-background/90 p-1 rounded-lg border border-border/40 text-foreground/90 font-semibold shadow-xs">
-            <Wifi size={11} className="text-amber-gold flex-shrink-0" />
+          <div className="flex items-center gap-1 bg-background/90 px-2 py-1 rounded-lg border border-border/40 text-foreground font-semibold shadow-xs">
+            <Wifi size={12} className="text-amber-gold flex-shrink-0" />
             <span className="truncate text-[10px] sm:text-[11px]">{shop.price_range || '25k - 65k'}</span>
           </div>
         </div>
