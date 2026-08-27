@@ -4,29 +4,29 @@
 :root {
   /* Light theme (default) */
   --background: #F9F6F0;
-  --foreground: #1A0F0A;
+  --foreground: #000000;
   --card: #FFFFFF;
-  --card-foreground: #1A0F0A;
+  --card-foreground: #000000;
   --popover: #FFFFFF;
-  --popover-foreground: #1A0F0A;
+  --popover-foreground: #000000;
   --primary: #B8860B;
   --primary-foreground: #FFFFFF;
   --primary-hover: #C98B3B;
   --secondary: #F8F6F2;
-  --secondary-foreground: #1A0F0A;
+  --secondary-foreground: #000000;
   --secondary-hover: #EFEAE3;
   --muted: #F8F6F2;
-  --muted-foreground: #9A8A7A;
+  --muted-foreground: #5C4D3C;
   --accent: #F0EAE3;
-  --accent-foreground: #1A0F0A;
+  --accent-foreground: #000000;
   --destructive: #DC2626;
   --destructive-foreground: #FFFFFF;
   --border: #D4C8BC;
   --input: #D4C8BC;
   --input-bg: #F8F6F2;
   --input-border: #D4C8BC;
-  --input-text: #1A0F0A;
-  --input-placeholder: #9A8A7A;
+  --input-text: #000000;
+  --input-placeholder: #5C4D3C;
   --ring: #B8860B;
   --radius: 0.75rem;
 
@@ -35,17 +35,17 @@
   --theme-card: #FFFFFF;
   --theme-elevated: #F8F6F2;
   --theme-border: #D4C8BC;
-  --theme-text: #1A0F0A;
-  --theme-secondary-text: #4A3A2A;
-  --theme-muted-text: #9A8A7A;
+  --theme-text: #000000;
+  --theme-secondary-text: #2C1810;
+  --theme-muted-text: #5C4D3C;
   --theme-amber-gold: #B8860B;
   --theme-amber-gold-hover: #C98B3B;
   --theme-amber-gold-muted: rgba(184, 134, 11, 0.2);
 
   /* High-Contrast Text Color Tokens */
-  --color-text-primary: #1A0F0A;
-  --color-text-secondary: #4A3A2A;
-  --color-text-muted: #9A8A7A;
+  --color-text-primary: #000000;
+  --color-text-secondary: #2C1810;
+  --color-text-muted: #5C4D3C;
   --color-text-inverse: #FFFFFF;
 
   /* Map Marker Tokens - Light Theme (Default) */

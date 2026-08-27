@@ -76,14 +76,14 @@ export const ShopCardMedium = memo(function ShopCardMedium({
           <Badge
             variant="outline"
             className={cn(
-              'absolute top-2 left-2 text-[9px] font-bold px-2 py-0.5 rounded-full border backdrop-blur-md shadow-sm',
+              'absolute top-2 left-2 text-[10px] sm:text-xs font-bold px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full border backdrop-blur-md shadow-sm tracking-wide',
               isOpen
-                ? 'bg-teal/20 text-teal border-teal/30'
-                : 'bg-[#C97A7A]/25 text-[#E8A5A5] border-[#C97A7A]/30'
+                ? 'bg-teal/30 text-teal dark:text-teal border-teal/40'
+                : 'bg-rose-500/30 text-rose-300 dark:text-rose-300 border-rose-500/40'
             )}
           >
-            <span className={cn('w-1.5 h-1.5 rounded-full mr-1', isOpen ? 'bg-teal animate-pulse' : 'bg-[#C97A7A]')} />
-            {isOpen ? 'Mở cửa' : 'Đóng cửa'}
+            <span className={cn('w-1.5 h-1.5 rounded-full mr-1', isOpen ? 'bg-teal animate-pulse' : 'bg-rose-400')} />
+            {isOpen ? 'Đang mở cửa' : 'Đã đóng cửa'}
           </Badge>
         )}
       </div>
@@ -100,45 +100,45 @@ export const ShopCardMedium = memo(function ShopCardMedium({
               size="icon"
               onClick={handleFav}
               aria-label={isFavorite ? 'Xóa khỏi danh sách yêu thích' : 'Thêm vào danh sách yêu thích'}
-              className="h-6.5 w-6.5 rounded-full bg-background/70 hover:bg-secondary border border-border/50 text-foreground shadow-sm flex-shrink-0 transition-all active:scale-90 focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0"
+              className="h-7 w-7 rounded-full bg-background/80 hover:bg-secondary border border-border/60 text-foreground shadow-sm flex-shrink-0 transition-all active:scale-90 focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0"
             >
               <Heart
                 size={13}
                 className={cn(
-                  isFavorite ? 'fill-rose-500 text-rose-500' : 'text-foreground/70',
+                  isFavorite ? 'fill-rose-500 text-rose-500' : 'text-foreground/80',
                   isHeartAnimating && 'animate-heart-beat'
                 )}
               />
             </Button>
           </div>
 
-          <p className="text-xs text-muted-foreground truncate flex items-center gap-1 mt-0.5">
+          <p className="text-xs text-foreground/80 font-medium truncate flex items-center gap-1 mt-0.5">
             <MapPin size={11} className="text-amber-gold flex-shrink-0" />
             {addressDisplay}
           </p>
 
           {/* Meta row: rating + distance + hours */}
-          <div className="flex items-center gap-2 text-[10px] text-muted-foreground mt-1 font-medium">
-            <span className="flex items-center gap-0.5 text-foreground font-semibold">
+          <div className="flex items-center gap-2 text-[10px] text-foreground/80 mt-1 font-medium">
+            <span className="flex items-center gap-0.5 text-foreground font-bold">
               <Star size={10} className="fill-amber-gold text-amber-gold flex-shrink-0" />
               {hasRating ? shop.rating?.toFixed(1) : 'Mới'}
             </span>
             <span className="text-border">•</span>
-            <span className="flex items-center gap-0.5">
-              <Footprints size={10} className="text-amber-gold/70 flex-shrink-0" />
+            <span className="flex items-center gap-0.5 text-foreground font-semibold">
+              <Footprints size={10} className="text-amber-gold flex-shrink-0" />
               {distanceDisplay}
             </span>
             <span className="text-border">•</span>
-            <span className="flex items-center gap-0.5">
-              <Clock size={10} className="text-amber-gold/80 flex-shrink-0" />
+            <span className="flex items-center gap-0.5 text-foreground/80 font-semibold">
+              <Clock size={10} className="text-amber-gold flex-shrink-0" />
               {isOpen ? 'Mở 07:00' : 'Đóng cửa'}
             </span>
           </div>
         </div>
 
         <div className="flex items-center justify-between text-xs mt-auto pt-1 border-t border-border/50">
-          <span className="text-[11px] text-muted-foreground font-medium flex items-center gap-1">
-            <Wifi size={10} className="text-muted-foreground flex-shrink-0" />
+          <span className="text-[11px] text-foreground/80 font-semibold flex items-center gap-1">
+            <Wifi size={10} className="text-amber-gold flex-shrink-0" />
             {shop.price_range || '25k - 65k'}
           </span>
 

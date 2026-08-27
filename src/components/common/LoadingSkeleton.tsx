@@ -15,9 +15,9 @@ export function CardSkeleton({ size = 'small', className }: CardSkeletonProps) {
     return (
       <Card className={cn("col-span-1 sm:col-span-2 lg:col-span-3 row-span-2 p-0 bg-card rounded-2xl border border-border shadow-md flex flex-col justify-start overflow-hidden", className)}>
         {/* 2-Column Gallery Skeleton Header */}
-        <div className="w-full flex-1 min-h-[200px] p-1.5 flex gap-1.5 bg-secondary/60 border-b border-border/60">
+        <div className="w-full flex-1 min-h-[200px] p-3.5 flex gap-2.5 bg-secondary/60 border-b border-border/60">
           <Skeleton className="w-[60%] h-full rounded-xl bg-secondary border border-border/40" />
-          <div className="w-[40%] h-full flex flex-col gap-1.5">
+          <div className="w-[40%] h-full flex flex-col gap-2.5">
             <Skeleton className="h-1/2 rounded-lg bg-secondary border border-border/40" />
             <Skeleton className="h-1/2 rounded-lg bg-secondary border border-border/40" />
           </div>
@@ -49,9 +49,9 @@ export function CardSkeleton({ size = 'small', className }: CardSkeletonProps) {
     return (
       <Card className={cn("col-span-1 sm:col-span-2 row-span-2 p-0 bg-card rounded-2xl border border-border shadow-md flex flex-col justify-start overflow-hidden", className)}>
         {/* 2-Column Gallery Skeleton Header */}
-        <div className="w-full flex-1 min-h-[190px] p-1.5 flex gap-1.5 bg-secondary/60 border-b border-border/60">
+        <div className="w-full flex-1 min-h-[190px] p-3.5 flex gap-2.5 bg-secondary/60 border-b border-border/60">
           <Skeleton className="w-[60%] h-full rounded-xl bg-secondary border border-border/40" />
-          <div className="w-[40%] h-full flex flex-col gap-1.5">
+          <div className="w-[40%] h-full flex flex-col gap-2.5">
             <Skeleton className="h-1/2 rounded-lg bg-secondary border border-border/40" />
             <Skeleton className="h-1/2 rounded-lg bg-secondary border border-border/40" />
           </div>

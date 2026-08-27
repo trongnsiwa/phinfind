@@ -82,19 +82,19 @@ export const ShopCardSmall = memo(function ShopCardSmall({
           <Badge
             variant="outline"
             className={cn(
-              'absolute top-2 left-2 text-[9px] font-bold px-2 py-0.5 rounded-full border backdrop-blur-md shadow-sm',
+              'absolute top-2 left-2 text-[10px] sm:text-xs font-bold px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full border backdrop-blur-md shadow-sm tracking-wide',
               isOpen
-                ? 'bg-teal/20 text-teal border-teal/30'
-                : 'bg-[#C97A7A]/25 text-[#E8A5A5] border-[#C97A7A]/30'
+                ? 'bg-teal/30 text-teal dark:text-teal border-teal/40'
+                : 'bg-rose-500/30 text-rose-300 dark:text-rose-300 border-rose-500/40'
             )}
           >
             <span
               className={cn(
                 'w-1.5 h-1.5 rounded-full mr-1',
-                isOpen ? 'bg-teal animate-pulse' : 'bg-[#C97A7A]'
+                isOpen ? 'bg-teal animate-pulse' : 'bg-rose-400'
               )}
             />
-            {isOpen ? 'Mở cửa' : 'Đóng cửa'}
+            {isOpen ? 'Đang mở cửa' : 'Đã đóng cửa'}
           </Badge>
         )}
 
@@ -104,10 +104,10 @@ export const ShopCardSmall = memo(function ShopCardSmall({
           size="icon"
           onClick={handleFav}
           aria-label={isFavorite ? 'Xóa khỏi danh sách yêu thích' : 'Thêm vào danh sách yêu thích'}
-          className="absolute top-2 right-2 z-10 h-6.5 w-6.5 rounded-full bg-background/70 backdrop-blur-md hover:bg-secondary border border-border/50 text-foreground shadow-sm transition-all active:scale-90 focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0"
+          className="absolute top-2 right-2 z-10 h-7 w-7 rounded-full bg-background/80 backdrop-blur-md hover:bg-secondary border border-border/60 text-foreground shadow-sm transition-all active:scale-90 focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0"
         >
           <Heart
-            size={12}
+            size={13}
             className={cn(
               isFavorite ? 'fill-rose-500 text-rose-500' : 'text-foreground/80',
               isHeartAnimating && 'animate-heart-beat'
@@ -118,38 +118,38 @@ export const ShopCardSmall = memo(function ShopCardSmall({
 
       {/* Content Body - Balanced spacing */}
       <div className="flex-1 flex flex-col justify-between mt-1.5 min-h-0 space-y-0.5">
-        <h4 className='font-sans font-bold text-xs sm:text-sm text-foreground line-clamp-1 group-hover:text-amber-gold-hover transition-colors tracking-tight'>
+        <h4 className="font-sans font-bold text-xs sm:text-sm text-foreground line-clamp-1 group-hover:text-amber-gold-hover transition-colors tracking-tight">
           {shop.name}
         </h4>
-        <p className='text-[11px] text-muted-foreground line-clamp-1 flex items-center gap-1 mt-0.5'>
-          <MapPin size={10} className='text-amber-gold flex-shrink-0' />
+        <p className="text-[11px] text-foreground/80 font-medium line-clamp-1 flex items-center gap-1 mt-0.5">
+          <MapPin size={10} className="text-amber-gold flex-shrink-0" />
           {addressDisplay}
         </p>
 
-        <div className='flex items-center gap-1.5 text-[10px] text-muted-foreground font-medium mt-0.5'>
-          <Clock size={10} className='text-amber-gold/75 flex-shrink-0' />
-          <span className='truncate'>{isOpen ? 'Đóng 22:30' : 'Mở 07:00'}</span>
-          <span className='text-border'>•</span>
-          <Wifi size={10} className='text-muted-foreground flex-shrink-0' />
-          <span className='truncate'>{shop.price_range || '25k - 65k'}</span>
+        <div className="flex items-center gap-1.5 text-[10px] text-foreground/80 font-semibold mt-0.5">
+          <Clock size={10} className="text-amber-gold flex-shrink-0" />
+          <span className="truncate">{isOpen ? 'Đóng 22:30' : 'Mở 07:00'}</span>
+          <span className="text-border">•</span>
+          <Wifi size={10} className="text-amber-gold flex-shrink-0" />
+          <span className="truncate">{shop.price_range || '25k - 65k'}</span>
         </div>
 
-        <div className='flex items-center justify-between text-[10px] pt-1 border-t border-border/50'>
-          <span className='font-bold text-amber-gold flex items-center gap-1 bg-secondary border border-border/80 px-1.5 py-0.5 rounded-md shadow-xs'>
+        <div className="flex items-center justify-between text-[10px] pt-1 border-t border-border/50">
+          <span className="font-bold text-amber-gold flex items-center gap-1 bg-secondary border border-border/80 px-1.5 py-0.5 rounded-md shadow-xs">
             {hasRating ? (
               <>
-                <Star size={10} className='fill-amber-gold text-amber-gold' />
-                {shop.rating.toFixed(1)}
+                <Star size={10} className="fill-amber-gold text-amber-gold" />
+                <span className="text-foreground">{shop.rating.toFixed(1)}</span>
               </>
             ) : (
               <>
-                <Star size={10} className='text-amber-gold/50' />
-                <span>Mới</span>
+                <Star size={10} className="text-amber-gold/50" />
+                <span className="text-foreground">Mới</span>
               </>
             )}
           </span>
-          <span className='text-muted-foreground flex items-center gap-1 font-medium'>
-            <Footprints size={10} className='text-amber-gold/70' />
+          <span className="text-foreground font-semibold flex items-center gap-1">
+            <Footprints size={10} className="text-amber-gold flex-shrink-0" />
             {distanceDisplay}
           </span>
         </div>
