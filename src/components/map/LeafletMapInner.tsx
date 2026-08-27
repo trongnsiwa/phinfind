@@ -203,15 +203,9 @@ function MapFocusController({
       map.invalidateSize({ animate: false, pan: false });
       map.flyTo([selectedShop.lat, selectedShop.lon], 17, {
         animate: true,
-        duration: 1.2,
+        duration: 0.8,
+        easeLinearity: 0.25,
       });
-
-      const timer = setTimeout(() => {
-        map.invalidateSize({ animate: false, pan: false });
-        map.panTo([selectedShop.lat, selectedShop.lon], { animate: true, duration: 0.3 });
-      }, 340);
-
-      return () => clearTimeout(timer);
     }
   }, [selectedShop, map]);
 
