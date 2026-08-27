@@ -6,9 +6,9 @@ import {
   Phone, Quote, Send, Sparkles, Star, Sun, Utensils, Wifi, Wind, X, Zap
 } from 'lucide-react';
 import Link from 'next/link';
-import React, { memo, useEffect, useMemo, useState } from 'react';
+import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
-
+import { AnimatePresence, motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -269,13 +269,13 @@ export const OverviewTab = memo(function OverviewTab({
     <div className='space-y-4 pb-16'>
       {/* 1. Popular Spot in Town Banner with Social Proof */}
       <div className='bg-secondary p-3.5 rounded-2xl border border-border/80 space-y-2 shadow-inner'>
-        <div className='flex items-center justify-between gap-2'>
-          <div className='flex items-center gap-1.5 text-foreground font-bold text-xs tracking-wide flex-shrink-0'>
-            <Flame size={14} className='text-amber-gold animate-pulse' />
-            <span>Quán Nổi Bật Được Yêu Thích</span>
+        <div className='flex items-center justify-between gap-2 min-w-0'>
+          <div className='flex items-center gap-1.5 text-foreground font-bold text-xs tracking-wide min-w-0 flex-1 truncate'>
+            <Flame size={14} className='text-amber-gold animate-pulse flex-shrink-0' />
+            <span className='truncate'>Quán Nổi Bật Được Yêu Thích</span>
           </div>
-          <span className='text-[10.5px] text-muted-foreground bg-card px-2 py-0.5 rounded-full border border-border/50 font-medium whitespace-nowrap'>
-            ⚡️ 32 tín đồ cà phê đã ghé hôm nay
+          <span className='text-[10px] text-muted-foreground bg-card px-2 py-0.5 rounded-full border border-border/50 font-medium whitespace-nowrap flex-shrink-0 max-w-[160px] truncate'>
+            ⚡️ 32 lượt ghé hôm nay
           </span>
         </div>
         <p className='text-xs text-muted-foreground leading-relaxed font-medium break-words'>{experienceTagline}</p>
@@ -559,7 +559,7 @@ export const OverviewTab = memo(function OverviewTab({
                 onClick={() => onSelectShop(simShop)}
                 className='bg-secondary/40 hover:bg-secondary/80 p-2.5 rounded-2xl border border-border/50 flex items-center gap-2.5 cursor-pointer transition-all hover:border-amber-gold/40 group'
               >
-                <div className='w-12 h-12 rounded-xl bg-muted overflow-hidden flex-shrink-0 border border-border/40'>
+                <div className='w-12 h-12 rounded-xl bg-card overflow-hidden flex-shrink-0 border border-border/40'>
                   <img
                     src={simShop.photos?.[0] || SAMPLE_GALLERY[0].url}
                     alt={simShop.name}
@@ -629,7 +629,7 @@ export const PhotosTab = memo(function PhotosTab({ shop }: { shop: CoffeeShop })
           <div
             key={idx}
             onClick={() => openImagePreview(photoList, idx)}
-            className='group relative aspect-square rounded-2xl overflow-hidden bg-secondary border border-border/60 cursor-pointer shadow-md active:scale-95 transition-transform select-none pointer-events-auto'
+            className='group relative aspect-square rounded-2xl overflow-hidden bg-card border border-border/60 cursor-pointer shadow-sm active:scale-95 transition-transform select-none pointer-events-auto'
           >
             <img
               draggable={false}
@@ -663,7 +663,13 @@ interface ReviewItem {
   isUserSubmission?: boolean;
 }
 
-export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop }) {
+export const ReviewsTab = memo(function ReviewsTab({
+  shop,
+  isSidebar = false
+}: {
+  shop: CoffeeShop;
+  isSidebar?: boolean;
+}) {
   const router = useRouter();
   const { user, profile, isAuthenticated } = useAuth();
   const [reviewsList, setReviewsList] = useState<ReviewItem[]>(MOCK_REVIEWS);
@@ -672,9 +678,33 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const formRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   const shopRating = shop.rating && shop.rating > 0 ? shop.rating : 4.8;
   const totalReviews = shop.total_ratings || 128;
+
+  useEffect(() => {
+    if (!isFormOpen) return;
+
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      const target = event.target as Node;
+      if (
+        formRef.current &&
+        !formRef.current.contains(target) &&
+        !triggerRef.current?.contains(target)
+      ) {
+        setIsFormOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside, { passive: true });
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [isFormOpen]);
 
   useEffect(() => {
     let isMounted = true;
@@ -785,7 +815,7 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
   };
 
   return (
-    <div className='space-y-4 pb-16'>
+    <div className='relative flex flex-col flex-1 min-h-full space-y-4'>
       {/* 1. Rating Breakdown Score Card (Horizontal Row) */}
       <div className='bg-secondary/50 p-3.5 rounded-2xl border border-border/60 grid grid-cols-[110px_1fr] items-center gap-4 shadow-sm'>
         <div className='flex flex-col items-center justify-center text-center pr-3 border-r border-border/50'>
@@ -835,126 +865,37 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
         </div>
       </div>
 
-      {/* 2. Write a Review Action / Guest Auth Prompt (Vertical Stack) */}
+      {/* 2. Inline "Write a Review" Action / Guest Auth Prompt */}
       {!isAuthenticated ? (
-        <div className='bg-secondary/40 p-3.5 rounded-2xl border border-amber-gold/30 flex flex-col gap-3 shadow-xs'>
-          <div className='flex items-center gap-2.5 min-w-0'>
+        <div className='bg-secondary/40 p-3 rounded-2xl border border-border/60 flex items-center justify-between gap-3 shadow-xs'>
+          <div className='flex items-center gap-2.5 min-w-0 flex-1'>
             <div className='w-8 h-8 rounded-xl bg-amber-gold/15 border border-amber-gold/30 flex items-center justify-center text-amber-gold flex-shrink-0'>
               <Edit3 size={15} />
             </div>
             <div className='min-w-0'>
-              <span className='font-bold text-foreground text-xs block'>
+              <span className='font-bold text-foreground text-xs block truncate'>
                 Bạn đã từng ghé quán cà phê này?
               </span>
-              <p className='text-[11px] text-muted-foreground leading-tight'>
-                Chia sẻ cảm nhận và trải nghiệm của bạn cùng cộng đồng.
+              <p className='text-[11px] text-muted-foreground truncate'>
+                Chia sẻ cảm nhận và trải nghiệm của bạn
               </p>
             </div>
           </div>
           <Link
             href={`/login?redirect=${encodeURIComponent(`/?shop=${shop.id}`)}`}
-            className='w-full'
+            className='flex-shrink-0'
           >
             <Button
               type='button'
-              className='w-full bg-primary hover:bg-primary-hover text-primary-foreground text-xs font-bold rounded-xl py-2 h-9 flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-md'
+              className='bg-primary hover:bg-primary-hover text-primary-foreground text-xs font-bold rounded-xl px-3.5 py-1.5 h-8.5 flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-md'
             >
-              <LogIn size={14} />
-              <span>Đăng nhập để viết đánh giá</span>
+              <LogIn size={13} />
+              <span>Đăng nhập</span>
             </Button>
           </Link>
         </div>
-      ) : isFormOpen ? (
-        <form
-          onSubmit={handleSubmitReview}
-          className='bg-secondary/70 p-3.5 rounded-2xl border border-border shadow-lg space-y-3 animate-in fade-in zoom-in-95 duration-200'
-        >
-          <div className='flex items-center justify-between border-b border-border/50 pb-2'>
-            <div className='flex items-center gap-2'>
-              <Edit3 size={15} className='text-amber-gold' />
-              <span className='font-bold text-xs text-foreground'>Viết Đánh Giá Của Bạn</span>
-            </div>
-            <button
-              type='button'
-              onClick={() => setIsFormOpen(false)}
-              className='text-muted-foreground hover:text-foreground p-1 rounded-lg transition-colors cursor-pointer'
-            >
-              <X size={15} />
-            </button>
-          </div>
-
-          <div className='space-y-1'>
-            <span className='text-[11px] font-semibold text-muted-foreground block'>Đánh giá tổng quan</span>
-            <div className='flex items-center gap-1.5 py-0.5'>
-              {[1, 2, 3, 4, 5].map((star) => {
-                const active = (hoverRating || rating) >= star;
-                return (
-                  <button
-                    key={star}
-                    type='button'
-                    onClick={() => setRating(star)}
-                    onMouseEnter={() => setHoverRating(star)}
-                    onMouseLeave={() => setHoverRating(0)}
-                    className='p-1 text-amber-gold transition-transform hover:scale-125 focus:outline-none cursor-pointer'
-                  >
-                    <Star
-                      size={20}
-                      className={cn(
-                        'transition-colors',
-                        active ? 'fill-amber-gold text-amber-gold' : 'text-muted-foreground/40'
-                      )}
-                    />
-                  </button>
-                );
-              })}
-              <span className='text-xs font-bold text-foreground ml-2'>
-                {hoverRating || rating} / 5 Sao
-              </span>
-            </div>
-          </div>
-
-          <div className='space-y-1'>
-            <span className='text-[11px] font-semibold text-muted-foreground block'>Cảm nhận của bạn</span>
-            <textarea
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              placeholder='Bạn cảm thấy thế nào về hương vị cà phê, chỗ ngồi, tốc độ Wi-Fi hay không gian quán?'
-              rows={3}
-              className='w-full bg-card border border-border rounded-xl p-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-amber-gold resize-none transition-colors'
-            />
-          </div>
-
-          <div className='flex items-center justify-end gap-2 pt-0.5'>
-            <Button
-              type='button'
-              variant='ghost'
-              onClick={() => setIsFormOpen(false)}
-              disabled={isSubmitting}
-              className='text-xs text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl px-3 py-1.5 h-8 cursor-pointer'
-            >
-              Hủy
-            </Button>
-            <Button
-              type='submit'
-              disabled={isSubmitting || comment.trim().length < 3}
-              className='bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground font-bold text-xs rounded-xl px-3.5 py-1.5 h-8 shadow-md flex items-center gap-1.5 disabled:opacity-50 cursor-pointer'
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 size={13} className='animate-spin' />
-                  Đang đăng...
-                </>
-              ) : (
-                <>
-                  <Send size={13} />
-                  Gửi đánh giá
-                </>
-              )}
-            </Button>
-          </div>
-        </form>
       ) : (
-        <div className='flex items-center justify-between bg-secondary/40 p-3 rounded-2xl border border-border/60 gap-3'>
+        <div className='flex items-center justify-between bg-secondary/40 p-3 rounded-2xl border border-border/60 gap-3 shadow-xs'>
           <div className='flex items-center gap-2.5 min-w-0 flex-1'>
             <div className='w-8 h-8 rounded-full overflow-hidden border border-amber-gold/40 bg-muted flex-shrink-0'>
               <img
@@ -977,18 +918,19 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
             </div>
           </div>
           <Button
+            ref={triggerRef}
             type='button'
-            onClick={() => setIsFormOpen(true)}
-            className='bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground font-bold text-xs rounded-xl px-3 py-1.5 h-8.5 shadow-md flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer flex-shrink-0'
+            onClick={() => setIsFormOpen((prev) => !prev)}
+            className='bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground font-bold text-xs rounded-xl px-3.5 py-1.5 h-8.5 shadow-md flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer flex-shrink-0'
           >
             <Edit3 size={13} />
-            <span>Viết đánh giá</span>
+            <span>{isFormOpen ? 'Đang viết đánh giá' : 'Viết đánh giá'}</span>
           </Button>
         </div>
       )}
 
-      {/* Review Comments Feed */}
-      <div className='space-y-2.5'>
+      {/* 3. Review Comments Feed */}
+      <div className={cn('space-y-2.5', isFormOpen ? 'pb-48' : 'pb-6')}>
         <span className='text-xs font-bold text-foreground block'>
           Đánh giá &amp; Trải nghiệm cộng đồng ({reviewsList.length})
         </span>
@@ -1046,6 +988,118 @@ export const ReviewsTab = memo(function ReviewsTab({ shop }: { shop: CoffeeShop 
           ))}
         </div>
       </div>
+
+      {/* 4. Sticky Bottom Review Form with smooth slide-up animation */}
+      <AnimatePresence>
+        {isFormOpen && (
+          <motion.div
+            ref={formRef}
+            key='sticky-review-form'
+            initial={{ y: '100%', opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: '100%', opacity: 0 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className={cn(
+              'sticky bottom-0 z-30 bg-card/98 backdrop-blur-md border-t border-border/70 select-none text-foreground flex flex-col gap-2.5 mt-auto shadow-none',
+              isSidebar
+                ? '-mx-4 px-4 pt-3 pb-3.5'
+                : '-mx-4 sm:-mx-6 px-4 sm:px-6 pt-3 pb-3.5'
+            )}
+          >
+            {/* Header with Title and Close Button */}
+            <div className='flex items-center justify-between border-b border-border/40 pb-1.5'>
+              <div className='flex items-center gap-1.5'>
+                <div className='w-5 h-5 rounded-md bg-amber-gold/15 flex items-center justify-center text-amber-gold'>
+                  <Edit3 size={12} />
+                </div>
+                <span className='font-bold text-xs text-foreground'>Viết Đánh Giá Của Bạn</span>
+              </div>
+              <button
+                type='button'
+                onClick={() => setIsFormOpen(false)}
+                className='text-muted-foreground hover:text-foreground p-1 rounded-full hover:bg-muted transition-colors cursor-pointer'
+                aria-label='Đóng form đánh giá'
+              >
+                <X size={14} />
+              </button>
+            </div>
+
+            {/* Interactive Star Rating Selector */}
+            <div className='flex items-center justify-between'>
+              <span className='text-[11px] font-semibold text-muted-foreground'>Đánh giá tổng quan</span>
+              <div className='flex items-center gap-0.5'>
+                {[1, 2, 3, 4, 5].map((star) => {
+                  const active = (hoverRating || rating) >= star;
+                  return (
+                    <button
+                      key={star}
+                      type='button'
+                      onClick={() => setRating(star)}
+                      onMouseEnter={() => setHoverRating(star)}
+                      onMouseLeave={() => setHoverRating(0)}
+                      className='p-0.5 text-amber-gold transition-transform hover:scale-125 focus:outline-none cursor-pointer'
+                    >
+                      <Star
+                        size={18}
+                        className={cn(
+                          'transition-colors',
+                          active ? 'fill-amber-gold text-amber-gold' : 'text-muted-foreground/30'
+                        )}
+                      />
+                    </button>
+                  );
+                })}
+                <span className='text-xs font-bold text-foreground ml-1.5 min-w-[40px] text-right'>
+                  {hoverRating || rating} / 5
+                </span>
+              </div>
+            </div>
+
+            {/* Comment Textarea */}
+            <div className='space-y-0.5'>
+              <textarea
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder='Bạn cảm thấy thế nào về hương vị cà phê, chỗ ngồi, tốc độ Wi-Fi hay không gian quán?'
+                rows={2}
+                className='w-full bg-secondary/50 border border-border/60 rounded-xl p-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-amber-gold resize-none transition-colors'
+              />
+            </div>
+
+            {/* Action Buttons */}
+            <div className='flex items-center justify-end gap-2'>
+              <Button
+                type='button'
+                variant='ghost'
+                size='sm'
+                onClick={() => setIsFormOpen(false)}
+                disabled={isSubmitting}
+                className='text-xs text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl px-3 py-1 h-7.5 cursor-pointer'
+              >
+                Hủy
+              </Button>
+              <Button
+                type='button'
+                onClick={handleSubmitReview}
+                disabled={isSubmitting || comment.trim().length < 3}
+                className='bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground font-bold text-xs rounded-xl px-3.5 py-1 h-7.5 shadow-xs flex items-center gap-1.5 disabled:opacity-50 cursor-pointer'
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 size={12} className='animate-spin' />
+                    Đang đăng...
+                  </>
+                ) : (
+                  <>
+                    <Send size={12} />
+                    Gửi đánh giá
+                  </>
+                )}
+              </Button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 });
@@ -1208,17 +1262,17 @@ export function ShopDetailsContent({
       {/* HEADER SECTION: Gallery collage, title, metrics, and tab navigation */}
       <div className={cn('flex-shrink-0 space-y-3.5 select-none', isSidebar ? 'px-4 pt-3' : 'px-4 sm:px-6 pt-2')}>
         {/* 1. Curated Interactive Visual Collage Banner */}
-        <div className='relative w-full h-36 sm:h-44 rounded-2xl overflow-hidden bg-secondary shadow-lg border border-border/60 group'>
+        <div className='relative w-full h-36 sm:h-44 rounded-2xl overflow-hidden bg-card shadow-md border border-border/80 group'>
           {imgError || !galleryPhotos[0]?.url ? (
-            <div className='w-full h-full flex flex-col items-center justify-center text-muted-foreground bg-secondary'>
+            <div className='w-full h-full flex flex-col items-center justify-center text-muted-foreground bg-card'>
               <Coffee size={36} className='text-amber-gold mb-2 opacity-80 animate-pulse' />
               <span className='text-xs font-medium text-foreground'>Tiêu điểm Cà phê PhinFind</span>
             </div>
           ) : (
-            <div className='w-full h-full flex gap-1 p-1 bg-black/60'>
+            <div className='w-full h-full flex gap-1.5 p-1.5 bg-card'>
               <div
                 onClick={() => openImagePreview(galleryPhotos, 0)}
-                className='flex-1 h-full rounded-xl overflow-hidden relative cursor-pointer group select-none pointer-events-auto'
+                className='flex-1 h-full rounded-xl overflow-hidden relative cursor-pointer group select-none pointer-events-auto bg-card border border-border/40'
               >
                 <img
                   draggable={false}
@@ -1236,10 +1290,10 @@ export function ShopDetailsContent({
               </div>
 
               {galleryPhotos.length > 1 && (
-                <div className='hidden xs:flex sm:flex flex-col w-28 sm:w-36 gap-1'>
+                <div className='hidden xs:flex sm:flex flex-col w-28 sm:w-36 gap-1.5'>
                   <div
                     onClick={() => openImagePreview(galleryPhotos, 1)}
-                    className='h-[calc(50%-2px)] rounded-xl overflow-hidden relative bg-secondary border border-border/40 cursor-pointer group select-none pointer-events-auto'
+                    className='h-[calc(50%-3px)] rounded-xl overflow-hidden relative bg-card border border-border/40 cursor-pointer group select-none pointer-events-auto'
                   >
                     <img
                       draggable={false}
@@ -1251,7 +1305,7 @@ export function ShopDetailsContent({
 
                   <div
                     onClick={() => openImagePreview(galleryPhotos, 2)}
-                    className='h-[calc(50%-2px)] rounded-xl overflow-hidden relative bg-secondary border border-border/40 cursor-pointer group select-none pointer-events-auto'
+                    className='h-[calc(50%-3px)] rounded-xl overflow-hidden relative bg-card border border-border/40 cursor-pointer group select-none pointer-events-auto'
                   >
                     <img
                       draggable={false}
@@ -1287,40 +1341,40 @@ export function ShopDetailsContent({
           <div className='flex flex-wrap items-center gap-1.5 pt-0.5'>
             <Badge
               variant='outline'
-              className='bg-secondary text-amber-gold border-border flex items-center gap-1 font-bold text-[11px] py-0.5 px-2 rounded-xl shadow-xs'
+              className='bg-secondary text-amber-gold border-border flex items-center gap-1 font-bold text-[11px] py-0.5 px-2 rounded-xl shadow-xs flex-shrink-0 whitespace-nowrap'
             >
               {hasRating ? (
                 <>
-                  <Star size={11} className='fill-amber-gold text-amber-gold' />
-                  <span>{shop.rating.toFixed(1)}</span>
+                  <Star size={11} className='fill-amber-gold text-amber-gold flex-shrink-0' />
+                  <span className='whitespace-nowrap'>{shop.rating.toFixed(1)}</span>
                   {shop.total_ratings ? (
-                    <span className='text-[10px] text-muted-foreground font-normal'>
+                    <span className='text-[10px] text-muted-foreground font-normal whitespace-nowrap'>
                       ({shop.total_ratings})
                     </span>
                   ) : null}
                 </>
               ) : (
                 <>
-                  <Star size={11} className='text-amber-gold/50' />
-                  <span>4.8 (120+)</span>
+                  <Star size={11} className='text-amber-gold/50 flex-shrink-0' />
+                  <span className='whitespace-nowrap'>4.8 (120+)</span>
                 </>
               )}
             </Badge>
 
             <Badge
               variant='outline'
-              className='bg-secondary text-secondary-foreground border-border flex items-center gap-1 font-medium text-[11px] py-0.5 px-2 rounded-xl shadow-xs'
+              className='bg-secondary text-secondary-foreground border-border flex items-center gap-1 font-medium text-[11px] py-0.5 px-2 rounded-xl shadow-xs flex-shrink-0 whitespace-nowrap'
             >
-              <Footprints size={11} className='text-amber-gold/80' />
-              <span>{distanceText}</span>
+              <Footprints size={11} className='text-amber-gold/80 flex-shrink-0' />
+              <span className='whitespace-nowrap'>{distanceText}</span>
             </Badge>
 
             <Badge
               variant='outline'
-              className='bg-secondary text-secondary-foreground border-border flex items-center gap-1 font-medium text-[11px] py-0.5 px-2 rounded-xl shadow-xs'
+              className='bg-secondary text-secondary-foreground border-border flex items-center gap-1 font-medium text-[11px] py-0.5 px-2 rounded-xl shadow-xs flex-shrink-0 whitespace-nowrap max-w-full'
             >
-              <Clock size={11} className='text-amber-gold/80' />
-              <span>{isOpenNow ? 'Đang mở cửa' : 'Đã đóng cửa'}</span>
+              <Clock size={11} className='text-amber-gold/80 flex-shrink-0' />
+              <span className='whitespace-nowrap truncate'>{isOpenNow ? 'Đang mở cửa' : 'Đã đóng cửa'}</span>
             </Badge>
           </div>
         </div>
@@ -1362,7 +1416,7 @@ export function ShopDetailsContent({
         data-vaul-no-drag
         className={cn(
           'flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain pt-3',
-          isSidebar ? 'px-4 pb-28' : 'px-4 sm:px-6 pb-28'
+          isSidebar ? 'px-4' : 'px-4 sm:px-6'
         )}
       >
         <TabsContent value='overview' className='mt-0 focus-visible:outline-none'>
@@ -1380,8 +1434,8 @@ export function ShopDetailsContent({
           <PhotosTab shop={shop} />
         </TabsContent>
 
-        <TabsContent value='reviews' className='mt-0 focus-visible:outline-none'>
-          <ReviewsTab shop={shop} />
+        <TabsContent value='reviews' className='mt-0 focus-visible:outline-none min-h-full flex flex-col flex-1'>
+          <ReviewsTab shop={shop} isSidebar={isSidebar} />
         </TabsContent>
 
         <TabsContent value='amenities' className='mt-0 focus-visible:outline-none'>
