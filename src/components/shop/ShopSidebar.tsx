@@ -114,15 +114,28 @@ export function ShopSidebar({
   return (
     <AnimatePresence>
       {isOpen && displayedShop && (
-        <motion.aside
-          key={`shop-sidebar-${displayedShop.id}`}
-          aria-label={`Bảng thông tin chi tiết ${displayedShop.name}`}
-          initial={{ x: '100%', opacity: 0.8 }}
-          animate={{ x: 0, opacity: 1 }}
-          exit={{ x: '100%', opacity: 0.8 }}
-          transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-          className='fixed top-14 right-0 bottom-0 w-full sm:w-[440px] lg:w-[440px] xl:w-[460px] 2xl:w-[480px] max-w-[90vw] z-40 bg-card/95 backdrop-blur-xl border-l border-border shadow-2xl flex flex-col select-none text-foreground'
-        >
+        <>
+          {/* Full-Screen Transparent Backdrop Overlay to capture outside clicks on map */}
+          <motion.div
+            key='shop-sidebar-backdrop'
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={handleClose}
+            aria-hidden='true'
+            className='fixed inset-0 z-40 bg-transparent pointer-events-auto'
+          />
+
+          <motion.aside
+            key={`shop-sidebar-${displayedShop.id}`}
+            aria-label={`Bảng thông tin chi tiết ${displayedShop.name}`}
+            initial={{ x: '100%', opacity: 0.8 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: '100%', opacity: 0.8 }}
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            className='fixed top-14 right-0 bottom-0 w-full sm:w-[440px] lg:w-[440px] xl:w-[460px] 2xl:w-[480px] max-w-[90vw] z-50 bg-card/95 backdrop-blur-xl border-l border-border shadow-2xl flex flex-col select-none text-foreground'
+          >
           {/* Top Header Bar with Close Button */}
           <div className='flex items-center justify-between px-4 py-2.5 border-b border-border/60 bg-card/80 flex-shrink-0'>
             <span className='text-xs font-bold text-muted-foreground uppercase tracking-wider'>
@@ -201,7 +214,8 @@ export function ShopSidebar({
             </div>
           </div>
         </motion.aside>
-      )}
-    </AnimatePresence>
-  );
+      </>
+    )}
+  </AnimatePresence>
+);
 }
