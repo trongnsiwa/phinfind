@@ -16,6 +16,7 @@ import {
   User,
   X
 } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useRef, useState } from 'react';
@@ -186,9 +187,16 @@ export function Header() {
             className='flex items-center gap-2 group rounded-2xl p-1 -m-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold transition-all duration-200'
             aria-label='Trang chủ PhinFind'
           >
-            <span className='w-8.5 h-8.5 sm:w-9 sm:h-9 rounded-2xl bg-gradient-to-br from-amber-gold to-phin-600 text-primary-foreground flex items-center justify-center font-bold text-lg sm:text-xl shadow-md group-hover:scale-105 transition-transform duration-200'>
-              ☕
-            </span>
+            <div className='w-8.5 h-8.5 sm:w-9 sm:h-9 rounded-2xl flex items-center justify-center group-hover:scale-105 transition-transform duration-200 overflow-hidden shrink-0'>
+              <Image
+                src='/logo.svg'
+                alt='PhinFind'
+                width={36}
+                height={36}
+                className='w-8.5 h-8.5 sm:w-9 sm:h-9 rounded-2xl object-contain'
+                priority
+              />
+            </div>
             <div>
               <h1 className='font-sans font-bold text-lg sm:text-xl leading-none text-foreground tracking-tight group-hover:text-primary transition-colors duration-200'>
                 PhinFind
@@ -264,7 +272,9 @@ export function Header() {
             variant='ghost'
             size='icon'
             onClick={toggleTheme}
-            aria-label={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
+            aria-label={
+              theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'
+            }
             className='h-9 w-9 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent/70 border border-border/60 hover:border-amber-gold/40 transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold flex-shrink-0'
           >
             {theme === 'dark' ? (
@@ -478,7 +488,10 @@ export function Header() {
                   </div>
                 </DropdownMenuLabel>
                 <div className='my-1' />
-                <DropdownMenuItem asChild className='cursor-pointer px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-secondary-foreground hover:text-foreground hover:bg-accent/60 focus:bg-accent focus:text-foreground transition-all duration-200 group'>
+                <DropdownMenuItem
+                  asChild
+                  className='cursor-pointer px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-secondary-foreground hover:text-foreground hover:bg-accent/60 focus:bg-accent focus:text-foreground transition-all duration-200 group'
+                >
                   <Link href={APP_ROUTES.PROFILE} className='flex items-center gap-2.5 w-full'>
                     <User
                       size={16}
@@ -487,7 +500,10 @@ export function Header() {
                     <span>Trang cá nhân</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild className='cursor-pointer px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-secondary-foreground hover:text-foreground hover:bg-accent/60 focus:bg-accent focus:text-foreground transition-all duration-200 group'>
+                <DropdownMenuItem
+                  asChild
+                  className='cursor-pointer px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-secondary-foreground hover:text-foreground hover:bg-accent/60 focus:bg-accent focus:text-foreground transition-all duration-200 group'
+                >
                   <Link href={APP_ROUTES.FAVORITES} className='flex items-center gap-2.5 w-full'>
                     <Heart
                       size={16}
@@ -496,7 +512,10 @@ export function Header() {
                     <span>Yêu thích</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild className='cursor-pointer px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-secondary-foreground hover:text-foreground hover:bg-accent/60 focus:bg-accent focus:text-foreground transition-all duration-200 group'>
+                <DropdownMenuItem
+                  asChild
+                  className='cursor-pointer px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-secondary-foreground hover:text-foreground hover:bg-accent/60 focus:bg-accent focus:text-foreground transition-all duration-200 group'
+                >
                   <Link href={APP_ROUTES.PROFILE} className='flex items-center gap-2.5 w-full'>
                     <Settings
                       size={16}
@@ -551,7 +570,14 @@ export function Header() {
             >
               <SheetHeader className='text-left space-y-1 mb-6'>
                 <SheetTitle className='font-sans font-bold text-lg text-foreground flex items-center gap-2'>
-                  ☕ Menu PhinFind
+                  <Image
+                    src='/logo.svg'
+                    alt='PhinFind'
+                    width={22}
+                    height={22}
+                    className='w-5.5 h-5.5 rounded-lg object-contain'
+                  />
+                  Menu PhinFind
                 </SheetTitle>
                 <SheetDescription className='text-xs text-muted-foreground'>
                   Khám phá văn hóa cà phê Việt
@@ -624,7 +650,9 @@ export function Header() {
                       strokeWidth={2.2}
                       className={cn(
                         'transition-all duration-200 group-hover:scale-110',
-                        pathname === APP_ROUTES.FAVORITES ? 'text-rose-500' : 'text-muted-foreground'
+                        pathname === APP_ROUTES.FAVORITES
+                          ? 'text-rose-500'
+                          : 'text-muted-foreground'
                       )}
                     />
                     <span>Đã lưu yêu thích</span>
@@ -674,7 +702,10 @@ export function Header() {
                     )}
                     <span>Giao diện {theme === 'dark' ? 'Tối' : 'Sáng'}</span>
                   </div>
-                  <Badge variant='outline' className='text-[10px] uppercase font-bold text-amber-gold border-border'>
+                  <Badge
+                    variant='outline'
+                    className='text-[10px] uppercase font-bold text-amber-gold border-border'
+                  >
                     {theme === 'dark' ? 'Dark' : 'Light'}
                   </Badge>
                 </button>

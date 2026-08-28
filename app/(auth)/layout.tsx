@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Coffee, Sparkles, ShieldCheck, Star, Users, MapPin } from 'lucide-react';
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
@@ -36,8 +37,15 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           {/* Mobile Header Branding (Visible only on mobile) */}
           <div className="md:hidden p-5 bg-gradient-to-b from-[#141414] to-[#101010] border-b border-[#2A2A2A]/80 text-white flex items-center justify-between">
             <Link href="/" className="inline-flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-gold/15 border border-amber-gold/30 text-amber-gold flex items-center justify-center shadow-md">
-                <Coffee className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-xl bg-amber-gold/15 border border-amber-gold/30 flex items-center justify-center shadow-md overflow-hidden shrink-0">
+                <Image
+                  src="/logo.svg"
+                  alt="PhinFind"
+                  width={40}
+                  height={40}
+                  className="w-7.5 h-7.5 object-contain"
+                  priority
+                />
               </div>
               <div>
                 <h1 className="font-sans font-bold text-lg leading-none text-white">PhinFind</h1>
@@ -71,8 +79,15 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             {/* Top Branding Section */}
             <div className="relative z-10 space-y-6">
               <Link href="/" className="inline-flex items-center gap-3.5 group">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-gold/20 to-amber-gold/5 backdrop-blur-md border border-amber-gold/35 text-amber-gold flex items-center justify-center shadow-lg group-hover:scale-105 group-hover:border-amber-gold/60 transition-all duration-300">
-                  <Coffee className="w-6 h-6 text-amber-gold" />
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-gold/20 to-amber-gold/5 backdrop-blur-md border border-amber-gold/35 flex items-center justify-center shadow-lg group-hover:scale-105 group-hover:border-amber-gold/60 transition-all duration-300 overflow-hidden shrink-0">
+                  <Image
+                    src="/logo.svg"
+                    alt="PhinFind"
+                    width={48}
+                    height={48}
+                    className="w-9 h-9 object-contain"
+                    priority
+                  />
                 </div>
                 <div>
                   <h1 className="font-sans font-bold text-2xl lg:text-3xl leading-none text-white tracking-tight group-hover:text-amber-gold transition-colors">
