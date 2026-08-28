@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { MapPin, Search, X, Star, SlidersHorizontal, Clock, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -334,9 +335,16 @@ export default function MapPage() {
           className="flex items-center gap-2 group rounded-2xl p-1 -m-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold transition-all duration-200 flex-shrink-0"
           aria-label="Trang chủ PhinFind"
         >
-          <span className="w-8.5 h-8.5 rounded-2xl bg-gradient-to-br from-amber-gold to-phin-600 text-primary-foreground flex items-center justify-center font-bold text-base shadow-md group-hover:scale-105 transition-transform duration-200">
-            ☕
-          </span>
+          <div className="w-8.5 h-8.5 sm:w-9 sm:h-9 rounded-2xl flex items-center justify-center group-hover:scale-105 transition-transform duration-200 overflow-hidden shrink-0">
+            <Image
+              src="/logo.svg"
+              alt="PhinFind"
+              width={36}
+              height={36}
+              className="w-8.5 h-8.5 sm:w-9 sm:h-9 rounded-2xl object-contain"
+              priority
+            />
+          </div>
           <div className="hidden xs:block sm:block">
             <h1 className="font-sans font-bold text-sm sm:text-base leading-none text-foreground tracking-tight group-hover:text-amber-gold-hover transition-colors">
               PhinFind
