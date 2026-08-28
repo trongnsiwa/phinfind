@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%" fill="none">
+  <defs>
+    <filter id="soft-shadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#5A4A3A" flood-opacity="0.10" />
+    </filter>
+    
+    <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4A328" />
+      <stop offset="100%" stop-color="#B8860B" />
+    </linearGradient>
+    <linearGradient id="brown-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6F5D4D" />
+      <stop offset="100%" stop-color="#5A4A3A" />
+    </linearGradient>
+    <linearGradient id="wood-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E8DFD1" />
+      <stop offset="100%" stop-color="#D5C7B3" />
+    </linearGradient>
+  </defs>
+
+  <!-- Grounding Floor Line -->
+  <line x1="32" y1="166" x2="168" y2="166" stroke="#E2D7C5" stroke-width="3" stroke-linecap="round" />
+
+  <!-- Left Chair (Crisp Sharp Geometry) -->
+  <g>
+    <!-- Chair Backrest Frame -->
+    <polyline points="44,132 44,98 62,98 62,132" stroke="#5A4A3A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+    <!-- Chair Seat Plank (Sharp Rectangle) -->
+    <rect x="40" y="132" width="24" height="6" fill="url(#brown-grad)" stroke="#5A4A3A" stroke-width="3" stroke-linejoin="round" />
+    <!-- Chair Legs -->
+    <line x1="44" y1="138" x2="42" y2="166" stroke="#5A4A3A" stroke-width="3" stroke-linecap="round" />
+    <line x1="60" y1="138" x2="62" y2="166" stroke="#5A4A3A" stroke-width="3" stroke-linecap="round" />
+  </g>
+
+  <!-- Right Chair (Crisp Sharp Geometry) -->
+  <g>
+    <!-- Chair Backrest Frame -->
+    <polyline points="156,132 156,98 138,98 138,132" stroke="#5A4A3A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+    <!-- Chair Seat Plank (Sharp Rectangle) -->
+    <rect x="136" y="132" width="24" height="6" fill="url(#brown-grad)" stroke="#5A4A3A" stroke-width="3" stroke-linejoin="round" />
+    <!-- Chair Legs -->
+    <line x1="140" y1="138" x2="138" y2="166" stroke="#5A4A3A" stroke-width="3" stroke-linecap="round" />
+    <line x1="156" y1="138" x2="158" y2="166" stroke="#5A4A3A" stroke-width="3" stroke-linecap="round" />
+  </g>
+
+  <!-- Center Bistro Table (Sharp Geometric Elements) -->
+  <g filter="url(#soft-shadow)">
+    <!-- Table Top (Sharp Rectangle) -->
+    <rect x="66" y="118" width="68" height="8" fill="url(#gold-grad)" stroke="#5A4A3A" stroke-width="3" stroke-linejoin="round" />
+    <!-- Pedestal Stem -->
+    <rect x="97" y="126" width="6" height="36" fill="url(#brown-grad)" stroke="#5A4A3A" stroke-width="3" />
+    <!-- Base -->
+    <rect x="80" y="162" width="40" height="4" fill="url(#brown-grad)" stroke="#5A4A3A" stroke-width="3" stroke-linejoin="round" />
+  </g>
+
+  <!-- Tabletop Items: Coffee Cup & Small Potted Plant (Sharp Rectangles) -->
+  <g filter="url(#soft-shadow)">
+    <!-- Mini Cup on Table -->
+    <rect x="84" y="108" width="10" height="10" fill="#FFFFFF" stroke="#5A4A3A" stroke-width="2.5" />
+    <path d="M 94 111 L 97 111 L 97 115 L 94 115" stroke="#5A4A3A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+    <path d="M 89 104 C 87 100 91 97 89 93" stroke="url(#gold-grad)" stroke-width="2" stroke-linecap="round" />
+
+    <!-- Mini Sharp Vase -->
+    <rect x="108" y="104" width="8" height="14" fill="url(#wood-grad)" stroke="#5A4A3A" stroke-width="2.5" />
+    <!-- Leaf Sprout -->
+    <path d="M 112 104 C 112 98 118 96 118 96 C 118 96 116 102 112 104 Z" fill="url(#gold-grad)" stroke="#5A4A3A" stroke-width="2" stroke-linejoin="round" />
+  </g>
+
+  <!-- Sparkles -->
+  <path d="M 100 44 L 102 49 L 107 51 L 102 53 L 100 58 L 98 53 L 93 51 L 98 49 Z" fill="url(#gold-grad)" />
+</svg>

@@ -82,9 +82,10 @@ const addShopFormSchema = z.object({
   categories: z.array(z.string()),
   photos: z.array(z.string()),
   open_now: z.boolean(),
-  open_time: z.string(),
-  close_time: z.string()
+  open_time: z.string().optional(),
+  close_time: z.string().optional()
 });
+
 
 type AddShopFormData = z.infer<typeof addShopFormSchema>;
 
@@ -110,7 +111,6 @@ export function AddShopDialog({ open, onOpenChange, onSuccess }: AddShopDialogPr
   const [showManualCoords, setShowManualCoords] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const hasAutoCenteredRef = useRef(false);
 
   const initialLat =
     typeof userLat === 'number' && !isNaN(userLat) && !isLocationFallback
@@ -139,11 +139,11 @@ export function AddShopDialog({ open, onOpenChange, onSuccess }: AddShopDialogPr
       phone: '',
       website: '',
       price_range: undefined,
-      categories: ['catering.cafe'],
+      categories: [],
       photos: [],
       open_now: true,
-      open_time: '07:00',
-      close_time: '22:30'
+      open_time: '',
+      close_time: ''
     }
   });
 
@@ -156,6 +156,7 @@ export function AddShopDialog({ open, onOpenChange, onSuccess }: AddShopDialogPr
       }
     }
   }, [open, isLocationFallback, userLat, userLng, setValue]);
+
 
   const watchedName = watch('name');
   const watchedAddress = watch('address');
@@ -197,7 +198,7 @@ export function AddShopDialog({ open, onOpenChange, onSuccess }: AddShopDialogPr
     const updated = exists
       ? watchedCategories.filter((c) => c !== catId)
       : [...watchedCategories, catId];
-    setValue('categories', updated.length > 0 ? updated : ['catering.cafe'], {
+    setValue('categories', updated, {
       shouldValidate: true
     });
   };
@@ -222,6 +223,21 @@ export function AddShopDialog({ open, onOpenChange, onSuccess }: AddShopDialogPr
     setIsSubmitting(true);
 
     try {
+      const openingHoursPayload =
+        data.open_time && data.close_time
+          ? {
+              open_now: data.open_now,
+              periods: [
+                {
+                  open: { day: 0, time: data.open_time },
+                  close: { day: 0, time: data.close_time }
+                }
+              ]
+            }
+          : {
+              open_now: data.open_now
+            };
+
       const payload = {
         name: data.name.trim(),
         address: data.address.trim(),
@@ -232,16 +248,9 @@ export function AddShopDialog({ open, onOpenChange, onSuccess }: AddShopDialogPr
         price_range: data.price_range || undefined,
         categories: data.categories,
         photos: data.photos,
-        opening_hours: {
-          open_now: data.open_now,
-          periods: [
-            {
-              open: { day: 0, time: data.open_time || '07:00' },
-              close: { day: 0, time: data.close_time || '22:30' }
-            }
-          ]
-        }
+        opening_hours: openingHoursPayload
       };
+
 
       const response = await axios.post<{
         success: boolean;
@@ -632,6 +641,35 @@ export function AddShopDialog({ open, onOpenChange, onSuccess }: AddShopDialogPr
               </div>
             </div>
 
+            {/* Opening Hours Inputs (Optional) */}
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1'>
+              <div className='space-y-1'>
+                <Label htmlFor='shop-open-time' className='text-xs font-medium text-foreground flex items-center gap-1'>
+                  <Clock size={12} className='text-amber-gold' />
+                  <span>Giờ mở cửa (Tùy chọn)</span>
+                </Label>
+                <Input
+                  id='shop-open-time'
+                  type='time'
+                  {...register('open_time')}
+                  className='h-9 bg-secondary/50 border-border text-xs rounded-xl'
+                />
+              </div>
+
+              <div className='space-y-1'>
+                <Label htmlFor='shop-close-time' className='text-xs font-medium text-foreground flex items-center gap-1'>
+                  <Clock size={12} className='text-amber-gold' />
+                  <span>Giờ đóng cửa (Tùy chọn)</span>
+                </Label>
+                <Input
+                  id='shop-close-time'
+                  type='time'
+                  {...register('close_time')}
+                  className='h-9 bg-secondary/50 border-border text-xs rounded-xl'
+                />
+              </div>
+            </div>
+
             {/* Photos URLs List */}
             <div className='space-y-2 pt-1'>
               <Label className='text-xs font-semibold text-foreground flex items-center justify-between'>
@@ -679,15 +717,11 @@ export function AddShopDialog({ open, onOpenChange, onSuccess }: AddShopDialogPr
                         src={url}
                         alt={`Ảnh quán ${index + 1}`}
                         className='w-full h-full object-cover'
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src =
-                            'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=300&q=80';
-                        }}
                       />
                       <button
                         type='button'
                         onClick={() => handleRemovePhoto(index)}
-                        className='absolute top-1 right-1 p-1 bg-black/70 hover:bg-rose-600 text-white rounded-md transition-colors'
+                        className='absolute top-1 right-1 p-1 bg-black/70 hover:bg-rose-600 text-white rounded-md transition-colors cursor-pointer'
                         title='Xóa ảnh này'
                       >
                         <Trash2 size={12} />
@@ -729,23 +763,39 @@ export function AddShopDialog({ open, onOpenChange, onSuccess }: AddShopDialogPr
                 </div>
 
                 <div className='p-3 bg-card rounded-xl border border-border flex items-start gap-3 shadow-sm'>
-                  <div className='w-16 h-16 rounded-lg bg-muted overflow-hidden flex-shrink-0'>
-                    <img
-                      src={
-                        watchedPhotos[0] ||
-                        'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=200&q=80'
-                      }
-                      alt='Preview'
-                      className='w-full h-full object-cover'
-                    />
+                  <div className='w-16 h-16 rounded-lg bg-muted overflow-hidden flex-shrink-0 flex items-center justify-center border border-border/40'>
+                    {watchedPhotos[0] ? (
+                      <img
+                        src={watchedPhotos[0]}
+                        alt='Preview'
+                        className='w-full h-full object-cover'
+                      />
+                    ) : (
+                      <div className='flex flex-col items-center justify-center text-muted-foreground/50'>
+                        <Coffee size={20} />
+                        <span className='text-[8px] mt-0.5'>Chưa có ảnh</span>
+                      </div>
+                    )}
                   </div>
                   <div className='flex-1 min-w-0'>
                     <h4 className='font-bold text-xs text-foreground truncate'>
-                      {watchedName || 'Tên quán cà phê'}
+                      {watchedName || (
+                        <span className='text-muted-foreground/50 font-normal italic'>
+                          Chưa nhập tên quán
+                        </span>
+                      )}
                     </h4>
                     <p className='text-[11px] text-muted-foreground truncate mt-0.5'>
-                      <MapPin size={10} className='inline mr-1 text-amber-gold' />
-                      {watchedAddress || 'Địa chỉ quán'}
+                      {watchedAddress ? (
+                        <>
+                          <MapPin size={10} className='inline mr-1 text-amber-gold' />
+                          {watchedAddress}
+                        </>
+                      ) : (
+                        <span className='text-muted-foreground/50 italic'>
+                          Chưa nhập địa chỉ
+                        </span>
+                      )}
                     </p>
                     <div className='flex items-center gap-1.5 mt-1.5'>
                       <Badge
@@ -765,6 +815,7 @@ export function AddShopDialog({ open, onOpenChange, onSuccess }: AddShopDialogPr
               </div>
             )}
           </div>
+
         </form>
 
         {/* Footer */}

@@ -3,7 +3,7 @@
 import {
   Check, CheckCircle2, ChevronDown, ChevronRight, Clock, Coffee, Compass, Copy, CreditCard,
   CupSoda, Edit3, Flame, Footprints, Globe, Images, Loader2, LogIn, MapPin, Navigation,
-  Phone, Quote, Send, Sparkles, Star, Sun, Utensils, Wifi, Wind, X, Zap
+  Phone, Quote, Send, Sparkles, Star, Sun, Utensils, Wifi, Wind, X, Zap, Camera, MessageSquare, Tag
 } from 'lucide-react';
 import Link from 'next/link';
 import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
@@ -17,77 +17,16 @@ import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { APP_ROUTES } from '@/lib/utils/constants';
 import { cn } from '@/lib/utils';
+import { EmptyIllustration } from '@/components/common/EmptyIllustration';
+import { ShopCardPlaceholder } from '@/components/common/ShopCardPlaceholder';
 import { useShopStore } from '@/stores/useShopStore';
 import { useUIStore } from '@/stores/useUIStore';
 import { CoffeeShop } from '@/types/shop';
 
-// Curated high-res coffeehouse atmosphere photography gallery
-export const SAMPLE_GALLERY = [
-  {
-    url: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1200&q=80',
-    title: 'Không gian ấm cúng & quầy espresso mộc mạc',
-    category: 'Không gian'
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1200&q=80',
-    title: 'Nghệ thuật Latte Art đặc trưng',
-    category: 'Cà phê'
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=1200&q=80',
-    title: 'Góc ngồi bên cửa sổ ngập tràn ánh sáng tự nhiên',
-    category: 'Không gian'
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&w=1200&q=80',
-    title: 'Góc pha cà phê phin đặc sản Việt Nam',
-    category: 'Cà phê'
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=1200&q=80',
-    title: 'Không gian làm việc tầng 2 yên tĩnh',
-    category: 'Góc làm việc'
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1521017432531-fbd92d768814?auto=format&fit=crop&w=1200&q=80',
-    title: 'Ban công sân vườn thoáng đãng',
-    category: 'Ngoài trời'
-  }
-];
 
-// Curated customer pull quotes and testimonials
-export const MOCK_REVIEWS = [
-  {
-    author: 'Minh Anh',
-    avatar:
-      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80',
-    rating: 5,
-    date: '2 ngày trước',
-    highlight: 'Cà phê trứng muối ngon nhất khu vực',
-    comment:
-      'Cà phê phin truyền thống với sữa đặc và lớp kem trứng muối thật sự tuyệt vời. Tầng 2 yên tĩnh, Wi-Fi nhanh và nhiều ổ cắm tiện làm việc.'
-  },
-  {
-    author: 'Thanh Tùng',
-    avatar:
-      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80',
-    rating: 5,
-    date: '1 tuần trước',
-    highlight: 'Không gian làm việc & học tập ấm cúng',
-    comment:
-      'Không gian ấm cúng, barista rất thân thiện. Quán có nhiều loại hạt cà phê đặc sản Đà Lạt và cold brew thanh mát.'
-  },
-  {
-    author: 'Elena Rostova',
-    avatar:
-      'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=120&q=80',
-    rating: 5,
-    date: '3 tuần trước',
-    highlight: 'Không gian thoáng đãng & nhạc hay',
-    comment:
-      'Rất thích ánh sáng tự nhiên và playlist nhạc acoustic nhẹ nhàng của quán. Nơi lý tưởng để đọc sách hoặc hẹn hò cà phê.'
-  }
-];
+
+
+
 
 export interface DaySchedule {
   dayName: string;
@@ -99,12 +38,13 @@ export interface DaySchedule {
 }
 
 export interface ComputedSchedule {
-  isOpenNow: boolean;
+  isOpenNow?: boolean;
   statusText: string;
   scheduleList: DaySchedule[];
   todaySchedule?: DaySchedule;
+  hasRealSchedule: boolean;
   isApproximate: boolean;
-  peakVibeTime: string;
+  peakVibeTime?: string;
 }
 
 function parseHHMM(timeStr: string): { hours: number; minutes: number; formatted: string } {
@@ -199,40 +139,32 @@ export function getShopSchedule(openingHours?: CoffeeShop['opening_hours']): Com
       statusText,
       scheduleList,
       todaySchedule,
+      hasRealSchedule: true,
       isApproximate: false,
-      peakVibeTime: '08:30 – 10:00'
+      peakVibeTime: undefined
     };
   }
 
-  // Fallback when periods are not available
-  const defaultOpenMinutes = 7 * 60;
-  const defaultCloseMinutes = 22 * 60 + 30;
-  const isWithinDefaultHours =
-    currentMinutes >= defaultOpenMinutes && currentMinutes < defaultCloseMinutes;
-  const isOpenNow =
-    openingHours?.open_now !== undefined ? openingHours.open_now : isWithinDefaultHours;
-
-  const scheduleList: DaySchedule[] = DAYS_ORDER.map((d) => ({
-    dayName: d.name,
-    dayShort: d.short,
-    dayIndex: d.index,
-    isToday: d.index === currentDay,
-    timeText: d.index === 0 || d.index === 6 ? '07:00 – 23:00' : '07:00 – 22:30',
-    isOpenDay: true
-  }));
-
-  const todaySchedule = scheduleList.find((s) => s.isToday);
-  const statusText = isOpenNow ? 'Đang mở cửa • Đóng cửa 22:30' : 'Đã đóng cửa • Mở cửa 07:00';
+  // When periods are not available: do not fabricate fake hours
+  const isOpenNow = openingHours?.open_now;
+  const statusText =
+    isOpenNow === true
+      ? 'Đang mở cửa'
+      : isOpenNow === false
+        ? 'Đã đóng cửa'
+        : 'Chưa có thông tin giờ mở cửa';
 
   return {
     isOpenNow,
     statusText,
-    scheduleList,
-    todaySchedule,
-    isApproximate: true,
-    peakVibeTime: '08:30 – 10:00'
+    scheduleList: [],
+    todaySchedule: undefined,
+    hasRealSchedule: false,
+    isApproximate: false,
+    peakVibeTime: undefined
   };
 }
+
 
 export const OverviewTab = memo(function OverviewTab({
   shop,
@@ -251,8 +183,8 @@ export const OverviewTab = memo(function OverviewTab({
 }) {
   const [copied, setCopied] = useState(false);
   const [isHoursExpanded, setIsHoursExpanded] = useState(false);
-  const validRating = shop.rating && shop.rating > 0 ? shop.rating : 4.8;
-  const ratingScorePercent = Math.min(Math.round((validRating / 5) * 100), 100);
+  const hasRatings = typeof shop.rating === 'number' && shop.rating > 0 && shop.total_ratings && shop.total_ratings > 0;
+  const ratingScorePercent = hasRatings ? Math.min(Math.round(((shop.rating || 0) / 5) * 100), 100) : 0;
   const distanceText =
     shop.distance_text && shop.distance_text !== '0 m' ? shop.distance_text : 'Gần đây';
 
@@ -265,192 +197,201 @@ export const OverviewTab = memo(function OverviewTab({
     }
   };
 
+
   return (
     <div className='space-y-4 pb-16'>
-      {/* 1. Popular Spot in Town Banner with Social Proof */}
-      <div className='bg-secondary p-3.5 rounded-2xl border border-border/80 space-y-2 shadow-inner'>
-        <div className='flex items-center justify-between gap-2 min-w-0'>
-          <div className='flex items-center gap-1.5 text-foreground font-bold text-xs tracking-wide min-w-0 flex-1 truncate'>
-            <Flame size={14} className='text-amber-gold animate-pulse flex-shrink-0' />
-            <span className='truncate'>Quán Nổi Bật Được Yêu Thích</span>
+      {/* 1. Real Amenities & Categories Chips */}
+      {shop.categories && shop.categories.length > 0 && (
+        <div className='space-y-2'>
+          <span className='text-[11px] font-bold text-muted-foreground uppercase tracking-wider block'>
+            Đặc điểm &amp; Tiện ích
+          </span>
+          <div className='flex flex-wrap gap-1.5'>
+            {shop.categories.map((cat) => (
+              <div
+                key={cat}
+                className='flex items-center gap-1.5 bg-secondary/70 border border-border/60 px-3 py-1.5 rounded-xl text-secondary-foreground text-xs font-medium'
+              >
+                <Tag size={12} className='text-amber-gold flex-shrink-0' />
+                <span>{cat.replace('catering.', '').replace(/_/g, ' ')}</span>
+              </div>
+            ))}
           </div>
-          <span className='text-[10px] text-muted-foreground bg-card px-2 py-0.5 rounded-full border border-border/50 font-medium whitespace-nowrap flex-shrink-0 max-w-[160px] truncate'>
-            ⚡️ 32 lượt ghé hôm nay
-          </span>
         </div>
-        <p className='text-xs text-muted-foreground leading-relaxed font-medium break-words'>{experienceTagline}</p>
-      </div>
+      )}
 
-      {/* 2. Signature Recommendation Section */}
-      <div className='bg-secondary/50 p-3.5 rounded-2xl border border-border/60 flex items-start gap-3'>
-        <div className='w-8 h-8 rounded-xl bg-amber-gold/15 border border-amber-gold/30 flex items-center justify-center text-amber-gold flex-shrink-0 mt-0.5'>
-          <Coffee size={16} />
+      {/* 2. Customer Satisfaction Rating Card */}
+      {hasRatings ? (
+        <div className='bg-secondary/40 p-3.5 rounded-2xl border border-border/50 space-y-1.5'>
+          <div className='flex items-center justify-between text-xs'>
+            <span className='text-secondary-foreground font-medium'>Mức Độ Hài Lòng Của Khách Hàng</span>
+            <span className='font-bold text-teal'>{ratingScorePercent}% hài lòng</span>
+          </div>
+          <Progress
+            value={ratingScorePercent}
+            indicatorClassName='bg-gradient-to-r from-teal to-teal-hover'
+            className='h-2 bg-muted border border-border/50'
+          />
+          <div className='flex items-center justify-between text-[11px] text-muted-foreground pt-0.5'>
+            <span>Dựa trên {shop.total_ratings} lượt đánh giá</span>
+            <span className='text-foreground font-semibold flex items-center gap-1'>
+              <Star size={11} className='fill-amber-gold text-amber-gold' /> {(shop.rating || 0).toFixed(1)} / 5.0
+            </span>
+          </div>
         </div>
-        <div className='space-y-0.5 flex-1 min-w-0'>
-          <span className='text-[10px] font-bold text-muted-foreground uppercase tracking-wider block'>
-            Gợi ý đặc biệt
-          </span>
-          <p className='text-xs font-semibold text-foreground leading-snug break-words'>
-            Cà phê phin truyền thống với sữa đặc &amp; bọt kem trứng muối
-          </p>
-          <p className='text-[11px] text-muted-foreground break-words'>
-            Pha chế thủ công từ hạt cà phê đặc sản Đà Lạt chất lượng cao.
-          </p>
+      ) : (
+        <div className='bg-secondary/40 p-3.5 rounded-2xl border border-border/50 flex items-center justify-between text-xs'>
+          <span className='text-secondary-foreground font-medium'>Đánh giá từ cộng đồng</span>
+          <span className='text-muted-foreground text-[11px]'>Chưa có đánh giá nào</span>
         </div>
-      </div>
+      )}
 
-      {/* 3. Amenities Grid */}
-      <div className='grid grid-cols-2 gap-2'>
-        <div className='flex items-center gap-2 bg-secondary/70 border border-border/60 p-2.5 rounded-xl text-secondary-foreground shadow-xs min-w-0'>
-          <Wifi size={14} className='text-amber-gold flex-shrink-0' />
-          <span className='text-xs font-medium truncate'>Wi-Fi Tốc Độ Cao</span>
-        </div>
-        <div className='flex items-center gap-2 bg-secondary/70 border border-border/60 p-2.5 rounded-xl text-secondary-foreground shadow-xs min-w-0'>
-          <Zap size={14} className='text-amber-gold flex-shrink-0' />
-          <span className='text-xs font-medium truncate'>Ổ Cắm Điện</span>
-        </div>
-        <div className='flex items-center gap-2 bg-secondary/70 border border-border/60 p-2.5 rounded-xl text-secondary-foreground shadow-xs min-w-0'>
-          <Wind size={14} className='text-amber-gold flex-shrink-0' />
-          <span className='text-xs font-medium truncate'>Điều Hòa Mát Lạnh</span>
-        </div>
-        <div className='flex items-center gap-2 bg-secondary/70 border border-border/60 p-2.5 rounded-xl text-secondary-foreground shadow-xs min-w-0'>
-          <Sun size={14} className='text-amber-gold flex-shrink-0' />
-          <span className='text-xs font-medium truncate'>Chỗ Ngồi Ngoài Trời</span>
-        </div>
-      </div>
-
-      {/* 4. Explorer Satisfaction Rating Card */}
-      <div className='bg-secondary/40 p-3.5 rounded-2xl border border-border/50 space-y-1.5'>
-        <div className='flex items-center justify-between text-xs'>
-          <span className='text-secondary-foreground font-medium'>Mức Độ Hài Lòng Của Khách Hàng</span>
-          <span className='font-bold text-teal'>{ratingScorePercent}% hài lòng</span>
-        </div>
-        <Progress
-          value={ratingScorePercent}
-          indicatorClassName='bg-gradient-to-r from-teal to-teal-hover'
-          className='h-2 bg-muted border border-border/50'
-        />
-        <div className='flex items-center justify-between text-[11px] text-muted-foreground pt-0.5'>
-          <span>Dựa trên {shop.total_ratings || 120}+ lượt đánh giá đã xác thực</span>
-          <span className='text-foreground font-semibold flex items-center gap-1'>
-            <Star size={11} className='fill-amber-gold text-amber-gold' /> {validRating.toFixed(1)} / 5.0
-          </span>
-        </div>
-      </div>
-
-      {/* 5. Opening Hours & Contact Card */}
+      {/* 3. Opening Hours & Contact Card */}
       <div className='bg-secondary/40 p-3.5 rounded-2xl border border-border/50 space-y-2.5 text-xs transition-all'>
-        <button
-          type='button'
-          onClick={() => setIsHoursExpanded((prev) => !prev)}
-          aria-expanded={isHoursExpanded}
-          aria-controls='weekly-schedule-panel'
-          className='w-full flex items-center justify-between gap-3 text-left group/hours focus:outline-none cursor-pointer'
-        >
-          <div className='flex items-center gap-2.5 min-w-0'>
-            <div className='w-8 h-8 rounded-xl bg-amber-gold/15 border border-amber-gold/25 flex items-center justify-center text-amber-gold flex-shrink-0'>
-              <Clock size={16} />
-            </div>
-            <div className='min-w-0'>
-              <div className='flex items-center gap-1.5'>
-                <span className='font-bold text-foreground text-xs block group-hover/hours:text-primary transition-colors'>
-                  Giờ Mở Cửa
+        {scheduleInfo.hasRealSchedule ? (
+          <>
+            <button
+              type='button'
+              onClick={() => setIsHoursExpanded((prev) => !prev)}
+              aria-expanded={isHoursExpanded}
+              aria-controls='weekly-schedule-panel'
+              className='w-full flex items-center justify-between gap-3 text-left group/hours focus:outline-none cursor-pointer'
+            >
+              <div className='flex items-center gap-2.5 min-w-0'>
+                <div className='w-8 h-8 rounded-xl bg-amber-gold/15 border border-amber-gold/25 flex items-center justify-center text-amber-gold flex-shrink-0'>
+                  <Clock size={16} />
+                </div>
+                <div className='min-w-0'>
+                  <div className='flex items-center gap-1.5'>
+                    <span className='font-bold text-foreground text-xs block group-hover/hours:text-primary transition-colors'>
+                      Giờ Mở Cửa
+                    </span>
+                    <span
+                      className={cn(
+                        'w-1.5 h-1.5 rounded-full',
+                        scheduleInfo.isOpenNow ? 'bg-teal animate-pulse' : 'bg-[#C97A7A]'
+                      )}
+                    />
+                  </div>
+                  <p className='text-[11px] text-muted-foreground truncate'>
+                    <span
+                      className={cn(
+                        'font-semibold',
+                        scheduleInfo.isOpenNow ? 'text-teal' : 'text-[#E8A5A5]'
+                      )}
+                    >
+                      {scheduleInfo.isOpenNow ? 'Đang mở cửa' : 'Đã đóng cửa'}
+                    </span>
+                    {scheduleInfo.todaySchedule && (
+                      <span className='text-muted-foreground'>
+                        {' '}
+                        • Hôm nay: {scheduleInfo.todaySchedule.timeText}
+                      </span>
+                    )}
+                  </p>
+                </div>
+              </div>
+
+              <div className='flex items-center gap-1.5 flex-shrink-0 bg-card border border-border/40 px-2 py-1 rounded-xl group-hover/hours:border-border transition-colors'>
+                <span className='text-[10px] font-semibold text-foreground'>
+                  {isHoursExpanded ? 'Thu gọn' : 'Xem tất cả'}
                 </span>
-                <span
+                <ChevronDown
+                  size={14}
                   className={cn(
-                    'w-1.5 h-1.5 rounded-full',
-                    scheduleInfo.isOpenNow ? 'bg-teal animate-pulse' : 'bg-[#C97A7A]'
+                    'text-muted-foreground group-hover/hours:text-foreground transition-transform duration-300',
+                    isHoursExpanded && 'rotate-180'
                   )}
                 />
               </div>
-              <p className='text-[11px] text-muted-foreground truncate'>
-                <span
-                  className={cn(
-                    'font-semibold',
-                    scheduleInfo.isOpenNow ? 'text-teal' : 'text-[#E8A5A5]'
-                  )}
-                >
-                  {scheduleInfo.isOpenNow ? 'Đang mở cửa' : 'Đã đóng cửa'}
-                </span>
-                {scheduleInfo.todaySchedule && (
-                  <span className='text-muted-foreground'>
-                    {' '}
-                    • Hôm nay: {scheduleInfo.todaySchedule.timeText}
-                  </span>
-                )}
-              </p>
-            </div>
-          </div>
+            </button>
 
-          <div className='flex items-center gap-1.5 flex-shrink-0 bg-card border border-border/40 px-2 py-1 rounded-xl group-hover/hours:border-border transition-colors'>
-            <span className='text-[10px] font-semibold text-foreground'>
-              {isHoursExpanded ? 'Thu gọn' : 'Xem tất cả'}
-            </span>
-            <ChevronDown
-              size={14}
+            <div
+              id='weekly-schedule-panel'
               className={cn(
-                'text-muted-foreground group-hover/hours:text-foreground transition-transform duration-300',
-                isHoursExpanded && 'rotate-180'
+                'grid transition-all duration-300 ease-in-out overflow-hidden',
+                isHoursExpanded
+                  ? 'grid-rows-[1fr] opacity-100 mt-2.5 pt-2.5 border-t border-border/40'
+                  : 'grid-rows-[0fr] opacity-0 mt-0 pt-0'
               )}
-            />
-          </div>
-        </button>
-
-        <div
-          id='weekly-schedule-panel'
-          className={cn(
-            'grid transition-all duration-300 ease-in-out overflow-hidden',
-            isHoursExpanded
-              ? 'grid-rows-[1fr] opacity-100 mt-2.5 pt-2.5 border-t border-border/40'
-              : 'grid-rows-[0fr] opacity-0 mt-0 pt-0'
-          )}
-        >
-          <div className='min-h-0 space-y-2.5'>
-            <div className='flex items-center gap-2 bg-card border border-border/40 px-3 py-2 rounded-xl text-[11px] text-foreground'>
-              <Sparkles size={13} className='text-amber-gold flex-shrink-0' />
-              <span className='font-medium'>
-                <strong className='text-foreground font-semibold'>Thời điểm lý tưởng:</strong>{' '}
-                {scheduleInfo.peakVibeTime} — thời gian tuyệt nhất để thưởng thức cà phê và tận hưởng không gian yên tĩnh.
-              </span>
-            </div>
-
-            <div className='bg-card rounded-xl border border-border/40 p-2 space-y-1'>
-              {scheduleInfo.scheduleList.map((day) => (
-                <div
-                  key={day.dayName}
-                  className={cn(
-                    'flex items-center justify-between text-xs py-1 px-2 rounded-lg transition-colors',
-                    day.isToday
-                      ? 'bg-primary/20 text-foreground font-bold border border-primary/40 shadow-xs'
-                      : 'text-muted-foreground hover:text-foreground'
-                  )}
-                >
-                  <div className='flex items-center gap-2'>
-                    {day.isToday ? (
-                      <span className='w-1.5 h-1.5 rounded-full bg-primary animate-pulse' />
-                    ) : (
-                      <span className='w-1.5 h-1.5 rounded-full bg-muted-foreground/30' />
-                    )}
-                    <span className={cn(day.isToday ? 'text-foreground font-bold' : 'text-muted-foreground')}>{day.dayName}</span>
-                    {day.isToday && (
-                      <span className='text-[9px] uppercase tracking-wider bg-amber-gold text-primary-foreground px-1.5 py-0.2 rounded font-extrabold ml-1'>
-                        Hôm nay
+            >
+              <div className='min-h-0 space-y-2.5'>
+                <div className='bg-card rounded-xl border border-border/40 p-2 space-y-1'>
+                  {scheduleInfo.scheduleList.map((day) => (
+                    <div
+                      key={day.dayName}
+                      className={cn(
+                        'flex items-center justify-between text-xs py-1 px-2 rounded-lg transition-colors',
+                        day.isToday
+                          ? 'bg-primary/20 text-foreground font-bold border border-primary/40 shadow-xs'
+                          : 'text-muted-foreground hover:text-foreground'
+                      )}
+                    >
+                      <div className='flex items-center gap-2'>
+                        {day.isToday ? (
+                          <span className='w-1.5 h-1.5 rounded-full bg-primary animate-pulse' />
+                        ) : (
+                          <span className='w-1.5 h-1.5 rounded-full bg-muted-foreground/30' />
+                        )}
+                        <span className={cn(day.isToday ? 'text-foreground font-bold' : 'text-muted-foreground')}>{day.dayName}</span>
+                        {day.isToday && (
+                          <span className='text-[9px] uppercase tracking-wider bg-amber-gold text-primary-foreground px-1.5 py-0.2 rounded font-extrabold ml-1'>
+                            Hôm nay
+                          </span>
+                        )}
+                      </div>
+                      <span
+                        className={cn(
+                          'text-[11px]',
+                          day.isToday ? 'text-foreground font-bold' : 'text-muted-foreground'
+                        )}
+                      >
+                        {day.timeText}
                       </span>
-                    )}
-                  </div>
-                  <span
-                    className={cn(
-                      'text-[11px]',
-                      day.isToday ? 'text-foreground font-bold' : 'text-muted-foreground'
-                    )}
-                  >
-                    {day.timeText}
-                  </span>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className='w-full flex items-center justify-between gap-3 text-left'>
+            <div className='flex items-center gap-2.5 min-w-0'>
+              <div className='w-8 h-8 rounded-xl bg-amber-gold/15 border border-amber-gold/25 flex items-center justify-center text-amber-gold flex-shrink-0'>
+                <Clock size={16} />
+              </div>
+              <div className='min-w-0'>
+                <div className='flex items-center gap-1.5'>
+                  <span className='font-bold text-foreground text-xs block'>
+                    Giờ Mở Cửa
+                  </span>
+                  {scheduleInfo.isOpenNow !== undefined && (
+                    <span
+                      className={cn(
+                        'w-1.5 h-1.5 rounded-full',
+                        scheduleInfo.isOpenNow ? 'bg-teal animate-pulse' : 'bg-[#C97A7A]'
+                      )}
+                    />
+                  )}
+                </div>
+                <p className='text-[11px] text-muted-foreground truncate'>
+                  {scheduleInfo.isOpenNow !== undefined ? (
+                    <span
+                      className={cn(
+                        'font-semibold',
+                        scheduleInfo.isOpenNow ? 'text-teal' : 'text-[#E8A5A5]'
+                      )}
+                    >
+                      {scheduleInfo.isOpenNow ? 'Đang mở cửa' : 'Đã đóng cửa'}
+                    </span>
+                  ) : (
+                    <span>Chưa có thông tin giờ mở cửa</span>
+                  )}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Contact Info (Phone & Website) */}
         {(shop.phone || shop.website) && (
@@ -485,6 +426,7 @@ export const OverviewTab = memo(function OverviewTab({
           </div>
         )}
       </div>
+
 
       {/* 6. Physical Location & Navigation CTA */}
       <div className='bg-secondary/60 p-4 rounded-2xl border border-border/60 space-y-3.5 shadow-md'>
@@ -559,12 +501,16 @@ export const OverviewTab = memo(function OverviewTab({
                 onClick={() => onSelectShop(simShop)}
                 className='bg-secondary/40 hover:bg-secondary/80 p-2.5 rounded-2xl border border-border/50 flex items-center gap-2.5 cursor-pointer transition-all hover:border-amber-gold/40 group'
               >
-                <div className='w-12 h-12 rounded-xl bg-card overflow-hidden flex-shrink-0 border border-border/40'>
-                  <img
-                    src={simShop.photos?.[0] || SAMPLE_GALLERY[0].url}
-                    alt={simShop.name}
-                    className='w-full h-full object-cover group-hover:scale-105 transition-transform'
-                  />
+                <div className='w-12 h-12 rounded-xl bg-card overflow-hidden flex-shrink-0 border border-border/40 flex items-center justify-center'>
+                  {simShop.photos?.[0] ? (
+                    <img
+                      src={simShop.photos[0]}
+                      alt={simShop.name}
+                      className='w-full h-full object-cover group-hover:scale-105 transition-transform'
+                    />
+                  ) : (
+                    <Coffee size={18} className='text-amber-gold/70' />
+                  )}
                 </div>
                 <div className='min-w-0 flex-1 space-y-0.5'>
                   <span className='font-bold text-foreground text-xs block truncate group-hover:text-amber-gold transition-colors'>
@@ -572,7 +518,7 @@ export const OverviewTab = memo(function OverviewTab({
                   </span>
                   <div className='flex items-center gap-1 text-[10px] text-muted-foreground'>
                     <Star size={10} className='fill-amber-gold text-amber-gold' />
-                    <span>{(simShop.rating || 4.5).toFixed(1)}</span>
+                    <span>{(simShop.rating || 0).toFixed(1)}</span>
                     <span>•</span>
                     <span>{simShop.distance_text || 'Gần đây'}</span>
                   </div>
@@ -601,11 +547,24 @@ export const PhotosTab = memo(function PhotosTab({ shop }: { shop: CoffeeShop })
         category: i === 0 ? 'Nổi bật' : i % 2 === 0 ? 'Không gian' : 'Cà phê'
       }));
     }
-    return SAMPLE_GALLERY.map((g) => ({
-      ...g,
-      title: `${shop.name} - ${g.title}`
-    }));
+    return [];
   }, [shop]);
+
+  if (photoList.length === 0) {
+    return (
+      <div className='flex flex-col items-center justify-center py-10 px-4 text-center space-y-3 bg-secondary/20 rounded-2xl border border-dashed border-border'>
+        <EmptyIllustration type='no-photos' size={140} />
+        <div className='space-y-1 max-w-xs'>
+          <h4 className='text-xs font-bold text-foreground'>Chưa có hình ảnh nào</h4>
+          <p className='text-[11px] text-muted-foreground leading-relaxed'>
+            Quán cà phê này chưa có hình ảnh được đăng tải.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+
 
   return (
     <div className='space-y-4 pb-16'>
@@ -672,7 +631,7 @@ export const ReviewsTab = memo(function ReviewsTab({
 }) {
   const router = useRouter();
   const { user, profile, isAuthenticated } = useAuth();
-  const [reviewsList, setReviewsList] = useState<ReviewItem[]>(MOCK_REVIEWS);
+  const [reviewsList, setReviewsList] = useState<ReviewItem[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [rating, setRating] = useState(5);
   const [hoverRating, setHoverRating] = useState(0);
@@ -681,8 +640,9 @@ export const ReviewsTab = memo(function ReviewsTab({
   const formRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
-  const shopRating = shop.rating && shop.rating > 0 ? shop.rating : 4.8;
-  const totalReviews = shop.total_ratings || 128;
+  const hasShopRating = typeof shop.rating === 'number' && shop.rating > 0;
+  const shopRating = shop.rating || 0;
+  const totalReviews = shop.total_ratings || reviewsList.length;
 
   useEffect(() => {
     if (!isFormOpen) return;
@@ -719,9 +679,7 @@ export const ReviewsTab = memo(function ReviewsTab({
           const formatted: ReviewItem[] = data.reviews.map((r: any) => ({
             id: r.id,
             author: r.profiles?.full_name || r.profiles?.username || 'Tín đồ cà phê',
-            avatar:
-              r.profiles?.avatar_url ||
-              'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80',
+            avatar: r.profiles?.avatar_url || undefined,
             rating: r.rating,
             date: new Date(r.created_at).toLocaleDateString('vi-VN', {
               month: 'short',
@@ -732,11 +690,11 @@ export const ReviewsTab = memo(function ReviewsTab({
             comment: r.comment
           }));
           if (isMounted) {
-            setReviewsList([...formatted, ...MOCK_REVIEWS]);
+            setReviewsList(formatted);
           }
         }
       } catch {
-        // Fallback to MOCK_REVIEWS
+        // No fake fallback
       }
     };
     fetchReviews();
@@ -794,7 +752,7 @@ export const ReviewsTab = memo(function ReviewsTab({
         avatar:
           profile?.avatar_url ||
           user.user_metadata?.avatar_url ||
-          'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80',
+          undefined,
         rating,
         date: 'Vừa xong',
         highlight: 'Đánh giá của bạn',
@@ -816,54 +774,44 @@ export const ReviewsTab = memo(function ReviewsTab({
 
   return (
     <div className='relative flex flex-col flex-1 min-h-full space-y-4'>
-      {/* 1. Rating Breakdown Score Card (Horizontal Row) */}
-      <div className='bg-secondary/50 p-3.5 rounded-2xl border border-border/60 grid grid-cols-[110px_1fr] items-center gap-4 shadow-sm'>
-        <div className='flex flex-col items-center justify-center text-center pr-3 border-r border-border/50'>
-          <span className='text-3xl font-black text-foreground tracking-tight leading-none'>
-            {shopRating.toFixed(1)}
-          </span>
-          <div className='flex items-center gap-0.5 text-amber-gold my-1'>
-            {[1, 2, 3, 4, 5].map((star) => (
-              <Star
-                key={star}
-                size={12}
-                className={
-                  star <= Math.round(shopRating)
-                    ? 'fill-amber-gold text-amber-gold'
-                    : 'text-border'
-                }
-              />
-            ))}
-          </div>
-          <span className='text-[10px] text-muted-foreground font-medium leading-none'>
-            {totalReviews} Đánh giá
-          </span>
-        </div>
-
-        {/* Rating Distribution Bars */}
-        <div className='space-y-1 text-xs text-secondary-foreground'>
-          {[
-            { star: 5, pct: 84 },
-            { star: 4, pct: 11 },
-            { star: 3, pct: 3 },
-            { star: 2, pct: 1 },
-            { star: 1, pct: 1 }
-          ].map((bar) => (
-            <div key={bar.star} className='flex items-center gap-2'>
-              <span className='w-2.5 text-right text-[10px] text-muted-foreground font-bold'>{bar.star}</span>
-              <div className='flex-1 h-1.5 bg-muted rounded-full overflow-hidden border border-border/40'>
-                <div
-                  className='h-full bg-amber-gold rounded-full transition-all duration-500'
-                  style={{ width: `${bar.pct}%` }}
+      {/* 1. Rating Breakdown Score Card */}
+      {hasShopRating || reviewsList.length > 0 ? (
+        <div className='bg-secondary/50 p-3.5 rounded-2xl border border-border/60 grid grid-cols-[110px_1fr] items-center gap-4 shadow-sm'>
+          <div className='flex flex-col items-center justify-center text-center pr-3 border-r border-border/50'>
+            <span className='text-3xl font-black text-foreground tracking-tight leading-none'>
+              {shopRating.toFixed(1)}
+            </span>
+            <div className='flex items-center gap-0.5 text-amber-gold my-1'>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Star
+                  key={star}
+                  size={12}
+                  className={
+                    star <= Math.round(shopRating)
+                      ? 'fill-amber-gold text-amber-gold'
+                      : 'text-border'
+                  }
                 />
-              </div>
-              <span className='w-7 text-right text-[9.5px] text-muted-foreground font-semibold'>
-                {bar.pct}%
-              </span>
+              ))}
             </div>
-          ))}
+            <span className='text-[10px] text-muted-foreground font-medium leading-none'>
+              {totalReviews} Đánh giá
+            </span>
+          </div>
+
+          <div className='space-y-1 text-xs text-secondary-foreground'>
+            <p className='text-xs text-muted-foreground font-medium'>
+              Đánh giá trung bình từ cộng đồng người dùng PhinFind.
+            </p>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className='bg-secondary/40 p-4 rounded-2xl border border-border/60 flex flex-col items-center justify-center text-center space-y-1.5 shadow-xs'>
+          <MessageSquare size={24} className='text-amber-gold' />
+          <span className='text-xs font-bold text-foreground'>Chưa có điểm đánh giá</span>
+          <p className='text-[11px] text-muted-foreground'>Hãy là người đầu tiên để lại đánh giá cho quán này!</p>
+        </div>
+      )}
 
       {/* 2. Inline "Write a Review" Action / Guest Auth Prompt */}
       {!isAuthenticated ? (
@@ -897,16 +845,18 @@ export const ReviewsTab = memo(function ReviewsTab({
       ) : (
         <div className='flex items-center justify-between bg-secondary/40 p-3 rounded-2xl border border-border/60 gap-3 shadow-xs'>
           <div className='flex items-center gap-2.5 min-w-0 flex-1'>
-            <div className='w-8 h-8 rounded-full overflow-hidden border border-amber-gold/40 bg-muted flex-shrink-0'>
-              <img
-                src={
-                  profile?.avatar_url ||
-                  user?.user_metadata?.avatar_url ||
-                  'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80'
-                }
-                alt='Ảnh đại diện của bạn'
-                className='w-full h-full object-cover'
-              />
+            <div className='w-8 h-8 rounded-full overflow-hidden border border-amber-gold/40 bg-muted flex-shrink-0 flex items-center justify-center'>
+              {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
+                <img
+                  src={profile?.avatar_url || user?.user_metadata?.avatar_url}
+                  alt='Ảnh đại diện của bạn'
+                  className='w-full h-full object-cover'
+                />
+              ) : (
+                <div className='w-full h-full bg-amber-gold/20 flex items-center justify-center text-amber-gold text-xs font-bold'>
+                  {(profile?.full_name || user?.user_metadata?.full_name || 'U')[0].toUpperCase()}
+                </div>
+              )}
             </div>
             <div className='min-w-0'>
               <span className='text-xs font-bold text-foreground block truncate'>
@@ -934,60 +884,84 @@ export const ReviewsTab = memo(function ReviewsTab({
         <span className='text-xs font-bold text-foreground block'>
           Đánh giá &amp; Trải nghiệm cộng đồng ({reviewsList.length})
         </span>
-        <div className='grid grid-cols-1 gap-2.5'>
-          {reviewsList.map((rev, idx) => (
-            <div
-              key={rev.id || idx}
-              className={cn(
-                'p-3.5 rounded-2xl border flex flex-col gap-2 transition-all shadow-xs',
-                rev.isUserSubmission
-                  ? 'bg-amber-gold/10 border-amber-gold/40 shadow-sm'
-                  : 'bg-secondary/50 border-border/60 hover:border-border/90'
-              )}
-            >
-              {/* Header Row: Avatar, Author, Verified, Rating, and Date */}
-              <div className='flex items-start justify-between gap-2 min-w-0'>
-                <div className='flex items-center gap-2.5 min-w-0'>
-                  <div className='w-7 h-7 rounded-full overflow-hidden border border-amber-gold/30 bg-muted flex-shrink-0'>
-                    <img
-                      src={
-                        rev.avatar ||
-                        'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80'
-                      }
-                      alt={rev.author}
-                      className='w-full h-full object-cover'
-                    />
-                  </div>
-                  <div className='min-w-0 flex flex-col'>
-                    <div className='flex items-center gap-1.5 min-w-0'>
-                      <span className='font-bold text-foreground text-xs truncate'>{rev.author}</span>
-                      <CheckCircle2 size={12} className='text-teal flex-shrink-0' />
-                      {rev.isUserSubmission && (
-                        <span className='text-[9px] bg-amber-gold text-primary-foreground font-extrabold px-1.5 py-0.2 rounded uppercase tracking-wider flex-shrink-0'>
-                          Bạn
-                        </span>
-                      )}
-                    </div>
-                    <div className='flex items-center gap-0.5 text-amber-gold mt-0.5'>
-                      {[...Array(rev.rating)].map((_, i) => (
-                        <Star key={i} size={10} className='fill-amber-gold text-amber-gold' />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <span className='text-[10px] text-muted-foreground font-medium whitespace-nowrap flex-shrink-0 pt-0.5'>
-                  {rev.date}
-                </span>
-              </div>
-
-              {/* Review Comment Body with natural wrapping */}
-              <p className='text-xs text-secondary-foreground leading-relaxed break-words whitespace-normal'>
-                {rev.comment}
+        {reviewsList.length === 0 ? (
+          <div className='flex flex-col items-center justify-center py-10 px-4 text-center space-y-3 bg-secondary/20 rounded-2xl border border-dashed border-border'>
+            <EmptyIllustration type='no-reviews' size={140} />
+            <div className='space-y-1 max-w-xs'>
+              <h4 className='text-xs font-bold text-foreground'>Chưa có đánh giá nào</h4>
+              <p className='text-[11px] text-muted-foreground leading-relaxed'>
+                Hãy là người đầu tiên trải nghiệm và chia sẻ cảm nhận về quán này cùng cộng đồng!
               </p>
             </div>
-          ))}
-        </div>
+            <Button
+              type='button'
+              onClick={() => setIsFormOpen(true)}
+              className='bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground font-bold text-xs rounded-xl px-4 py-2 h-8 shadow-xs flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer'
+            >
+              <Edit3 size={13} />
+              <span>Viết đánh giá đầu tiên</span>
+            </Button>
+          </div>
+        ) : (
+          <div className='grid grid-cols-1 gap-2.5'>
+            {reviewsList.map((rev, idx) => (
+              <div
+                key={rev.id || idx}
+                className={cn(
+                  'p-3.5 rounded-2xl border flex flex-col gap-2 transition-all shadow-xs',
+                  rev.isUserSubmission
+                    ? 'bg-amber-gold/10 border-amber-gold/40 shadow-sm'
+                    : 'bg-secondary/50 border-border/60 hover:border-border/90'
+                )}
+              >
+                {/* Header Row: Avatar, Author, Verified, Rating, and Date */}
+                <div className='flex items-start justify-between gap-2 min-w-0'>
+                  <div className='flex items-center gap-2.5 min-w-0'>
+                    <div className='w-7 h-7 rounded-full overflow-hidden border border-amber-gold/30 bg-muted flex-shrink-0 flex items-center justify-center'>
+                      {rev.avatar ? (
+                        <img
+                          src={rev.avatar}
+                          alt={rev.author}
+                          className='w-full h-full object-cover'
+                        />
+                      ) : (
+                        <div className='w-full h-full bg-amber-gold/20 flex items-center justify-center text-amber-gold text-[10px] font-bold'>
+                          {rev.author[0]?.toUpperCase() || 'U'}
+                        </div>
+                      )}
+                    </div>
+                    <div className='min-w-0 flex flex-col'>
+                      <div className='flex items-center gap-1.5 min-w-0'>
+                        <span className='font-bold text-foreground text-xs truncate'>{rev.author}</span>
+                        <CheckCircle2 size={12} className='text-teal flex-shrink-0' />
+                        {rev.isUserSubmission && (
+                          <span className='text-[9px] bg-amber-gold text-primary-foreground font-extrabold px-1.5 py-0.2 rounded uppercase tracking-wider flex-shrink-0'>
+                            Bạn
+                          </span>
+                        )}
+                      </div>
+                      <div className='flex items-center gap-0.5 text-amber-gold mt-0.5'>
+                        {[...Array(rev.rating)].map((_, i) => (
+                          <Star key={i} size={10} className='fill-amber-gold text-amber-gold' />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <span className='text-[10px] text-muted-foreground font-medium whitespace-nowrap flex-shrink-0 pt-0.5'>
+                    {rev.date}
+                  </span>
+                </div>
+
+                {/* Review Comment Body with natural wrapping */}
+                <p className='text-xs text-secondary-foreground leading-relaxed break-words whitespace-normal'>
+                  {rev.comment}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
+
 
       {/* 4. Sticky Bottom Review Form with smooth slide-up animation */}
       <AnimatePresence>
@@ -1242,10 +1216,7 @@ export function ShopDetailsContent({
         category: i === 0 ? 'Nổi bật' : i % 2 === 0 ? 'Không gian' : 'Cà phê'
       }));
     }
-    return SAMPLE_GALLERY.map((g) => ({
-      ...g,
-      title: `${shop.name} - ${g.title}`
-    }));
+    return [];
   }, [shop]);
 
   const hasRating = typeof shop.rating === 'number' && shop.rating > 0;
@@ -1263,10 +1234,9 @@ export function ShopDetailsContent({
       <div className={cn('flex-shrink-0 space-y-3.5 select-none', isSidebar ? 'px-4 pt-3' : 'px-4 sm:px-6 pt-2')}>
         {/* 1. Curated Interactive Visual Collage Banner */}
         <div className='relative w-full h-36 sm:h-44 rounded-2xl overflow-hidden bg-card shadow-md border border-border/80 group'>
-          {imgError || !galleryPhotos[0]?.url ? (
-            <div className='w-full h-full flex flex-col items-center justify-center text-muted-foreground bg-card'>
-              <Coffee size={36} className='text-amber-gold mb-2 opacity-80 animate-pulse' />
-              <span className='text-xs font-medium text-foreground'>Tiêu điểm Cà phê PhinFind</span>
+          {imgError || galleryPhotos.length === 0 ? (
+            <div className='w-full h-full relative overflow-hidden'>
+              <ShopCardPlaceholder shopId={shop.place_id || shop.id} shopName={shop.name} />
             </div>
           ) : (
             <div className='w-full h-full flex gap-1.5 p-1.5 bg-card'>
@@ -1353,7 +1323,6 @@ export function ShopDetailsContent({
               variant='outline'
               className='bg-secondary text-amber-gold border-border flex items-center gap-1 font-bold text-[11px] py-0.5 px-2 rounded-xl shadow-xs flex-shrink-0 whitespace-nowrap'
             >
-
               {hasRating ? (
                 <>
                   <Star size={11} className='fill-amber-gold text-amber-gold flex-shrink-0' />
@@ -1367,10 +1336,12 @@ export function ShopDetailsContent({
               ) : (
                 <>
                   <Star size={11} className='text-amber-gold/50 flex-shrink-0' />
-                  <span className='whitespace-nowrap'>4.8 (120+)</span>
+                  <span className='whitespace-nowrap'>Mới</span>
                 </>
               )}
             </Badge>
+
+
 
             <Badge
               variant='outline'

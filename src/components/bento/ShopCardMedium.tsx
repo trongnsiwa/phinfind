@@ -10,6 +10,8 @@ import { cn } from '@/lib/utils';
 import { CardSize } from '@/lib/utils/bentoLayout';
 import { CoffeeShop } from '@/types/shop';
 
+import { ShopCardPlaceholder } from '@/components/common/ShopCardPlaceholder';
+
 interface ShopCardMediumProps {
   shop: CoffeeShop;
   size?: CardSize;
@@ -37,17 +39,9 @@ export const ShopCardMedium = memo(function ShopCardMedium({
     onToggleFavorite?.(shop.place_id);
   };
 
-  const sampleImages = [
-    'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=600&q=80',
-    'https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&w=600&q=80'
-  ];
-  const charCodeSum = (shop.id || shop.place_id || 'shop')
-    .split('')
-    .reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  const coverImage = shop.photos?.[0] || sampleImages[charCodeSum % sampleImages.length];
+  const coverImage = shop.photos?.[0];
 
   const hasRating = typeof shop.rating === 'number' && shop.rating > 0;
-  const hasTotalRatings = typeof shop.total_ratings === 'number' && shop.total_ratings > 0;
   const distanceDisplay =
     shop.distance_text && shop.distance_text !== '0 m' ? shop.distance_text : 'Gần đây';
   const addressDisplay = shop.address?.trim() || 'Chưa có địa chỉ';
@@ -59,23 +53,19 @@ export const ShopCardMedium = memo(function ShopCardMedium({
     >
       {/* Left Media Container */}
       <div className='relative w-[36%] sm:w-[34%] h-full min-h-[130px] rounded-xl overflow-hidden bg-muted border border-border/60 flex-shrink-0'>
-        {!imgError ? (
-          <img
-            src={coverImage}
-            alt={shop.name}
-            onError={() => setImgError(true)}
-            className='w-full h-full object-cover group-hover:scale-108 transition-transform duration-500 ease-out'
-          />
+        {coverImage && !imgError ? (
+          <>
+            <img
+              src={coverImage}
+              alt={shop.name}
+              onError={() => setImgError(true)}
+              className='w-full h-full object-cover group-hover:scale-108 transition-transform duration-500 ease-out'
+            />
+            <div className='absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent pointer-events-none' />
+          </>
         ) : (
-          <div className='w-full h-full flex flex-col items-center justify-center bg-secondary text-muted-foreground gap-1 p-2'>
-            <Coffee size={22} className='text-amber-gold opacity-60' />
-            <span className='text-[10px] font-sans font-bold tracking-wider text-secondary-foreground'>
-              {(shop.name || 'Coffee').slice(0, 2).toUpperCase()}
-            </span>
-          </div>
+          <ShopCardPlaceholder shopId={shop.place_id || shop.id} shopName={shop.name} />
         )}
-
-        <div className='absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent pointer-events-none' />
 
         {/* Floating Status Pill & Verification Badge */}
         <div className='absolute top-2 left-2 z-10 flex flex-col gap-1 items-start'>
@@ -109,7 +99,6 @@ export const ShopCardMedium = memo(function ShopCardMedium({
             </Badge>
           )}
         </div>
-
       </div>
 
       {/* Right Content */}
@@ -157,7 +146,7 @@ export const ShopCardMedium = memo(function ShopCardMedium({
             <span className='text-border'>•</span>
             <span className='flex items-center gap-0.5 text-foreground/80 font-semibold'>
               <Clock size={10} className='text-amber-gold flex-shrink-0' />
-              {isOpen ? 'Mở 07:00' : 'Đóng cửa'}
+              {hasOpenInfo ? (isOpen ? 'Đang mở cửa' : 'Đã đóng cửa') : 'Giờ linh hoạt'}
             </span>
           </div>
         </div>
@@ -165,8 +154,9 @@ export const ShopCardMedium = memo(function ShopCardMedium({
         <div className='flex items-center justify-between text-xs mt-auto pt-1 border-t border-border/50'>
           <span className='text-[11px] text-foreground/80 font-semibold flex items-center gap-1'>
             <Wifi size={10} className='text-amber-gold flex-shrink-0' />
-            {shop.price_range || '25k - 65k'}
+            {shop.price_range || 'Bình dân'}
           </span>
+
 
           <a
             href={`https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lon}`}

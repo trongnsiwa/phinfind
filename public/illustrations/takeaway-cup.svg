@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%" fill="none">
+  <defs>
+    <filter id="soft-shadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#5A4A3A" flood-opacity="0.10" />
+    </filter>
+    
+    <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4A328" />
+      <stop offset="100%" stop-color="#B8860B" />
+    </linearGradient>
+    <linearGradient id="brown-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6F5D4D" />
+      <stop offset="100%" stop-color="#5A4A3A" />
+    </linearGradient>
+    <linearGradient id="cup-body" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#FAF6EE" />
+    </linearGradient>
+  </defs>
+
+  <!-- Steam Wisps Rising Above Sip Hole -->
+  <path d="M 88 44 C 82 32 94 24 88 12" stroke="url(#gold-grad)" stroke-width="3" stroke-linecap="round" />
+  <path d="M 106 40 C 100 28 112 20 106 8" stroke="url(#gold-grad)" stroke-width="3" stroke-linecap="round" />
+
+  <!-- Paper Takeaway Cup (Sharp Geometric Edges) -->
+  <g filter="url(#soft-shadow)">
+    <!-- Cup Body (Tapered Polygon) -->
+    <polygon points="68,76 132,76 124,162 76,162" 
+             fill="url(#cup-body)" stroke="#5A4A3A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+
+    <!-- Corrugated Cardboard Sleeve (Sharp Tapered Polygon) -->
+    <polygon points="70,100 130,100 126,136 74,136" 
+             fill="url(#gold-grad)" stroke="#5A4A3A" stroke-width="3" stroke-linejoin="round" />
+
+    <!-- Sleeve PhinFind Coffee Bean Emblem -->
+    <g transform="translate(100 118)">
+      <rect x="-10" y="-10" width="20" height="20" fill="#FAF6EE" stroke="#5A4A3A" stroke-width="2" />
+      <path d="M -4 -4 C -7 0 -4 4 0 4 C 4 4 7 0 4 -4 C 0 -6 -4 -4 -4 -4 Z" fill="url(#brown-grad)" />
+      <path d="M 0 -4 Q -1 0 0 4" stroke="#FAF6EE" stroke-width="1" stroke-linecap="round" />
+    </g>
+
+    <!-- Cup Rim Collar (Sharp Rectangle) -->
+    <rect x="64" y="70" width="72" height="6" fill="#FFFFFF" stroke="#5A4A3A" stroke-width="3" stroke-linejoin="round" />
+
+    <!-- Barista Sip Lid (Sharp Trapezoid) -->
+    <polygon points="68,70 72,54 128,54 132,70" fill="url(#brown-grad)" stroke="#5A4A3A" stroke-width="3" stroke-linejoin="round" />
+    <!-- Sip Spout Notch (Sharp Rectangle) -->
+    <rect x="76" y="48" width="12" height="6" fill="url(#gold-grad)" stroke="#5A4A3A" stroke-width="2.5" />
+  </g>
+
+  <!-- Sparkles -->
+  <path d="M 158 66 L 160 71 L 165 73 L 160 75 L 158 80 L 156 75 L 151 73 L 156 71 Z" fill="url(#gold-grad)" />
+  <circle cx="42" cy="116" r="3" fill="#B8860B" opacity="0.5" />
+</svg>

@@ -10,6 +10,8 @@ import { cn } from '@/lib/utils';
 import { CardSize } from '@/lib/utils/bentoLayout';
 import { CoffeeShop } from '@/types/shop';
 
+import { ShopCardPlaceholder } from '@/components/common/ShopCardPlaceholder';
+
 interface ShopCardSmallProps {
   shop: CoffeeShop;
   size?: CardSize;
@@ -37,15 +39,7 @@ export const ShopCardSmall = memo(function ShopCardSmall({
     onToggleFavorite?.(shop.place_id);
   };
 
-  const sampleImages = [
-    'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=500&q=80',
-    'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=500&q=80',
-    'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=500&q=80'
-  ];
-  const charCodeSum = (shop.id || shop.place_id || 'shop')
-    .split('')
-    .reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  const coverImage = shop.photos?.[0] || sampleImages[charCodeSum % sampleImages.length];
+  const coverImage = shop.photos?.[0];
 
   const hasRating = typeof shop.rating === 'number' && shop.rating > 0;
   const distanceDisplay =
@@ -59,23 +53,20 @@ export const ShopCardSmall = memo(function ShopCardSmall({
     >
       {/* Compact Image Container */}
       <div className="relative w-full h-24 sm:h-28 flex-shrink-0 rounded-xl overflow-hidden bg-muted border border-border/60">
-        {!imgError ? (
-          <img
-            src={coverImage}
-            alt={shop.name}
-            onError={() => setImgError(true)}
-            className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500 ease-out"
-          />
+        {coverImage && !imgError ? (
+          <>
+            <img
+              src={coverImage}
+              alt={shop.name}
+              onError={() => setImgError(true)}
+              className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500 ease-out"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent pointer-events-none" />
+          </>
         ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center bg-secondary text-muted-foreground gap-1">
-            <Coffee size={20} className="text-amber-gold opacity-60" />
-            <span className="text-[10px] font-sans font-bold tracking-wider text-secondary-foreground">
-              {(shop.name || 'Coffee').slice(0, 2).toUpperCase()}
-            </span>
-          </div>
+          <ShopCardPlaceholder shopId={shop.place_id || shop.id} shopName={shop.name} />
         )}
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent pointer-events-none" />
 
         {/* Floating Status Pill & Verification Badge */}
         <div className="absolute top-2 left-2 z-10 flex flex-col gap-1 items-start">
@@ -110,7 +101,6 @@ export const ShopCardSmall = memo(function ShopCardSmall({
           )}
         </div>
 
-
         {/* Floating Favorite Button */}
         <Button
           variant="ghost"
@@ -141,11 +131,12 @@ export const ShopCardSmall = memo(function ShopCardSmall({
 
         <div className="flex items-center gap-1.5 text-[10px] text-foreground/80 font-semibold mt-0.5">
           <Clock size={10} className="text-amber-gold flex-shrink-0" />
-          <span className="truncate">{isOpen ? 'Đóng 22:30' : 'Mở 07:00'}</span>
+          <span className="truncate">{hasOpenInfo ? (isOpen ? 'Đang mở cửa' : 'Đã đóng cửa') : 'Giờ linh hoạt'}</span>
           <span className="text-border">•</span>
           <Wifi size={10} className="text-amber-gold flex-shrink-0" />
-          <span className="truncate">{shop.price_range || '25k - 65k'}</span>
+          <span className="truncate">{shop.price_range || 'Bình dân'}</span>
         </div>
+
 
         <div className="flex items-center justify-between text-[10px] pt-1 border-t border-border/50">
           <span className="font-bold text-amber-gold flex items-center gap-1 bg-secondary border border-border/80 px-1.5 py-0.5 rounded-md shadow-xs">

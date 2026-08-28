@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%" fill="none">
+  <defs>
+    <filter id="soft-shadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#5A4A3A" flood-opacity="0.10" />
+    </filter>
+    
+    <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4A328" />
+      <stop offset="100%" stop-color="#B8860B" />
+    </linearGradient>
+    <linearGradient id="brown-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6F5D4D" />
+      <stop offset="100%" stop-color="#5A4A3A" />
+    </linearGradient>
+  </defs>
+
+  <!-- Sharp Geometric Cafe Window (Background) -->
+  <g>
+    <!-- Sharp Window Frame -->
+    <rect x="52" y="44" width="46" height="74" fill="#FFFFFF" stroke="#5A4A3A" stroke-width="3" stroke-linejoin="round" />
+    <!-- Window Mullions -->
+    <line x1="75" y1="44" x2="75" y2="118" stroke="#E5DAC9" stroke-width="2.5" />
+    <line x1="52" y1="81" x2="98" y2="81" stroke="#E5DAC9" stroke-width="2.5" />
+    <!-- Sun outside window -->
+    <circle cx="84" cy="64" r="6" fill="url(#gold-grad)" opacity="0.6" />
+  </g>
+
+  <!-- Hanging Pendant Lamp (Right Side, Sharp Conical Shade) -->
+  <g>
+    <!-- Cord -->
+    <line x1="142" y1="28" x2="142" y2="56" stroke="#5A4A3A" stroke-width="2.5" />
+    <!-- Sharp Conical Lamp Shade -->
+    <polygon points="128,72 142,56 156,72" fill="url(#gold-grad)" stroke="#5A4A3A" stroke-width="3" stroke-linejoin="round" />
+    <!-- Light Glow -->
+    <polygon points="126,74 158,74 154,78 130,78" fill="#FFF5D6" />
+    <line x1="130" y1="82" x2="122" y2="98" stroke="url(#gold-grad)" stroke-width="2" stroke-linecap="round" stroke-dasharray="3 3" opacity="0.6" />
+    <line x1="154" y1="82" x2="162" y2="98" stroke="url(#gold-grad)" stroke-width="2" stroke-linecap="round" stroke-dasharray="3 3" opacity="0.6" />
+  </g>
+
+  <!-- Coffee Counter Bar (Crisp 90-degree Edges) -->
+  <g filter="url(#soft-shadow)">
+    <!-- Counter Top Wooden Slab -->
+    <rect x="36" y="120" width="128" height="12" fill="url(#gold-grad)" stroke="#5A4A3A" stroke-width="3" stroke-linejoin="round" />
+    <!-- Counter Lower Body -->
+    <rect x="42" y="132" width="116" height="34" fill="url(#brown-grad)" stroke="#5A4A3A" stroke-width="3" stroke-linejoin="round" />
+    <!-- Vertical Wood Slats on Counter Front -->
+    <line x1="71" y1="134" x2="71" y2="164" stroke="#483A2E" stroke-width="2" />
+    <line x1="100" y1="134" x2="100" y2="164" stroke="#483A2E" stroke-width="2" />
+    <line x1="129" y1="134" x2="129" y2="164" stroke="#483A2E" stroke-width="2" />
+  </g>
+
+  <!-- Countertop Items: Steaming Cup & Sharp Pastry Case -->
+  <g filter="url(#soft-shadow)">
+    <!-- Small Espresso Cup with Steam -->
+    <rect x="58" y="108" width="12" height="12" fill="#FFFFFF" stroke="#5A4A3A" stroke-width="2.5" />
+    <path d="M 64 104 C 62 100 66 96 64 92" stroke="url(#gold-grad)" stroke-width="2" stroke-linecap="round" />
+
+    <!-- Glass Pastry Display Box -->
+    <polygon points="118,120 118,106 138,106 138,120" fill="#FFFFFF" fill-opacity="0.8" stroke="#5A4A3A" stroke-width="2.5" stroke-linejoin="round" />
+    <circle cx="128" cy="104" r="2.5" fill="url(#gold-grad)" stroke="#5A4A3A" stroke-width="2" />
+    <polygon points="122,116 128,110 134,116" fill="url(#gold-grad)" />
+  </g>
+
+  <!-- High Bar Stool (Sharp Rectangular Seat) -->
+  <g>
+    <!-- Stool Seat -->
+    <rect x="146" y="136" width="20" height="4" fill="url(#gold-grad)" stroke="#5A4A3A" stroke-width="2.5" />
+    <!-- Legs -->
+    <line x1="150" y1="140" x2="146" y2="166" stroke="#5A4A3A" stroke-width="3" stroke-linecap="round" />
+    <line x1="162" y1="140" x2="166" y2="166" stroke="#5A4A3A" stroke-width="3" stroke-linecap="round" />
+    <!-- Rung -->
+    <line x1="148" y1="154" x2="164" y2="154" stroke="#5A4A3A" stroke-width="2.5" stroke-linecap="round" />
+  </g>
+</svg>

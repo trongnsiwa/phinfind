@@ -63,9 +63,12 @@ async function seedShops() {
         categories: props.categories || ['catering.cafe'],
         opening_hours: {
           open_now: props.opening_hours?.open_now ?? false
-        }
+        },
+        verified: true,
+        created_by: null
       };
     });
+
 
     console.log(`✅ Fetched ${shops.length} shops. Upserting into Supabase...`);
 

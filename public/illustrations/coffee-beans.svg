@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%" fill="none">
+  <defs>
+    <filter id="soft-shadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#5A4A3A" flood-opacity="0.10" />
+    </filter>
+    
+    <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4A328" />
+      <stop offset="100%" stop-color="#B8860B" />
+    </linearGradient>
+    <linearGradient id="brown-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6F5D4D" />
+      <stop offset="100%" stop-color="#5A4A3A" />
+    </linearGradient>
+    <linearGradient id="roast-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8C735D" />
+      <stop offset="100%" stop-color="#5A4A3A" />
+    </linearGradient>
+  </defs>
+
+  <!-- Botanical Leaves (Background) -->
+  <g>
+    <!-- Leaf 1 (Left) -->
+    <path d="M 68 80 C 44 76 38 52 38 52 C 38 52 62 56 68 80 Z" fill="#E8DFD1" fill-opacity="0.7" stroke="#5A4A3A" stroke-width="3" stroke-linejoin="round" />
+    <path d="M 38 52 Q 54 64 68 80" stroke="#5A4A3A" stroke-width="2.5" stroke-linecap="round" />
+
+    <!-- Leaf 2 (Right) -->
+    <path d="M 132 80 C 156 76 162 52 162 52 C 162 52 138 56 132 80 Z" fill="url(#gold-grad)" fill-opacity="0.4" stroke="#5A4A3A" stroke-width="3" stroke-linejoin="round" />
+    <path d="M 162 52 Q 146 64 132 80" stroke="#5A4A3A" stroke-width="2.5" stroke-linecap="round" />
+  </g>
+
+  <!-- Hero Coffee Beans -->
+  <!-- Center-Left Large Roasted Bean (Tilted -25deg) -->
+  <g filter="url(#soft-shadow)" transform="rotate(-25 78 104)">
+    <path d="M 78 78 C 92 78 100 88 100 104 C 100 120 92 130 78 130 C 64 130 56 120 56 104 C 56 88 64 78 78 78 Z" 
+          fill="url(#brown-grad)" stroke="#5A4A3A" stroke-width="3" stroke-linejoin="round" />
+    <!-- S-Curve Center Crease -->
+    <path d="M 78 82 Q 74 94 80 104 Q 86 114 78 126" stroke="#FAF5ED" stroke-width="3" stroke-linecap="round" />
+  </g>
+
+  <!-- Center-Right Large Amber-Roasted Bean (Tilted 35deg) -->
+  <g filter="url(#soft-shadow)" transform="rotate(35 124 102)">
+    <path d="M 124 78 C 138 78 146 88 146 102 C 146 118 138 126 124 126 C 110 126 102 118 102 102 C 102 88 110 78 124 78 Z" 
+          fill="url(#gold-grad)" stroke="#5A4A3A" stroke-width="3" stroke-linejoin="round" />
+    <!-- S-Curve Center Crease -->
+    <path d="M 124 82 Q 120 92 126 102 Q 132 112 124 122" stroke="#5A4A3A" stroke-width="3" stroke-linecap="round" />
+  </g>
+
+  <!-- Top Center Medium Bean (Tilted 10deg) -->
+  <g filter="url(#soft-shadow)" transform="rotate(10 100 62)">
+    <path d="M 100 46 C 110 46 116 54 116 64 C 116 76 110 82 100 82 C 90 82 84 76 84 64 C 84 54 90 46 100 46 Z" 
+          fill="url(#roast-grad)" stroke="#5A4A3A" stroke-width="2.5" stroke-linejoin="round" />
+    <!-- S-Curve Center Crease -->
+    <path d="M 100 50 Q 97 58 101 64 Q 105 72 100 78" stroke="#FAF5ED" stroke-width="2.5" stroke-linecap="round" />
+  </g>
+
+  <!-- Small Scattered Accent Beans -->
+  <!-- Bottom Left Small Bean -->
+  <g transform="rotate(50 56 142)">
+    <path d="M 56 132 C 63 132 67 137 67 142 C 67 148 63 152 56 152 C 49 152 45 148 45 142 C 45 137 49 132 56 132 Z" 
+          fill="url(#gold-grad)" stroke="#5A4A3A" stroke-width="2" />
+    <path d="M 56 135 Q 54 140 57 142 Q 60 146 56 149" stroke="#5A4A3A" stroke-width="2" stroke-linecap="round" />
+  </g>
+
+  <!-- Bottom Right Small Bean -->
+  <g transform="rotate(-40 148 140)">
+    <path d="M 148 130 C 155 130 159 135 159 140 C 159 146 155 150 148 150 C 141 150 137 146 137 140 C 137 135 141 130 148 130 Z" 
+          fill="url(#brown-grad)" stroke="#5A4A3A" stroke-width="2" />
+    <path d="M 148 133 Q 146 138 149 140 Q 152 144 148 147" stroke="#FAF5ED" stroke-width="2" stroke-linecap="round" />
+  </g>
+
+  <!-- Diamond Sparkles -->
+  <path d="M 100 148 L 102 153 L 107 155 L 102 157 L 100 162 L 98 157 L 93 155 L 98 153 Z" fill="url(#gold-grad)" />
+  <circle cx="152" cy="78" r="2.5" fill="#B8860B" opacity="0.5" />
+</svg>

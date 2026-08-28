@@ -25,6 +25,9 @@ import { CardSize } from '@/lib/utils/bentoLayout';
 import { APP_ROUTES } from '@/lib/utils/constants';
 import { CoffeeShop } from '@/types/shop';
 
+import { ShopCardPlaceholder } from '@/components/common/ShopCardPlaceholder';
+import { formatShopCategoryTagline } from '@/lib/utils/placeholders';
+
 interface ShopCardFeaturedProps {
   shop: CoffeeShop;
   size?: CardSize;
@@ -52,49 +55,13 @@ export const ShopCardFeatured = memo(function ShopCardFeatured({
     onToggleFavorite?.(shop.place_id);
   };
 
-  const sampleGallery = [
-    'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1200&q=80',
-    'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=600&q=80',
-    'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=600&q=80',
-    'https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&w=600&q=80'
-  ];
-
   const rawPhotos = shop.photos && shop.photos.length > 0 ? shop.photos : [];
-  const photo1 = rawPhotos[0] || sampleGallery[0];
-  const photo2 = rawPhotos[1] || sampleGallery[1];
-  const photo3 = rawPhotos[2] || sampleGallery[2];
-  const extraCount = Math.max(rawPhotos.length > 3 ? rawPhotos.length - 2 : 2, 2);
+  const photo1 = rawPhotos[0];
+  const photo2 = rawPhotos[1];
+  const photo3 = rawPhotos[2];
+  const extraCount = Math.max(rawPhotos.length > 3 ? rawPhotos.length - 2 : 0, 0);
 
-  const formatCategories = () => {
-    if (!shop.categories || shop.categories.length === 0) {
-      return 'Quán cà phê được yêu thích với cà phê phin đặc trưng, hạt rang mộc & không gian yên tĩnh.';
-    }
-    const cleaned = shop.categories
-      .map((c) =>
-        c
-          .replace(/^catering\./i, '')
-          .replace(/^catering/i, '')
-          .replace(/^cafe\./i, '')
-          .replace(/_/g, ' ')
-          .replace(/\./g, ' ')
-          .trim()
-      )
-      .filter(
-        (c) =>
-          c.length > 0 &&
-          !['cafe', 'coffee', 'catering', 'coffee shop', 'internet access', 'cafe coffee'].includes(
-            c.toLowerCase()
-          )
-      )
-      .map((c) => c.charAt(0).toUpperCase() + c.slice(1));
-
-    if (cleaned.length === 0) {
-      return 'Quán cà phê được yêu thích với cà phê phin đặc trưng, hạt rang mộc & không gian yên tĩnh.';
-    }
-    return `Cà phê đặc sản ${cleaned.slice(0, 2).join(' • ')} với hương vị nguyên bản & không gian ấm cúng.`;
-  };
-
-  const categoryTagline = formatCategories();
+  const categoryTagline = formatShopCategoryTagline(shop.categories);
   const hasRating = typeof shop.rating === 'number' && shop.rating > 0;
   const hasTotalRatings = typeof shop.total_ratings === 'number' && shop.total_ratings > 0;
   const distanceDisplay =
@@ -108,50 +75,53 @@ export const ShopCardFeatured = memo(function ShopCardFeatured({
     >
       {/* 2-Column Magazine-Style Gallery (60% Left, 40% Right Stacked) - Stretching flex-1 */}
       <div className="relative w-full flex-1 min-h-[200px] p-3.5 flex gap-2.5 bg-muted/60 border-b border-border/60 overflow-hidden">
-        {/* Left Column (60% Width) - Primary Image */}
-        <div className="w-[60%] h-full rounded-xl overflow-hidden relative bg-secondary border border-border/40">
-          {!imgError ? (
-            <img
-              src={photo1}
-              alt={`${shop.name} main`}
-              onError={() => setImgError(true)}
-              className="w-full h-full object-cover group-hover:scale-106 transition-transform duration-700 ease-out"
-            />
-          ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center bg-secondary text-muted-foreground gap-1 p-2">
-              <Coffee size={24} className="text-amber-gold opacity-60" />
-              <span className="text-xs font-sans font-bold text-secondary-foreground">
-                {shop.name}
-              </span>
+        {photo1 && !imgError ? (
+          <>
+            {/* Left Column (60% Width) - Primary Image */}
+            <div className="flex-1 h-full rounded-xl overflow-hidden relative bg-secondary border border-border/40">
+              <img
+                src={photo1}
+                alt={`${shop.name} main`}
+                onError={() => setImgError(true)}
+                className="w-full h-full object-cover group-hover:scale-106 transition-transform duration-700 ease-out"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent pointer-events-none" />
             </div>
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent pointer-events-none" />
-        </div>
 
-        {/* Right Column (40% Width) - Two 50% Height Rows */}
-        <div className="w-[40%] h-full flex flex-col gap-2.5">
-          {/* Top Row (50% Height) */}
-          <div className="h-1/2 rounded-lg overflow-hidden relative bg-secondary border border-border/40">
-            <img
-              src={photo2}
-              alt={`${shop.name} secondary`}
-              className="w-full h-full object-cover group-hover:scale-106 transition-transform duration-700 ease-out"
-            />
+            {/* Right Column (40% Width) if photos exist */}
+            {photo2 && (
+              <div className="w-[35%] h-full flex flex-col gap-2.5">
+                <div className="h-1/2 rounded-lg overflow-hidden relative bg-secondary border border-border/40">
+                  <img
+                    src={photo2}
+                    alt={`${shop.name} secondary`}
+                    className="w-full h-full object-cover group-hover:scale-106 transition-transform duration-700 ease-out"
+                  />
+                </div>
+                {photo3 && (
+                  <div className="h-1/2 rounded-lg overflow-hidden relative bg-secondary border border-border/40">
+                    <img
+                      src={photo3}
+                      alt={`${shop.name} detail`}
+                      className="w-full h-full object-cover group-hover:scale-106 transition-transform duration-700 ease-out"
+                    />
+                    {extraCount > 0 && (
+                      <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex items-center justify-center text-amber-gold font-bold text-xs tracking-tight gap-1 hover:bg-black/50 transition-colors">
+                        <Images size={12} className="text-amber-gold" />
+                        <span>+{extraCount} ảnh</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="w-full h-full rounded-xl overflow-hidden relative border border-border/40">
+            <ShopCardPlaceholder shopId={shop.place_id || shop.id} shopName={shop.name} />
           </div>
+        )}
 
-          {/* Bottom Row (50% Height) with +N More Overlay */}
-          <div className="h-1/2 rounded-lg overflow-hidden relative bg-secondary border border-border/40">
-            <img
-              src={photo3}
-              alt={`${shop.name} detail`}
-              className="w-full h-full object-cover group-hover:scale-106 transition-transform duration-700 ease-out"
-            />
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex items-center justify-center text-amber-gold font-bold text-xs tracking-tight gap-1 hover:bg-black/50 transition-colors">
-              <Images size={12} className="text-amber-gold" />
-              <span>+{extraCount} ảnh</span>
-            </div>
-          </div>
-        </div>
 
         {/* Floating Badges on Top-Left */}
         <div className="absolute top-6 left-6 z-10 flex items-center gap-2 flex-wrap">
@@ -173,7 +143,6 @@ export const ShopCardFeatured = memo(function ShopCardFeatured({
           </Badge>
 
           {hasOpenInfo && (
-
             <Badge
               variant="outline"
               className={cn(
@@ -261,14 +230,15 @@ export const ShopCardFeatured = memo(function ShopCardFeatured({
 
           <div className="flex items-center gap-1.5 bg-background/90 px-2.5 py-1.5 rounded-lg border border-border/50 text-foreground font-semibold shadow-xs">
             <Clock size={13} className="text-amber-gold flex-shrink-0" />
-            <span className="truncate text-xs">{isOpen ? 'Đóng 22:30' : 'Mở 07:00'}</span>
+            <span className="truncate text-xs">{hasOpenInfo ? (isOpen ? 'Đang mở cửa' : 'Đã đóng cửa') : 'Giờ linh hoạt'}</span>
           </div>
 
           <div className="flex items-center gap-1.5 bg-background/90 px-2.5 py-1.5 rounded-lg border border-border/50 text-foreground font-semibold shadow-xs">
             <Wifi size={13} className="text-amber-gold flex-shrink-0" />
-            <span className="truncate text-xs">{shop.price_range || '25k - 65k'}</span>
+            <span className="truncate text-xs">{shop.price_range || 'Bình dân'}</span>
           </div>
         </div>
+
 
         {/* Section 4: CTA Action Row with Visual Separator Line */}
         <div className="flex items-center justify-end gap-2 mt-auto pt-1.5 border-t border-border/60">

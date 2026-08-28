@@ -47,14 +47,15 @@ export function mapDbShopToCoffeeShop(
     distance_text: formatDistanceText(distance),
     rating: typeof row.rating === 'number' ? row.rating : parseFloat(row.rating || '0'),
     total_ratings: Number(row.total_ratings) || 0,
-    opening_hours: row.opening_hours || { open_now: true },
+    opening_hours: row.opening_hours || undefined,
     price_range: row.price_range || undefined,
     photos: Array.isArray(row.photos) ? row.photos : [],
     website: row.website || undefined,
     phone: row.phone || undefined,
-    categories: Array.isArray(row.categories) ? row.categories : ['catering.cafe'],
+    categories: Array.isArray(row.categories) ? row.categories : [],
     created_by: row.created_by || null,
     verified: typeof row.verified === 'boolean' ? row.verified : (row.created_by ? false : true),
+
   };
 }
 

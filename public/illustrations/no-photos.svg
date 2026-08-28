@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%" fill="none">
+  <defs>
+    <!-- Soft Elevation Shadow -->
+    <filter id="soft-shadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#5A4A3A" flood-opacity="0.10" />
+    </filter>
+    
+    <!-- Gradients -->
+    <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4A328" />
+      <stop offset="100%" stop-color="#B8860B" />
+    </linearGradient>
+    <linearGradient id="brown-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#735E4B" />
+      <stop offset="100%" stop-color="#5A4A3A" />
+    </linearGradient>
+    <linearGradient id="cream-card" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#F8F5F0" />
+    </linearGradient>
+  </defs>
+
+  <!-- Sharp Diamond Sparkles -->
+  <path d="M 154 36 L 156 42 L 162 44 L 156 46 L 154 52 L 152 46 L 146 44 L 152 42 Z" fill="url(#gold-grad)" />
+  <circle cx="42" cy="56" r="3" fill="#B8860B" opacity="0.5" />
+  <circle cx="162" cy="152" r="2.5" fill="#B8860B" opacity="0.4" />
+
+  <!-- Back Photo Card (Tilted with Sharp Corners) -->
+  <g transform="rotate(-8 100 102)">
+    <rect x="52" y="56" width="96" height="82" fill="#EFE8DC" stroke="#5A4A3A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.7" />
+  </g>
+
+  <!-- Main Photo Frame (Crisp 90-degree Corners) -->
+  <g filter="url(#soft-shadow)">
+    <!-- Outer Frame -->
+    <rect x="50" y="58" width="100" height="86" fill="url(#cream-card)" stroke="#5A4A3A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+    
+    <!-- Photo Inner Canvas -->
+    <rect x="60" y="68" width="80" height="54" fill="#F4EFE6" stroke="#DCD2C3" stroke-width="1.5" />
+    
+    <!-- Inner Landscape: Sun -->
+    <circle cx="78" cy="84" r="7" fill="url(#gold-grad)" />
+    
+    <!-- Inner Landscape: Sharp Mountains -->
+    <path d="M 60 122 L 82 96 L 100 114 L 118 90 L 140 122 Z" fill="#E5DAC9" stroke="#5A4A3A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+
+  <!-- Empty Indicator Badge (Sharp Square with Slash) -->
+  <g filter="url(#soft-shadow)">
+    <rect x="122" y="116" width="32" height="32" fill="url(#cream-card)" stroke="#5A4A3A" stroke-width="3" stroke-linejoin="round" />
+    <rect x="128" y="122" width="20" height="20" stroke="url(#gold-grad)" stroke-width="2" stroke-dasharray="3 3" fill="none" />
+    <line x1="126" y1="144" x2="150" y2="120" stroke="#B8860B" stroke-width="3" stroke-linecap="round" />
+  </g>
+</svg>

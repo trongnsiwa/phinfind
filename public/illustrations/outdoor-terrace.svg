@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%" fill="none">
+  <defs>
+    <filter id="soft-shadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#5A4A3A" flood-opacity="0.10" />
+    </filter>
+    
+    <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4A328" />
+      <stop offset="100%" stop-color="#B8860B" />
+    </linearGradient>
+    <linearGradient id="brown-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6F5D4D" />
+      <stop offset="100%" stop-color="#5A4A3A" />
+    </linearGradient>
+  </defs>
+
+  <!-- Grounding Terrace Deck Line -->
+  <line x1="32" y1="166" x2="168" y2="166" stroke="#E2D7C5" stroke-width="3" stroke-linecap="round" />
+
+  <!-- Sun Rays -->
+  <circle cx="156" cy="42" r="10" fill="url(#gold-grad)" opacity="0.6" />
+  <line x1="156" y1="26" x2="156" y2="20" stroke="url(#gold-grad)" stroke-width="2" stroke-linecap="round" opacity="0.5" />
+  <line x1="172" y1="42" x2="178" y2="42" stroke="url(#gold-grad)" stroke-width="2" stroke-linecap="round" opacity="0.5" />
+  <line x1="168" y1="30" x2="172" y2="26" stroke="url(#gold-grad)" stroke-width="2" stroke-linecap="round" opacity="0.5" />
+
+  <!-- Patio Umbrella (Sharp Geometric Canopy Panels) -->
+  <g filter="url(#soft-shadow)">
+    <!-- Umbrella Mast Pole -->
+    <line x1="100" y1="52" x2="100" y2="166" stroke="#5A4A3A" stroke-width="3.5" stroke-linecap="round" />
+
+    <!-- Sharp Umbrella Panels -->
+    <!-- Left Cream Panel -->
+    <polygon points="44,82 100,52 100,84 44,84" fill="#FAF6EE" stroke="#5A4A3A" stroke-width="3" stroke-linejoin="round" />
+    <!-- Left Gold Striped Panel -->
+    <polygon points="64,74 100,52 100,84 64,84" fill="url(#gold-grad)" stroke="#5A4A3A" stroke-width="3" stroke-linejoin="round" />
+    <!-- Right Cream Panel -->
+    <polygon points="156,82 100,52 100,84 156,84" fill="#FAF6EE" stroke="#5A4A3A" stroke-width="3" stroke-linejoin="round" />
+    <!-- Right Gold Striped Panel -->
+    <polygon points="136,74 100,52 100,84 136,84" fill="url(#gold-grad)" stroke="#5A4A3A" stroke-width="3" stroke-linejoin="round" />
+
+    <!-- Umbrella Finial / Cap -->
+    <rect x="97" y="48" width="6" height="6" fill="url(#brown-grad)" stroke="#5A4A3A" stroke-width="2" />
+  </g>
+
+  <!-- Left Terrace Chair (Sharp Rectangles) -->
+  <g>
+    <polyline points="48,136 48,108 62,108 62,136" stroke="#5A4A3A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+    <rect x="46" y="136" width="20" height="5" fill="url(#brown-grad)" stroke="#5A4A3A" stroke-width="2.5" />
+    <line x1="50" y1="141" x2="48" y2="166" stroke="#5A4A3A" stroke-width="3" stroke-linecap="round" />
+    <line x1="62" y1="141" x2="64" y2="166" stroke="#5A4A3A" stroke-width="3" stroke-linecap="round" />
+  </g>
+
+  <!-- Right Terrace Chair (Sharp Rectangles) -->
+  <g>
+    <polyline points="152,136 152,108 138,108 138,136" stroke="#5A4A3A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+    <rect x="134" y="136" width="20" height="5" fill="url(#brown-grad)" stroke="#5A4A3A" stroke-width="2.5" />
+    <line x1="138" y1="141" x2="136" y2="166" stroke="#5A4A3A" stroke-width="3" stroke-linecap="round" />
+    <line x1="150" y1="141" x2="152" y2="166" stroke="#5A4A3A" stroke-width="3" stroke-linecap="round" />
+  </g>
+
+  <!-- Center Bistro Table (Sharp Rectangular Surface) -->
+  <g filter="url(#soft-shadow)">
+    <rect x="74" y="126" width="52" height="6" fill="#FFFFFF" stroke="#5A4A3A" stroke-width="3" stroke-linejoin="round" />
+    <!-- Mini Cup on Table -->
+    <rect x="94" y="118" width="10" height="8" fill="url(#gold-grad)" stroke="#5A4A3A" stroke-width="2" />
+    <path d="M 99 115 C 97 112 101 109 99 106" stroke="url(#gold-grad)" stroke-width="1.5" stroke-linecap="round" />
+  </g>
+</svg>

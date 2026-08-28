@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%" fill="none">
+  <defs>
+    <filter id="soft-shadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#5A4A3A" flood-opacity="0.10" />
+    </filter>
+    
+    <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4A328" />
+      <stop offset="100%" stop-color="#B8860B" />
+    </linearGradient>
+    <linearGradient id="bubble-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#F8F5F0" />
+    </linearGradient>
+  </defs>
+
+  <!-- Decorative Sparkles -->
+  <path d="M 40 48 L 42 54 L 48 56 L 42 58 L 40 64 L 38 58 L 32 56 L 38 54 Z" fill="url(#gold-grad)" />
+  <circle cx="166" cy="62" r="3" fill="#B8860B" opacity="0.5" />
+  <circle cx="44" cy="150" r="2.5" fill="#B8860B" opacity="0.4" />
+
+  <!-- Crisp Geometric Speech Bubble (Sharp 90-degree Edges) -->
+  <g filter="url(#soft-shadow)">
+    <!-- Speech Bubble Main Path -->
+    <path d="M 36 48 L 164 48 L 164 128 L 94 128 L 66 156 L 66 128 L 36 128 Z" 
+          fill="url(#bubble-grad)" stroke="#5A4A3A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+    
+    <!-- Star Outline (Hero Element) -->
+    <!-- 5-Point Star centered at cx=100, cy=86 -->
+    <path d="M 100 66 L 105.8 78.8 L 119.8 80.4 L 109.4 90 L 112.2 103.8 L 100 96.8 L 87.8 103.8 L 90.6 90 L 80.2 80.4 L 94.2 78.8 Z" 
+          fill="#FAF6EE" stroke="url(#gold-grad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+    
+    <!-- Minimalist Placeholder Review Lines -->
+    <line x1="62" y1="114" x2="76" y2="114" stroke="#D8CDBC" stroke-width="3" stroke-linecap="round" />
+    <line x1="86" y1="114" x2="114" y2="114" stroke="#D8CDBC" stroke-width="3" stroke-linecap="round" />
+    <line x1="124" y1="114" x2="138" y2="114" stroke="#D8CDBC" stroke-width="3" stroke-linecap="round" />
+  </g>
+
+  <!-- Small floating star badge -->
+  <path d="M 154 36 L 156 40.5 L 161 41 L 157.5 44.5 L 158.5 49.5 L 154 47 L 149.5 49.5 L 150.5 44.5 L 147 41 L 152 40.5 Z" 
+        fill="#FFFFFF" stroke="url(#gold-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+</svg>

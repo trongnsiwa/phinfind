@@ -57,7 +57,7 @@ const createShopSchema = z.object({
     .optional()
     .nullable()
     .transform((val) => val || null),
-  categories: z.array(z.string().trim().min(1)).optional().default(['catering.cafe']),
+  categories: z.array(z.string().trim().min(1)).optional().default([]),
   photos: z.array(z.string().trim().url('Đường dẫn ảnh không hợp lệ')).optional().default([]),
   opening_hours: openingHoursSchema.optional().default({ open_now: true })
 });
@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
       phone: data.phone,
       website: data.website,
       price_range: data.price_range,
-      categories: data.categories.length > 0 ? data.categories : ['catering.cafe'],
+      categories: data.categories,
       photos: data.photos,
       opening_hours: data.opening_hours,
       created_by: user.id,
@@ -130,6 +130,7 @@ export async function POST(request: NextRequest) {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
+
 
     const { data: createdRow, error: insertError } = await supabase
       .from('shops')

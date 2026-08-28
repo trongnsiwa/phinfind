@@ -11,6 +11,8 @@ import { APP_ROUTES } from '@/lib/utils/constants';
 import { CoffeeShop } from '@/types/shop';
 import { cn } from '@/lib/utils';
 
+import { ShopCardPlaceholder } from '@/components/common/ShopCardPlaceholder';
+
 interface ShopCardProps {
   shop: CoffeeShop;
   isFavorite?: boolean;
@@ -39,15 +41,7 @@ export function ShopCard({
     return `https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lon}`;
   };
 
-  // Sample decorative coffee shop cover images based on shop ID hash
-  const sampleImages = [
-    'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=600&q=80',
-    'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=600&q=80',
-    'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=600&q=80',
-    'https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&w=600&q=80',
-  ];
-  const charCodeSum = shop.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  const coverImage = shop.photos?.[0] || sampleImages[charCodeSum % sampleImages.length];
+  const coverImage = shop.photos?.[0];
 
   return (
     <Card
@@ -56,13 +50,20 @@ export function ShopCard({
     >
       {/* Shop Image Header with Overlay & Floating Badges */}
       <div className="relative w-full h-40 overflow-hidden bg-phin-100">
-        <img
-          src={coverImage}
-          alt={shop.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          loading="lazy"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+        {coverImage ? (
+          <>
+            <img
+              src={coverImage}
+              alt={shop.name}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              loading="lazy"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+          </>
+        ) : (
+          <ShopCardPlaceholder shopId={shop.place_id || shop.id} shopName={shop.name} />
+        )}
+
 
         {/* Floating Open/Closed Status Badge & Verification Badge */}
         <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 flex-wrap">

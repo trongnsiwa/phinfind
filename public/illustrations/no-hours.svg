@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%" fill="none">
+  <defs>
+    <filter id="soft-shadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#5A4A3A" flood-opacity="0.10" />
+    </filter>
+    
+    <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4A328" />
+      <stop offset="100%" stop-color="#B8860B" />
+    </linearGradient>
+    <linearGradient id="clock-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#F8F5F0" />
+    </linearGradient>
+  </defs>
+
+  <!-- Clock Body with Elevation -->
+  <g filter="url(#soft-shadow)">
+    <!-- Clock Outer Ring -->
+    <circle cx="100" cy="100" r="58" fill="url(#clock-grad)" stroke="#5A4A3A" stroke-width="3" />
+    <!-- Clock Inner Bezel -->
+    <circle cx="100" cy="100" r="50" fill="#FAF6EE" stroke="#E5DAC9" stroke-width="1.5" />
+    
+    <!-- Hour Ticks at 12, 3, 6, 9 -->
+    <line x1="100" y1="54" x2="100" y2="62" stroke="#B8860B" stroke-width="3" stroke-linecap="round" />
+    <line x1="146" y1="100" x2="138" y2="100" stroke="#B8860B" stroke-width="3" stroke-linecap="round" />
+    <line x1="100" y1="146" x2="100" y2="138" stroke="#B8860B" stroke-width="3" stroke-linecap="round" />
+    <line x1="54" y1="100" x2="62" y2="100" stroke="#B8860B" stroke-width="3" stroke-linecap="round" />
+
+    <!-- Clock Hands (Pointing ~10:10) -->
+    <!-- Hour Hand -->
+    <line x1="100" y1="100" x2="120" y2="80" stroke="#5A4A3A" stroke-width="3" stroke-linecap="round" />
+    <!-- Minute Hand -->
+    <line x1="100" y1="100" x2="78" y2="74" stroke="#5A4A3A" stroke-width="3" stroke-linecap="round" />
+    <!-- Center Pivot Pin -->
+    <circle cx="100" cy="100" r="4.5" fill="url(#gold-grad)" />
+  </g>
+
+  <!-- Clear Diagonal Strike-Through Slash -->
+  <g filter="url(#soft-shadow)">
+    <!-- Underlay separation border -->
+    <line x1="52" y1="52" x2="148" y2="148" stroke="#F8F5F0" stroke-width="9" stroke-linecap="round" />
+    <!-- Hero Amber Slash -->
+    <line x1="52" y1="52" x2="148" y2="148" stroke="url(#gold-grad)" stroke-width="4.5" stroke-linecap="round" />
+  </g>
+
+  <!-- Subtle Sparkle Accents -->
+  <path d="M 158 40 L 160 45 L 165 47 L 160 49 L 158 54 L 156 49 L 151 47 L 156 45 Z" fill="url(#gold-grad)" />
+  <circle cx="40" cy="148" r="2.5" fill="#B8860B" opacity="0.4" />
+</svg>
