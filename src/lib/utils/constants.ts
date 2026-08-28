@@ -21,6 +21,8 @@ export const API_ENDPOINTS = {
   NEARBY_SHOPS: '/api/shops/nearby',
   SHOP_DETAILS: '/api/shops/details',
   SEARCH_SHOPS: '/api/shops/search',
+  CREATE_SHOP: '/api/shops/create',
   USER_FAVORITES: '/api/user/favorites',
   USER_PROFILE: '/api/user/profile',
 };
+

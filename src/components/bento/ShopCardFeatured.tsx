@@ -154,7 +154,17 @@ export const ShopCardFeatured = memo(function ShopCardFeatured({
         </div>
 
         {/* Floating Badges on Top-Left */}
-        <div className="absolute top-6 left-6 z-10 flex items-center gap-2">
+        <div className="absolute top-6 left-6 z-10 flex items-center gap-2 flex-wrap">
+          {shop.verified === false && (
+            <Badge
+              variant="outline"
+              className="text-xs font-bold px-3 py-1 rounded-full border backdrop-blur-md shadow-md bg-amber-500/85 text-white border-amber-400 flex items-center gap-1.5"
+            >
+              <Clock size={12} />
+              <span>Chờ xác minh</span>
+            </Badge>
+          )}
+
           <Badge
             variant="secondary"
             className="badge-featured-gradient font-bold text-xs px-4 py-1.5 rounded-full shadow-md tracking-wide"
@@ -163,6 +173,7 @@ export const ShopCardFeatured = memo(function ShopCardFeatured({
           </Badge>
 
           {hasOpenInfo && (
+
             <Badge
               variant="outline"
               className={cn(

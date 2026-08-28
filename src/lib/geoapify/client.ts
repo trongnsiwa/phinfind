@@ -1,4 +1,5 @@
 import axios from 'axios';
+
 import { CoffeeShop, GeoapifyPlacesResponse } from '@/types/shop';
 
 const GEOAPIFY_BASE_URL = 'https://api.geoapify.com/v2';
@@ -16,18 +17,15 @@ export async function fetchNearbyCoffeeShops(
   }
 
   try {
-    const response = await axios.get<GeoapifyPlacesResponse>(
-      `${GEOAPIFY_BASE_URL}/places`,
-      {
-        params: {
-          categories: 'catering.cafe,catering.coffee_shop',
-          filter: `circle:${lon},${lat},${radiusMeters}`,
-          bias: `proximity:${lon},${lat}`,
-          limit: 50,
-          apiKey,
-        },
+    const response = await axios.get<GeoapifyPlacesResponse>(`${GEOAPIFY_BASE_URL}/places`, {
+      params: {
+        categories: 'catering.cafe,catering.coffee_shop',
+        filter: `circle:${lon},${lat},${radiusMeters}`,
+        bias: `proximity:${lon},${lat}`,
+        limit: 50,
+        apiKey
       }
-    );
+    });
 
     return response.data.features.map((feature, idx) =>
       mapGeoapifyToCoffeeShop(feature, lat, lon, idx)
@@ -44,7 +42,7 @@ export async function fetchPlaceDetails(placeId: string): Promise<CoffeeShop | n
 
   try {
     const response = await axios.get(`${GEOAPIFY_BASE_URL}/places/${placeId}`, {
-      params: { apiKey },
+      params: { apiKey }
     });
     const feature = response.data.features?.[0];
     if (!feature) return null;
@@ -67,7 +65,7 @@ export async function searchCoffeeShops(
     const params: Record<string, string | number> = {
       text,
       apiKey,
-      limit: 20,
+      limit: 20
     };
     if (lat && lon) {
       params.bias = `proximity:${lon},${lat}`;
@@ -85,7 +83,7 @@ export async function searchCoffeeShops(
       distance_text: '0 km',
       rating: 4.5,
       total_ratings: 42,
-      categories: ['catering.cafe'],
+      categories: ['catering.cafe']
     }));
   } catch (error) {
     console.error('Error searching coffee shops:', error);
@@ -112,15 +110,15 @@ function mapGeoapifyToCoffeeShop(
     lon: props.lon,
     distance: dist,
     distance_text: `${distanceKm} km`,
-    rating: props.datasource?.raw?.rating || (4 + (index % 10) * 0.1),
+    rating: props.datasource?.raw?.rating || 4 + (index % 10) * 0.1,
     total_ratings: Math.floor(20 + index * 12),
     opening_hours: {
-      open_now: true,
+      open_now: true
     },
-    price_range: '€€',
+    price_range: '₫₫',
     categories: props.categories || ['catering.cafe'],
     phone: props.datasource?.raw?.phone,
-    website: props.datasource?.raw?.website,
+    website: props.datasource?.raw?.website
   };
 }
 
@@ -152,8 +150,8 @@ function getFallbackShops(userLat: number, userLon: number): CoffeeShop[] {
       rating: 4.8,
       total_ratings: 234,
       opening_hours: { open_now: true },
-      price_range: '€€',
-      categories: ['catering.cafe'],
+      price_range: '₫₫',
+      categories: ['catering.cafe']
     },
     {
       id: 'fallback-2',
@@ -167,8 +165,8 @@ function getFallbackShops(userLat: number, userLon: number): CoffeeShop[] {
       rating: 4.6,
       total_ratings: 189,
       opening_hours: { open_now: true },
-      price_range: '€€',
-      categories: ['catering.cafe'],
+      price_range: '₫₫',
+      categories: ['catering.cafe']
     },
     {
       id: 'fallback-3',
@@ -182,8 +180,8 @@ function getFallbackShops(userLat: number, userLon: number): CoffeeShop[] {
       rating: 4.9,
       total_ratings: 310,
       opening_hours: { open_now: false },
-      price_range: '€',
-      categories: ['catering.cafe'],
-    },
+      price_range: '₫',
+      categories: ['catering.cafe']
+    }
   ];
 }

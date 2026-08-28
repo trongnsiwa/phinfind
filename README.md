@@ -12,10 +12,13 @@ PhinFind is a Progressive Web Application (PWA) designed to help coffee lovers, 
 - 🔐 **Authentication**: Email/Password, Google OAuth, and Magic Link sign-in options via Supabase Auth
 - 📍 **Interactive Map**: Location-aware OpenStreetMap integration powered by React Leaflet
 - ☕ **Coffee Discovery**: Instant detection of nearby coffee shops with real-time distance calculation
+- ➕ **Add New Shop**: Authenticated users can submit new coffee shops with interactive Leaflet location pin picking, category tags, pricing, and photo previews
+- 🛡️ **Verification Workflow**: User-submitted shops track ownership (`created_by`) and default to pending verification (`verified: false`)
 - 🔍 **Search & Filter**: Search by shop name or location with "Open Now" status filtering
 - ❤️ **Save Favorites**: Bookmark your favorite coffee spots for quick access anytime
 - 📱 **Installable PWA**: Installable directly on mobile and desktop home screens with offline support
 - 🧭 **Get Directions**: Direct one-tap navigation via Google Maps or Apple Maps
+
 
 ---
 
@@ -85,7 +88,23 @@ The following environment variables are required in `.env.local`:
 
 ---
 
+## 🔌 API Endpoints
+
+| Method | Endpoint | Auth Required | Description |
+| ------ | -------- | ------------- | ----------- |
+| `GET` | `/api/shops/nearby` | No | Fetch nearby coffee shops with pagination and sorting |
+| `GET` | `/api/shops/details` | No | Fetch single coffee shop details by `placeId` |
+| `GET` | `/api/shops/search` | No | Search coffee shops by name or keyword query `q` |
+| `POST` | `/api/shops/create` | **Yes** | Create a new coffee shop (`name`, `address`, `lat`, `lon`, `photos`, etc.) |
+| `GET` | `/api/reviews` | No | Fetch customer reviews for a given `placeId` |
+| `POST` | `/api/reviews` | **Yes** | Post a new review and star rating |
+| `GET` | `/api/user/favorites` | **Yes** | Fetch current user's bookmarked coffee shops |
+| `POST` | `/api/user/favorites` | **Yes** | Save or remove a coffee shop favorite |
+
+---
+
 ## 📁 Project Structure
+
 
 ```
 phinfind/

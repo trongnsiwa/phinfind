@@ -336,7 +336,7 @@ export interface CoffeeShop {
       close: { day: number; time: string };
     }>;
   };
-  price_range?: '€' | '€€' | '€€€' | '€€€€';
+  price_range?: '₫' | '₫₫' | '₫₫₫' | '₫₫₫₫';
   photos?: string[];
   website?: string;
   phone?: string;
@@ -395,7 +395,7 @@ Breakpoints: sm: 640px, md: 768px, lg: 1024px, xl: 1280px
 ┌──────────────────────────────────────────────┐
 │  ☕ Brew & Bloom                             │
 │  📍 2.3 km · ⭐ 4.8 (234 reviews)            │
-│  🟢 Open Now · 💰 €€                         │
+│  🟢 Open Now · 💰 ₫₫                         │
 │  📱 123 Main St, San Francisco               │
 │  [Directions] [Save]                         │
 └──────────────────────────────────────────────┘
@@ -407,7 +407,7 @@ Breakpoints: sm: 640px, md: 768px, lg: 1024px, xl: 1280px
 ┌──────────────────────────────────────────────┐
 │  ← Back                                      │
 │  ☕ Brew & Bloom                             │
-│  ⭐ 4.8 (234 reviews)  💰 €€                 │
+│  ⭐ 4.8 (234 reviews)  💰 ₫₫                 │
 │  🟢 Open · Closes at 10:00 PM               │
 │  📍 123 Main St, San Francisco               │
 │  📞 (555) 123-4567                          │

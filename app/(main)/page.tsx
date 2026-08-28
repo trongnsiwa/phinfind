@@ -1,7 +1,7 @@
 'use client';
 
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowUpDown, Coffee } from 'lucide-react';
+import { ArrowUpDown, Coffee, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -12,6 +12,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ShopDrawer } from '@/components/shop/ShopDrawer';
+import { AddShopDialog } from '@/components/shop/AddShopDialog';
+
 
 import { BentoGrid } from '@/components/bento/BentoGrid';
 import { SearchBar } from '@/components/bento/SearchBar';
@@ -77,6 +79,8 @@ export default function DiscoverPage() {
 
   const topFilterRef = useRef<HTMLDivElement>(null);
   const [isFilterFloating, setIsFilterFloating] = useState(false);
+  const [isAddShopOpen, setIsAddShopOpen] = useState(false);
+
 
   const handleToggleFav = (placeId: string) => {
     if (!isAuthenticated) {
@@ -391,8 +395,37 @@ export default function DiscoverPage() {
         onToggleFavorite={handleToggleFav}
         isFavorite={selectedShop ? favorites.includes(selectedShop.place_id) : false}
       />
+
+      {/* Floating Add Shop FAB Button */}
+      <div className="fixed bottom-20 sm:bottom-8 right-4 sm:right-8 z-30 animate-in fade-in zoom-in-95 duration-200">
+        <Button
+          type="button"
+          onClick={() => {
+            if (!isAuthenticated) {
+              toast('Yêu cầu đăng nhập', {
+                description: 'Đăng nhập để thêm quán cà phê yêu thích của bạn vào bản đồ.',
+                action: {
+                  label: 'Đăng nhập',
+                  onClick: () => router.push(APP_ROUTES.LOGIN),
+                },
+              });
+              return;
+            }
+            setIsAddShopOpen(true);
+          }}
+          className="h-11 sm:h-12 px-3.5 sm:px-4 rounded-full bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground font-bold text-xs sm:text-sm shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-200 flex items-center gap-2 border border-white/20 backdrop-blur-md cursor-pointer"
+          aria-label="Thêm quán cà phê mới"
+        >
+          <Plus size={18} strokeWidth={2.5} />
+          <span>Thêm quán</span>
+        </Button>
+      </div>
+
+      {/* Add Shop Dialog Modal */}
+      <AddShopDialog open={isAddShopOpen} onOpenChange={setIsAddShopOpen} />
     </div>
   );
 }
+
 
 

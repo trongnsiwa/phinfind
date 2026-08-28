@@ -136,9 +136,19 @@ export const ShopCardLarge = memo(function ShopCardLarge({
           </div>
         </div>
 
-        {/* Floating Status Badge on Top-Left */}
-        {hasOpenInfo && (
-          <div className="absolute top-6 left-6 z-10">
+        {/* Floating Status Badge & Verification Badge on Top-Left */}
+        <div className="absolute top-6 left-6 z-10 flex flex-col gap-1.5 items-start">
+          {shop.verified === false && (
+            <Badge
+              variant="outline"
+              className="text-xs font-bold px-3 py-1 rounded-full border backdrop-blur-md shadow-md bg-amber-500/85 text-white border-amber-400 flex items-center gap-1.5"
+            >
+              <Clock size={12} />
+              <span>Chờ xác minh</span>
+            </Badge>
+          )}
+
+          {hasOpenInfo && (
             <Badge
               variant="outline"
               className={cn(
@@ -151,8 +161,9 @@ export const ShopCardLarge = memo(function ShopCardLarge({
               <span className={cn('w-1.5 h-1.5 rounded-full mr-1.5', isOpen ? 'bg-teal animate-pulse' : 'bg-rose-400')} />
               {isOpen ? 'Đang mở cửa' : 'Đã đóng cửa'}
             </Badge>
-          </div>
-        )}
+          )}
+        </div>
+
 
         {/* Floating Favorite Button on Top-Right */}
         <Button

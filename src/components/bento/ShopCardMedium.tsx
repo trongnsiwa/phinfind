@@ -77,26 +77,39 @@ export const ShopCardMedium = memo(function ShopCardMedium({
 
         <div className='absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent pointer-events-none' />
 
-        {/* Floating Status Pill */}
-        {hasOpenInfo && (
-          <Badge
-            variant='outline'
-            className={cn(
-              'absolute top-2 left-2 text-[10px] sm:text-xs font-bold px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full border backdrop-blur-md shadow-sm tracking-wide',
-              isOpen
-                ? 'bg-teal/30 text-teal dark:text-teal border-teal/40'
-                : 'bg-rose-500/30 text-rose-300 dark:text-rose-300 border-rose-500/40'
-            )}
-          >
-            <span
+        {/* Floating Status Pill & Verification Badge */}
+        <div className='absolute top-2 left-2 z-10 flex flex-col gap-1 items-start'>
+          {shop.verified === false && (
+            <Badge
+              variant='outline'
+              className='text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full border backdrop-blur-md shadow-sm bg-amber-500/80 text-white border-amber-400 flex items-center gap-1'
+            >
+              <Clock size={9} />
+              <span>Chờ xác minh</span>
+            </Badge>
+          )}
+
+          {hasOpenInfo && (
+            <Badge
+              variant='outline'
               className={cn(
-                'w-1.5 h-1.5 rounded-full mr-1',
-                isOpen ? 'bg-teal animate-pulse' : 'bg-rose-400'
+                'text-[10px] sm:text-xs font-bold px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full border backdrop-blur-md shadow-sm tracking-wide',
+                isOpen
+                  ? 'bg-teal/30 text-teal dark:text-teal border-teal/40'
+                  : 'bg-rose-500/30 text-rose-300 dark:text-rose-300 border-rose-500/40'
               )}
-            />
-            {isOpen ? 'Đang mở cửa' : 'Đã đóng cửa'}
-          </Badge>
-        )}
+            >
+              <span
+                className={cn(
+                  'w-1.5 h-1.5 rounded-full mr-1',
+                  isOpen ? 'bg-teal animate-pulse' : 'bg-rose-400'
+                )}
+              />
+              {isOpen ? 'Đang mở cửa' : 'Đã đóng cửa'}
+            </Badge>
+          )}
+        </div>
+
       </div>
 
       {/* Right Content */}

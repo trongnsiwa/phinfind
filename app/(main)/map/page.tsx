@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { MapPin, Search, X, Star, SlidersHorizontal, Clock, RotateCcw } from 'lucide-react';
+import { MapPin, Search, X, Star, SlidersHorizontal, Clock, RotateCcw, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -19,6 +19,8 @@ import {
 import { Map } from '@/components/map/Map';
 import { ShopDrawer } from '@/components/shop/ShopDrawer';
 import { ShopSidebar } from '@/components/shop/ShopSidebar';
+import { AddShopDialog } from '@/components/shop/AddShopDialog';
+
 import { useRouter } from 'next/navigation';
 import { useLocation } from '@/hooks/useLocation';
 import { useNearbyShops, useSearchShops } from '@/hooks/useShops';
@@ -58,6 +60,7 @@ export default function MapPage() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
+  const [isAddShopOpen, setIsAddShopOpen] = useState(false);
   const [localQuery, setLocalQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [submittedQuery, setSubmittedQuery] = useState('');
@@ -65,6 +68,21 @@ export default function MapPage() {
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const searchToggleRef = useRef<HTMLDivElement>(null);
+
+  const handleOpenAddShop = () => {
+    if (!isAuthenticated) {
+      toast('Yêu cầu đăng nhập', {
+        description: 'Vui lòng đăng nhập để thêm quán cà phê yêu thích của bạn vào bản đồ.',
+        action: {
+          label: 'Đăng nhập',
+          onClick: () => router.push(APP_ROUTES.LOGIN),
+        },
+      });
+      return;
+    }
+    setIsAddShopOpen(true);
+  };
+
 
   const handleCloseSearch = () => {
     setIsSearchOpen(false);
@@ -516,6 +534,8 @@ export default function MapPage() {
             </Button>
           )}
         </div>
+
+
       </header>
 
       {/* Responsive Full-Bleed Map Viewport Container */}
@@ -699,7 +719,21 @@ export default function MapPage() {
             </SheetContent>
           </Sheet>
         </div>
+
+        {/* Floating Add Shop FAB Button on Map */}
+        <div className="absolute bottom-5 right-4 sm:bottom-6 sm:right-6 z-[400] animate-in fade-in zoom-in-95 duration-200">
+          <Button
+            type="button"
+            onClick={handleOpenAddShop}
+            className="h-11 sm:h-12 px-3.5 sm:px-4 rounded-full bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground font-bold text-xs sm:text-sm shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-200 flex items-center gap-2 border border-white/20 backdrop-blur-md cursor-pointer select-none"
+            aria-label="Thêm quán cà phê mới"
+          >
+            <Plus size={18} strokeWidth={2.5} />
+            <span>Thêm quán</span>
+          </Button>
+        </div>
       </div>
+
 
       {/* Responsive Shop Details: Persistent Right Sidebar on Desktop (>= 1024px), Bottom Drawer on Mobile (< 1024px) */}
       {isDesktop ? (
@@ -719,7 +753,11 @@ export default function MapPage() {
           isFavorite={selectedShop ? favorites.includes(selectedShop.place_id) : false}
         />
       )}
+
+      {/* Add Shop Dialog Modal */}
+      <AddShopDialog open={isAddShopOpen} onOpenChange={setIsAddShopOpen} />
     </>
   );
 }
+
 

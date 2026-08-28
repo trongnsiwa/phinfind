@@ -20,11 +20,13 @@ export interface CoffeeShop {
   rating: number; // 0 to 5
   total_ratings: number;
   opening_hours?: OpeningHours;
-  price_range?: '€' | '€€' | '€€€' | '€€€€';
+  price_range?: '₫' | '₫₫' | '₫₫₫' | '₫₫₫₫';
   photos?: string[];
   website?: string;
   phone?: string;
   categories: string[];
+  created_by?: string | null;
+  verified?: boolean;
 }
 
 export interface ShopFilterState {

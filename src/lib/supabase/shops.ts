@@ -53,5 +53,8 @@ export function mapDbShopToCoffeeShop(
     website: row.website || undefined,
     phone: row.phone || undefined,
     categories: Array.isArray(row.categories) ? row.categories : ['catering.cafe'],
+    created_by: row.created_by || null,
+    verified: typeof row.verified === 'boolean' ? row.verified : (row.created_by ? false : true),
   };
 }
+

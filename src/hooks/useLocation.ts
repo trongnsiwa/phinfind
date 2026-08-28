@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { DEFAULT_LOCATION } from '@/lib/utils/constants';
 
 export interface LocationState {
@@ -20,7 +20,8 @@ export function useLocation() {
     isFallback: true,
   });
 
-  const requestLocation = () => {
+  const requestLocation = useCallback(() => {
+
     if (!navigator.geolocation) {
       setLocation({
         lat: DEFAULT_LOCATION.lat,
@@ -60,11 +61,12 @@ export function useLocation() {
         maximumAge: 60000,
       }
     );
-  };
+  }, []);
 
   useEffect(() => {
     requestLocation();
-  }, []);
+  }, [requestLocation]);
+
 
   return {
     ...location,

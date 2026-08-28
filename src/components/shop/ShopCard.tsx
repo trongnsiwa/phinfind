@@ -2,8 +2,9 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Heart, MapPin, Navigation, Star, Footprints, ExternalLink } from 'lucide-react';
+import { Heart, MapPin, Navigation, Star, Footprints, ExternalLink, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { APP_ROUTES } from '@/lib/utils/constants';
@@ -63,8 +64,18 @@ export function ShopCard({
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
 
-        {/* Floating Open/Closed Status Badge */}
-        <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5">
+        {/* Floating Open/Closed Status Badge & Verification Badge */}
+        <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 flex-wrap">
+          {shop.verified === false && (
+            <Badge
+              variant="outline"
+              className="text-[10px] font-bold px-2 py-0.5 rounded-full border shadow-sm backdrop-blur-md bg-amber-500/85 text-white border-amber-400 flex items-center gap-1"
+            >
+              <Clock size={10} />
+              <span>Chờ xác minh</span>
+            </Badge>
+          )}
+
           <Badge
             variant="outline"
             className={cn(
@@ -84,6 +95,7 @@ export function ShopCard({
             </Badge>
           )}
         </div>
+
 
         {/* Floating Heart Favorite Button */}
         <Button

@@ -1339,10 +1339,21 @@ export function ShopDetailsContent({
 
           {/* Quick Metrics Bar */}
           <div className='flex flex-wrap items-center gap-1.5 pt-0.5'>
+            {shop.verified === false && (
+              <Badge
+                variant='outline'
+                className='bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/40 flex items-center gap-1 font-bold text-[11px] py-0.5 px-2 rounded-xl shadow-xs flex-shrink-0 whitespace-nowrap'
+              >
+                <Clock size={11} className='text-amber-500 flex-shrink-0' />
+                <span className='whitespace-nowrap'>Chờ xác minh</span>
+              </Badge>
+            )}
+
             <Badge
               variant='outline'
               className='bg-secondary text-amber-gold border-border flex items-center gap-1 font-bold text-[11px] py-0.5 px-2 rounded-xl shadow-xs flex-shrink-0 whitespace-nowrap'
             >
+
               {hasRating ? (
                 <>
                   <Star size={11} className='fill-amber-gold text-amber-gold flex-shrink-0' />

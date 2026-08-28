@@ -67,6 +67,8 @@ export function Header() {
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+
+
   const [localValue, setLocalValue] = useState(searchQuery);
   const [debouncedQuery, setDebouncedQuery] = useState(searchQuery);
 
@@ -264,6 +266,7 @@ export function Header() {
             </Button>
           </nav>
         </div>
+
 
         {/* Right Side: Theme Toggle + Right-Anchored Search + Profile Avatar + Mobile Hamburger Menu */}
         <div className='flex items-center gap-2 sm:gap-2.5 flex-shrink-0'>
@@ -524,6 +527,8 @@ export function Header() {
                     <span>Cài đặt</span>
                   </Link>
                 </DropdownMenuItem>
+
+
                 <DropdownMenuSeparator className='bg-border/60 my-1' />
                 <DropdownMenuItem
                   onClick={async () => {
@@ -743,3 +748,5 @@ export function Header() {
     </header>
   );
 }
+
+
