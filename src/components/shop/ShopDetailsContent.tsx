@@ -48,10 +48,16 @@ export interface ComputedSchedule {
   peakVibeTime?: string;
 }
 
-function parseHHMM(timeStr: string): { hours: number; minutes: number; formatted: string } {
-  const clean = timeStr.padStart(4, '0');
+function parseHHMM(timeStr?: string): { hours: number; minutes: number; formatted: string } {
+  if (!timeStr) {
+    return { hours: 0, minutes: 0, formatted: '--:--' };
+  }
+  const clean = timeStr.replace(/[^0-9]/g, '').padStart(4, '0');
   const h = parseInt(clean.slice(0, 2), 10);
   const m = parseInt(clean.slice(2, 4), 10);
+  if (isNaN(h) || isNaN(m)) {
+    return { hours: 0, minutes: 0, formatted: '--:--' };
+  }
   const displayH = h < 10 ? `0${h}` : `${h}`;
   const displayM = m < 10 ? `0${m}` : `${m}`;
   return {
