@@ -10,6 +10,8 @@ import {
   Coffee,
   Copy,
   Eye,
+  Image,
+  Link,
   Loader2,
   MapPin,
   Navigation,
@@ -18,6 +20,7 @@ import {
   Sparkles,
   Tag,
   Trash2,
+  Upload,
   X
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -50,6 +53,7 @@ import {
 } from '@/components/ui/select';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocation } from '@/hooks/useLocation';
+import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
 import { API_ENDPOINTS, DEFAULT_LOCATION } from '@/lib/utils/constants';
 import { CoffeeShop } from '@/types/shop';
@@ -233,9 +237,13 @@ export function AddShopDialog({ open, onOpenChange, onSuccess }: AddShopDialogPr
     isFallback: isLocationFallback,
     refetchLocation
   } = useLocation();
-  const { isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const supabase = useMemo(() => createClient(), []);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [newPhotoUrl, setNewPhotoUrl] = useState('');
+  const [showUrlInput, setShowUrlInput] = useState(false);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [customTag, setCustomTag] = useState('');
   const [showManualCoords, setShowManualCoords] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
@@ -460,6 +468,85 @@ export function AddShopDialog({ open, onOpenChange, onSuccess }: AddShopDialogPr
     (isCustomPerDay && computedPeriods.length > 0) ||
     (!isCustomPerDay && Boolean(sameOpenTime || sameCloseTime));
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    if (!isAuthenticated || !user) {
+      toast.error('Vui lòng đăng nhập để tải ảnh lên.');
+      return;
+    }
+
+    const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+
+    for (const file of files) {
+      if (!file.type.startsWith('image/')) {
+        toast.error(`Định dạng tệp "${file.name}" không hợp lệ. Chỉ chấp nhận tệp hình ảnh.`);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        return;
+      }
+
+      if (file.size > MAX_SIZE) {
+        toast.error(`Tệp "${file.name}" vượt quá dung lượng tối đa 5MB.`);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        return;
+      }
+    }
+
+    setIsUploadingPhoto(true);
+    const toastId = toast.loading(`Đang tải lên ${files.length} ảnh...`);
+    const newUploadedUrls: string[] = [];
+
+    try {
+      for (const file of files) {
+        const fileExt = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+        const cleanName = file.name
+          .replace(/\.[^/.]+$/, '')
+          .replace(/[^a-zA-Z0-9_-]/g, '_')
+          .substring(0, 30);
+        const timestamp = Date.now();
+        const randomStr = Math.random().toString(36).substring(2, 8);
+        const filePath = `shops/${user.id}/${timestamp}_${randomStr}_${cleanName}.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('shop-photos')
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: false
+          });
+
+        if (uploadError) {
+          console.error('Lỗi khi tải ảnh lên Supabase Storage:', uploadError);
+          toast.error(`Không thể tải lên tệp "${file.name}": ${uploadError.message}`, { id: toastId });
+          continue;
+        }
+
+        const { data: publicUrlData } = supabase.storage
+          .from('shop-photos')
+          .getPublicUrl(filePath);
+
+        if (publicUrlData?.publicUrl) {
+          newUploadedUrls.push(publicUrlData.publicUrl);
+        }
+      }
+
+      if (newUploadedUrls.length > 0) {
+        setValue('photos', [...watchedPhotos, ...newUploadedUrls], { shouldValidate: true });
+        toast.success(`Đã tải lên thành công ${newUploadedUrls.length} ảnh!`, { id: toastId });
+      } else {
+        toast.dismiss(toastId);
+      }
+    } catch (err: any) {
+      console.error('Lỗi ngoại lệ khi tải ảnh:', err);
+      toast.error('Đã xảy ra lỗi trong quá trình tải ảnh. Vui lòng thử lại.', { id: toastId });
+    } finally {
+      setIsUploadingPhoto(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
   const handleAddPhoto = () => {
     const trimmed = newPhotoUrl.trim();
     if (!trimmed) return;
@@ -556,6 +643,10 @@ export function AddShopDialog({ open, onOpenChange, onSuccess }: AddShopDialogPr
         reset();
         clearAllHours();
         setIsCustomPerDay(false);
+        setShowUrlInput(false);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
         onOpenChange(false);
       }
     } catch (error: any) {
@@ -1437,64 +1528,132 @@ export function AddShopDialog({ open, onOpenChange, onSuccess }: AddShopDialogPr
               )}
             </div>
 
-            {/* Photos URLs List */}
-            <div className='space-y-2 pt-1'>
-              <Label className='text-xs font-semibold text-foreground flex items-center justify-between'>
-                <span>Hình ảnh quán ({watchedPhotos.length})</span>
-                <span className='text-[10px] text-muted-foreground font-normal'>
-                  URL trực tiếp (.jpg, .png, Unsplash)
-                </span>
-              </Label>
-
-              <div className='flex items-center gap-2'>
-                <Input
-                  value={newPhotoUrl}
-                  onChange={(e) => setNewPhotoUrl(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleAddPhoto();
-                    }
-                  }}
-                  placeholder='Dán đường dẫn ảnh https://...'
-                  className='h-9 text-xs bg-secondary/50 border-border rounded-xl'
-                />
-                <Button
+            {/* Photos Upload & URLs Section */}
+            <div className='space-y-2.5 pt-1'>
+              <div className='flex items-center justify-between'>
+                <Label className='text-xs font-semibold text-foreground flex items-center gap-1.5'>
+                  <Image size={13} className='text-amber-gold' />
+                  <span>Hình ảnh quán ({watchedPhotos.length})</span>
+                  <span className='text-[10px] text-muted-foreground font-normal'>(Tối đa 5MB/ảnh)</span>
+                </Label>
+                <button
                   type='button'
-                  variant='outline'
-                  size='sm'
-                  onClick={handleAddPhoto}
-                  disabled={!newPhotoUrl.trim()}
-                  className='h-9 px-3 text-xs rounded-xl flex-shrink-0'
+                  onClick={() => setShowUrlInput(!showUrlInput)}
+                  className='text-[11px] text-amber-gold hover:underline font-medium cursor-pointer flex items-center gap-1'
                 >
-                  <Plus size={14} />
-                  <span>Thêm ảnh</span>
-                </Button>
+                  <Link size={11} />
+                  <span>{showUrlInput ? 'Ẩn dán URL' : 'Hoặc dán URL ảnh'}</span>
+                </button>
               </div>
+
+              {/* Hidden File Input */}
+              <input
+                ref={fileInputRef}
+                type='file'
+                accept='image/jpeg,image/png,image/webp,image/gif,image/avif'
+                multiple
+                onChange={handleFileUpload}
+                className='hidden'
+              />
+
+              {/* Main Upload Dropzone / Trigger Area */}
+              <div
+                onClick={() => !isUploadingPhoto && fileInputRef.current?.click()}
+                className={cn(
+                  'relative border-2 border-dashed border-border/80 hover:border-amber-gold/60 bg-secondary/20 hover:bg-secondary/35 rounded-2xl p-4 transition-all duration-200 cursor-pointer flex flex-col items-center justify-center text-center group select-none',
+                  isUploadingPhoto && 'pointer-events-none opacity-70'
+                )}
+              >
+                <div className='w-10 h-10 rounded-2xl bg-amber-gold/15 text-amber-gold flex items-center justify-center mb-2 group-hover:scale-105 transition-transform duration-200'>
+                  {isUploadingPhoto ? (
+                    <Loader2 size={20} className='animate-spin' />
+                  ) : (
+                    <Upload size={20} />
+                  )}
+                </div>
+                <div className='space-y-0.5'>
+                  <p className='text-xs font-bold text-foreground group-hover:text-amber-gold transition-colors'>
+                    {isUploadingPhoto ? 'Đang tải ảnh lên hệ thống...' : 'Tải ảnh lên từ thiết bị'}
+                  </p>
+                  <p className='text-[11px] text-muted-foreground'>
+                    Hỗ trợ chọn nhiều ảnh JPG, PNG, WEBP (tối đa 5MB/tệp)
+                  </p>
+                </div>
+              </div>
+
+              {/* Collapsible URL Input fallback */}
+              {showUrlInput && (
+                <div className='p-3 bg-secondary/30 rounded-xl border border-border/70 space-y-2 animate-in fade-in duration-150'>
+                  <Label className='text-[11px] font-medium text-muted-foreground'>
+                    Dán liên kết ảnh trực tiếp (Unsplash, Cloudinary, Imgur...):
+                  </Label>
+                  <div className='flex items-center gap-2'>
+                    <Input
+                      value={newPhotoUrl}
+                      onChange={(e) => setNewPhotoUrl(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleAddPhoto();
+                        }
+                      }}
+                      placeholder='https://images.unsplash.com/...'
+                      className='h-8 text-xs bg-background border-border rounded-lg'
+                    />
+                    <Button
+                      type='button'
+                      variant='outline'
+                      size='sm'
+                      onClick={handleAddPhoto}
+                      disabled={!newPhotoUrl.trim()}
+                      className='h-8 px-3 text-xs rounded-lg flex-shrink-0 cursor-pointer'
+                    >
+                      <Plus size={13} className='mr-1' />
+                      <span>Thêm</span>
+                    </Button>
+                  </div>
+                </div>
+              )}
 
               {/* Photo Thumbnails List */}
               {watchedPhotos.length > 0 && (
-                <div className='grid grid-cols-3 sm:grid-cols-4 gap-2 pt-1'>
-                  {watchedPhotos.map((url, index) => (
-                    <div
-                      key={index}
-                      className='relative aspect-video rounded-xl overflow-hidden bg-muted border border-border group'
-                    >
-                      <img
-                        src={url}
-                        alt={`Ảnh quán ${index + 1}`}
-                        className='w-full h-full object-cover'
-                      />
-                      <button
-                        type='button'
-                        onClick={() => handleRemovePhoto(index)}
-                        className='absolute top-1 right-1 p-1 bg-black/70 hover:bg-rose-600 text-white rounded-md transition-colors cursor-pointer'
-                        title='Xóa ảnh này'
+                <div className='space-y-1.5 pt-1'>
+                  <div className='flex items-center justify-between text-[11px] text-muted-foreground'>
+                    <span>Ảnh đã chọn ({watchedPhotos.length}):</span>
+                    <span className='text-[10px] text-amber-gold font-medium'>
+                      Ảnh đầu tiên là ảnh đại diện
+                    </span>
+                  </div>
+                  <div className='grid grid-cols-3 sm:grid-cols-4 gap-2'>
+                    {watchedPhotos.map((url, index) => (
+                      <div
+                        key={index}
+                        className='relative aspect-video rounded-xl overflow-hidden bg-muted border border-border/80 group shadow-2xs'
                       >
-                        <Trash2 size={12} />
-                      </button>
-                    </div>
-                  ))}
+                        <img
+                          src={url}
+                          alt={`Ảnh quán ${index + 1}`}
+                          className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-200'
+                        />
+                        {index === 0 && (
+                          <div className='absolute bottom-1 left-1 bg-black/75 text-amber-gold text-[9px] font-bold px-1.5 py-0.5 rounded-md backdrop-blur-xs'>
+                            Ảnh đại diện
+                          </div>
+                        )}
+                        <button
+                          type='button'
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemovePhoto(index);
+                          }}
+                          className='absolute top-1 right-1 p-1 bg-black/70 hover:bg-rose-600 text-white rounded-md transition-colors cursor-pointer opacity-90 group-hover:opacity-100 shadow-sm'
+                          title='Xóa ảnh này'
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
