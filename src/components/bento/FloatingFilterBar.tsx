@@ -68,7 +68,7 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
     <aside
       aria-label="Thanh tìm kiếm và bộ lọc nhanh"
       className={cn(
-        'fixed bottom-16 md:bottom-4 left-1/2 -translate-x-1/2 z-40 w-[95%] max-w-4xl transition-all duration-300 ease-out',
+        'fixed bottom-16 md:bottom-4 left-1/2 -translate-x-1/2 z-30 w-[95%] max-w-4xl transition-all duration-300 ease-out',
         shouldShow
           ? 'translate-y-0 opacity-100 scale-100 pointer-events-auto'
           : 'translate-y-full opacity-0 pointer-events-none'

@@ -3,7 +3,7 @@
 import {
   Check, CheckCircle2, ChevronDown, ChevronRight, Clock, Coffee, Compass, Copy, CreditCard,
   CupSoda, Edit3, Flame, Footprints, Globe, Images, Loader2, LogIn, MapPin, Navigation,
-  Phone, Quote, Send, Sparkles, Star, Sun, Utensils, Wifi, Wind, X, Zap, Camera, MessageSquare, Tag
+  Phone, Quote, Send, Sparkles, Star, Sun, Utensils, Wifi, Wind, X, Zap, Camera, Tag
 } from 'lucide-react';
 import Link from 'next/link';
 import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
@@ -19,6 +19,7 @@ import { APP_ROUTES } from '@/lib/utils/constants';
 import { cn } from '@/lib/utils';
 import { EmptyIllustration } from '@/components/common/EmptyIllustration';
 import { ShopCardPlaceholder } from '@/components/common/ShopCardPlaceholder';
+import { cleanCategoryLabel } from '@/lib/utils/placeholders';
 import { useShopStore } from '@/stores/useShopStore';
 import { useUIStore } from '@/stores/useUIStore';
 import { CoffeeShop } from '@/types/shop';
@@ -197,23 +198,30 @@ export const OverviewTab = memo(function OverviewTab({
     }
   };
 
+  const visibleCategories = useMemo(() => {
+    if (!shop.categories || shop.categories.length === 0) return [];
+    const labels = shop.categories
+      .map((cat) => cleanCategoryLabel(cat))
+      .filter((label) => Boolean(label && label.trim().length > 0));
+    return Array.from(new Set(labels));
+  }, [shop.categories]);
 
   return (
     <div className='space-y-4 pb-16'>
       {/* 1. Real Amenities & Categories Chips */}
-      {shop.categories && shop.categories.length > 0 && (
+      {visibleCategories.length > 0 && (
         <div className='space-y-2'>
           <span className='text-[11px] font-bold text-muted-foreground uppercase tracking-wider block'>
             Đặc điểm &amp; Tiện ích
           </span>
           <div className='flex flex-wrap gap-1.5'>
-            {shop.categories.map((cat) => (
+            {visibleCategories.map((label) => (
               <div
-                key={cat}
+                key={label}
                 className='flex items-center gap-1.5 bg-secondary/70 border border-border/60 px-3 py-1.5 rounded-xl text-secondary-foreground text-xs font-medium'
               >
                 <Tag size={12} className='text-amber-gold flex-shrink-0' />
-                <span>{cat.replace('catering.', '').replace(/_/g, ' ')}</span>
+                <span>{label}</span>
               </div>
             ))}
           </div>
@@ -775,43 +783,37 @@ export const ReviewsTab = memo(function ReviewsTab({
   return (
     <div className='relative flex flex-col flex-1 min-h-full space-y-4'>
       {/* 1. Rating Breakdown Score Card */}
-      {hasShopRating || reviewsList.length > 0 ? (
-        <div className='bg-secondary/50 p-3.5 rounded-2xl border border-border/60 grid grid-cols-[110px_1fr] items-center gap-4 shadow-sm'>
-          <div className='flex flex-col items-center justify-center text-center pr-3 border-r border-border/50'>
-            <span className='text-3xl font-black text-foreground tracking-tight leading-none'>
-              {shopRating.toFixed(1)}
-            </span>
-            <div className='flex items-center gap-0.5 text-amber-gold my-1'>
-              {[1, 2, 3, 4, 5].map((star) => (
-                <Star
-                  key={star}
-                  size={12}
-                  className={
-                    star <= Math.round(shopRating)
-                      ? 'fill-amber-gold text-amber-gold'
-                      : 'text-border'
-                  }
-                />
-              ))}
-            </div>
-            <span className='text-[10px] text-muted-foreground font-medium leading-none'>
-              {totalReviews} Đánh giá
-            </span>
+      <div className='bg-secondary/50 p-3.5 rounded-2xl border border-border/60 grid grid-cols-[110px_1fr] items-center gap-4 shadow-sm'>
+        <div className='flex flex-col items-center justify-center text-center pr-3 border-r border-border/50'>
+          <span className='text-3xl font-black text-foreground tracking-tight leading-none'>
+            {shopRating.toFixed(1)}
+          </span>
+          <div className='flex items-center gap-0.5 text-amber-gold my-1'>
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Star
+                key={star}
+                size={12}
+                className={
+                  hasShopRating && star <= Math.round(shopRating)
+                    ? 'fill-amber-gold text-amber-gold'
+                    : 'text-border'
+                }
+              />
+            ))}
           </div>
+          <span className='text-[10px] text-muted-foreground font-medium leading-none'>
+            {totalReviews > 0 ? `${totalReviews} Đánh giá` : 'Chưa có đánh giá'}
+          </span>
+        </div>
 
-          <div className='space-y-1 text-xs text-secondary-foreground'>
-            <p className='text-xs text-muted-foreground font-medium'>
-              Đánh giá trung bình từ cộng đồng người dùng PhinFind.
-            </p>
-          </div>
+        <div className='space-y-1 text-xs text-secondary-foreground'>
+          <p className='text-xs text-muted-foreground font-medium'>
+            {hasShopRating || totalReviews > 0
+              ? 'Đánh giá trung bình từ cộng đồng người dùng PhinFind.'
+              : 'Chưa có đánh giá từ cộng đồng cho quán này.'}
+          </p>
         </div>
-      ) : (
-        <div className='bg-secondary/40 p-4 rounded-2xl border border-border/60 flex flex-col items-center justify-center text-center space-y-1.5 shadow-xs'>
-          <MessageSquare size={24} className='text-amber-gold' />
-          <span className='text-xs font-bold text-foreground'>Chưa có điểm đánh giá</span>
-          <p className='text-[11px] text-muted-foreground'>Hãy là người đầu tiên để lại đánh giá cho quán này!</p>
-        </div>
-      )}
+      </div>
 
       {/* 2. Inline "Write a Review" Action / Guest Auth Prompt */}
       {!isAuthenticated ? (

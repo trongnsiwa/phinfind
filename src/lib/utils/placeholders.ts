@@ -37,6 +37,10 @@ const CATEGORY_TRANSLATIONS: Record<string, string> = {
   'internet_access': 'Wi-Fi tốc độ cao',
   'internet access': 'Wi-Fi tốc độ cao',
   'internet access free': 'Wi-Fi miễn phí',
+  'internet access.free': 'Wi-Fi miễn phí',
+  'internet_access.free': 'Wi-Fi miễn phí',
+  'free_wifi': 'Wi-Fi miễn phí',
+  'free wifi': 'Wi-Fi miễn phí',
 };
 
 export function cleanCategoryLabel(raw: string): string {

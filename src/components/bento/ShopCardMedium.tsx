@@ -85,8 +85,8 @@ export const ShopCardMedium = memo(function ShopCardMedium({
               className={cn(
                 'text-[10px] sm:text-xs font-bold px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full border backdrop-blur-md shadow-sm tracking-wide',
                 isOpen
-                  ? 'bg-teal/30 text-teal dark:text-teal border-teal/40'
-                  : 'bg-rose-500/30 text-rose-300 dark:text-rose-300 border-rose-500/40'
+                  ? 'bg-teal/30 text-[#0D7A6E] border-teal/40'
+                  : 'bg-rose-500/30 text-[#B91C1C] border-rose-500/40'
               )}
             >
               <span

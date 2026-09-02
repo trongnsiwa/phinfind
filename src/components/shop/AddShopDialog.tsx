@@ -3,20 +3,24 @@
 import axios from 'axios';
 import {
   AlertCircle,
+  CalendarDays,
   Check,
   ChevronDown,
   Clock,
   Coffee,
+  Copy,
   Eye,
   Loader2,
   MapPin,
   Navigation,
   Phone,
   Plus,
+  Sparkles,
   Tag,
-  Trash2
+  Trash2,
+  X
 } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -24,6 +28,7 @@ import { z } from 'zod';
 import { LocationPickerMap } from '@/components/shop/LocationPickerMap';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import {
   Dialog,
   DialogContent,
@@ -34,6 +39,15 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocation } from '@/hooks/useLocation';
 import { cn } from '@/lib/utils';
@@ -63,6 +77,123 @@ const POPULAR_CATEGORIES = [
 
 const PRICE_OPTIONS: Array<'₫' | '₫₫' | '₫₫₫' | '₫₫₫₫'> = ['₫', '₫₫', '₫₫₫', '₫₫₫₫'];
 
+const TIME_GROUPS = [
+  {
+    label: 'Buổi sáng (06:00 - 11:30)',
+    options: [
+      '06:00',
+      '06:30',
+      '07:00',
+      '07:30',
+      '08:00',
+      '08:30',
+      '09:00',
+      '09:30',
+      '10:00',
+      '10:30',
+      '11:00',
+      '11:30'
+    ]
+  },
+  {
+    label: 'Buổi chiều (12:00 - 17:30)',
+    options: [
+      '12:00',
+      '12:30',
+      '13:00',
+      '13:30',
+      '14:00',
+      '14:30',
+      '15:00',
+      '15:30',
+      '16:00',
+      '16:30',
+      '17:00',
+      '17:30'
+    ]
+  },
+  {
+    label: 'Buổi tối (18:00 - 23:30)',
+    options: [
+      '18:00',
+      '18:30',
+      '19:00',
+      '19:30',
+      '20:00',
+      '20:30',
+      '21:00',
+      '21:30',
+      '22:00',
+      '22:30',
+      '23:00',
+      '23:30'
+    ]
+  },
+  {
+    label: 'Đêm & Sáng sớm (00:00 - 05:30)',
+    options: [
+      '00:00',
+      '00:30',
+      '01:00',
+      '01:30',
+      '02:00',
+      '02:30',
+      '03:00',
+      '03:30',
+      '04:00',
+      '04:30',
+      '05:00',
+      '05:30'
+    ]
+  }
+];
+
+const POPULAR_TIME_PRESETS = [
+  { label: '07:00 - 22:00', open: '07:00', close: '22:00' },
+  { label: '06:30 - 22:30', open: '06:30', close: '22:30' },
+  { label: '07:00 - 23:00', open: '07:00', close: '23:00' },
+  { label: '08:00 - 22:00', open: '08:00', close: '22:00' },
+  { label: '24/7 (Cả ngày)', open: '00:00', close: '23:59' }
+];
+
+export interface DayConfig {
+  day: number;
+  name: string;
+  short: string;
+}
+
+export const DAYS_LIST: DayConfig[] = [
+  { day: 1, name: 'Thứ Hai', short: 'T2' },
+  { day: 2, name: 'Thứ Ba', short: 'T3' },
+  { day: 3, name: 'Thứ Tư', short: 'T4' },
+  { day: 4, name: 'Thứ Năm', short: 'T5' },
+  { day: 5, name: 'Thứ Sáu', short: 'T6' },
+  { day: 6, name: 'Thứ Bảy', short: 'T7' },
+  { day: 0, name: 'Chủ Nhật', short: 'CN' }
+];
+
+export interface DayScheduleState {
+  enabled: boolean;
+  open: string;
+  close: string;
+}
+
+const openingPeriodSchema = z.object({
+  open: z.object({
+    day: z.number().int().min(0).max(6),
+    time: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Định dạng giờ phải là HH:MM')
+  }),
+  close: z.object({
+    day: z.number().int().min(0).max(6),
+    time: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Định dạng giờ phải là HH:MM')
+  })
+});
+
+const openingHoursFormSchema = z.object({
+  open_now: z.boolean(),
+  periods: z.array(openingPeriodSchema).optional()
+});
+
 const addShopFormSchema = z.object({
   name: z
     .string()
@@ -81,9 +212,7 @@ const addShopFormSchema = z.object({
   price_range: z.enum(['₫', '₫₫', '₫₫₫', '₫₫₫₫']).optional(),
   categories: z.array(z.string()),
   photos: z.array(z.string()),
-  open_now: z.boolean(),
-  open_time: z.string().optional(),
-  close_time: z.string().optional()
+  opening_hours: openingHoursFormSchema
 });
 
 
@@ -141,10 +270,23 @@ export function AddShopDialog({ open, onOpenChange, onSuccess }: AddShopDialogPr
       price_range: undefined,
       categories: [],
       photos: [],
-      open_now: true,
-      open_time: '',
-      close_time: ''
+      opening_hours: {
+        open_now: true,
+        periods: []
+      }
     }
+  });
+
+  // Schedule state for simple vs per-day mode
+  const [isCustomPerDay, setIsCustomPerDay] = useState(false);
+  const [sameOpenTime, setSameOpenTime] = useState('');
+  const [sameCloseTime, setSameCloseTime] = useState('');
+  const [weekSchedule, setWeekSchedule] = useState<Record<number, DayScheduleState>>(() => {
+    const initial: Record<number, DayScheduleState> = {};
+    DAYS_LIST.forEach((d) => {
+      initial[d.day] = { enabled: true, open: '', close: '' };
+    });
+    return initial;
   });
 
   // Set user's current location when modal opens or when GPS coords become available
@@ -165,7 +307,158 @@ export function AddShopDialog({ open, onOpenChange, onSuccess }: AddShopDialogPr
   const watchedCategories = watch('categories') || [];
   const watchedPhotos = watch('photos') || [];
   const watchedPrice = watch('price_range');
-  const watchedOpenNow = watch('open_now');
+  const watchedOpenNow = watch('opening_hours.open_now') ?? true;
+
+  const handleToggleDay = (day: number) => {
+    setWeekSchedule((prev) => ({
+      ...prev,
+      [day]: {
+        ...prev[day],
+        enabled: !prev[day]?.enabled
+      }
+    }));
+  };
+
+  const handleDayTimeChange = (day: number, field: 'open' | 'close', value: string) => {
+    setWeekSchedule((prev) => ({
+      ...prev,
+      [day]: {
+        ...prev[day],
+        [field]: value === '__NONE__' ? '' : value
+      }
+    }));
+  };
+
+  const handleCopyToAllDays = (sourceDay: number) => {
+    const source = weekSchedule[sourceDay];
+    if (!source || !source.open || !source.close) {
+      toast.info('Vui lòng chọn cả giờ mở và giờ đóng cửa trước khi sao chép.');
+      return;
+    }
+
+    setWeekSchedule((prev) => {
+      const next = { ...prev };
+      DAYS_LIST.forEach((d) => {
+        next[d.day] = {
+          enabled: true,
+          open: source.open,
+          close: source.close
+        };
+      });
+      return next;
+    });
+
+    toast.success(`Đã sao chép khung giờ (${source.open} - ${source.close}) sang tất cả 7 ngày.`);
+  };
+
+  const applyTimePreset = (open: string, close: string) => {
+    setSameOpenTime(open);
+    setSameCloseTime(close);
+    setWeekSchedule((prev) => {
+      const next = { ...prev };
+      DAYS_LIST.forEach((d) => {
+        next[d.day] = {
+          enabled: true,
+          open,
+          close
+        };
+      });
+      return next;
+    });
+  };
+
+  const clearAllHours = () => {
+    setSameOpenTime('');
+    setSameCloseTime('');
+    const resetWeek: Record<number, DayScheduleState> = {};
+    DAYS_LIST.forEach((d) => {
+      resetWeek[d.day] = { enabled: true, open: '', close: '' };
+    });
+    setWeekSchedule(resetWeek);
+  };
+
+  const enableAllDays = () => {
+    setWeekSchedule((prev) => {
+      const next = { ...prev };
+      DAYS_LIST.forEach((d) => {
+        next[d.day] = { ...next[d.day], enabled: true };
+      });
+      return next;
+    });
+  };
+
+  const closeWeekendDays = () => {
+    setWeekSchedule((prev) => ({
+      ...prev,
+      6: { ...prev[6], enabled: false },
+      0: { ...prev[0], enabled: false }
+    }));
+    toast.info('Đã tắt ngày Thứ Bảy và Chủ Nhật.');
+  };
+
+  const handlePresetAllDays = (open = '07:00', close = '22:00') => {
+    setSameOpenTime(open);
+    setSameCloseTime(close);
+    setWeekSchedule((prev) => {
+      const next = { ...prev };
+      DAYS_LIST.forEach((d) => {
+        next[d.day] = {
+          enabled: true,
+          open,
+          close
+        };
+      });
+      return next;
+    });
+    toast.success(`Đã áp dụng khung giờ (${open} - ${close}) cho cả 7 ngày.`);
+  };
+
+  const handlePresetWeekdays = (open = '07:00', close = '22:00') => {
+    setWeekSchedule((prev) => {
+      const next = { ...prev };
+      DAYS_LIST.forEach((d) => {
+        if (d.day === 6 || d.day === 0) {
+          next[d.day] = { enabled: false, open: '', close: '' };
+        } else {
+          next[d.day] = { enabled: true, open, close };
+        }
+      });
+      return next;
+    });
+    toast.success(`Đã cài đặt mở T2-T6 (${open} - ${close}), đóng T7 & CN.`);
+  };
+
+  const handlePreset247 = () => {
+    handlePresetAllDays('00:00', '23:59');
+  };
+
+  const computedPeriods = useMemo(() => {
+    if (isCustomPerDay) {
+      return DAYS_LIST
+        .filter(
+          (d) =>
+            weekSchedule[d.day]?.enabled &&
+            weekSchedule[d.day]?.open &&
+            weekSchedule[d.day]?.close
+        )
+        .map((d) => ({
+          open: { day: d.day, time: weekSchedule[d.day].open },
+          close: { day: d.day, time: weekSchedule[d.day].close }
+        }));
+    } else {
+      if (sameOpenTime && sameCloseTime) {
+        return DAYS_LIST.map((d) => ({
+          open: { day: d.day, time: sameOpenTime },
+          close: { day: d.day, time: sameCloseTime }
+        }));
+      }
+      return [];
+    }
+  }, [isCustomPerDay, weekSchedule, sameOpenTime, sameCloseTime]);
+
+  const hasAnyHoursSet =
+    (isCustomPerDay && computedPeriods.length > 0) ||
+    (!isCustomPerDay && Boolean(sameOpenTime || sameCloseTime));
 
   const handleAddPhoto = () => {
     const trimmed = newPhotoUrl.trim();
@@ -223,20 +516,10 @@ export function AddShopDialog({ open, onOpenChange, onSuccess }: AddShopDialogPr
     setIsSubmitting(true);
 
     try {
-      const openingHoursPayload =
-        data.open_time && data.close_time
-          ? {
-              open_now: data.open_now,
-              periods: [
-                {
-                  open: { day: 0, time: data.open_time },
-                  close: { day: 0, time: data.close_time }
-                }
-              ]
-            }
-          : {
-              open_now: data.open_now
-            };
+      const openingHoursPayload = {
+        open_now: data.opening_hours?.open_now ?? true,
+        periods: computedPeriods.length > 0 ? computedPeriods : undefined
+      };
 
       const payload = {
         name: data.name.trim(),
@@ -271,6 +554,8 @@ export function AddShopDialog({ open, onOpenChange, onSuccess }: AddShopDialogPr
         }
 
         reset();
+        clearAllHours();
+        setIsCustomPerDay(false);
         onOpenChange(false);
       }
     } catch (error: any) {
@@ -641,33 +926,515 @@ export function AddShopDialog({ open, onOpenChange, onSuccess }: AddShopDialogPr
               </div>
             </div>
 
-            {/* Opening Hours Inputs (Optional) */}
-            <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1'>
-              <div className='space-y-1'>
-                <Label htmlFor='shop-open-time' className='text-xs font-medium text-foreground flex items-center gap-1'>
-                  <Clock size={12} className='text-amber-gold' />
-                  <span>Giờ mở cửa (Tùy chọn)</span>
-                </Label>
-                <Input
-                  id='shop-open-time'
-                  type='time'
-                  {...register('open_time')}
-                  className='h-9 bg-secondary/50 border-border text-xs rounded-xl'
-                />
+            {/* Opening Hours Section (Google Maps style 7-day schedule) */}
+            <div className='space-y-3 pt-1'>
+              <div className='flex items-center justify-between flex-wrap gap-2'>
+                <div className='flex items-center gap-1.5'>
+                  <Clock size={14} className='text-amber-gold' />
+                  <span className='text-xs font-bold text-foreground uppercase tracking-wider'>
+                    Khung giờ hoạt động
+                  </span>
+                  <span className='text-[10px] text-muted-foreground font-normal'>(Tùy chọn)</span>
+                </div>
+
+                <div className='flex items-center gap-2'>
+                  <button
+                    type='button'
+                    onClick={() => {
+                      const nextMode = !isCustomPerDay;
+                      setIsCustomPerDay(nextMode);
+                      if (nextMode && sameOpenTime && sameCloseTime) {
+                        setWeekSchedule((prev) => {
+                          const next = { ...prev };
+                          DAYS_LIST.forEach((d) => {
+                            next[d.day] = {
+                              enabled: true,
+                              open: sameOpenTime,
+                              close: sameCloseTime
+                            };
+                          });
+                          return next;
+                        });
+                      }
+                    }}
+                    className={cn(
+                      'inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-xl border transition-all cursor-pointer select-none',
+                      isCustomPerDay
+                        ? 'bg-amber-gold/15 text-amber-gold border-amber-gold/40'
+                        : 'bg-secondary/60 text-secondary-foreground border-border hover:bg-secondary hover:text-foreground'
+                    )}
+                  >
+                    <CalendarDays size={12} />
+                    <span>{isCustomPerDay ? 'Đặt theo từng ngày' : 'Cùng giờ cả tuần'}</span>
+                  </button>
+
+                  {hasAnyHoursSet && (
+                    <button
+                      type='button'
+                      onClick={clearAllHours}
+                      className='text-[11px] text-muted-foreground hover:text-rose-500 transition-colors cursor-pointer flex items-center gap-1 px-1.5 py-1'
+                      title='Xóa toàn bộ giờ đã chọn'
+                    >
+                      <Trash2 size={11} />
+                      <span>Xóa giờ</span>
+                    </button>
+                  )}
+                </div>
               </div>
 
-              <div className='space-y-1'>
-                <Label htmlFor='shop-close-time' className='text-xs font-medium text-foreground flex items-center gap-1'>
-                  <Clock size={12} className='text-amber-gold' />
-                  <span>Giờ đóng cửa (Tùy chọn)</span>
-                </Label>
-                <Input
-                  id='shop-close-time'
-                  type='time'
-                  {...register('close_time')}
-                  className='h-9 bg-secondary/50 border-border text-xs rounded-xl'
-                />
-              </div>
+              {/* Mode 1: Same Hours For All Days */}
+              {!isCustomPerDay ? (
+                <div className='p-3.5 bg-secondary/30 rounded-2xl border border-border/80 space-y-3 animate-in fade-in duration-200'>
+                  <div className='flex items-center justify-between text-[11px] text-muted-foreground'>
+                    <span>Áp dụng một khung giờ mở/đóng cho tất cả các ngày (T2 - CN)</span>
+                    <button
+                      type='button'
+                      onClick={() => setIsCustomPerDay(true)}
+                      className='text-amber-gold hover:underline font-medium cursor-pointer'
+                    >
+                      Tùy chỉnh từng ngày &rarr;
+                    </button>
+                  </div>
+
+                  <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
+                    {/* Open Time */}
+                    <div className='space-y-1'>
+                      <Label
+                        htmlFor='same-open-time'
+                        className='text-[11px] font-medium text-muted-foreground flex items-center gap-1'
+                      >
+                        <span>Giờ mở cửa (Hàng ngày)</span>
+                      </Label>
+                      <div className='relative flex items-center'>
+                        <Select
+                          value={sameOpenTime || undefined}
+                          onValueChange={(val) => {
+                            const newOpen = val === '__NONE__' ? '' : val;
+                            setSameOpenTime(newOpen);
+                            if (newOpen) {
+                              setWeekSchedule((prev) => {
+                                const next = { ...prev };
+                                DAYS_LIST.forEach((d) => {
+                                  next[d.day] = { ...next[d.day], open: newOpen };
+                                });
+                                return next;
+                              });
+                            }
+                          }}
+                        >
+                          <SelectTrigger
+                            id='same-open-time'
+                            className={cn(
+                              'h-10 bg-background/80 border-border text-xs rounded-xl focus:ring-1 focus:ring-amber-gold focus:border-amber-gold/60 text-foreground transition-all',
+                              !sameOpenTime && 'text-muted-foreground'
+                            )}
+                          >
+                            <div className='flex items-center gap-2 truncate pr-4'>
+                              <Clock size={13} className='text-amber-gold shrink-0' />
+                              <SelectValue placeholder='Chọn giờ mở (VD: 07:00)' />
+                            </div>
+                          </SelectTrigger>
+                          <SelectContent className='max-h-56 bg-popover border-border rounded-xl shadow-xl z-50'>
+                            <SelectItem
+                              value='__NONE__'
+                              className='text-xs text-muted-foreground font-medium cursor-pointer'
+                            >
+                              -- Chưa chọn --
+                            </SelectItem>
+                            {TIME_GROUPS.map((group) => (
+                              <SelectGroup key={group.label}>
+                                <SelectLabel className='text-[10px] uppercase font-bold text-amber-gold/90 px-2 py-1 tracking-wider'>
+                                  {group.label}
+                                </SelectLabel>
+                                {group.options.map((time) => (
+                                  <SelectItem
+                                    key={time}
+                                    value={time}
+                                    className='text-xs font-mono py-1.5 cursor-pointer'
+                                  >
+                                    {time}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {sameOpenTime && (
+                          <button
+                            type='button'
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSameOpenTime('');
+                            }}
+                            className='absolute right-8 p-1 hover:bg-muted text-muted-foreground hover:text-foreground rounded-md transition-colors cursor-pointer'
+                            title='Xóa giờ mở cửa'
+                          >
+                            <X size={12} />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Close Time */}
+                    <div className='space-y-1'>
+                      <Label
+                        htmlFor='same-close-time'
+                        className='text-[11px] font-medium text-muted-foreground flex items-center gap-1'
+                      >
+                        <span>Giờ đóng cửa (Hàng ngày)</span>
+                      </Label>
+                      <div className='relative flex items-center'>
+                        <Select
+                          value={sameCloseTime || undefined}
+                          onValueChange={(val) => {
+                            const newClose = val === '__NONE__' ? '' : val;
+                            setSameCloseTime(newClose);
+                            if (newClose) {
+                              setWeekSchedule((prev) => {
+                                const next = { ...prev };
+                                DAYS_LIST.forEach((d) => {
+                                  next[d.day] = { ...next[d.day], close: newClose };
+                                });
+                                return next;
+                              });
+                            }
+                          }}
+                        >
+                          <SelectTrigger
+                            id='same-close-time'
+                            className={cn(
+                              'h-10 bg-background/80 border-border text-xs rounded-xl focus:ring-1 focus:ring-amber-gold focus:border-amber-gold/60 text-foreground transition-all',
+                              !sameCloseTime && 'text-muted-foreground'
+                            )}
+                          >
+                            <div className='flex items-center gap-2 truncate pr-4'>
+                              <Clock size={13} className='text-amber-gold shrink-0' />
+                              <SelectValue placeholder='Chọn giờ đóng (VD: 22:30)' />
+                            </div>
+                          </SelectTrigger>
+                          <SelectContent className='max-h-56 bg-popover border-border rounded-xl shadow-xl z-50'>
+                            <SelectItem
+                              value='__NONE__'
+                              className='text-xs text-muted-foreground font-medium cursor-pointer'
+                            >
+                              -- Chưa chọn --
+                            </SelectItem>
+                            {TIME_GROUPS.map((group) => (
+                              <SelectGroup key={group.label}>
+                                <SelectLabel className='text-[10px] uppercase font-bold text-amber-gold/90 px-2 py-1 tracking-wider'>
+                                  {group.label}
+                                </SelectLabel>
+                                {group.options.map((time) => (
+                                  <SelectItem
+                                    key={time}
+                                    value={time}
+                                    className='text-xs font-mono py-1.5 cursor-pointer'
+                                  >
+                                    {time}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {sameCloseTime && (
+                          <button
+                            type='button'
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSameCloseTime('');
+                            }}
+                            className='absolute right-8 p-1 hover:bg-muted text-muted-foreground hover:text-foreground rounded-md transition-colors cursor-pointer'
+                            title='Xóa giờ đóng cửa'
+                          >
+                            <X size={12} />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Popular Presets */}
+                  <div className='flex items-center flex-wrap gap-1.5 pt-0.5'>
+                    <span className='text-[11px] text-muted-foreground font-medium mr-1'>
+                      Gợi ý nhanh:
+                    </span>
+                    {POPULAR_TIME_PRESETS.map((preset) => {
+                      const isMatch =
+                        sameOpenTime === preset.open && sameCloseTime === preset.close;
+                      return (
+                        <button
+                          key={preset.label}
+                          type='button'
+                          onClick={() => applyTimePreset(preset.open, preset.close)}
+                          className={cn(
+                            'text-[11px] px-2.5 py-1 rounded-lg border font-medium transition-all duration-150 cursor-pointer select-none',
+                            isMatch
+                              ? 'bg-amber-gold/15 text-amber-gold border-amber-gold/40 font-semibold shadow-xs'
+                              : 'bg-secondary/40 text-muted-foreground border-border hover:bg-secondary hover:text-foreground'
+                          )}
+                        >
+                          {preset.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                /* Mode 2: Google Maps-Style 7-Day Schedule Editor */
+                <div className='p-2.5 sm:p-3 bg-secondary/25 rounded-2xl border border-border/80 space-y-2.5 animate-in fade-in duration-200'>
+                  <div className='flex items-center justify-between text-[11px] text-muted-foreground flex-wrap gap-1.5 pb-1 border-b border-border/60'>
+                    <span className='font-medium text-foreground/80'>Lịch theo từng ngày:</span>
+                    <div className='flex items-center gap-2 text-[10px]'>
+                      <button
+                        type='button'
+                        onClick={enableAllDays}
+                        className='text-amber-gold hover:underline font-medium cursor-pointer'
+                      >
+                        Bật tất cả
+                      </button>
+                      <span>•</span>
+                      <button
+                        type='button'
+                        onClick={closeWeekendDays}
+                        className='text-muted-foreground hover:text-foreground font-medium cursor-pointer'
+                      >
+                        Đóng T7 &amp; CN
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Day by Day Rows */}
+                  <div className='space-y-1.5'>
+                    {DAYS_LIST.map((d) => {
+                      const dayState = weekSchedule[d.day] || { enabled: true, open: '', close: '' };
+                      const isDayOpen = dayState.enabled;
+
+                      return (
+                        <div
+                          key={d.day}
+                          className={cn(
+                            'p-2 rounded-xl border transition-all duration-150',
+                            isDayOpen
+                              ? 'bg-background/95 border-border/80 shadow-2xs'
+                              : 'bg-secondary/30 border-dashed border-border/50 opacity-70'
+                          )}
+                        >
+                          <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-2'>
+                            {/* Left: Switch and Day label */}
+                            <div className='flex items-center justify-between sm:justify-start sm:w-28 shrink-0 gap-1.5'>
+                              <div className='flex items-center gap-1.5 min-w-0'>
+                                <Switch
+                                  id={`switch-day-${d.day}`}
+                                  checked={isDayOpen}
+                                  onCheckedChange={() => handleToggleDay(d.day)}
+                                  className='data-[state=checked]:bg-amber-gold scale-75 origin-left'
+                                />
+                                <Label
+                                  htmlFor={`switch-day-${d.day}`}
+                                  className='text-xs font-bold text-foreground cursor-pointer truncate'
+                                >
+                                  {d.name}
+                                </Label>
+                              </div>
+
+                              {/* Mobile actions & status */}
+                              <div className='sm:hidden flex items-center gap-1'>
+                                {isDayOpen ? (
+                                  <Button
+                                    type='button'
+                                    variant='ghost'
+                                    size='sm'
+                                    onClick={() => handleCopyToAllDays(d.day)}
+                                    disabled={!dayState.open || !dayState.close}
+                                    title='Sao chép giờ sang các ngày khác'
+                                    className='h-6 px-1.5 text-[10px] text-muted-foreground hover:text-amber-gold hover:bg-amber-gold/10 rounded-md cursor-pointer disabled:opacity-30'
+                                  >
+                                    <Copy size={11} className='mr-1' />
+                                    <span>Sao chép</span>
+                                  </Button>
+                                ) : (
+                                  <Badge
+                                    variant='outline'
+                                    className='text-[9px] px-1.5 py-0 bg-rose-500/10 text-rose-500 border-rose-500/20'
+                                  >
+                                    Đóng cửa
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Middle: Open & Close Time selects */}
+                            {isDayOpen ? (
+                              <div className='flex-1 flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2'>
+                                <div className='grid grid-cols-2 sm:flex sm:items-center gap-1.5 sm:gap-2 flex-1'>
+                                  {/* Open Time */}
+                                  <div className='relative flex-1'>
+                                    <Select
+                                      value={dayState.open || undefined}
+                                      onValueChange={(val) =>
+                                        handleDayTimeChange(d.day, 'open', val)
+                                      }
+                                    >
+                                      <SelectTrigger
+                                        className={cn(
+                                          'h-8 text-xs bg-secondary/50 border-border rounded-lg focus:ring-1 focus:ring-amber-gold text-foreground transition-all px-2',
+                                          !dayState.open && 'text-muted-foreground'
+                                        )}
+                                      >
+                                        <div className='flex items-center gap-1.5 truncate'>
+                                          <Clock size={11} className='text-amber-gold shrink-0' />
+                                          <SelectValue placeholder='Giờ mở' />
+                                        </div>
+                                      </SelectTrigger>
+                                      <SelectContent className='max-h-52 bg-popover border-border rounded-xl shadow-xl z-50'>
+                                        <SelectItem
+                                          value='__NONE__'
+                                          className='text-xs text-muted-foreground font-medium cursor-pointer'
+                                        >
+                                          -- Chưa chọn --
+                                        </SelectItem>
+                                        {TIME_GROUPS.map((group) => (
+                                          <SelectGroup key={group.label}>
+                                            <SelectLabel className='text-[10px] uppercase font-bold text-amber-gold/90 px-2 py-1 tracking-wider'>
+                                              {group.label}
+                                            </SelectLabel>
+                                            {group.options.map((time) => (
+                                              <SelectItem
+                                                key={time}
+                                                value={time}
+                                                className='text-xs font-mono py-1.5 cursor-pointer'
+                                              >
+                                                {time}
+                                              </SelectItem>
+                                            ))}
+                                          </SelectGroup>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+
+                                  <span className='hidden sm:inline text-xs text-muted-foreground font-semibold'>
+                                    -
+                                  </span>
+
+                                  {/* Close Time */}
+                                  <div className='relative flex-1'>
+                                    <Select
+                                      value={dayState.close || undefined}
+                                      onValueChange={(val) =>
+                                        handleDayTimeChange(d.day, 'close', val)
+                                      }
+                                    >
+                                      <SelectTrigger
+                                        className={cn(
+                                          'h-8 text-xs bg-secondary/50 border-border rounded-lg focus:ring-1 focus:ring-amber-gold text-foreground transition-all px-2',
+                                          !dayState.close && 'text-muted-foreground'
+                                        )}
+                                      >
+                                        <div className='flex items-center gap-1.5 truncate'>
+                                          <Clock size={11} className='text-amber-gold shrink-0' />
+                                          <SelectValue placeholder='Giờ đóng' />
+                                        </div>
+                                      </SelectTrigger>
+                                      <SelectContent className='max-h-52 bg-popover border-border rounded-xl shadow-xl z-50'>
+                                        <SelectItem
+                                          value='__NONE__'
+                                          className='text-xs text-muted-foreground font-medium cursor-pointer'
+                                        >
+                                          -- Chưa chọn --
+                                        </SelectItem>
+                                        {TIME_GROUPS.map((group) => (
+                                          <SelectGroup key={group.label}>
+                                            <SelectLabel className='text-[10px] uppercase font-bold text-amber-gold/90 px-2 py-1 tracking-wider'>
+                                              {group.label}
+                                            </SelectLabel>
+                                            {group.options.map((time) => (
+                                              <SelectItem
+                                                key={time}
+                                                value={time}
+                                                className='text-xs font-mono py-1.5 cursor-pointer'
+                                              >
+                                                {time}
+                                              </SelectItem>
+                                            ))}
+                                          </SelectGroup>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                </div>
+
+                                {/* Desktop Copy Button */}
+                                <Button
+                                  type='button'
+                                  variant='ghost'
+                                  size='sm'
+                                  onClick={() => handleCopyToAllDays(d.day)}
+                                  disabled={!dayState.open || !dayState.close}
+                                  title='Sao chép khung giờ này sang các ngày khác'
+                                  className='hidden sm:inline-flex h-8 px-2 text-[11px] text-muted-foreground hover:text-amber-gold hover:bg-amber-gold/10 rounded-lg shrink-0 cursor-pointer disabled:opacity-30'
+                                >
+                                  <Copy size={11} className='mr-1' />
+                                  <span>Sao chép</span>
+                                </Button>
+                              </div>
+                            ) : (
+                              /* When Closed (Desktop) */
+                              <div className='hidden sm:flex flex-1 items-center justify-end gap-2 text-[11px] text-muted-foreground py-0.5'>
+                                <Badge
+                                  variant='outline'
+                                  className='text-[9px] px-2 py-0.5 bg-secondary text-muted-foreground border-border'
+                                >
+                                  Đóng cửa cả ngày
+                                </Badge>
+                                <button
+                                  type='button'
+                                  onClick={() => handleToggleDay(d.day)}
+                                  className='text-amber-gold hover:underline font-medium text-[11px] cursor-pointer'
+                                >
+                                  Bật mở cửa
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Quick Preset Buttons below schedule */}
+                  <div className='p-2 bg-secondary/35 rounded-xl border border-border/60 space-y-1.5 mt-2'>
+                    <span className='text-[10px] uppercase tracking-wider font-bold text-muted-foreground flex items-center gap-1'>
+                      <Sparkles size={11} className='text-amber-gold' />
+                      <span>Cài đặt mẫu nhanh cho cả tuần:</span>
+                    </span>
+                    <div className='flex items-center flex-wrap gap-1.5'>
+                      <button
+                        type='button'
+                        onClick={() => handlePresetAllDays('07:00', '22:00')}
+                        className='text-[11px] px-2.5 py-1 rounded-lg border bg-background hover:bg-secondary border-border text-foreground hover:border-amber-gold/40 transition-all cursor-pointer font-medium shadow-2xs'
+                      >
+                        Mở tất cả (07:00 - 22:00)
+                      </button>
+                      <button
+                        type='button'
+                        onClick={() => handlePresetWeekdays('07:00', '22:00')}
+                        className='text-[11px] px-2.5 py-1 rounded-lg border bg-background hover:bg-secondary border-border text-foreground hover:border-amber-gold/40 transition-all cursor-pointer font-medium shadow-2xs'
+                      >
+                        Mở T2-T6, đóng T7 &amp; CN
+                      </button>
+                      <button
+                        type='button'
+                        onClick={handlePreset247}
+                        className='text-[11px] px-2.5 py-1 rounded-lg border bg-background hover:bg-secondary border-border text-foreground hover:border-amber-gold/40 transition-all cursor-pointer font-medium shadow-2xs'
+                      >
+                        Mở 24/7 cả tuần
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Photos URLs List */}
@@ -797,13 +1564,26 @@ export function AddShopDialog({ open, onOpenChange, onSuccess }: AddShopDialogPr
                         </span>
                       )}
                     </p>
-                    <div className='flex items-center gap-1.5 mt-1.5'>
+                    <div className='flex items-center gap-1.5 mt-1.5 flex-wrap'>
                       <Badge
                         variant='outline'
                         className='text-[9px] px-1.5 py-0 bg-teal/20 text-teal border-teal/40'
                       >
                         {watchedOpenNow ? 'Đang mở cửa' : 'Đã đóng cửa'}
                       </Badge>
+                      {computedPeriods.length > 0 && (
+                        <Badge
+                          variant='outline'
+                          className='text-[9px] px-1.5 py-0 border-amber-gold/40 text-amber-gold bg-amber-gold/10 flex items-center gap-1'
+                        >
+                          <Clock size={9} />
+                          <span>
+                            {isCustomPerDay
+                              ? `${computedPeriods.length}/7 ngày đặt giờ`
+                              : `${sameOpenTime} - ${sameCloseTime}`}
+                          </span>
+                        </Badge>
+                      )}
                       {watchedPrice && (
                         <Badge variant='secondary' className='text-[9px] px-1.5 py-0'>
                           {watchedPrice}

@@ -35,9 +35,9 @@ import { useUIStore } from '@/stores/useUIStore';
 import { generateCardSizes } from '@/lib/utils/bentoLayout';
 import type { CoffeeShop } from '@/types/shop';
 import { toast } from 'sonner';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { APP_ROUTES } from '@/lib/utils/constants';
+import { cn } from '@/lib/utils';
 
 export default function DiscoverPage() {
   const router = useRouter();
@@ -397,7 +397,12 @@ export default function DiscoverPage() {
       />
 
       {/* Floating Add Shop FAB Button */}
-      <div className="fixed bottom-20 sm:bottom-8 right-4 sm:right-8 z-30 animate-in fade-in zoom-in-95 duration-200">
+      <div
+        className={cn(
+          'fixed right-4 sm:right-8 z-50 transition-all duration-300 ease-out animate-in fade-in zoom-in-95',
+          isFilterFloating ? 'bottom-32 sm:bottom-16' : 'bottom-20 sm:bottom-8'
+        )}
+      >
         <Button
           type="button"
           onClick={() => {

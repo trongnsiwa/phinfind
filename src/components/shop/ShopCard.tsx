@@ -82,11 +82,11 @@ export function ShopCard({
             className={cn(
               'text-[10px] font-bold px-2.5 py-0.5 rounded-full border shadow-sm backdrop-blur-md',
               isOpen
-                ? 'bg-teal/20 text-teal border-teal/40'
-                : 'bg-rose-500/90 text-white border-rose-400'
+                ? 'bg-teal/30 text-[#0D7A6E] border-teal/40'
+                : 'bg-rose-500/30 text-[#B91C1C] border-rose-500/40'
             )}
           >
-            <span className={cn('w-1.5 h-1.5 rounded-full mr-1 inline-block', isOpen ? 'bg-teal animate-pulse' : 'bg-rose-200')} />
+            <span className={cn('w-1.5 h-1.5 rounded-full mr-1 inline-block', isOpen ? 'bg-teal animate-pulse' : 'bg-rose-400')} />
             {isOpen ? 'Đang mở cửa' : 'Đã đóng cửa'}
           </Badge>
 
