@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS public.shops (
   website TEXT,
   phone TEXT,
   categories TEXT[],
+  amenities JSONB DEFAULT '[]'::jsonb,
   opening_hours JSONB,
   created_by UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
   verified BOOLEAN DEFAULT false,

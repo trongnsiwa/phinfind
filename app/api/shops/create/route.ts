@@ -20,6 +20,22 @@ const openingHoursSchema = z.object({
   periods: z.array(openingPeriodSchema).optional()
 });
 
+const customAmenitySchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, 'Tên tiện ích không được để trống')
+    .max(100, 'Tên tiện ích tối đa 100 ký tự'),
+  description: z.string().trim().max(300, 'Mô tả tiện ích tối đa 300 ký tự').optional().default('')
+});
+
+const amenitySchema = z.object({
+  id: z.string().trim().min(1),
+  name: z.string().trim().min(1, 'Tên tiện ích không được để trống').max(100),
+  type: z.enum(['predefined', 'custom']).default('custom'),
+  description: z.string().trim().max(500).default('')
+});
+
 const createShopSchema = z.object({
   name: z
     .string()
@@ -58,6 +74,8 @@ const createShopSchema = z.object({
     .nullable()
     .transform((val) => val || null),
   categories: z.array(z.string().trim().min(1)).optional().default([]),
+  custom_amenities: z.array(customAmenitySchema).optional().default([]),
+  amenities: z.array(amenitySchema).optional().default([]),
   photos: z.array(z.string().trim().url('Đường dẫn ảnh không hợp lệ')).optional().default([]),
   opening_hours: openingHoursSchema.optional().default({ open_now: true })
 });
@@ -111,6 +129,39 @@ export async function POST(request: NextRequest) {
     const data = validationResult.data;
     const placeId = generateUniquePlaceId();
 
+    // Derive amenities if only categories or custom_amenities are sent (backward compatibility)
+    let finalAmenities = data.amenities || [];
+    let finalCategories = data.categories || [];
+
+    if (
+      finalAmenities.length === 0 &&
+      (finalCategories.length > 0 || (data.custom_amenities && data.custom_amenities.length > 0))
+    ) {
+      finalAmenities = [
+        ...finalCategories.map((c) => ({
+          id: c,
+          name: c,
+          type: 'predefined' as const,
+          description: ''
+        })),
+        ...(data.custom_amenities || []).map((ca, idx) => ({
+          id: `custom_${idx}_${Date.now()}`,
+          name: ca.name,
+          type: 'custom' as const,
+          description: ca.description || ''
+        }))
+      ];
+    } else if (finalCategories.length === 0 && finalAmenities.length > 0) {
+      finalCategories = finalAmenities.map((a) => a.id);
+    }
+
+    const finalCustomAmenities =
+      data.custom_amenities && data.custom_amenities.length > 0
+        ? data.custom_amenities
+        : finalAmenities
+            .filter((a) => a.type === 'custom')
+            .map((a) => ({ name: a.name, description: a.description }));
+
     const insertPayload = {
       place_id: placeId,
       name: data.name,
@@ -120,7 +171,9 @@ export async function POST(request: NextRequest) {
       phone: data.phone,
       website: data.website,
       price_range: data.price_range,
-      categories: data.categories,
+      categories: finalCategories,
+      custom_amenities: finalCustomAmenities,
+      amenities: finalAmenities,
       photos: data.photos,
       opening_hours: data.opening_hours,
       created_by: user.id,

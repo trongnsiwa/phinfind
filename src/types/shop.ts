@@ -8,6 +8,18 @@ export interface OpeningHours {
   periods?: OpeningPeriod[];
 }
 
+export interface CustomAmenity {
+  name: string;
+  description?: string;
+}
+
+export interface ShopAmenity {
+  id: string; // category key or custom ID
+  name: string; // display name
+  type: 'predefined' | 'custom';
+  description: string; // user-editable description
+}
+
 export interface CoffeeShop {
   id: string;
   place_id: string;
@@ -25,6 +37,8 @@ export interface CoffeeShop {
   website?: string;
   phone?: string;
   categories: string[];
+  custom_amenities?: CustomAmenity[];
+  amenities?: ShopAmenity[];
   created_by?: string | null;
   verified?: boolean;
 }

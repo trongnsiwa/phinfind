@@ -2,7 +2,7 @@
 
 import {
   Check, CheckCircle2, ChevronDown, ChevronRight, Clock, Coffee, Compass, Copy, CreditCard,
-  CupSoda, Edit3, Flame, Footprints, Globe, Images, Loader2, LogIn, MapPin, Navigation,
+  CupSoda, Edit3, Flame, Footprints, Globe, Heart, Images, Loader2, LogIn, MapPin, Navigation,
   Phone, Quote, Send, Sparkles, Star, Sun, Utensils, Wifi, Wind, X, Zap, Camera, Tag
 } from 'lucide-react';
 import Link from 'next/link';
@@ -205,12 +205,18 @@ export const OverviewTab = memo(function OverviewTab({
   };
 
   const visibleCategories = useMemo(() => {
+    if (shop.amenities && shop.amenities.length > 0) {
+      const labels = shop.amenities
+        .map((a) => a.name?.trim())
+        .filter((label): label is string => Boolean(label && label.length > 0));
+      return Array.from(new Set(labels));
+    }
     if (!shop.categories || shop.categories.length === 0) return [];
     const labels = shop.categories
       .map((cat) => cleanCategoryLabel(cat))
       .filter((label) => Boolean(label && label.trim().length > 0));
     return Array.from(new Set(labels));
-  }, [shop.categories]);
+  }, [shop.amenities, shop.categories]);
 
   return (
     <div className='space-y-4 pb-16'>
@@ -1086,62 +1092,253 @@ export const ReviewsTab = memo(function ReviewsTab({
   );
 });
 
-export const AmenitiesTab = memo(function AmenitiesTab() {
-  const amenitiesList = [
-    {
-      icon: Wifi,
-      title: 'Wi-Fi Tốc Độ Cao',
-      desc: 'Kết nối 100+ Mbps tối ưu cho làm việc từ xa, gọi video và lướt web',
-      badge: '100 Mbps'
-    },
-    {
-      icon: Zap,
-      title: 'Nhiều Ổ Cắm Điện',
-      desc: 'Ổ cắm sạc thuận tiện bố trí tại hầu hết các bàn và góc ngồi',
-      badge: 'Tại các bàn'
-    },
-    {
-      icon: Wind,
-      title: 'Không Gian Điều Hòa Mát Lạnh',
-      desc: 'Nhiệt độ phòng luôn mát mẻ và dễ chịu quanh năm',
-      badge: 'Mát mẻ'
-    },
-    {
-      icon: Sun,
-      title: 'Ban Công & Sân Vườn',
-      desc: 'Khu vực bàn ngoài trời thoáng đãng rợp bóng cây xanh',
-      badge: 'Thoáng đãng'
-    },
-    {
-      icon: Coffee,
-      title: 'Hạt Cà Phê Đặc Sản Nguyên Bản',
-      desc: 'Hạt Robusta & Arabica Cầu Đất, Đà Lạt được rang mộc tỉ mỉ',
-      badge: 'Hạt Đà Lạt'
-    },
-    {
-      icon: CupSoda,
-      title: 'Đồ Uống Thủ Công Đặc Trưng',
-      desc: 'Cà phê trứng, cà phê cốt dừa, matcha latte và cold brew',
-      badge: 'Món phải thử'
-    },
-    {
-      icon: CreditCard,
-      title: 'Thanh Toán Không Tiền Mặt',
-      desc: 'Hỗ trợ VietQR, Apple Pay, Visa, Mastercard và tiền mặt',
-      badge: 'Đa dạng'
-    },
-    {
-      icon: Utensils,
-      title: 'Bánh Ngọt & Đồ Ăn Nhẹ',
-      desc: 'Bánh sừng bò nóng hổi, bánh mì thủ công và bánh ngọt tươi mỗi ngày',
-      badge: 'Tươi mỗi ngày'
+const PREDEFINED_AMENITIES_MAP: Record<
+  string,
+  { icon: React.ElementType; title: string; badge: string; desc: string }
+> = {
+  'catering.cafe': {
+    icon: Coffee,
+    title: 'Cà phê phin truyền thống',
+    badge: 'Đậm đà',
+    desc: 'Phục vụ cà phê phin nguyên chất Robusta và Arabica rang mộc truyền thống'
+  },
+  'catering.cafe.specialty': {
+    icon: Coffee,
+    title: 'Cà Phê Đặc Sản Specialty',
+    badge: 'Chất lượng cao',
+    desc: 'Tuyển chọn các mẻ hạt rang thủ công chất lượng cao từ Cầu Đất & Buôn Ma Thuột'
+  },
+  specialty_coffee: {
+    icon: Coffee,
+    title: 'Cà phê đặc sản',
+    badge: 'Chất lượng cao',
+    desc: 'Tuyển chọn các mẻ hạt rang thủ công chất lượng cao từ Cầu Đất & Buôn Ma Thuột'
+  },
+  wifi: {
+    icon: Wifi,
+    title: 'Wi-Fi Tốc Độ Cao',
+    badge: '100+ Mbps',
+    desc: 'Kết nối mạng tốc độ cao tối ưu cho làm việc từ xa, gọi video và lướt web'
+  },
+  high_speed_wifi: {
+    icon: Wifi,
+    title: 'Wi-Fi tốc độ cao',
+    badge: '100+ Mbps',
+    desc: 'Kết nối mạng tốc độ cao 100+ Mbps, ổn định cho làm việc từ xa và giải trí'
+  },
+  power: {
+    icon: Zap,
+    title: 'Nhiều Ổ Cắm Điện',
+    badge: 'Tại các bàn',
+    desc: 'Ổ cắm sạc thuận tiện bố trí tại hầu hết các bàn và góc ngồi'
+  },
+  air_conditioning: {
+    icon: Wind,
+    title: 'Không Gian Điều Hòa Mát Lạnh',
+    badge: 'Mát mẻ',
+    desc: 'Nhiệt độ phòng luôn mát mẻ và dễ chịu quanh năm'
+  },
+  air_conditioned: {
+    icon: Wind,
+    title: 'Máy lạnh',
+    badge: 'Mát mẻ',
+    desc: 'Không gian điều hòa mát lạnh, thoáng đãng và dễ chịu quanh năm'
+  },
+  outdoor_seating: {
+    icon: Sun,
+    title: 'Ban Công & Sân Vườn',
+    badge: 'Thoáng đãng',
+    desc: 'Khu vực bàn ngoài trời thoáng đãng rợp bóng cây xanh'
+  },
+  outdoor_garden: {
+    icon: Sun,
+    title: 'Sân vườn',
+    badge: 'Thoáng đãng',
+    desc: 'Khu vực ngoài trời rợp bóng cây xanh, có quạt hơi nước thoáng mát'
+  },
+  quiet_space: {
+    icon: Sparkles,
+    title: 'Không Gian Học Tập & Yên Tĩnh',
+    badge: 'Yên tĩnh',
+    desc: 'Không gian học tập yên tĩnh, bàn rộng và ánh sáng dịu mắt phù hợp làm việc'
+  },
+  quiet_workspace: {
+    icon: Sparkles,
+    title: 'Yên tĩnh học tập',
+    badge: 'Yên tĩnh',
+    desc: 'Không gian yên tĩnh, bàn rộng, ánh sáng dịu mắt tối ưu cho làm việc và học tập'
+  },
+  bakery: {
+    icon: Utensils,
+    title: 'Bánh Ngọt & Đồ Ăn Nhẹ',
+    badge: 'Tươi mỗi ngày',
+    desc: 'Bánh sừng bò nóng hổi, bánh mì thủ công và bánh ngọt tươi mỗi ngày'
+  },
+  bakery_dessert: {
+    icon: Utensils,
+    title: 'Bánh ngọt',
+    badge: 'Tươi mỗi ngày',
+    desc: 'Bánh ngọt tươi mới mỗi ngày, bánh mì thủ công và đồ ăn nhẹ'
+  },
+  parking: {
+    icon: Navigation,
+    title: 'Chỗ Đỗ Xe Thuận Tiện',
+    badge: 'Rộng rãi',
+    desc: 'Khu vực đỗ xe máy và ô tô thuận tiện, có bảo vệ trông giữ an toàn'
+  },
+  parking_available: {
+    icon: Navigation,
+    title: 'Chỗ đỗ xe',
+    badge: 'Rộng rãi',
+    desc: 'Bãi đỗ xe máy và ô tô thuận tiện, có người trông giữ an toàn'
+  },
+  pet_friendly: {
+    icon: Heart,
+    title: 'Thú cưng',
+    badge: 'Thân thiện',
+    desc: 'Chào đón thú cưng, không gian thân thiện và thoải mái'
+  },
+  open_24_7: {
+    icon: Clock,
+    title: 'Mở 24/7',
+    badge: '24/7',
+    desc: 'Mở cửa phục vụ 24/7 suốt ngày đêm'
+  },
+  takeaway_service: {
+    icon: Coffee,
+    title: 'Dịch vụ mang đi',
+    badge: 'Nhanh chóng',
+    desc: 'Phục vụ mang đi nhanh chóng, đóng gói cẩn thận giữ trọn hương vị'
+  },
+  'payment.cards': {
+    icon: CreditCard,
+    title: 'Thanh Toán Không Tiền Mặt',
+    badge: 'Đa dạng',
+    desc: 'Hỗ trợ VietQR, Apple Pay, chuyển khoản ngân hàng và thẻ Visa/Mastercard'
+  }
+};
+
+export interface AmenitiesTabProps {
+  shop?: CoffeeShop;
+}
+
+export const AmenitiesTab = memo(function AmenitiesTab({ shop }: AmenitiesTabProps) {
+  const combinedList = useMemo(() => {
+    const list: Array<{
+      icon: React.ElementType;
+      title: string;
+      desc: string;
+      badge: string;
+      isCustom?: boolean;
+    }> = [];
+
+    // 1. Primary: Unified amenities structure
+    if (shop?.amenities && shop.amenities.length > 0) {
+      shop.amenities.forEach((amenity) => {
+        const lowerId = (amenity.id || '').toLowerCase();
+        const matchedKey = Object.keys(PREDEFINED_AMENITIES_MAP).find(
+          (k) => lowerId === k.toLowerCase() || lowerId.includes(k.toLowerCase())
+        );
+        const config = matchedKey ? PREDEFINED_AMENITIES_MAP[matchedKey] : undefined;
+        const Icon = config?.icon || (amenity.type === 'custom' ? Sparkles : Tag);
+        const title = amenity.name?.trim() || config?.title || cleanCategoryLabel(amenity.id);
+        const badge =
+          amenity.type === 'custom'
+            ? 'Tự định nghĩa'
+            : config?.badge || 'Tiện ích';
+        const desc =
+          amenity.description?.trim() ||
+          config?.desc ||
+          (amenity.type === 'custom'
+            ? 'Tiện ích đặc trưng do quán tự định nghĩa và cung cấp.'
+            : 'Tiện ích & dịch vụ đặc trưng được phục vụ tại quán.');
+
+        if (title && !list.some((item) => item.title.toLowerCase() === title.toLowerCase())) {
+          list.push({
+            icon: Icon,
+            title,
+            desc,
+            badge,
+            isCustom: amenity.type === 'custom'
+          });
+        }
+      });
+
+      return list;
     }
-  ];
+
+    // 2. Backward compatibility: Custom Amenities with user-written descriptions
+    if (shop?.custom_amenities && shop.custom_amenities.length > 0) {
+      shop.custom_amenities.forEach((custom) => {
+        if (custom.name?.trim()) {
+          list.push({
+            icon: Sparkles,
+            title: custom.name.trim(),
+            desc:
+              custom.description?.trim() ||
+              'Tiện ích đặc trưng do quán tự định nghĩa và cung cấp.',
+            badge: 'Tự định nghĩa',
+            isCustom: true
+          });
+        }
+      });
+    }
+
+    // 3. Backward compatibility: Predefined Categories with generated default descriptions
+    if (shop?.categories && shop.categories.length > 0) {
+      shop.categories.forEach((cat) => {
+        const lower = cat.toLowerCase();
+        const matchedKey = Object.keys(PREDEFINED_AMENITIES_MAP).find(
+          (k) => lower === k.toLowerCase() || lower.includes(k.toLowerCase())
+        );
+
+        if (matchedKey) {
+          const config = PREDEFINED_AMENITIES_MAP[matchedKey];
+          if (!list.some((item) => item.title.toLowerCase() === config.title.toLowerCase())) {
+            list.push({
+              icon: config.icon,
+              title: config.title,
+              desc: config.desc,
+              badge: config.badge
+            });
+          }
+        } else {
+          const cleanLabel = cleanCategoryLabel(cat);
+          if (cleanLabel && !list.some((item) => item.title.toLowerCase() === cleanLabel.toLowerCase())) {
+            list.push({
+              icon: Tag,
+              title: cleanLabel,
+              desc: 'Tiện ích & dịch vụ đặc trưng được phục vụ tại quán.',
+              badge: 'Tiện ích'
+            });
+          }
+        }
+      });
+    }
+
+    return list;
+  }, [shop?.amenities, shop?.custom_amenities, shop?.categories]);
+
+  if (combinedList.length === 0) {
+    return (
+      <div className='py-12 px-4 flex flex-col items-center justify-center text-center space-y-3 bg-secondary/20 rounded-2xl border border-dashed border-border/60 pb-16'>
+        <div className='w-12 h-12 rounded-2xl bg-amber-gold/10 text-amber-gold flex items-center justify-center'>
+          <Sparkles size={22} />
+        </div>
+        <div className='space-y-1 max-w-sm'>
+          <p className='text-sm font-bold text-foreground'>Chưa có tiện ích nào được thêm vào</p>
+          <p className='text-xs text-muted-foreground'>
+            Quán chưa cập nhật thông tin tiện ích chi tiết. Bạn có thể đóng góp thêm thông tin cho quán.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className='space-y-4 pb-16'>
       <div className='grid grid-cols-1 sm:grid-cols-2 gap-2.5'>
-        {amenitiesList.map((item, idx) => {
+        {combinedList.map((item, idx) => {
           const Icon = item.icon;
           return (
             <div
@@ -1155,10 +1352,19 @@ export const AmenitiesTab = memo(function AmenitiesTab() {
                 <span className='font-bold text-foreground text-xs leading-snug text-left'>
                   {item.title}
                 </span>
-                <span className='inline-flex items-center text-[9px] bg-muted px-1.5 py-0.5 rounded-md text-amber-gold font-semibold border border-border/40 self-start text-left'>
+                <span
+                  className={cn(
+                    'inline-flex items-center text-[9px] px-1.5 py-0.5 rounded-md font-semibold border self-start text-left',
+                    item.isCustom
+                      ? 'bg-amber-gold/15 text-amber-gold border-amber-gold/40'
+                      : 'bg-muted text-amber-gold border-border/40'
+                  )}
+                >
                   {item.badge}
                 </span>
-                <p className='text-[11px] text-secondary-foreground leading-relaxed text-left'>{item.desc}</p>
+                <p className='text-[11px] text-secondary-foreground leading-relaxed text-left'>
+                  {item.desc}
+                </p>
               </div>
             </div>
           );
@@ -1429,7 +1635,7 @@ export function ShopDetailsContent({
         </TabsContent>
 
         <TabsContent value='amenities' className='mt-0 focus-visible:outline-none'>
-          <AmenitiesTab />
+          <AmenitiesTab shop={shop} />
         </TabsContent>
       </div>
     </Tabs>

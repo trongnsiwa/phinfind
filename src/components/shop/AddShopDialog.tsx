@@ -10,6 +10,7 @@ import {
   Coffee,
   Copy,
   Eye,
+  Heart,
   Image,
   Link,
   Loader2,
@@ -18,9 +19,13 @@ import {
   Phone,
   Plus,
   Sparkles,
+  Sun,
   Tag,
   Trash2,
   Upload,
+  Utensils,
+  Wifi,
+  Wind,
   X
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -60,23 +65,80 @@ import { CoffeeShop } from '@/types/shop';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
 
-const POPULAR_CATEGORIES = [
-  { id: 'catering.cafe', label: 'Cà phê phin' },
-  { id: 'specialty_coffee', label: 'Cà phê đặc sản' },
-  // { id: 'specialty_drinks', label: 'Đồ uống đặc sản' },
-  { id: 'bakery_dessert', label: 'Bánh ngọt' },
-  { id: 'air_conditioned', label: 'Máy lạnh' },
-  { id: 'high_speed_wifi', label: 'Wi-Fi tốc độ cao' },
-  { id: 'quiet_workspace', label: 'Yên tĩnh học tập' },
-  // { id: 'private_room', label: 'Phòng riêng' },
-  { id: 'outdoor_garden', label: 'Sân vườn' },
-  // { id: 'outdoor_seating', label: 'Không gian ngoài trời' },
-  { id: 'parking_available', label: 'Chỗ đỗ xe' },
-  { id: 'pet_friendly', label: 'Thú cưng' },
-  { id: 'open_24_7', label: 'Mở 24/7' },
-  // { id: 'live_music_acoustic', label: 'Acoustic' },
-  // { id: 'kids_play_area', label: 'Khu vui chơi trẻ em' },
-  { id: 'takeaway_service', label: 'Dịch vụ mang đi' }
+export interface PredefinedCategoryConfig {
+  id: string;
+  label: string;
+  icon: React.ElementType;
+  defaultDescription: string;
+}
+
+const POPULAR_CATEGORIES: PredefinedCategoryConfig[] = [
+  {
+    id: 'catering.cafe',
+    label: 'Cà phê phin',
+    icon: Coffee,
+    defaultDescription: 'Phục vụ cà phê phin nguyên chất Robusta và Arabica rang mộc truyền thống'
+  },
+  {
+    id: 'specialty_coffee',
+    label: 'Cà phê đặc sản',
+    icon: Coffee,
+    defaultDescription: 'Tuyển chọn các mẻ hạt rang thủ công chất lượng cao từ Cầu Đất & Buôn Ma Thuột'
+  },
+  {
+    id: 'bakery_dessert',
+    label: 'Bánh ngọt',
+    icon: Utensils,
+    defaultDescription: 'Bánh ngọt tươi mới mỗi ngày, bánh mì thủ công và đồ ăn nhẹ'
+  },
+  {
+    id: 'air_conditioned',
+    label: 'Máy lạnh',
+    icon: Wind,
+    defaultDescription: 'Không gian điều hòa mát lạnh, thoáng đãng và dễ chịu quanh năm'
+  },
+  {
+    id: 'high_speed_wifi',
+    label: 'Wi-Fi tốc độ cao',
+    icon: Wifi,
+    defaultDescription: 'Kết nối mạng tốc độ cao 100+ Mbps, ổn định cho làm việc từ xa và giải trí'
+  },
+  {
+    id: 'quiet_workspace',
+    label: 'Yên tĩnh học tập',
+    icon: Sparkles,
+    defaultDescription: 'Không gian yên tĩnh, bàn rộng, ánh sáng dịu mắt tối ưu cho làm việc và học tập'
+  },
+  {
+    id: 'outdoor_garden',
+    label: 'Sân vườn',
+    icon: Sun,
+    defaultDescription: 'Khu vực ngoài trời rợp bóng cây xanh, có quạt hơi nước thoáng mát'
+  },
+  {
+    id: 'parking_available',
+    label: 'Chỗ đỗ xe',
+    icon: Navigation,
+    defaultDescription: 'Bãi đỗ xe máy và ô tô thuận tiện, có người trông giữ an toàn'
+  },
+  {
+    id: 'pet_friendly',
+    label: 'Thú cưng',
+    icon: Heart,
+    defaultDescription: 'Chào đón thú cưng, không gian thân thiện và thoải mái'
+  },
+  {
+    id: 'open_24_7',
+    label: 'Mở 24/7',
+    icon: Clock,
+    defaultDescription: 'Mở cửa phục vụ 24/7 suốt ngày đêm'
+  },
+  {
+    id: 'takeaway_service',
+    label: 'Dịch vụ mang đi',
+    icon: Coffee,
+    defaultDescription: 'Phục vụ mang đi nhanh chóng, đóng gói cẩn thận giữ trọn hương vị'
+  }
 ];
 
 const PRICE_OPTIONS: Array<'₫' | '₫₫' | '₫₫₫' | '₫₫₫₫'> = ['₫', '₫₫', '₫₫₫', '₫₫₫₫'];
@@ -198,6 +260,13 @@ const openingHoursFormSchema = z.object({
   periods: z.array(openingPeriodSchema).optional()
 });
 
+export interface Amenity {
+  id: string; // category key or custom ID
+  name: string; // display name
+  type: 'predefined' | 'custom';
+  description: string; // user-editable
+}
+
 const addShopFormSchema = z.object({
   name: z
     .string()
@@ -214,11 +283,9 @@ const addShopFormSchema = z.object({
   phone: z.string().optional(),
   website: z.string().optional(),
   price_range: z.enum(['₫', '₫₫', '₫₫₫', '₫₫₫₫']).optional(),
-  categories: z.array(z.string()),
   photos: z.array(z.string()),
   opening_hours: openingHoursFormSchema
 });
-
 
 type AddShopFormData = z.infer<typeof addShopFormSchema>;
 
@@ -244,7 +311,9 @@ export function AddShopDialog({ open, onOpenChange, onSuccess }: AddShopDialogPr
   const [newPhotoUrl, setNewPhotoUrl] = useState('');
   const [showUrlInput, setShowUrlInput] = useState(false);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
-  const [customTag, setCustomTag] = useState('');
+  const [amenities, setAmenities] = useState<Amenity[]>([]);
+  const [customAmenityName, setCustomAmenityName] = useState('');
+  const [customAmenityDesc, setCustomAmenityDesc] = useState('');
   const [showManualCoords, setShowManualCoords] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -276,7 +345,6 @@ export function AddShopDialog({ open, onOpenChange, onSuccess }: AddShopDialogPr
       phone: '',
       website: '',
       price_range: undefined,
-      categories: [],
       photos: [],
       opening_hours: {
         open_now: true,
@@ -312,7 +380,6 @@ export function AddShopDialog({ open, onOpenChange, onSuccess }: AddShopDialogPr
   const watchedAddress = watch('address');
   const watchedLat = watch('lat');
   const watchedLon = watch('lon');
-  const watchedCategories = watch('categories') || [];
   const watchedPhotos = watch('photos') || [];
   const watchedPrice = watch('price_range');
   const watchedOpenNow = watch('opening_hours.open_now') ?? true;
@@ -573,25 +640,56 @@ export function AddShopDialog({ open, onOpenChange, onSuccess }: AddShopDialogPr
     );
   };
 
-  const toggleCategory = (catId: string) => {
-    const exists = watchedCategories.includes(catId);
-    const updated = exists
-      ? watchedCategories.filter((c) => c !== catId)
-      : [...watchedCategories, catId];
-    setValue('categories', updated, {
-      shouldValidate: true
+  const togglePredefinedCategory = (cat: PredefinedCategoryConfig) => {
+    setAmenities((prev) => {
+      const exists = prev.some((a) => a.id === cat.id);
+      if (exists) {
+        return prev.filter((a) => a.id !== cat.id);
+      }
+      return [
+        ...prev,
+        {
+          id: cat.id,
+          name: cat.label,
+          type: 'predefined',
+          description: cat.defaultDescription
+        }
+      ];
     });
   };
 
-  const handleAddCustomTag = () => {
-    const trimmed = customTag.trim();
-    if (!trimmed) return;
-    if (watchedCategories.includes(trimmed)) {
-      setCustomTag('');
+  const handleUpdateAmenityDescription = (id: string, description: string) => {
+    setAmenities((prev) =>
+      prev.map((a) => (a.id === id ? { ...a, description } : a))
+    );
+  };
+
+  const handleRemoveAmenity = (id: string) => {
+    setAmenities((prev) => prev.filter((a) => a.id !== id));
+  };
+
+  const handleAddCustomAmenity = () => {
+    const name = customAmenityName.trim();
+    if (!name) {
+      toast.info('Vui lòng nhập tên tiện ích');
       return;
     }
-    setValue('categories', [...watchedCategories, trimmed], { shouldValidate: true });
-    setCustomTag('');
+    if (amenities.some((a) => a.name.toLowerCase() === name.toLowerCase())) {
+      toast.info('Tiện ích này đã tồn tại trong danh sách');
+      return;
+    }
+    const customId = `custom_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    setAmenities((prev) => [
+      ...prev,
+      {
+        id: customId,
+        name,
+        type: 'custom',
+        description: customAmenityDesc.trim()
+      }
+    ]);
+    setCustomAmenityName('');
+    setCustomAmenityDesc('');
   };
 
   const onSubmit = async (data: AddShopFormData) => {
@@ -616,7 +714,11 @@ export function AddShopDialog({ open, onOpenChange, onSuccess }: AddShopDialogPr
         phone: data.phone?.trim() || undefined,
         website: data.website?.trim() || undefined,
         price_range: data.price_range || undefined,
-        categories: data.categories,
+        amenities,
+        categories: amenities.map((a) => a.id),
+        custom_amenities: amenities
+          .filter((a) => a.type === 'custom')
+          .map((a) => ({ name: a.name, description: a.description })),
         photos: data.photos,
         opening_hours: openingHoursPayload
       };
@@ -644,6 +746,9 @@ export function AddShopDialog({ open, onOpenChange, onSuccess }: AddShopDialogPr
         clearAllHours();
         setIsCustomPerDay(false);
         setShowUrlInput(false);
+        setAmenities([]);
+        setCustomAmenityName('');
+        setCustomAmenityDesc('');
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
         }
@@ -867,83 +972,155 @@ export function AddShopDialog({ open, onOpenChange, onSuccess }: AddShopDialogPr
             </h3>
 
             {/* Category Chips */}
-            <div className='space-y-2'>
-              <Label className='text-xs font-semibold text-foreground'>
-                Đặc điểm &amp; Tiện ích nổi bật
-              </Label>
-              <div className='flex flex-wrap gap-2'>
-                {POPULAR_CATEGORIES.map((cat) => {
-                  const isSelected = watchedCategories.includes(cat.id);
-                  return (
-                    <button
-                      key={cat.id}
-                      type='button'
-                      onClick={() => toggleCategory(cat.id)}
-                      className={cn(
-                        'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border whitespace-nowrap transition-all duration-150 cursor-pointer select-none',
-                        isSelected
-                          ? 'bg-amber-gold text-primary-foreground border-amber-gold font-bold shadow-xs'
-                          : 'bg-secondary/60 text-secondary-foreground border-border hover:bg-secondary hover:text-foreground'
-                      )}
-                    >
-                      {isSelected && <Check size={12} className='stroke-[3] flex-shrink-0' />}
-                      <span>{cat.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Custom Tag Input */}
-              <div className='flex items-center gap-2 pt-1'>
-                <Input
-                  value={customTag}
-                  onChange={(e) => setCustomTag(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleAddCustomTag();
-                    }
-                  }}
-                  placeholder='Thêm tiện ích khác (VD: Acoustic, boardgame...)'
-                  className='h-8 text-xs bg-secondary/40 border-border rounded-xl'
-                />
-                <Button
-                  type='button'
-                  variant='outline'
-                  size='sm'
-                  onClick={handleAddCustomTag}
-                  disabled={!customTag.trim()}
-                  className='h-8 px-2.5 text-xs rounded-xl flex-shrink-0'
-                >
-                  <Plus size={13} />
-                  <span>Thêm</span>
-                </Button>
-              </div>
-
-              {/* Custom Tags Added */}
-              {watchedCategories.filter((c) => !POPULAR_CATEGORIES.some((p) => p.id === c)).length >
-                0 && (
-                <div className='flex flex-wrap gap-1.5 pt-1'>
-                  {watchedCategories
-                    .filter((c) => !POPULAR_CATEGORIES.some((p) => p.id === c))
-                    .map((tag) => (
-                      <span
-                        key={tag}
-                        className='inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-semibold bg-amber-gold text-primary-foreground shadow-xs'
+            <div className='space-y-3'>
+              <div className='space-y-2'>
+                <Label className='text-xs font-semibold text-foreground'>
+                  Đặc điểm &amp; Tiện ích nổi bật
+                </Label>
+                <div className='flex flex-wrap gap-2'>
+                  {POPULAR_CATEGORIES.map((cat) => {
+                    const isSelected = amenities.some((a) => a.id === cat.id);
+                    const CatIcon = cat.icon;
+                    return (
+                      <button
+                        key={cat.id}
+                        type='button'
+                        onClick={() => togglePredefinedCategory(cat)}
+                        className={cn(
+                          'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border whitespace-nowrap transition-all duration-150 cursor-pointer select-none',
+                          isSelected
+                            ? 'bg-amber-gold text-primary-foreground border-amber-gold font-bold shadow-xs'
+                            : 'bg-secondary/60 text-secondary-foreground border-border hover:bg-secondary hover:text-foreground'
+                        )}
                       >
-                        <span>{tag}</span>
-                        <button
-                          type='button'
-                          onClick={() => toggleCategory(tag)}
-                          className='hover:bg-black/20 rounded-full p-0.5 transition-colors cursor-pointer'
-                          aria-label={`Xóa tiện ích ${tag}`}
+                        {isSelected ? (
+                          <Check size={12} className='stroke-[3] flex-shrink-0' />
+                        ) : (
+                          <CatIcon size={12} className='flex-shrink-0 text-muted-foreground' />
+                        )}
+                        <span>{cat.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Selected Amenities List with Editable Descriptions */}
+              {amenities.length > 0 && (
+                <div className='space-y-2 pt-1'>
+                  <div className='flex items-center justify-between'>
+                    <Label className='text-xs font-semibold text-foreground flex items-center gap-1.5'>
+                      <Check size={13} className='text-teal stroke-[2.5]' />
+                      <span>Tiện ích đã chọn ({amenities.length})</span>
+                    </Label>
+                    <span className='text-[10px] text-muted-foreground'>
+                      Nhấp vào ô mô tả để chỉnh sửa theo ý bạn
+                    </span>
+                  </div>
+
+                  <div className='space-y-2'>
+                    {amenities.map((amenity) => {
+                      const predefinedCat = POPULAR_CATEGORIES.find((p) => p.id === amenity.id);
+                      const Icon = predefinedCat?.icon || (amenity.type === 'custom' ? Sparkles : Tag);
+                      return (
+                        <div
+                          key={amenity.id}
+                          className='p-3 bg-secondary/35 rounded-2xl border border-border/80 space-y-2 shadow-2xs'
                         >
-                          <Trash2 size={11} />
-                        </button>
-                      </span>
-                    ))}
+                          <div className='flex items-center justify-between gap-2'>
+                            <div className='flex items-center gap-2 min-w-0'>
+                              <div className='w-6 h-6 rounded-lg bg-amber-gold/15 text-amber-gold flex items-center justify-center flex-shrink-0'>
+                                <Icon size={13} />
+                              </div>
+                              <span className='text-xs font-bold text-foreground truncate'>
+                                {amenity.name}
+                              </span>
+                              <Badge
+                                variant='outline'
+                                className={cn(
+                                  'text-[9px] px-1.5 py-0',
+                                  amenity.type === 'custom'
+                                    ? 'bg-amber-gold/10 text-amber-gold border-amber-gold/30'
+                                    : 'bg-secondary text-muted-foreground border-border'
+                                )}
+                              >
+                                {amenity.type === 'custom' ? 'Tự định nghĩa' : 'Có sẵn'}
+                              </Badge>
+                            </div>
+                            <button
+                              type='button'
+                              onClick={() => handleRemoveAmenity(amenity.id)}
+                              className='p-1 hover:bg-rose-500/10 hover:text-rose-500 text-muted-foreground rounded-lg transition-colors cursor-pointer shrink-0'
+                              title='Xóa tiện ích này'
+                            >
+                              <Trash2 size={12} />
+                            </button>
+                          </div>
+                          <div className='flex items-start gap-2 pt-0.5'>
+                            <span className='text-[11px] text-muted-foreground font-medium shrink-0 pt-1'>
+                              Mô tả:
+                            </span>
+                            <textarea
+                              value={amenity.description}
+                              onChange={(e) =>
+                                handleUpdateAmenityDescription(amenity.id, e.target.value)
+                              }
+                              placeholder='Nhập hoặc chỉnh sửa mô tả cho tiện ích này...'
+                              rows={2}
+                              className='w-full text-xs bg-background border border-border/80 focus:border-amber-gold focus:ring-1 focus:ring-amber-gold rounded-xl px-2.5 py-1.5 text-foreground placeholder:text-muted-foreground/60 resize-y min-h-[38px] transition-all'
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
+
+              {/* Custom Amenities with Descriptions */}
+              <div className='p-3 bg-secondary/25 rounded-2xl border border-border/80 space-y-2.5 mt-2'>
+                <div className='flex items-center justify-between'>
+                  <Label className='text-xs font-semibold text-foreground flex items-center gap-1.5'>
+                    <Sparkles size={13} className='text-amber-gold' />
+                    <span>Thêm tiện ích tự định nghĩa</span>
+                  </Label>
+                  <span className='text-[10px] text-muted-foreground'>Viết tên &amp; mô tả riêng</span>
+                </div>
+
+                <div className='space-y-2'>
+                  <div className='flex items-center gap-2'>
+                    <Input
+                      value={customAmenityName}
+                      onChange={(e) => setCustomAmenityName(e.target.value)}
+                      placeholder='Tên tiện ích (VD: Phòng họp riêng, Đỗ xe ô tô, Ghế công thái học...)'
+                      className='h-8 text-xs bg-background border-border rounded-xl flex-1'
+                    />
+                    <Button
+                      type='button'
+                      variant='outline'
+                      size='sm'
+                      onClick={handleAddCustomAmenity}
+                      disabled={!customAmenityName.trim()}
+                      className='h-8 px-3 text-xs rounded-xl flex-shrink-0 cursor-pointer font-medium'
+                    >
+                      <Plus size={13} className='mr-1' />
+                      <span>Thêm</span>
+                    </Button>
+                  </div>
+                  <Input
+                    value={customAmenityDesc}
+                    onChange={(e) => setCustomAmenityDesc(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddCustomAmenity();
+                      }
+                    }}
+                    placeholder='Mô tả ngắn (VD: 5 phòng họp cách âm, trang bị máy chiếu...)'
+                    className='h-8 text-xs bg-background border-border rounded-xl'
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Price Range Selector */}
