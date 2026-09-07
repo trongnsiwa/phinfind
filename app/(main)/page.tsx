@@ -27,7 +27,7 @@ import { InfiniteScroll } from '@/components/bento/InfiniteScroll';
 import { ListSkeleton, SkeletonCard } from '@/components/common/LoadingSkeleton';
 
 import { useLocation } from '@/hooks/useLocation';
-import { useInfiniteShops } from '@/hooks/useShops';
+import { useInfiniteShops, useToggleFavorite, useUserFavorites } from '@/hooks/useShops';
 import { useReverseGeocode } from '@/hooks/useReverseGeocode';
 import { useAuth } from '@/hooks/useAuth';
 import { useShopStore } from '@/stores/useShopStore';
@@ -44,7 +44,10 @@ export default function DiscoverPage() {
   const { isAuthenticated } = useAuth();
   const { lat, lng, isFallback, loading: locationLoading } = useLocation();
   const { searchQuery, filters, setFilters, resetFilters } = useUIStore();
-  const { selectedShop, setSelectedShop, favorites, toggleFavorite } = useShopStore();
+  const { selectedShop, setSelectedShop, favorites } = useShopStore();
+
+  useUserFavorites();
+  const { toggleFavorite: toggleFavoriteMutation } = useToggleFavorite();
 
   const {
     data,
@@ -83,24 +86,10 @@ export default function DiscoverPage() {
 
 
   const handleToggleFav = (placeId: string) => {
-    if (!isAuthenticated) {
-      toast('Yêu cầu đăng nhập', {
-        description: 'Đăng nhập để bắt đầu lưu lại các quán yêu thích và chia sẻ trải nghiệm cà phê của bạn.',
-        action: {
-          label: 'Đăng nhập',
-          onClick: () => router.push(APP_ROUTES.LOGIN),
-        },
-      });
-      return;
-    }
-
-    const isFav = favorites.includes(placeId);
-    toggleFavorite(placeId);
-    if (isFav) {
-      toast.info('Đã xóa khỏi danh sách yêu thích');
-    } else {
-      toast.success('Đã lưu quán vào danh sách yêu thích!');
-    }
+    const shop =
+      rawShops.find((s) => s.place_id === placeId || s.id === placeId) ||
+      (selectedShop?.place_id === placeId ? selectedShop : undefined);
+    toggleFavoriteMutation(placeId, shop);
   };
 
   // Auto-open drawer if ?shop=id query param or /shop/[id] deep link is present on page load

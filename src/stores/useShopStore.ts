@@ -22,7 +22,16 @@ export const useShopStore = create<ShopState>((set, get) => ({
   setShops: (shops) => set({ shops }),
   setNearbyShops: (nearbyShops) => set({ nearbyShops }),
   setSelectedShop: (selectedShop) => set({ selectedShop }),
-  setFavorites: (favorites) => set({ favorites }),
+  setFavorites: (favorites) =>
+    set((state) => {
+      if (
+        state.favorites.length === favorites.length &&
+        state.favorites.every((id, idx) => id === favorites[idx])
+      ) {
+        return state;
+      }
+      return { favorites };
+    }),
   toggleFavorite: (placeId) =>
     set((state) => {
       const exists = state.favorites.includes(placeId);

@@ -14,7 +14,8 @@ export async function GET() {
   const { data, error } = await supabase
     .from('saved_shops')
     .select('*')
-    .eq('user_id', user.id);
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false });
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -42,7 +43,10 @@ export async function POST(request: NextRequest) {
 
   const { data, error } = await supabase
     .from('saved_shops')
-    .insert([{ user_id: user.id, place_id, name, address }])
+    .upsert(
+      [{ user_id: user.id, place_id, name, address: address || null }],
+      { onConflict: 'user_id,place_id' }
+    )
     .select()
     .single();
 

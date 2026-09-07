@@ -1,9 +1,28 @@
 'use client';
 
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { useCallback, useEffect } from 'react';
+import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
-import { API_ENDPOINTS } from '@/lib/utils/constants';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import { API_ENDPOINTS, APP_ROUTES } from '@/lib/utils/constants';
 import { CoffeeShop } from '@/types/shop';
+import { useShopStore } from '@/stores/useShopStore';
+import { useAuth } from '@/hooks/useAuth';
+
+export interface SavedShopItem {
+  id?: string;
+  user_id?: string;
+  place_id: string;
+  name: string;
+  address?: string | null;
+  created_at?: string;
+}
+
+export type ToggleFavoriteInput =
+  | string
+  | { place_id: string; name?: string; address?: string | null }
+  | CoffeeShop;
 
 export interface PaginatedShopsResponse {
   shops: CoffeeShop[];
@@ -93,3 +112,132 @@ export function useSearchShops(query: string, lat?: number, lng?: number) {
     enabled: Boolean(query.trim()),
   });
 }
+
+export function useUserFavorites() {
+  const { user, isAuthenticated, loading: isAuthLoading } = useAuth();
+  const setFavorites = useShopStore((state) => state.setFavorites);
+
+  const query = useQuery<SavedShopItem[]>({
+    queryKey: ['user', 'favorites', user?.id],
+    queryFn: async () => {
+      try {
+        const response = await axios.get<{ favorites: SavedShopItem[] }>(
+          API_ENDPOINTS.USER_FAVORITES
+        );
+        return response.data.favorites || [];
+      } catch (err: any) {
+        if (err?.response?.status === 401) {
+          return [];
+        }
+        throw err;
+      }
+    },
+    enabled: !isAuthLoading && isAuthenticated,
+    staleTime: 30 * 1000,
+  });
+
+  useEffect(() => {
+    if (query.data) {
+      const newIds = query.data.map((f) => f.place_id).filter(Boolean);
+      const currentIds = useShopStore.getState().favorites;
+      const isSame =
+        currentIds.length === newIds.length &&
+        currentIds.every((id, idx) => id === newIds[idx]);
+      if (!isSame) {
+        setFavorites(newIds);
+      }
+    } else if (!isAuthenticated && !isAuthLoading) {
+      if (useShopStore.getState().favorites.length > 0) {
+        setFavorites([]);
+      }
+    }
+  }, [query.data, isAuthenticated, isAuthLoading, setFavorites]);
+
+  return query;
+}
+
+export function useToggleFavorite() {
+  const queryClient = useQueryClient();
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
+
+  const toggleFavorite = useCallback(
+    async (
+      input: ToggleFavoriteInput,
+      details?: { name?: string; address?: string | null }
+    ) => {
+      let placeId: string;
+      let name: string = 'Quán Cà Phê';
+      let address: string | null = null;
+
+      if (typeof input === 'string') {
+        placeId = input;
+        if (details?.name) name = details.name;
+        if (details?.address !== undefined) address = details.address;
+      } else {
+        placeId = input.place_id || (input as any).id;
+        if (input.name) name = input.name;
+        if (input.address !== undefined) address = input.address;
+      }
+
+      if (!placeId) return;
+
+      if (!isAuthenticated) {
+        toast('Yêu cầu đăng nhập', {
+          description:
+            'Đăng nhập để bắt đầu lưu lại các quán yêu thích và chia sẻ trải nghiệm cà phê của bạn.',
+          action: {
+            label: 'Đăng nhập',
+            onClick: () => router.push(APP_ROUTES.LOGIN),
+          },
+        });
+        return;
+      }
+
+      const isCurrentlyFav = useShopStore.getState().favorites.includes(placeId);
+
+      // If adding and shop name wasn't provided, look up from Zustand store
+      if (!isCurrentlyFav && name === 'Quán Cà Phê') {
+        const store = useShopStore.getState();
+        const candidate =
+          store.shops.find((s) => s.place_id === placeId || s.id === placeId) ||
+          store.nearbyShops.find((s) => s.place_id === placeId || s.id === placeId) ||
+          (store.selectedShop?.place_id === placeId ? store.selectedShop : null);
+        if (candidate) {
+          name = candidate.name;
+          address = candidate.address || address;
+        }
+      }
+
+      // Optimistic store update
+      useShopStore.getState().toggleFavorite(placeId);
+
+      try {
+        if (isCurrentlyFav) {
+          await axios.delete(API_ENDPOINTS.USER_FAVORITES, {
+            params: { placeId },
+          });
+          toast.info('Đã xóa khỏi danh sách yêu thích');
+        } else {
+          await axios.post(API_ENDPOINTS.USER_FAVORITES, {
+            place_id: placeId,
+            name,
+            address: address || null,
+          });
+          toast.success('Đã lưu quán vào danh sách yêu thích!');
+        }
+
+        await queryClient.invalidateQueries({ queryKey: ['user', 'favorites'] });
+      } catch (error) {
+        console.error('Lỗi khi cập nhật danh sách yêu thích:', error);
+        // Rollback store state on failure
+        useShopStore.getState().toggleFavorite(placeId);
+        toast.error('Không thể cập nhật danh sách yêu thích. Vui lòng thử lại.');
+      }
+    },
+    [isAuthenticated, queryClient, router]
+  );
+
+  return Object.assign(toggleFavorite, { toggleFavorite });
+}
+

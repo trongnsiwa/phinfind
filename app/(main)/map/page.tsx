@@ -23,7 +23,7 @@ import { AddShopDialog } from '@/components/shop/AddShopDialog';
 
 import { useRouter } from 'next/navigation';
 import { useLocation } from '@/hooks/useLocation';
-import { useNearbyShops, useSearchShops } from '@/hooks/useShops';
+import { useNearbyShops, useSearchShops, useToggleFavorite, useUserFavorites } from '@/hooks/useShops';
 import { useReverseGeocode } from '@/hooks/useReverseGeocode';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useAuth } from '@/hooks/useAuth';
@@ -49,7 +49,10 @@ export default function MapPage() {
   const { isAuthenticated } = useAuth();
   const isDesktop = useMediaQuery('(min-width: 1024px)');
   const { lat, lng, loading: locationLoading, isFallback, refetchLocation } = useLocation();
-  const { selectedShop, setSelectedShop, favorites, toggleFavorite } = useShopStore();
+  const { selectedShop, setSelectedShop, favorites } = useShopStore();
+
+  useUserFavorites();
+  const { toggleFavorite: toggleFavoriteMutation } = useToggleFavorite();
   const { filters, setFilters, resetFilters } = useUIStore();
   const { data: apiShops = [], isLoading: isShopsLoading } = useNearbyShops(lat, lng);
   const { data: locationName, isLoading: isLocationNameLoading } = useReverseGeocode(lat, lng, isFallback);
@@ -218,24 +221,11 @@ export default function MapPage() {
   };
 
   const handleToggleFav = (placeId: string) => {
-    if (!isAuthenticated) {
-      toast('Yêu cầu đăng nhập', {
-        description: 'Đăng nhập để bắt đầu lưu lại các quán yêu thích và chia sẻ trải nghiệm cà phê của bạn.',
-        action: {
-          label: 'Đăng nhập',
-          onClick: () => router.push(APP_ROUTES.LOGIN),
-        },
-      });
-      return;
-    }
-
-    const isFav = favorites.includes(placeId);
-    toggleFavorite(placeId);
-    if (isFav) {
-      toast.info('Đã xóa khỏi danh sách yêu thích');
-    } else {
-      toast.success('Đã lưu quán vào danh sách yêu thích!');
-    }
+    const shop =
+      apiShops.find((s) => s.place_id === placeId || s.id === placeId) ||
+      searchResults.find((s) => s.place_id === placeId || s.id === placeId) ||
+      (selectedShop?.place_id === placeId ? selectedShop : undefined);
+    toggleFavoriteMutation(placeId, shop);
   };
 
   const handleSelectSuggestion = (shop: CoffeeShop) => {

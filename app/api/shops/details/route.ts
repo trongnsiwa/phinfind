@@ -27,7 +27,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Shop not found' }, { status: 404 });
     }
 
-    const shop = mapDbShopToCoffeeShop(data);
+    const userLat = searchParams.get('lat') ? parseFloat(searchParams.get('lat')!) : undefined;
+    const userLng = searchParams.get('lng') ? parseFloat(searchParams.get('lng')!) : undefined;
+
+    const shop = mapDbShopToCoffeeShop(data, userLat, userLng);
     return NextResponse.json({ shop });
   } catch (error) {
     console.error('API Error in /api/shops/details:', error);
