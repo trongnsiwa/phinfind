@@ -328,6 +328,7 @@ export default function LeafletMapInner({
         center={center}
         zoom={zoom}
         zoomControl={false}
+        attributionControl={false}
         scrollWheelZoom={true}
         className="w-full h-full z-0"
         style={{ width: '100%', height: '100%' }}
@@ -403,6 +404,13 @@ export default function LeafletMapInner({
         )}
 
         <MapFloatingControls center={center} onRecenter={onRecenter} />
+
+        {/* Subtle Map Attribution Notice */}
+        <div className="absolute bottom-1 left-3 z-[400] text-[9px] text-muted-foreground/60 select-none pointer-events-auto flex items-center gap-1 bg-background/50 backdrop-blur-xs px-1.5 py-0.5 rounded shadow-xs">
+          <span>&copy;</span>
+          <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-foreground">OpenStreetMap</a>
+          <span>contributors</span>
+        </div>
       </MapContainer>
     </div>
   );

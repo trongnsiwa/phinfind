@@ -111,12 +111,13 @@ export default function LocationPickerMapInner({
         center={[centerLat, centerLon]}
         zoom={15}
         zoomControl={false}
+        attributionControl={false}
         scrollWheelZoom={true}
         className="w-full h-full z-0"
         style={{ width: '100%', height: '100%' }}
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           maxZoom={19}
         />
@@ -130,6 +131,13 @@ export default function LocationPickerMapInner({
           eventHandlers={eventHandlers}
           title="Kéo thả hoặc nhấp bản đồ để chọn vị trí"
         />
+
+        {/* Subtle Map Attribution Notice */}
+        <div className="absolute bottom-1 left-2 z-[400] text-[8px] text-muted-foreground/60 select-none pointer-events-auto flex items-center gap-1 bg-background/50 backdrop-blur-xs px-1.5 py-0.5 rounded shadow-xs">
+          <span>&copy;</span>
+          <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-foreground">OpenStreetMap</a>
+          <span>contributors</span>
+        </div>
       </MapContainer>
 
       {/* Floating Instructions & Locate Button */}
