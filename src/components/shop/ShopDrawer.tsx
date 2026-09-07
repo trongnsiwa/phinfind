@@ -135,6 +135,10 @@ export function ShopDrawer({
     return `https://www.google.com/maps/dir/?api=1&destination=${displayedShop.lat},${displayedShop.lon}`;
   };
 
+  const handleTabChange = React.useCallback(() => {
+    setActiveSnapPoint(0.92);
+  }, []);
+
   if (!displayedShop) return null;
 
   return (
@@ -147,6 +151,7 @@ export function ShopDrawer({
       activeSnapPoint={activeSnapPoint}
       setActiveSnapPoint={setActiveSnapPoint}
       fadeFromIndex={0}
+      direction='bottom'
       shouldScaleBackground={false}
       preventScrollRestoration={true}
     >
@@ -154,15 +159,16 @@ export function ShopDrawer({
         {/* Subtle Semi-Transparent Backdrop Overlay */}
         <DrawerPrimitive.Overlay
           className={cn(
-            'fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px] transition-opacity duration-300 pointer-events-auto',
+            'fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px] transition-opacity duration-200 ease-out will-change-opacity pointer-events-auto',
             activeSnapPoint === 0.5 && 'opacity-0 pointer-events-none'
           )}
+          style={{ willChange: 'opacity' }}
         />
 
         {/* DRAGGABLE BOTTOM SHEET DRAWER CONTAINER */}
         <DrawerPrimitive.Content
           aria-describedby='shop-drawer-description'
-          className='fixed inset-x-0 bottom-0 z-50 flex flex-col bg-card/95 backdrop-blur-xl border-t border-border shadow-2xl max-w-2xl mx-auto rounded-t-[2rem] outline-none h-[92vh] transition-all text-foreground overflow-hidden'
+          className='fixed inset-x-0 bottom-0 z-50 flex flex-col bg-card border-t border-border shadow-2xl max-w-2xl mx-auto rounded-t-[2rem] outline-none h-[92vh] text-foreground overflow-hidden will-change-transform'
         >
           {/* Top Pill Handle Bar with Click-to-Expand */}
           <div
@@ -186,7 +192,7 @@ export function ShopDrawer({
               shop={displayedShop}
               isSidebar={false}
               scrollRef={scrollContainerRef}
-              onTabChange={() => setActiveSnapPoint(0.92)}
+              onTabChange={handleTabChange}
             />
           </div>
 

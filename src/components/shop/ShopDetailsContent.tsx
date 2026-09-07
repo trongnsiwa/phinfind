@@ -1389,7 +1389,7 @@ export interface ShopDetailsContentProps {
   onTabChange?: () => void;
 }
 
-export function ShopDetailsContent({
+export const ShopDetailsContent = memo(function ShopDetailsContent({
   shop,
   isSidebar = false,
   onSelectShop,
@@ -1632,7 +1632,7 @@ export function ShopDetailsContent({
         ref={scrollRef}
         data-vaul-no-drag
         className={cn(
-          'flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain pt-3',
+          'flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain contain-layout contain-style [contain:layout_style] pt-3',
           isSidebar ? 'px-4' : 'px-4 sm:px-6'
         )}
       >
@@ -1661,4 +1661,4 @@ export function ShopDetailsContent({
       </div>
     </Tabs>
   );
-}
+});
