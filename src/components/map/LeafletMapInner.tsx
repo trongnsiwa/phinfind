@@ -261,7 +261,7 @@ function MapFloatingControls({
   };
 
   return (
-    <div className="absolute bottom-5 right-4 sm:bottom-6 sm:right-6 z-[400] flex flex-col gap-2 pointer-events-auto select-none items-center">
+    <div className="absolute bottom-20 sm:bottom-20 max-md:bottom-36 right-4 sm:right-6 z-[400] flex flex-col gap-2 pointer-events-auto select-none items-center">
       {/* Recenter Location Button */}
       {onRecenter && (
         <Button

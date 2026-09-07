@@ -186,6 +186,7 @@ export function ShopDrawer({
               shop={displayedShop}
               isSidebar={false}
               scrollRef={scrollContainerRef}
+              onTabChange={() => setActiveSnapPoint(0.92)}
             />
           </div>
 

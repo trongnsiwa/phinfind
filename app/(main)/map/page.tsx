@@ -719,19 +719,24 @@ export default function MapPage() {
             </SheetContent>
           </Sheet>
         </div>
+      </div>
 
-        {/* Floating Add Shop FAB Button on Map */}
-        <div className="absolute bottom-5 right-4 sm:bottom-6 sm:right-6 z-[400] animate-in fade-in zoom-in-95 duration-200">
-          <Button
-            type="button"
-            onClick={handleOpenAddShop}
-            className="h-11 sm:h-12 px-3.5 sm:px-4 rounded-full bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground font-bold text-xs sm:text-sm shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-200 flex items-center gap-2 border border-white/20 backdrop-blur-md cursor-pointer select-none"
-            aria-label="Thêm quán cà phê mới"
-          >
-            <Plus size={18} strokeWidth={2.5} />
-            <span>Thêm quán</span>
-          </Button>
-        </div>
+      {/* Floating Add Shop FAB Button on Map */}
+      <div
+        className={cn(
+          'fixed z-[400] bottom-5 right-4 sm:bottom-6 sm:right-6 max-md:bottom-20 animate-in fade-in zoom-in-95 duration-200 pointer-events-auto transition-all',
+          selectedShop && isDesktop && 'lg:right-[460px] xl:right-[480px] 2xl:right-[500px]'
+        )}
+      >
+        <Button
+          type="button"
+          onClick={handleOpenAddShop}
+          className="h-11 sm:h-12 px-3.5 sm:px-4 rounded-full bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground font-bold text-xs sm:text-sm shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-200 flex items-center gap-2 border border-white/20 backdrop-blur-md cursor-pointer select-none"
+          aria-label="Thêm quán cà phê mới"
+        >
+          <Plus size={18} strokeWidth={2.5} />
+          <span>Thêm quán</span>
+        </Button>
       </div>
 
 

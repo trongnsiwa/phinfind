@@ -320,7 +320,7 @@ export function Header() {
                     onKeyDown={handleKeyDown}
                     placeholder='Tìm theo tên quán, đường phố, khu vực...'
                     aria-label='Tìm kiếm quán cà phê'
-                    className='w-48 sm:w-64 h-9 pl-9 pr-8 text-xs sm:text-sm bg-secondary text-foreground border-border rounded-xl focus-visible:ring-1 focus-visible:ring-amber-gold placeholder:text-muted-foreground shadow-inner'
+                    className='w-32 xs:w-48 sm:w-64 min-w-[120px] max-w-[calc(100vw-180px)] sm:max-w-none h-9 pl-9 pr-8 text-xs sm:text-sm bg-secondary text-foreground border-border rounded-xl focus-visible:ring-1 focus-visible:ring-amber-gold placeholder:text-muted-foreground shadow-inner'
                   />
                   {localValue && (
                     <Button
@@ -354,7 +354,7 @@ export function Header() {
 
             {/* Autocomplete Suggestions Dropdown Attached Below Right-Aligned Search */}
             {isSearchOpen && localValue.trim().length > 0 && (
-              <div className='absolute right-0 top-full mt-2 w-72 sm:w-80 md:w-96 bg-popover/98 backdrop-blur-xl border border-border rounded-2xl shadow-2xl p-2 z-[100] max-h-80 overflow-y-auto space-y-1 animate-in fade-in slide-in-from-top-1 duration-150 text-left'>
+              <div className='absolute right-0 top-full mt-2 w-[calc(100vw-6rem)] xs:w-72 sm:w-80 md:w-96 max-w-[calc(100vw-1.5rem)] bg-popover/98 backdrop-blur-xl border border-border rounded-2xl shadow-2xl p-2 z-[100] max-h-80 overflow-y-auto space-y-1 animate-in fade-in slide-in-from-top-1 duration-150 text-left'>
                 {isSearching ? (
                   <div className='py-6 text-center text-xs text-muted-foreground flex items-center justify-center gap-2 font-medium'>
                     <span className='w-3.5 h-3.5 rounded-full border-2 border-amber-gold border-t-transparent animate-spin' />

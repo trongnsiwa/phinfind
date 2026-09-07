@@ -1386,18 +1386,36 @@ export interface ShopDetailsContentProps {
   isSidebar?: boolean;
   onSelectShop?: (shop: CoffeeShop) => void;
   scrollRef?: React.RefObject<HTMLDivElement | null>;
+  onTabChange?: () => void;
 }
 
 export function ShopDetailsContent({
   shop,
   isSidebar = false,
   onSelectShop,
-  scrollRef
+  scrollRef,
+  onTabChange
 }: ShopDetailsContentProps) {
   const { shops, setSelectedShop } = useShopStore();
   const openImagePreview = useUIStore((state) => state.openImagePreview);
   const [activeTab, setActiveTab] = useState<'overview' | 'photos' | 'reviews' | 'amenities'>('overview');
   const [imgError, setImgError] = useState(false);
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    if (onTabChange) {
+      onTabChange();
+    }
+  }, [activeTab, onTabChange]);
+
+  useEffect(() => {
+    setActiveTab('overview');
+    isFirstRender.current = true;
+  }, [shop?.id]);
 
   const handleSelectShop = (s: CoffeeShop) => {
     if (onSelectShop) {
@@ -1577,7 +1595,10 @@ export function ShopDetailsContent({
 
         {/* 3. Underline Navigation Tabs */}
         <div className='pt-1.5 border-b border-border/50'>
-          <TabsList className='flex items-center justify-between bg-transparent p-0 h-auto rounded-none w-full gap-2'>
+          <TabsList
+            onClick={() => onTabChange?.()}
+            className='flex items-center justify-between bg-transparent p-0 h-auto rounded-none w-full gap-2'
+          >
             <TabsTrigger
               value='overview'
               className='flex-1 pb-2 pt-1 px-1 font-semibold text-xs text-muted-foreground hover:text-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none transition-all cursor-pointer'

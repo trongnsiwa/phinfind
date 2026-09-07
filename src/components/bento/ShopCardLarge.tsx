@@ -52,10 +52,23 @@ export const ShopCardLarge = memo(function ShopCardLarge({
   const distanceDisplay = shop.distance_text && shop.distance_text !== '0 m' ? shop.distance_text : 'Gần đây';
   const addressDisplay = shop.address?.trim() || 'Chưa có địa chỉ';
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.target !== e.currentTarget) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      if (e.key === ' ') {
+        e.preventDefault();
+      }
+      onSelect?.(shop);
+    }
+  };
+
   return (
     <Card
+      role="button"
+      tabIndex={0}
       onClick={() => onSelect?.(shop)}
-      className="col-span-1 sm:col-span-2 row-span-2 w-full h-full card-glow-border bg-gradient-to-b from-card via-card to-secondary/30 rounded-2xl border border-border/80 shadow-card hover:shadow-card-hover hover:border-amber-gold/50 hover:-translate-y-1 transition-all duration-300 p-0 flex flex-col justify-between cursor-pointer group relative overflow-hidden"
+      onKeyDown={handleKeyDown}
+      className="col-span-1 sm:col-span-2 row-span-2 w-full h-full card-glow-border bg-gradient-to-b from-card via-card to-secondary/30 rounded-2xl border border-border/80 shadow-card hover:shadow-card-hover hover:border-amber-gold/50 hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold transition-all duration-300 p-0 flex flex-col justify-between cursor-pointer group relative overflow-hidden"
     >
       {/* 2-Column Magazine-Style Gallery (60% Left, 40% Right Stacked) - Stretching flex-1 */}
       <div className="relative w-full flex-1 min-h-[190px] p-3.5 flex gap-2.5 bg-muted/60 border-b border-border/60 overflow-hidden">
