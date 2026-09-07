@@ -424,7 +424,7 @@ export default function MapPage() {
                 onKeyDown={handleSearchKeyDown}
                 placeholder="Tìm quán cà phê, đường phố, khu vực..."
                 aria-label="Tìm kiếm quán cà phê"
-                className="w-full h-8.5 pl-9 pr-8 text-xs bg-secondary text-foreground border-border rounded-xl focus-visible:ring-1 focus-visible:ring-amber-gold placeholder:text-muted-foreground shadow-inner"
+                className="w-full h-8.5 pl-9 pr-8 text-xs bg-secondary text-foreground border-border rounded-xl outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold/60 focus-visible:ring-offset-0 focus-visible:border-amber-gold/60 focus-visible:shadow-[0_0_0_1px_rgba(184,134,11,0.25)] placeholder:text-muted-foreground shadow-inner transition-all duration-200 ease-out"
               />
               {localQuery && (
                 <Button

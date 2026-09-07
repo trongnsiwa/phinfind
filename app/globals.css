@@ -749,6 +749,14 @@ select,
   color: var(--input-text);
 }
 
+input:focus,
+input:focus-visible,
+textarea:focus,
+textarea:focus-visible {
+  outline: none !important;
+  outline-offset: 0 !important;
+}
+
 input::placeholder,
 textarea::placeholder {
   color: var(--input-placeholder);

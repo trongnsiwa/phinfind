@@ -289,20 +289,35 @@ export function Header() {
 
           {/* Search container */}
           <div ref={searchContainerRef} className='relative flex items-center'>
-            {!isSearchOpen ? (
-              /* Closed state: Search icon button */
-              <Button
-                variant='ghost'
-                size='icon'
-                onClick={() => setIsSearchOpen(true)}
-                aria-label='Tìm quán cà phê (Cmd+K)'
-                className='h-9 w-9 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent/70 border border-border/60 hover:border-amber-gold/40 transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold flex-shrink-0'
+            {/* Closed state: Search icon button */}
+            <Button
+              variant='ghost'
+              size='icon'
+              onClick={() => setIsSearchOpen(true)}
+              aria-label='Tìm quán cà phê (Cmd+K)'
+              className={cn(
+                'h-9 w-9 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent/70 border border-border/60 hover:border-amber-gold/40 transition-all duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold flex-shrink-0',
+                isSearchOpen ? 'w-0 opacity-0 p-0 m-0 border-0 pointer-events-none scale-75 overflow-hidden' : 'opacity-100 scale-100'
+              )}
+            >
+              <Search size={16} className='text-muted-foreground' />
+            </Button>
+
+            {/* Open state: Width-based expanding container wrapping input + close button */}
+            <div
+              className={cn(
+                'overflow-hidden transition-all duration-300 ease-out will-change-[max-width,opacity] py-1 -my-1 px-1 -mx-1',
+                isSearchOpen
+                  ? 'max-w-[calc(100vw-180px)] xs:max-w-64 sm:max-w-80 opacity-100'
+                  : 'max-w-0 opacity-0 pointer-events-none'
+              )}
+            >
+              <div
+                className={cn(
+                  'flex items-center gap-1.5 transition-all duration-200 ease-out will-change-[transform,opacity] origin-right',
+                  isSearchOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+                )}
               >
-                <Search size={16} className='text-muted-foreground' />
-              </Button>
-            ) : (
-              /* Open state: Clean slide-in search input stretching leftward */
-              <div className='flex items-center gap-1.5 animate-in fade-in slide-in-from-right-3 duration-200 ease-out'>
                 <div className='relative flex items-center'>
                   <Search
                     size={15}
@@ -320,7 +335,7 @@ export function Header() {
                     onKeyDown={handleKeyDown}
                     placeholder='Tìm theo tên quán, đường phố, khu vực...'
                     aria-label='Tìm kiếm quán cà phê'
-                    className='w-32 xs:w-48 sm:w-64 min-w-[120px] max-w-[calc(100vw-180px)] sm:max-w-none h-9 pl-9 pr-8 text-xs sm:text-sm bg-secondary text-foreground border-border rounded-xl focus-visible:ring-1 focus-visible:ring-amber-gold placeholder:text-muted-foreground shadow-inner'
+                    className='w-32 xs:w-48 sm:w-64 min-w-[120px] max-w-[calc(100vw-180px)] sm:max-w-none h-9 pl-9 pr-8 text-xs sm:text-sm bg-secondary text-foreground border-border rounded-xl !outline-none focus:!outline-none focus-visible:!outline-none focus:ring-1 focus:ring-amber-gold/60 focus:ring-offset-0 focus:border-amber-gold/60 focus-visible:ring-1 focus-visible:ring-amber-gold/60 focus-visible:ring-offset-0 focus-visible:border-amber-gold/60 focus:shadow-[0_0_0_1px_rgba(184,134,11,0.25)] focus-visible:shadow-[0_0_0_1px_rgba(184,134,11,0.25)] placeholder:text-muted-foreground transition-all duration-200 ease-out will-change-[transform,opacity]'
                   />
                   {localValue && (
                     <Button
@@ -350,7 +365,7 @@ export function Header() {
                   <X size={16} />
                 </Button>
               </div>
-            )}
+            </div>
 
             {/* Autocomplete Suggestions Dropdown Attached Below Right-Aligned Search */}
             {isSearchOpen && localValue.trim().length > 0 && (
