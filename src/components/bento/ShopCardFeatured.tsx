@@ -12,7 +12,7 @@ import {
   Quote,
   Sparkles,
   Star,
-  Wifi
+  Tag
 } from 'lucide-react';
 import Link from 'next/link';
 import React, { memo, useState } from 'react';
@@ -242,7 +242,7 @@ export const ShopCardFeatured = memo(function ShopCardFeatured({
           </div>
 
           <div className="flex items-center gap-1.5 bg-background/90 px-2.5 py-1.5 rounded-lg border border-border/50 text-foreground font-semibold shadow-xs">
-            <Wifi size={13} className="text-amber-gold flex-shrink-0" />
+            <Tag size={13} className="text-amber-gold flex-shrink-0" />
             <span className="truncate text-xs">{shop.price_range || 'Bình dân'}</span>
           </div>
         </div>

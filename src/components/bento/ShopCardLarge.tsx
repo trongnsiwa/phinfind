@@ -2,7 +2,7 @@
 
 import React, { memo, useState } from 'react';
 import Link from 'next/link';
-import { Heart, MapPin, Navigation, Star, Footprints, ExternalLink, Quote, Coffee, Clock, Wifi, Images } from 'lucide-react';
+import { Heart, MapPin, Navigation, Star, Footprints, ExternalLink, Quote, Coffee, Clock, Tag, Images } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -210,7 +210,7 @@ export const ShopCardLarge = memo(function ShopCardLarge({
           </div>
 
           <div className="flex items-center gap-1 bg-background/90 px-2 py-1 rounded-lg border border-border/40 text-foreground font-semibold shadow-xs">
-            <Wifi size={12} className="text-amber-gold flex-shrink-0" />
+            <Tag size={12} className="text-amber-gold flex-shrink-0" />
             <span className="truncate text-[10px] sm:text-[11px]">{shop.price_range || 'Bình dân'}</span>
           </div>
         </div>

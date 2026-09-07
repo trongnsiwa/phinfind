@@ -1,6 +1,6 @@
 'use client';
 
-import { Clock, Coffee, Footprints, Heart, MapPin, Star, Wifi } from 'lucide-react';
+import { Clock, Coffee, Footprints, Heart, MapPin, Star, Tag } from 'lucide-react';
 import React, { memo, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
@@ -141,7 +141,7 @@ export const ShopCardSmall = memo(function ShopCardSmall({
           <Clock size={10} className="text-amber-gold flex-shrink-0" />
           <span className="truncate">{hasOpenInfo ? (isOpen ? 'Đang mở cửa' : 'Đã đóng cửa') : 'Giờ linh hoạt'}</span>
           <span className="text-border">•</span>
-          <Wifi size={10} className="text-amber-gold flex-shrink-0" />
+          <Tag size={10} className="text-amber-gold flex-shrink-0" />
           <span className="truncate">{shop.price_range || 'Bình dân'}</span>
         </div>
 

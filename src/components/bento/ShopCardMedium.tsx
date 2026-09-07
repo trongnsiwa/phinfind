@@ -1,6 +1,6 @@
 'use client';
 
-import { Clock, Coffee, Footprints, Heart, MapPin, Navigation, Star, Wifi } from 'lucide-react';
+import { Clock, Coffee, Footprints, Heart, MapPin, Navigation, Star, Tag } from 'lucide-react';
 import React, { memo, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
@@ -161,7 +161,7 @@ export const ShopCardMedium = memo(function ShopCardMedium({
 
         <div className='flex items-center justify-between text-xs mt-auto pt-1 border-t border-border/50'>
           <span className='text-[11px] text-foreground/80 font-semibold flex items-center gap-1'>
-            <Wifi size={10} className='text-amber-gold flex-shrink-0' />
+            <Tag size={10} className='text-amber-gold flex-shrink-0' />
             {shop.price_range || 'Bình dân'}
           </span>
 
