@@ -79,15 +79,10 @@ export function ShopCard({
 
           <Badge
             variant="outline"
-            className={cn(
-              'text-[10px] font-bold px-2.5 py-0.5 rounded-full border shadow-sm backdrop-blur-md',
-              isOpen
-                ? 'bg-teal/30 text-[#0D7A6E] border-teal/40'
-                : 'bg-rose-500/30 text-[#B91C1C] border-rose-500/40'
-            )}
+            className="text-xs font-bold px-2.5 py-1 rounded-full border border-white/15 bg-black/60 backdrop-blur-md text-white shadow-sm tracking-wide flex items-center gap-1.5"
           >
-            <span className={cn('w-1.5 h-1.5 rounded-full mr-1 inline-block', isOpen ? 'bg-teal animate-pulse' : 'bg-rose-400')} />
-            {isOpen ? 'Đang mở cửa' : 'Đã đóng cửa'}
+            <span className={cn('w-1.5 h-1.5 rounded-full inline-block', isOpen ? 'bg-teal animate-pulse' : 'bg-rose-400')} />
+            <span>{isOpen ? 'Đang mở cửa' : 'Đã đóng cửa'}</span>
           </Badge>
 
           {shop.price_range && (

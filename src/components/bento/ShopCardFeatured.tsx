@@ -158,20 +158,15 @@ export const ShopCardFeatured = memo(function ShopCardFeatured({
           {hasOpenInfo && (
             <Badge
               variant="outline"
-              className={cn(
-                'text-xs font-bold px-4 py-1.5 rounded-full border backdrop-blur-md shadow-md tracking-wide',
-                isOpen
-                  ? 'bg-teal/30 text-[#0D7A6E] border-teal/40'
-                  : 'bg-rose-500/30 text-[#B91C1C] border-rose-500/40'
-              )}
+              className="text-xs font-bold px-2.5 py-1 rounded-full border border-white/15 bg-black/60 backdrop-blur-md text-white shadow-md tracking-wide flex items-center gap-1.5"
             >
               <span
                 className={cn(
-                  'w-1.5 h-1.5 rounded-full mr-1.5',
+                  'w-1.5 h-1.5 rounded-full inline-block',
                   isOpen ? 'bg-teal animate-pulse' : 'bg-rose-400'
                 )}
               />
-              {isOpen ? 'Đang mở cửa' : 'Đã đóng cửa'}
+              <span>{isOpen ? 'Đang mở cửa' : 'Đã đóng cửa'}</span>
             </Badge>
           )}
         </div>
