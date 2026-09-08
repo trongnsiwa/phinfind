@@ -180,8 +180,8 @@ export function Header() {
   }
 
   return (
-    <header className='sticky top-0 z-40 bg-card/95 backdrop-blur-md border-b border-border text-foreground shadow-lg px-3 sm:px-4 py-2.5 transition-all duration-300'>
-      <div className='max-w-7xl mx-auto flex items-center justify-between gap-3 sm:gap-4'>
+    <header className='sticky-header sticky top-0 z-40 h-14 w-full bg-card/95 backdrop-blur-md border-b border-border text-foreground shadow-sm px-3 sm:px-4 transition-colors duration-200 flex items-center'>
+      <div className='max-w-7xl mx-auto w-full flex items-center justify-between gap-3 sm:gap-4'>
         {/* Left Side: Brand Logo + Desktop Navigation Links */}
         <div className='flex items-center gap-5 lg:gap-7 flex-shrink-0'>
           <Link

@@ -325,6 +325,14 @@ html.overflow-hidden body {
   overflow: hidden !important;
 }
 
+/* Cross-browser sticky header support */
+.sticky-header {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
 /* Firefox & Standard Scrollbar for html, body, and all elements */
 html,
 body,
