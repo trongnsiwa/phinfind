@@ -534,7 +534,7 @@ export function Header() {
                   asChild
                   className='cursor-pointer px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-secondary-foreground hover:text-foreground hover:bg-accent/60 focus:bg-accent focus:text-foreground transition-all duration-200 group'
                 >
-                  <Link href={APP_ROUTES.PROFILE} className='flex items-center gap-2.5 w-full'>
+                  <Link href={APP_ROUTES.SETTINGS} className='flex items-center gap-2.5 w-full'>
                     <Settings
                       size={16}
                       className='text-muted-foreground group-hover:text-primary transition-colors shrink-0'

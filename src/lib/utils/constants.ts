@@ -14,6 +14,7 @@ export const APP_ROUTES = {
   SIGNUP: '/signup',
   FAVORITES: '/favorites',
   PROFILE: '/profile',
+  SETTINGS: '/settings',
   SHOP_DETAIL: (id: string) => `/shop/${id}`,
 };
 

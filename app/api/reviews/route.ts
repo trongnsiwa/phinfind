@@ -5,19 +5,26 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const placeId = searchParams.get('placeId');
+    const userId = searchParams.get('userId');
 
-    if (!placeId) {
-      return NextResponse.json({ error: 'placeId required' }, { status: 400 });
+    if (!placeId && !userId) {
+      return NextResponse.json({ error: 'placeId or userId required' }, { status: 400 });
     }
 
     const supabase = await createPublicClient();
-    const { data, error } = await supabase
+    let query = supabase
       .from('reviews')
       .select(
         'id, shop_place_id, user_id, rating, comment, images, created_at, profiles(full_name, avatar_url, username)'
-      )
-      .eq('shop_place_id', placeId)
-      .order('created_at', { ascending: false });
+      );
+
+    if (placeId) {
+      query = query.eq('shop_place_id', placeId);
+    } else if (userId) {
+      query = query.eq('user_id', userId);
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false });
 
     if (error) {
       if (error.code === 'PGRST205') {
@@ -32,12 +39,40 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ reviews: [] });
     }
 
-    const formattedReviews = (data || []).map((item: any) => ({
-      ...item,
-      images: Array.isArray(item.images) ? item.images : [],
-      author: item.profiles?.full_name || item.profiles?.username || 'Tín đồ cà phê',
-      avatar: item.profiles?.avatar_url || null,
-    }));
+    // If userId was queried, also fetch shop details for each review
+    let shopsMap: Record<string, { name: string; address?: string; photo?: string }> = {};
+    if (userId && data && data.length > 0) {
+      const placeIds = Array.from(new Set(data.map((r: any) => r.shop_place_id).filter(Boolean)));
+      if (placeIds.length > 0) {
+        const { data: shopsData } = await supabase
+          .from('shops')
+          .select('place_id, name, address, photos')
+          .in('place_id', placeIds);
+
+        if (shopsData) {
+          shopsData.forEach((s: any) => {
+            shopsMap[s.place_id] = {
+              name: s.name,
+              address: s.address,
+              photo: s.photos?.[0],
+            };
+          });
+        }
+      }
+    }
+
+    const formattedReviews = (data || []).map((item: any) => {
+      const shopInfo = shopsMap[item.shop_place_id];
+      return {
+        ...item,
+        images: Array.isArray(item.images) ? item.images : [],
+        author: item.profiles?.full_name || item.profiles?.username || 'Tín đồ cà phê',
+        avatar: item.profiles?.avatar_url || null,
+        shop_name: shopInfo?.name || 'Quán Cà Phê',
+        shop_address: shopInfo?.address || null,
+        shop_photo: shopInfo?.photo || null,
+      };
+    });
 
     return NextResponse.json({ reviews: formattedReviews });
   } catch {
@@ -172,6 +207,46 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     return NextResponse.json(
       { error: error?.message || 'Không thể gửi đánh giá. Vui lòng thử lại.' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Yêu cầu đăng nhập để xóa đánh giá.' },
+        { status: 401 }
+      );
+    }
+
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ error: 'Thiếu mã đánh giá (id).' }, { status: 400 });
+    }
+
+    const { error } = await supabase
+      .from('reviews')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', user.id);
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error?.message || 'Không thể xóa đánh giá. Vui lòng thử lại.' },
       { status: 500 }
     );
   }

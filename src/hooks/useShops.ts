@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect } from 'react';
-import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -108,6 +108,9 @@ export interface ReviewData {
   created_at: string;
   author: string;
   avatar?: string | null;
+  shop_name?: string;
+  shop_address?: string | null;
+  shop_photo?: string | null;
   profiles?: {
     full_name: string | null;
     avatar_url: string | null;
@@ -127,6 +130,50 @@ export function useShopReviews(placeId: string) {
     },
     staleTime: 5 * 60 * 1000, // 5 minutes cache
     enabled: Boolean(placeId),
+  });
+}
+
+export function useUserReviews() {
+  const { user, isAuthenticated, loading: isAuthLoading } = useAuth();
+
+  return useQuery<ReviewData[]>({
+    queryKey: ['user', 'reviews', user?.id],
+    queryFn: async () => {
+      try {
+        const res = await axios.get<{ reviews: ReviewData[] }>('/api/reviews', {
+          params: { userId: user?.id },
+        });
+        return res.data?.reviews || [];
+      } catch (err: any) {
+        if (err?.response?.status === 401) {
+          return [];
+        }
+        throw err;
+      }
+    },
+    enabled: !isAuthLoading && isAuthenticated && Boolean(user?.id),
+    staleTime: 60 * 1000,
+  });
+}
+
+export function useDeleteReview() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (reviewId: string) => {
+      const res = await axios.delete('/api/reviews', {
+        params: { id: reviewId },
+      });
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user', 'reviews'] });
+      queryClient.invalidateQueries({ queryKey: ['shops', 'reviews'] });
+      toast.success('Đã xóa đánh giá thành công!');
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.error || 'Không thể xóa đánh giá. Vui lòng thử lại.');
+    },
   });
 }
 
