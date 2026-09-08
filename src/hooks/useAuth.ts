@@ -62,9 +62,24 @@ export function useAuth() {
     await supabase.auth.signOut();
   };
 
+  const refreshProfile = async () => {
+    if (!user) return null;
+    const { data } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+    if (data) {
+      setProfile(data);
+    }
+    return data;
+  };
+
   return {
     user,
     profile,
+    setProfile,
+    refreshProfile,
     loading,
     isAuthenticated: !!user,
     signOut,

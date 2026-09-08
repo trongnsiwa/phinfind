@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { API_ENDPOINTS, APP_ROUTES } from '@/lib/utils/constants';
 import { CoffeeShop } from '@/types/shop';
+import { UserProfile } from '@/types/user';
 import { useShopStore } from '@/stores/useShopStore';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -474,4 +475,27 @@ export function useToggleVisit() {
 
   return Object.assign(toggleVisit, { toggleVisit });
 }
+
+export function useUpdateProfile() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: {
+      username?: string | null;
+      full_name?: string | null;
+      avatar_url?: string | null;
+      bio?: string | null;
+    }) => {
+      const res = await axios.put<{ profile: UserProfile }>(
+        API_ENDPOINTS.USER_PROFILE,
+        payload
+      );
+      return res.data?.profile;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user', 'profile'] });
+    },
+  });
+}
+
 

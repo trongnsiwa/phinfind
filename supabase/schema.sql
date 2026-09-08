@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   username TEXT UNIQUE,
   full_name TEXT,
   avatar_url TEXT,
+  bio TEXT,
   email TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
