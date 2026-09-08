@@ -152,23 +152,85 @@ export function ListSkeleton({ count = 12 }: { count?: number }) {
 
 export function DetailSkeleton() {
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      <div className="w-full h-64 rounded-3xl overflow-hidden bg-secondary/80 border border-border/60">
-        <Skeleton className="w-full h-full bg-secondary" />
+    <div className="relative min-h-screen">
+      {/* 1. Floating Back Button Skeleton */}
+      <div className="fixed top-2 left-2 sm:top-4 sm:left-4 z-50">
+        <Skeleton className="h-8 sm:h-9 w-10 sm:w-24 rounded-full bg-card/90 border border-border shadow-md" />
       </div>
 
-      <Card className="p-6 bg-card text-foreground rounded-3xl border border-border shadow-card space-y-4">
+      {/* 2. Main Content Skeleton */}
+      <div className="max-w-3xl lg:max-w-4xl mx-auto space-y-5 px-4 sm:px-6 pt-2 pb-24 sm:pb-28">
+        {/* Gallery Collage Skeleton */}
+        <div className="w-full h-36 sm:h-44 rounded-2xl overflow-hidden bg-card border border-border/80 p-1.5 flex gap-1.5 shadow-sm">
+          <Skeleton className="flex-1 h-full rounded-xl bg-secondary" />
+          <div className="hidden xs:flex sm:flex flex-col w-28 sm:w-36 gap-1.5">
+            <Skeleton className="h-[calc(50%-3px)] rounded-xl bg-secondary" />
+            <Skeleton className="h-[calc(50%-3px)] rounded-xl bg-secondary" />
+          </div>
+        </div>
+
+        {/* Shop Title, Address & Badges */}
         <div className="space-y-2">
-          <Skeleton className="h-7 w-1/2 bg-secondary" />
-          <Skeleton className="h-4 w-3/4 bg-secondary/60" />
+          <Skeleton className="h-6 sm:h-7 w-2/5 rounded-lg bg-secondary" />
+          <Skeleton className="h-4 w-3/5 rounded-md bg-secondary/70" />
+          <div className="flex flex-wrap gap-1.5 pt-1">
+            <Skeleton className="h-6 w-16 rounded-xl bg-secondary" />
+            <Skeleton className="h-6 w-20 rounded-xl bg-secondary" />
+            <Skeleton className="h-6 w-24 rounded-xl bg-secondary" />
+          </div>
         </div>
-        <div className="h-px bg-border/60" />
-        <div className="space-y-3">
-          <Skeleton className="h-4 w-full bg-secondary/60" />
-          <Skeleton className="h-4 w-2/3 bg-secondary/60" />
+
+        {/* Underline Navigation Tabs */}
+        <div className="pt-1.5 border-b border-border/50 flex justify-between gap-2">
+          <Skeleton className="h-8 flex-1 rounded-none bg-secondary/60" />
+          <Skeleton className="h-8 flex-1 rounded-none bg-secondary/30" />
+          <Skeleton className="h-8 flex-1 rounded-none bg-secondary/30" />
+          <Skeleton className="h-8 flex-1 rounded-none bg-secondary/30" />
         </div>
-        <Skeleton className="h-11 w-full rounded-xl bg-amber-gold/20" />
-      </Card>
+
+        {/* Tab Content: Overview Section Placeholders */}
+        <div className="space-y-4 pt-1">
+          {/* Features & Amenities chips */}
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-36 rounded-md bg-secondary/70" />
+            <div className="flex flex-wrap gap-2">
+              <Skeleton className="h-7 w-24 rounded-full bg-secondary/80" />
+              <Skeleton className="h-7 w-28 rounded-full bg-secondary/80" />
+              <Skeleton className="h-7 w-20 rounded-full bg-secondary/80" />
+            </div>
+          </div>
+
+          {/* Community rating summary card */}
+          <div className="p-4 rounded-2xl bg-card border border-border/80 space-y-3 shadow-xs">
+            <div className="flex justify-between items-center">
+              <Skeleton className="h-4 w-36 rounded-md bg-secondary/70" />
+              <Skeleton className="h-4 w-28 rounded-md bg-secondary/50" />
+            </div>
+            <Skeleton className="h-10 w-full rounded-xl bg-secondary/40" />
+          </div>
+
+          {/* Opening hours card */}
+          <div className="p-4 rounded-2xl bg-card border border-border/80 flex items-center justify-between shadow-xs">
+            <div className="flex items-center gap-3">
+              <Skeleton className="h-9 w-9 rounded-full bg-secondary" />
+              <div className="space-y-1.5">
+                <Skeleton className="h-4 w-32 rounded-md bg-secondary" />
+                <Skeleton className="h-3.5 w-44 rounded-md bg-secondary/60" />
+              </div>
+            </div>
+            <Skeleton className="h-7 w-20 rounded-lg bg-secondary/60" />
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Floating Bottom Action Bar Skeleton */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-xl border-t border-border px-4 py-2.5 sm:py-3 shadow-2xl">
+        <div className="max-w-3xl lg:max-w-4xl mx-auto grid grid-cols-3 gap-2 sm:gap-3">
+          <Skeleton className="h-11 rounded-full bg-amber-gold/20" />
+          <Skeleton className="h-11 rounded-full bg-secondary/80" />
+          <Skeleton className="h-11 rounded-full bg-secondary/80" />
+        </div>
+      </div>
     </div>
   );
 }

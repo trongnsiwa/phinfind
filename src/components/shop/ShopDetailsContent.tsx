@@ -179,7 +179,9 @@ export const OverviewTab = memo(function OverviewTab({
   getDirectionsUrl,
   onSelectShop,
   similarShops,
-  scheduleInfo
+  scheduleInfo,
+  isStandalone = false,
+  hideActions = false
 }: {
   shop: CoffeeShop;
   experienceTagline: string;
@@ -187,6 +189,8 @@ export const OverviewTab = memo(function OverviewTab({
   onSelectShop: (s: CoffeeShop) => void;
   similarShops: CoffeeShop[];
   scheduleInfo: ComputedSchedule;
+  isStandalone?: boolean;
+  hideActions?: boolean;
 }) {
   const [copied, setCopied] = useState(false);
   const [isHoursExpanded, setIsHoursExpanded] = useState(false);
@@ -490,17 +494,19 @@ export const OverviewTab = memo(function OverviewTab({
           </div>
         </div>
 
-        <a
-          href={getDirectionsUrl()}
-          target='_blank'
-          rel='noopener noreferrer'
-          className='block pt-1'
-        >
-          <Button className='w-full h-12 bg-amber-gold text-primary-foreground hover:bg-amber-gold-hover font-bold text-sm rounded-xl shadow-lg shadow-amber-gold/20 transition-all transform active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer'>
-            <Navigation size={16} className='fill-primary-foreground' />
-            Đến Quán Ngay • Mở Google Maps
-          </Button>
-        </a>
+        {!(isStandalone || hideActions) && (
+          <a
+            href={getDirectionsUrl()}
+            target='_blank'
+            rel='noopener noreferrer'
+            className='block pt-1'
+          >
+            <Button className='w-full h-12 bg-amber-gold text-primary-foreground hover:bg-amber-gold-hover font-bold text-sm rounded-xl shadow-lg shadow-amber-gold/20 transition-all transform active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer'>
+              <Navigation size={16} className='fill-primary-foreground' />
+              Đến Quán Ngay • Mở Google Maps
+            </Button>
+          </a>
+        )}
       </div>
 
       {/* 7. Nearby Recommendations */}
@@ -644,10 +650,12 @@ interface ReviewItem {
 
 export const ReviewsTab = memo(function ReviewsTab({
   shop,
-  isSidebar = false
+  isSidebar = false,
+  isStandalone = false
 }: {
   shop: CoffeeShop;
   isSidebar?: boolean;
+  isStandalone?: boolean;
 }) {
   const router = useRouter();
   const { user, profile, isAuthenticated } = useAuth();
@@ -656,6 +664,7 @@ export const ReviewsTab = memo(function ReviewsTab({
   const [rating, setRating] = useState(5);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState('');
+  const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const formRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -664,8 +673,16 @@ export const ReviewsTab = memo(function ReviewsTab({
   const shopRating = shop.rating || 0;
   const totalReviews = shop.total_ratings || reviewsList.length;
 
+  // Auto-scroll to review form in standalone view
   useEffect(() => {
-    if (!isFormOpen) return;
+    if (isFormOpen && isStandalone && formRef.current) {
+      formRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [isFormOpen, isStandalone]);
+
+  // Click outside listener for drawer/sidebar only
+  useEffect(() => {
+    if (!isFormOpen || isStandalone) return;
 
     const handleClickOutside = (event: MouseEvent | TouchEvent) => {
       const target = event.target as Node;
@@ -675,6 +692,7 @@ export const ReviewsTab = memo(function ReviewsTab({
         !triggerRef.current?.contains(target)
       ) {
         setIsFormOpen(false);
+        setFormError('');
       }
     };
 
@@ -684,7 +702,7 @@ export const ReviewsTab = memo(function ReviewsTab({
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('touchstart', handleClickOutside);
     };
-  }, [isFormOpen]);
+  }, [isFormOpen, isStandalone]);
 
   useEffect(() => {
     let isMounted = true;
@@ -737,16 +755,19 @@ export const ReviewsTab = memo(function ReviewsTab({
     }
 
     if (!rating || rating < 1 || rating > 5) {
+      setFormError('Vui lòng chọn số sao đánh giá từ 1 đến 5.');
       toast.error('Vui lòng chọn số sao đánh giá từ 1 đến 5.');
       return;
     }
 
     if (!comment || comment.trim().length < 3) {
+      setFormError('Vui lòng viết ít nhất 3 ký tự cho bài đánh giá của bạn.');
       toast.error('Vui lòng viết ít nhất 3 ký tự cho bài đánh giá của bạn.');
       return;
     }
 
     setIsSubmitting(true);
+    setFormError('');
     try {
       const placeId = shop.place_id || shop.id;
       const res = await fetch('/api/reviews', {
@@ -783,14 +804,193 @@ export const ReviewsTab = memo(function ReviewsTab({
       setReviewsList((prev) => [newReview, ...prev]);
       setComment('');
       setRating(5);
+      setFormError('');
       setIsFormOpen(false);
       toast.success('Cảm ơn bạn! Đánh giá của bạn đã được đăng tải.');
     } catch (err: any) {
-      toast.error(err.message || 'Không thể gửi đánh giá. Vui lòng thử lại.');
+      const msg = err.message || 'Không thể gửi đánh giá. Vui lòng thử lại.';
+      setFormError(msg);
+      toast.error(msg);
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  const renderReviewForm = (
+    <motion.div
+      ref={formRef}
+      key='review-form'
+      initial={{ opacity: 0, y: isStandalone ? 12 : '100%' }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: isStandalone ? 12 : '100%' }}
+      transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+      className={cn(
+        'select-none text-foreground flex flex-col gap-3.5',
+        isStandalone
+          ? 'bg-card/85 backdrop-blur-sm border border-border/80 rounded-2xl p-4 sm:p-5 shadow-md mt-4'
+          : cn(
+              'sticky bottom-0 z-30 bg-card/95 backdrop-blur-md border-t border-border/70 mt-auto shadow-xl',
+              isSidebar
+                ? '-mx-4 px-4 pt-3.5 pb-4'
+                : '-mx-4 sm:-mx-6 px-4 sm:px-6 pt-3.5 pb-4'
+            )
+      )}
+    >
+      {/* 1. Prominent Header with Icon, Title, Subtitle, and Close Button */}
+      <div className='flex items-center justify-between border-b border-border/50 pb-2.5'>
+        <div className='flex items-center gap-2'>
+          <div className='w-7 h-7 rounded-xl bg-amber-gold/15 border border-amber-gold/30 flex items-center justify-center text-amber-gold shadow-xs flex-shrink-0'>
+            <Edit3 size={14} />
+          </div>
+          <div>
+            <h4 className='font-bold text-xs sm:text-sm text-foreground leading-none'>
+              Viết Đánh Giá Của Bạn
+            </h4>
+            <p className='text-[10px] text-muted-foreground mt-0.5'>
+              Chia sẻ trải nghiệm thực tế với quán cà phê
+            </p>
+          </div>
+        </div>
+        <button
+          type='button'
+          onClick={() => {
+            setIsFormOpen(false);
+            setFormError('');
+          }}
+          className='text-muted-foreground hover:text-foreground p-1.5 rounded-full hover:bg-muted transition-colors cursor-pointer'
+          aria-label='Đóng form đánh giá'
+        >
+          <X size={15} />
+        </button>
+      </div>
+
+      {/* 2. Interactive Star Rating Selector */}
+      <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-secondary/40 p-3 rounded-xl border border-border/50'>
+        <span className='text-xs font-semibold text-foreground flex items-center gap-1'>
+          <span>Đánh giá tổng quan</span>
+          <span className='text-rose-500'>*</span>
+        </span>
+        <div className='flex items-center gap-1 sm:gap-1.5'>
+          <div
+            role='radiogroup'
+            aria-label='Chọn số sao đánh giá'
+            className='flex items-center gap-0.5 sm:gap-1'
+          >
+            {[1, 2, 3, 4, 5].map((star) => {
+              const active = (hoverRating || rating) >= star;
+              return (
+                <button
+                  key={star}
+                  type='button'
+                  role='radio'
+                  aria-checked={rating === star}
+                  aria-label={`Đánh giá ${star} sao`}
+                  onClick={() => setRating(star)}
+                  onMouseEnter={() => setHoverRating(star)}
+                  onMouseLeave={() => setHoverRating(0)}
+                  className='p-1 rounded-lg text-amber-gold hover:scale-125 active:scale-95 transition-transform duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold cursor-pointer touch-manipulation'
+                >
+                  <Star
+                    size={26}
+                    className={cn(
+                      'transition-colors duration-150',
+                      active
+                        ? 'fill-amber-gold text-amber-gold drop-shadow-[0_1px_2px_rgba(184,134,11,0.25)]'
+                        : 'text-muted-foreground/30 hover:text-amber-gold/50'
+                    )}
+                  />
+                </button>
+              );
+            })}
+          </div>
+          <span className='text-xs font-bold text-foreground ml-1.5 min-w-[38px] text-right bg-background/80 px-2 py-0.5 rounded-md border border-border/60'>
+            {hoverRating || rating} / 5
+          </span>
+        </div>
+      </div>
+
+      {/* 3. Comment Textarea */}
+      <div className='space-y-1.5'>
+        <div className='flex items-center justify-between'>
+          <label
+            htmlFor='review-comment-textarea'
+            className='text-xs font-semibold text-foreground flex items-center gap-1'
+          >
+            <span>Nội dung cảm nhận</span>
+            <span className='text-rose-500'>*</span>
+          </label>
+          <span
+            className={cn(
+              'text-[10px] font-medium transition-colors',
+              comment.trim().length > 0 && comment.trim().length < 3
+                ? 'text-rose-500 font-semibold'
+                : 'text-muted-foreground'
+            )}
+          >
+            {comment.trim().length < 3
+              ? `Tối thiểu 3 ký tự (${comment.trim().length}/3)`
+              : `${comment.trim().length} ký tự`}
+          </span>
+        </div>
+        <textarea
+          id='review-comment-textarea'
+          value={comment}
+          onChange={(e) => {
+            setComment(e.target.value);
+            if (formError) setFormError('');
+          }}
+          placeholder='Chia sẻ cảm nhận của bạn về hương vị, không gian, dịch vụ...'
+          rows={4}
+          className={cn(
+            'w-full bg-secondary/50 border rounded-xl p-3 text-xs text-foreground placeholder:text-muted-foreground',
+            'focus:outline-none focus:border-amber-gold focus:ring-2 focus:ring-amber-gold/20 resize-none transition-all',
+            formError ? 'border-rose-500 ring-1 ring-rose-500/20' : 'border-border/70 hover:border-border'
+          )}
+        />
+        {formError && (
+          <p className='text-[11px] text-rose-500 font-medium flex items-center gap-1 pt-0.5'>
+            <span>⚠️</span>
+            <span>{formError}</span>
+          </p>
+        )}
+      </div>
+
+      {/* 4. Action Buttons */}
+      <div className='flex items-center justify-end gap-2.5 pt-1'>
+        <Button
+          type='button'
+          variant='ghost'
+          size='sm'
+          onClick={() => {
+            setIsFormOpen(false);
+            setFormError('');
+          }}
+          disabled={isSubmitting}
+          className='text-xs text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl px-3.5 h-9 font-medium cursor-pointer transition-colors'
+        >
+          Hủy
+        </Button>
+        <Button
+          type='button'
+          onClick={handleSubmitReview}
+          disabled={isSubmitting || comment.trim().length < 3}
+          className='bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground font-bold text-xs rounded-xl px-4 h-9 shadow-md flex items-center gap-2 active:scale-95 disabled:opacity-50 disabled:pointer-events-none cursor-pointer transition-all'
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 size={13} className='animate-spin' />
+              <span>Đang gửi...</span>
+            </>
+          ) : (
+            <>
+              <Send size={13} />
+              <span>Gửi đánh giá</span>
+            </>
+          )}
+        </Button>
+      </div>
+    </motion.div>
+  );
 
   return (
     <div className='relative flex flex-col flex-1 min-h-full space-y-4'>
@@ -894,7 +1094,7 @@ export const ReviewsTab = memo(function ReviewsTab({
       )}
 
       {/* 3. Review Comments Feed */}
-      <div className={cn('space-y-2.5', isFormOpen ? 'pb-48' : 'pb-6')}>
+      <div className={cn('space-y-2.5', !isStandalone && isFormOpen ? 'pb-48' : 'pb-4')}>
         <span className='text-xs font-bold text-foreground block'>
           Đánh giá &amp; Trải nghiệm cộng đồng ({reviewsList.length})
         </span>
@@ -919,8 +1119,11 @@ export const ReviewsTab = memo(function ReviewsTab({
         ) : (
           <div className='grid grid-cols-1 gap-2.5'>
             {reviewsList.map((rev, idx) => (
-              <div
+              <motion.div
                 key={rev.id || idx}
+                initial={rev.isUserSubmission ? { opacity: 0, y: -12, scale: 0.98 } : false}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.35, ease: 'easeOut' }}
                 className={cn(
                   'p-3.5 rounded-2xl border flex flex-col gap-2 transition-all shadow-xs',
                   rev.isUserSubmission
@@ -970,124 +1173,25 @@ export const ReviewsTab = memo(function ReviewsTab({
                 <p className='text-xs text-secondary-foreground leading-relaxed break-words whitespace-normal'>
                   {rev.comment}
                 </p>
-              </div>
+              </motion.div>
             ))}
           </div>
         )}
+
+        {/* 4. Inline Review Form when isStandalone */}
+        {isStandalone && (
+          <AnimatePresence>
+            {isFormOpen && renderReviewForm}
+          </AnimatePresence>
+        )}
       </div>
 
-
-      {/* 4. Sticky Bottom Review Form with smooth slide-up animation */}
-      <AnimatePresence>
-        {isFormOpen && (
-          <motion.div
-            ref={formRef}
-            key='sticky-review-form'
-            initial={{ y: '100%', opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: '100%', opacity: 0 }}
-            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className={cn(
-              'sticky bottom-0 z-30 bg-card/98 backdrop-blur-md border-t border-border/70 select-none text-foreground flex flex-col gap-2.5 mt-auto shadow-none',
-              isSidebar
-                ? '-mx-4 px-4 pt-3 pb-3.5'
-                : '-mx-4 sm:-mx-6 px-4 sm:px-6 pt-3 pb-3.5'
-            )}
-          >
-            {/* Header with Title and Close Button */}
-            <div className='flex items-center justify-between border-b border-border/40 pb-1.5'>
-              <div className='flex items-center gap-1.5'>
-                <div className='w-5 h-5 rounded-md bg-amber-gold/15 flex items-center justify-center text-amber-gold'>
-                  <Edit3 size={12} />
-                </div>
-                <span className='font-bold text-xs text-foreground'>Viết Đánh Giá Của Bạn</span>
-              </div>
-              <button
-                type='button'
-                onClick={() => setIsFormOpen(false)}
-                className='text-muted-foreground hover:text-foreground p-1 rounded-full hover:bg-muted transition-colors cursor-pointer'
-                aria-label='Đóng form đánh giá'
-              >
-                <X size={14} />
-              </button>
-            </div>
-
-            {/* Interactive Star Rating Selector */}
-            <div className='flex items-center justify-between'>
-              <span className='text-[11px] font-semibold text-muted-foreground'>Đánh giá tổng quan</span>
-              <div className='flex items-center gap-0.5'>
-                {[1, 2, 3, 4, 5].map((star) => {
-                  const active = (hoverRating || rating) >= star;
-                  return (
-                    <button
-                      key={star}
-                      type='button'
-                      onClick={() => setRating(star)}
-                      onMouseEnter={() => setHoverRating(star)}
-                      onMouseLeave={() => setHoverRating(0)}
-                      className='p-0.5 text-amber-gold transition-transform hover:scale-125 focus:outline-none cursor-pointer'
-                    >
-                      <Star
-                        size={18}
-                        className={cn(
-                          'transition-colors',
-                          active ? 'fill-amber-gold text-amber-gold' : 'text-muted-foreground/30'
-                        )}
-                      />
-                    </button>
-                  );
-                })}
-                <span className='text-xs font-bold text-foreground ml-1.5 min-w-[40px] text-right'>
-                  {hoverRating || rating} / 5
-                </span>
-              </div>
-            </div>
-
-            {/* Comment Textarea */}
-            <div className='space-y-0.5'>
-              <textarea
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                placeholder='Bạn cảm thấy thế nào về hương vị cà phê, chỗ ngồi, tốc độ Wi-Fi hay không gian quán?'
-                rows={2}
-                className='w-full bg-secondary/50 border border-border/60 rounded-xl p-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-amber-gold resize-none transition-colors'
-              />
-            </div>
-
-            {/* Action Buttons */}
-            <div className='flex items-center justify-end gap-2'>
-              <Button
-                type='button'
-                variant='ghost'
-                size='sm'
-                onClick={() => setIsFormOpen(false)}
-                disabled={isSubmitting}
-                className='text-xs text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl px-3 py-1 h-7.5 cursor-pointer'
-              >
-                Hủy
-              </Button>
-              <Button
-                type='button'
-                onClick={handleSubmitReview}
-                disabled={isSubmitting || comment.trim().length < 3}
-                className='bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground font-bold text-xs rounded-xl px-3.5 py-1 h-7.5 shadow-xs flex items-center gap-1.5 disabled:opacity-50 cursor-pointer'
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 size={12} className='animate-spin' />
-                    Đang đăng...
-                  </>
-                ) : (
-                  <>
-                    <Send size={12} />
-                    Gửi đánh giá
-                  </>
-                )}
-              </Button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* 5. Sticky Bottom Review Form when !isStandalone */}
+      {!isStandalone && (
+        <AnimatePresence>
+          {isFormOpen && renderReviewForm}
+        </AnimatePresence>
+      )}
     </div>
   );
 });
@@ -1384,6 +1488,8 @@ export const AmenitiesTab = memo(function AmenitiesTab({ shop }: AmenitiesTabPro
 export interface ShopDetailsContentProps {
   shop: CoffeeShop;
   isSidebar?: boolean;
+  isStandalone?: boolean;
+  hideActions?: boolean;
   onSelectShop?: (shop: CoffeeShop) => void;
   scrollRef?: React.RefObject<HTMLDivElement | null>;
   onTabChange?: () => void;
@@ -1392,6 +1498,8 @@ export interface ShopDetailsContentProps {
 export const ShopDetailsContent = memo(function ShopDetailsContent({
   shop,
   isSidebar = false,
+  isStandalone = false,
+  hideActions = false,
   onSelectShop,
   scrollRef,
   onTabChange
@@ -1463,7 +1571,7 @@ export const ShopDetailsContent = memo(function ShopDetailsContent({
       className='flex-1 flex flex-col min-h-0'
     >
       {/* HEADER SECTION: Gallery collage, title, metrics, and tab navigation */}
-      <div className={cn('flex-shrink-0 space-y-3.5 select-none', isSidebar ? 'px-4 pt-3' : 'px-4 sm:px-6 pt-2')}>
+      <div className={cn('flex-shrink-0 space-y-3.5 select-none', isSidebar ? 'px-4 pt-3' : isStandalone ? 'px-0 pt-0' : 'px-4 sm:px-6 pt-2')}>
         {/* 1. Curated Interactive Visual Collage Banner */}
         <div className='relative w-full h-36 sm:h-44 rounded-2xl overflow-hidden bg-card shadow-md border border-border/80 group'>
           {imgError || galleryPhotos.length === 0 ? (
@@ -1594,46 +1702,52 @@ export const ShopDetailsContent = memo(function ShopDetailsContent({
         </div>
 
         {/* 3. Underline Navigation Tabs */}
-        <div className='pt-1.5 border-b border-border/50'>
-          <TabsList
-            onClick={() => onTabChange?.()}
-            className='flex items-center justify-between bg-transparent p-0 h-auto rounded-none w-full gap-2'
-          >
-            <TabsTrigger
-              value='overview'
-              className='flex-1 pb-2 pt-1 px-1 font-semibold text-xs text-muted-foreground hover:text-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none transition-all cursor-pointer'
+        <div className={cn('pt-1.5', isStandalone && 'sticky top-14 z-30 bg-card/95 backdrop-blur-md')}>
+          <div className='relative'>
+            <TabsList
+              onClick={() => onTabChange?.()}
+              className='flex items-center justify-between bg-transparent p-0 h-auto rounded-none w-full gap-2 mb-0'
             >
-              Tổng quan
-            </TabsTrigger>
-            <TabsTrigger
-              value='photos'
-              className='flex-1 pb-2 pt-1 px-1 font-semibold text-xs text-muted-foreground hover:text-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none transition-all cursor-pointer'
-            >
-              Hình ảnh
-            </TabsTrigger>
-            <TabsTrigger
-              value='reviews'
-              className='flex-1 pb-2 pt-1 px-1 font-semibold text-xs text-muted-foreground hover:text-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none transition-all cursor-pointer'
-            >
-              Đánh giá
-            </TabsTrigger>
-            <TabsTrigger
-              value='amenities'
-              className='flex-1 pb-2 pt-1 px-1 font-semibold text-xs text-muted-foreground hover:text-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none transition-all cursor-pointer'
-            >
-              Tiện ích
-            </TabsTrigger>
-          </TabsList>
+              <TabsTrigger
+                value='overview'
+                className='flex-1 pb-2 pt-1 px-1 font-semibold text-xs text-muted-foreground hover:text-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none transition-all cursor-pointer relative z-10'
+              >
+                Tổng quan
+              </TabsTrigger>
+              <TabsTrigger
+                value='photos'
+                className='flex-1 pb-2 pt-1 px-1 font-semibold text-xs text-muted-foreground hover:text-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none transition-all cursor-pointer relative z-10'
+              >
+                Hình ảnh
+              </TabsTrigger>
+              <TabsTrigger
+                value='reviews'
+                className='flex-1 pb-2 pt-1 px-1 font-semibold text-xs text-muted-foreground hover:text-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none transition-all cursor-pointer relative z-10'
+              >
+                Đánh giá
+              </TabsTrigger>
+              <TabsTrigger
+                value='amenities'
+                className='flex-1 pb-2 pt-1 px-1 font-semibold text-xs text-muted-foreground hover:text-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none transition-all cursor-pointer relative z-10'
+              >
+                Tiện ích
+              </TabsTrigger>
+            </TabsList>
+            {/* Separator line flush with the bottom of the tabs */}
+            <div className='absolute bottom-0 left-0 right-0 border-b border-border/50 pointer-events-none' />
+          </div>
         </div>
       </div>
 
       {/* SCROLLABLE BODY SECTION */}
       <div
-        ref={scrollRef}
-        data-vaul-no-drag
+        ref={isStandalone ? undefined : scrollRef}
+        data-vaul-no-drag={!isStandalone}
         className={cn(
-          'flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain contain-layout contain-style [contain:layout_style] pt-3',
-          isSidebar ? 'px-4' : 'px-4 sm:px-6'
+          isStandalone
+            ? 'w-full pt-3'
+            : 'flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain contain-layout contain-style [contain:layout_style] pt-3',
+          isSidebar ? 'px-4' : isStandalone ? 'px-0' : 'px-4 sm:px-6'
         )}
       >
         <TabsContent value='overview' className='mt-0 focus-visible:outline-none'>
@@ -1644,6 +1758,8 @@ export const ShopDetailsContent = memo(function ShopDetailsContent({
             onSelectShop={handleSelectShop}
             similarShops={similarShops}
             scheduleInfo={scheduleInfo}
+            isStandalone={isStandalone}
+            hideActions={hideActions}
           />
         </TabsContent>
 
@@ -1652,7 +1768,7 @@ export const ShopDetailsContent = memo(function ShopDetailsContent({
         </TabsContent>
 
         <TabsContent value='reviews' className='mt-0 focus-visible:outline-none min-h-full flex flex-col flex-1'>
-          <ReviewsTab shop={shop} isSidebar={isSidebar} />
+          <ReviewsTab shop={shop} isSidebar={isSidebar} isStandalone={isStandalone} />
         </TabsContent>
 
         <TabsContent value='amenities' className='mt-0 focus-visible:outline-none'>

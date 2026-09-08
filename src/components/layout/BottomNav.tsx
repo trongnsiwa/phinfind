@@ -10,6 +10,10 @@ import { cn } from '@/lib/utils';
 export function BottomNav() {
   const pathname = usePathname();
 
+  if (pathname?.startsWith('/shop/')) {
+    return null;
+  }
+
   const navItems = [
     {
       label: 'Khám phá',
