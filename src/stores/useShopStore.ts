@@ -6,12 +6,16 @@ interface ShopState {
   nearbyShops: CoffeeShop[];
   selectedShop: CoffeeShop | null;
   favorites: string[]; // place_id list
+  visits: string[]; // visited shop place_id list
   setShops: (shops: CoffeeShop[]) => void;
   setNearbyShops: (shops: CoffeeShop[]) => void;
   setSelectedShop: (shop: CoffeeShop | null) => void;
   setFavorites: (placeIds: string[]) => void;
   toggleFavorite: (placeId: string) => void;
   isFavorite: (placeId: string) => boolean;
+  setVisits: (placeIds: string[]) => void;
+  toggleVisit: (placeId: string) => void;
+  isVisited: (placeId: string) => boolean;
 }
 
 export const useShopStore = create<ShopState>((set, get) => ({
@@ -19,6 +23,7 @@ export const useShopStore = create<ShopState>((set, get) => ({
   nearbyShops: [],
   selectedShop: null,
   favorites: [],
+  visits: [],
   setShops: (shops) => set({ shops }),
   setNearbyShops: (nearbyShops) => set({ nearbyShops }),
   setSelectedShop: (selectedShop) => set({ selectedShop }),
@@ -41,4 +46,23 @@ export const useShopStore = create<ShopState>((set, get) => ({
       return { favorites: updated };
     }),
   isFavorite: (placeId) => get().favorites.includes(placeId),
+  setVisits: (visits) =>
+    set((state) => {
+      if (
+        state.visits.length === visits.length &&
+        state.visits.every((id, idx) => id === visits[idx])
+      ) {
+        return state;
+      }
+      return { visits };
+    }),
+  toggleVisit: (placeId) =>
+    set((state) => {
+      const exists = state.visits.includes(placeId);
+      const updated = exists
+        ? state.visits.filter((id) => id !== placeId)
+        : [...state.visits, placeId];
+      return { visits: updated };
+    }),
+  isVisited: (placeId) => get().visits.includes(placeId),
 }));

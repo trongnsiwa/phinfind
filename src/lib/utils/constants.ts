@@ -24,6 +24,7 @@ export const API_ENDPOINTS = {
   SEARCH_SHOPS: '/api/shops/search',
   CREATE_SHOP: '/api/shops/create',
   USER_FAVORITES: '/api/user/favorites',
+  USER_VISITS: '/api/user/visits',
   USER_PROFILE: '/api/user/profile',
 };
 

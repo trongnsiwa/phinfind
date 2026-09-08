@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Heart, MapPin, Navigation, Star, Footprints, ExternalLink, Clock } from 'lucide-react';
+import { Heart, MapPin, Navigation, Star, Footprints, ExternalLink, Clock, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -10,6 +10,8 @@ import { Badge } from '@/components/ui/badge';
 import { APP_ROUTES } from '@/lib/utils/constants';
 import { CoffeeShop } from '@/types/shop';
 import { cn } from '@/lib/utils';
+import { useShopStore } from '@/stores/useShopStore';
+import { useToggleVisit } from '@/hooks/useShops';
 
 import { ShopCardPlaceholder } from '@/components/common/ShopCardPlaceholder';
 
@@ -17,6 +19,8 @@ interface ShopCardProps {
   shop: CoffeeShop;
   isFavorite?: boolean;
   onToggleFavorite?: (placeId: string) => void;
+  isVisited?: boolean;
+  onToggleVisit?: (placeId: string) => void;
   onSelect?: (shop: CoffeeShop) => void;
 }
 
@@ -24,10 +28,15 @@ export function ShopCard({
   shop,
   isFavorite = false,
   onToggleFavorite,
+  isVisited: propsIsVisited,
+  onToggleVisit,
   onSelect,
 }: ShopCardProps) {
   const isOpen = shop.opening_hours?.open_now ?? true;
   const [isHeartAnimating, setIsHeartAnimating] = useState(false);
+  const storeIsVisited = useShopStore((state) => state.visits.includes(shop.place_id));
+  const isVisited = propsIsVisited ?? storeIsVisited;
+  const { toggleVisit } = useToggleVisit();
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -35,6 +44,16 @@ export function ShopCard({
     setIsHeartAnimating(true);
     setTimeout(() => setIsHeartAnimating(false), 300);
     onToggleFavorite?.(shop.place_id);
+  };
+
+  const handleVisitClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (onToggleVisit) {
+      onToggleVisit(shop.place_id);
+    } else {
+      toggleVisit(shop.place_id, { name: shop.name, address: shop.address });
+    }
   };
 
   const getDirectionsUrl = () => {
@@ -93,23 +112,44 @@ export function ShopCard({
         </div>
 
 
-        {/* Floating Heart Favorite Button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleFavoriteClick}
-          aria-label={isFavorite ? 'Xóa khỏi danh sách yêu thích' : 'Thêm vào danh sách yêu thích'}
-          className="absolute top-3 right-3 z-10 h-8 w-8 rounded-full bg-white/90 backdrop-blur-md hover:bg-white text-phin-700 shadow-sm transition-transform active:scale-95"
-        >
-          <Heart
-            size={16}
+        {/* Floating Actions: Visited Check-in & Heart Favorite */}
+        <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5">
+          {/* Visited Toggle Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleVisitClick}
+            aria-label={isVisited ? 'Đã ghé thăm' : 'Đánh dấu đã ghé'}
+            title={isVisited ? 'Đã ghé quán này' : 'Đánh dấu đã ghé quán'}
             className={cn(
-              'transition-all duration-300',
-              isFavorite ? 'fill-rose-500 text-rose-500' : 'text-phin-600 hover:text-rose-500',
-              isHeartAnimating && 'animate-heart-beat'
+              'h-8 w-8 rounded-full backdrop-blur-md shadow-sm transition-all active:scale-95 cursor-pointer',
+              isVisited
+                ? 'bg-amber-500 text-white hover:bg-amber-600'
+                : 'bg-white/90 text-phin-700 hover:bg-white hover:text-amber-600'
             )}
-          />
-        </Button>
+          >
+            <CheckCircle2 size={15} className={cn(isVisited ? 'text-white' : 'text-phin-600 hover:text-amber-600')} />
+          </Button>
+
+          {/* Floating Heart Favorite Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleFavoriteClick}
+            aria-label={isFavorite ? 'Xóa khỏi danh sách yêu thích' : 'Thêm vào danh sách yêu thích'}
+            title={isFavorite ? 'Đã lưu yêu thích' : 'Thêm vào yêu thích'}
+            className="h-8 w-8 rounded-full bg-white/90 backdrop-blur-md hover:bg-white text-phin-700 shadow-sm transition-transform active:scale-95 cursor-pointer"
+          >
+            <Heart
+              size={16}
+              className={cn(
+                'transition-all duration-300',
+                isFavorite ? 'fill-rose-500 text-rose-500' : 'text-phin-600 hover:text-rose-500',
+                isHeartAnimating && 'animate-heart-beat'
+              )}
+            />
+          </Button>
+        </div>
 
         {/* Shop Name & Address on Image Overlay */}
         <div className="absolute bottom-3 left-3 right-3 text-white">

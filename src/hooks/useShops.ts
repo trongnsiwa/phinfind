@@ -152,7 +152,8 @@ export function useUserReviews() {
       }
     },
     enabled: !isAuthLoading && isAuthenticated && Boolean(user?.id),
-    staleTime: 60 * 1000,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 }
 
@@ -212,7 +213,8 @@ export function useUserFavorites() {
       }
     },
     enabled: !isAuthLoading && isAuthenticated,
-    staleTime: 30 * 1000,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   useEffect(() => {
@@ -318,5 +320,158 @@ export function useToggleFavorite() {
   );
 
   return Object.assign(toggleFavorite, { toggleFavorite });
+}
+
+export interface VisitedShopItem {
+  id: string;
+  user_id: string;
+  shop_place_id: string;
+  shop_name: string;
+  shop_address?: string | null;
+  visited_at: string;
+  note?: string | null;
+  created_at: string;
+  shop?: CoffeeShop | null;
+}
+
+export interface ToggleVisitInput {
+  place_id?: string;
+  id?: string;
+  name?: string;
+  address?: string | null;
+  note?: string | null;
+}
+
+export function useUserVisits() {
+  const { user, isAuthenticated, loading: isAuthLoading } = useAuth();
+  const setVisits = useShopStore((state) => state.setVisits);
+
+  const query = useQuery<VisitedShopItem[]>({
+    queryKey: ['user', 'visits', user?.id],
+    queryFn: async () => {
+      try {
+        const response = await axios.get<{ visits: VisitedShopItem[] }>(
+          API_ENDPOINTS.USER_VISITS
+        );
+        return response.data.visits || [];
+      } catch (err: any) {
+        if (err?.response?.status === 401) {
+          return [];
+        }
+        throw err;
+      }
+    },
+    enabled: !isAuthLoading && isAuthenticated,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+
+  useEffect(() => {
+    if (query.data) {
+      const newIds = query.data.map((v) => v.shop_place_id).filter(Boolean);
+      const currentIds = useShopStore.getState().visits;
+      const isSame =
+        currentIds.length === newIds.length &&
+        currentIds.every((id, idx) => id === newIds[idx]);
+      if (!isSame) {
+        setVisits(newIds);
+      }
+    } else if (!isAuthenticated && !isAuthLoading) {
+      if (useShopStore.getState().visits.length > 0) {
+        setVisits([]);
+      }
+    }
+  }, [query.data, isAuthenticated, isAuthLoading, setVisits]);
+
+  return query;
+}
+
+export function useToggleVisit() {
+  const queryClient = useQueryClient();
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
+
+  const toggleVisit = useCallback(
+    async (
+      input: string | ToggleVisitInput,
+      details?: { name?: string; address?: string | null; note?: string | null }
+    ) => {
+      let placeId: string;
+      let name: string = 'Quán Cà Phê';
+      let address: string | null = null;
+      let note: string | null = null;
+
+      if (typeof input === 'string') {
+        placeId = input;
+        if (details?.name) name = details.name;
+        if (details?.address !== undefined) address = details.address;
+        if (details?.note !== undefined) note = details.note;
+      } else {
+        placeId = input.place_id || (input as any).id;
+        if (input.name) name = input.name;
+        if (input.address !== undefined) address = input.address;
+        if (input.note !== undefined) note = input.note;
+      }
+
+      if (!placeId) return;
+
+      if (!isAuthenticated) {
+        toast('Yêu cầu đăng nhập', {
+          description:
+            'Đăng nhập để đánh dấu các quán bạn đã ghé thăm và theo dõi lịch sử cà phê của bạn.',
+          action: {
+            label: 'Đăng nhập',
+            onClick: () => router.push(APP_ROUTES.LOGIN),
+          },
+        });
+        return;
+      }
+
+      const isCurrentlyVisited = useShopStore.getState().visits.includes(placeId);
+
+      // If adding and shop name wasn't provided, look up from Zustand store
+      if (!isCurrentlyVisited && name === 'Quán Cà Phê') {
+        const store = useShopStore.getState();
+        const candidate =
+          store.shops.find((s) => s.place_id === placeId || s.id === placeId) ||
+          store.nearbyShops.find((s) => s.place_id === placeId || s.id === placeId) ||
+          (store.selectedShop?.place_id === placeId ? store.selectedShop : null);
+        if (candidate) {
+          name = candidate.name;
+          address = candidate.address || address;
+        }
+      }
+
+      // Optimistic store update
+      useShopStore.getState().toggleVisit(placeId);
+
+      try {
+        if (isCurrentlyVisited) {
+          await axios.delete(API_ENDPOINTS.USER_VISITS, {
+            params: { placeId },
+          });
+          toast.info('Đã bỏ đánh dấu ghé thăm');
+        } else {
+          await axios.post(API_ENDPOINTS.USER_VISITS, {
+            shop_place_id: placeId,
+            name,
+            address: address || null,
+            note: note || null,
+          });
+          toast.success('Đã đánh dấu đã ghé thăm quán!');
+        }
+
+        await queryClient.invalidateQueries({ queryKey: ['user', 'visits'] });
+      } catch (error) {
+        console.error('Lỗi khi cập nhật trạng thái đã ghé:', error);
+        // Rollback store state on failure
+        useShopStore.getState().toggleVisit(placeId);
+        toast.error('Không thể cập nhật trạng thái đã ghé. Vui lòng thử lại.');
+      }
+    },
+    [isAuthenticated, queryClient, router]
+  );
+
+  return Object.assign(toggleVisit, { toggleVisit });
 }
 

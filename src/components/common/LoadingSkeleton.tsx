@@ -284,4 +284,85 @@ export function DetailSkeleton() {
   );
 }
 
+export function ReviewCardSkeleton() {
+  return (
+    <Card className="p-4 sm:p-5 bg-card border border-border shadow-card rounded-2xl space-y-3">
+      <div className="flex items-start justify-between gap-3">
+        <div className="space-y-1.5 flex-1 min-w-0">
+          <Skeleton className="h-4 w-40 rounded-md bg-muted/60" />
+          <Skeleton className="h-3 w-60 rounded-md bg-muted/60" />
+          <Skeleton className="h-3 w-32 rounded-md bg-muted/60" />
+        </div>
+        <Skeleton className="h-4 w-12 rounded-md bg-muted/60" />
+      </div>
+      <Skeleton className="h-12 w-full rounded-xl bg-muted/60" />
+    </Card>
+  );
+}
+
+export function ProfileSkeleton() {
+  return (
+    <div className="max-w-4xl mx-auto space-y-5 pb-16 animate-in fade-in duration-200">
+      {/* 1. Header Skeleton (Unified Card) */}
+      <Card className="bg-card rounded-2xl border border-border shadow-card p-4 sm:p-5 relative">
+        {/* Top-Right: Edit Icon Button Placeholder */}
+        <div className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4">
+          <Skeleton className="w-8 h-8 rounded-full bg-muted/60" />
+        </div>
+
+        {/* Left: Avatar + User Info */}
+        <div className="flex items-center gap-4 min-w-0 pr-12 sm:pr-36">
+          <Skeleton className="w-16 h-16 rounded-full bg-muted/60 shrink-0 border-2 border-border/80" />
+          <div className="min-w-0 space-y-2">
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-5 w-32 rounded-md bg-muted/60" />
+              <Skeleton className="h-4 w-16 rounded-full bg-muted/60" />
+            </div>
+            <Skeleton className="h-3.5 w-48 rounded-md bg-muted/60" />
+          </div>
+        </div>
+      </Card>
+
+      {/* 2. Stats Row Skeleton (Separate Card) */}
+      <Card className="bg-card rounded-2xl border border-border shadow-card p-4 sm:p-5">
+        <div className="grid grid-cols-3 gap-4">
+          {/* Stat 1: Đã lưu */}
+          <div className="text-left space-y-1.5">
+            <Skeleton className="h-6 w-8 rounded-md bg-muted/60" />
+            <Skeleton className="h-3 w-12 rounded-md bg-muted/60" />
+          </div>
+
+          {/* Stat 2: Đã ghé */}
+          <div className="text-left space-y-1.5">
+            <Skeleton className="h-6 w-8 rounded-md bg-muted/60" />
+            <Skeleton className="h-3 w-12 rounded-md bg-muted/60" />
+          </div>
+
+          {/* Stat 3: Huy hiệu */}
+          <div className="text-left space-y-1.5">
+            <Skeleton className="h-6 w-8 rounded-md bg-muted/60" />
+            <Skeleton className="h-3 w-12 rounded-md bg-muted/60" />
+          </div>
+        </div>
+      </Card>
+
+      {/* 3. Tabs Skeleton */}
+      <div className="border-b border-border pb-3">
+        <div className="flex gap-6">
+          <Skeleton className="h-6 w-20 rounded-md bg-muted/60" />
+          <Skeleton className="h-6 w-20 rounded-md bg-muted/60" />
+          <Skeleton className="h-6 w-20 rounded-md bg-muted/60" />
+        </div>
+      </div>
+
+      {/* 4. Content Skeleton (Reviews Tab by default) */}
+      <div className="space-y-3.5">
+        <ReviewCardSkeleton />
+        <ReviewCardSkeleton />
+        <ReviewCardSkeleton />
+      </div>
+    </div>
+  );
+}
+
 export const SkeletonCard = CardSkeleton;
