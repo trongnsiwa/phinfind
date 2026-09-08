@@ -98,6 +98,38 @@ export function useShopDetails(placeId: string) {
   });
 }
 
+export interface ReviewData {
+  id: string;
+  shop_place_id: string;
+  user_id: string;
+  rating: number;
+  comment: string;
+  images?: string[];
+  created_at: string;
+  author: string;
+  avatar?: string | null;
+  profiles?: {
+    full_name: string | null;
+    avatar_url: string | null;
+    username: string | null;
+  } | null;
+}
+
+export function useShopReviews(placeId: string) {
+  return useQuery<ReviewData[]>({
+    queryKey: ['shops', 'reviews', placeId],
+    queryFn: async () => {
+      if (!placeId) return [];
+      const res = await axios.get<{ reviews: ReviewData[] }>(`/api/reviews`, {
+        params: { placeId },
+      });
+      return res.data?.reviews || [];
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes cache
+    enabled: Boolean(placeId),
+  });
+}
+
 export function useSearchShops(query: string, lat?: number, lng?: number) {
   return useQuery({
     queryKey: ['shops', 'search', query, lat, lng],

@@ -2,13 +2,14 @@
 
 import {
   Check, CheckCircle2, ChevronDown, ChevronRight, Clock, Coffee, Compass, Copy, CreditCard,
-  CupSoda, Edit3, Flame, Footprints, Globe, Heart, Images, Loader2, LogIn, MapPin, Navigation,
+  CupSoda, Edit3, Flame, Footprints, Globe, Heart, Images, ImagePlus, Loader2, LogIn, MapPin, Navigation,
   Phone, Quote, Send, Sparkles, Star, Sun, Utensils, Wifi, Wind, X, Zap, Camera, Tag
 } from 'lucide-react';
 import Link from 'next/link';
 import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useQueryClient } from '@tanstack/react-query';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -22,6 +23,8 @@ import { ShopCardPlaceholder } from '@/components/common/ShopCardPlaceholder';
 import { cleanCategoryLabel } from '@/lib/utils/placeholders';
 import { useShopStore } from '@/stores/useShopStore';
 import { useUIStore } from '@/stores/useUIStore';
+import { useShopReviews } from '@/hooks/useShops';
+import { createClient } from '@/lib/supabase/client';
 import { CoffeeShop } from '@/types/shop';
 
 
@@ -562,19 +565,57 @@ export const OverviewTab = memo(function OverviewTab({
   );
 });
 
-export const PhotosTab = memo(function PhotosTab({ shop }: { shop: CoffeeShop }) {
+export const PhotosTab = memo(function PhotosTab({
+  shop,
+  photos
+}: {
+  shop: CoffeeShop;
+  photos?: Array<{ url: string; title: string; category: string }>;
+}) {
   const openImagePreview = useUIStore((state) => state.openImagePreview);
+  const placeId = shop.place_id || shop.id || '';
+  const { data: reviews = [] } = useShopReviews(photos ? '' : placeId);
 
   const photoList = useMemo(() => {
+    if (photos) return photos;
+
+    const list: Array<{ url: string; title: string; category: string }> = [];
+    const seenUrls = new Set<string>();
+
+    // 1. Official shop photos
     if (shop.photos && shop.photos.length > 0) {
-      return shop.photos.map((url, i) => ({
-        url,
-        title: `${shop.name} - Ảnh ${i + 1}`,
-        category: i === 0 ? 'Nổi bật' : i % 2 === 0 ? 'Không gian' : 'Cà phê'
-      }));
+      shop.photos.forEach((url, i) => {
+        if (url && !seenUrls.has(url)) {
+          seenUrls.add(url);
+          list.push({
+            url,
+            title: `${shop.name} - Ảnh ${i + 1}`,
+            category: i === 0 ? 'Nổi bật' : i % 2 === 0 ? 'Không gian' : 'Cà phê'
+          });
+        }
+      });
     }
-    return [];
-  }, [shop]);
+
+    // 2. Aggregated review photos from community
+    if (reviews && reviews.length > 0) {
+      reviews.forEach((rev) => {
+        if (rev.images && Array.isArray(rev.images)) {
+          rev.images.forEach((imgUrl) => {
+            if (imgUrl && !seenUrls.has(imgUrl)) {
+              seenUrls.add(imgUrl);
+              list.push({
+                url: imgUrl,
+                title: `${shop.name} - Đánh giá từ ${rev.author || 'cộng đồng'}`,
+                category: 'Từ đánh giá cộng đồng'
+              });
+            }
+          });
+        }
+      });
+    }
+
+    return list;
+  }, [shop, reviews, photos]);
 
   if (photoList.length === 0) {
     return (
@@ -645,6 +686,7 @@ interface ReviewItem {
   date: string;
   highlight?: string;
   comment: string;
+  images?: string[];
   isUserSubmission?: boolean;
 }
 
@@ -658,20 +700,54 @@ export const ReviewsTab = memo(function ReviewsTab({
   isStandalone?: boolean;
 }) {
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const openImagePreview = useUIStore((state) => state.openImagePreview);
   const { user, profile, isAuthenticated } = useAuth();
+  const supabase = useMemo(() => createClient(), []);
+
+  const placeId = shop.place_id || shop.id || '';
+  const { data: dbReviews = [], isLoading: isLoadingReviews } = useShopReviews(placeId);
   const [reviewsList, setReviewsList] = useState<ReviewItem[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [rating, setRating] = useState(5);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState('');
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
   const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   const hasShopRating = typeof shop.rating === 'number' && shop.rating > 0;
   const shopRating = shop.rating || 0;
   const totalReviews = shop.total_ratings || reviewsList.length;
+
+  // Sync reviewsList from React Query cache
+  useEffect(() => {
+    if (dbReviews && Array.isArray(dbReviews)) {
+      const formatted: ReviewItem[] = dbReviews.map((r: any) => ({
+        id: r.id,
+        author:
+          r.author ||
+          r.profiles?.full_name ||
+          r.profiles?.username ||
+          'Tín đồ cà phê',
+        avatar: r.avatar || r.profiles?.avatar_url || undefined,
+        rating: r.rating,
+        date: new Date(r.created_at).toLocaleDateString('vi-VN', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric'
+        }),
+        highlight: 'Đánh giá từ cộng đồng',
+        comment: r.comment,
+        images: Array.isArray(r.images) ? r.images : []
+      }));
+      setReviewsList(formatted);
+    }
+  }, [dbReviews]);
 
   // Auto-scroll to review form in standalone view
   useEffect(() => {
@@ -704,42 +780,96 @@ export const ReviewsTab = memo(function ReviewsTab({
     };
   }, [isFormOpen, isStandalone]);
 
-  useEffect(() => {
-    let isMounted = true;
-    const fetchReviews = async () => {
-      try {
-        const placeId = shop.place_id || shop.id;
-        if (!placeId) return;
-        const res = await fetch(`/api/reviews?placeId=${encodeURIComponent(placeId)}`);
-        if (!res.ok) return;
-        const data = await res.json();
-        if (data.reviews && Array.isArray(data.reviews) && data.reviews.length > 0) {
-          const formatted: ReviewItem[] = data.reviews.map((r: any) => ({
-            id: r.id,
-            author: r.profiles?.full_name || r.profiles?.username || 'Tín đồ cà phê',
-            avatar: r.profiles?.avatar_url || undefined,
-            rating: r.rating,
-            date: new Date(r.created_at).toLocaleDateString('vi-VN', {
-              month: 'short',
-              day: 'numeric',
-              year: 'numeric'
-            }),
-            highlight: 'Đánh giá từ cộng đồng',
-            comment: r.comment
-          }));
-          if (isMounted) {
-            setReviewsList(formatted);
-          }
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    if (!user) {
+      toast.error('Vui lòng đăng nhập để tải ảnh lên.');
+      return;
+    }
+
+    const availableSlots = 3 - uploadedImages.length;
+    if (availableSlots <= 0) {
+      toast.error('Bạn chỉ có thể tải lên tối đa 3 hình ảnh cho mỗi đánh giá.');
+      return;
+    }
+
+    const filesToUpload = Array.from(files).slice(0, availableSlots);
+    if (files.length > availableSlots) {
+      toast.warning(`Chỉ có thể thêm tối đa ${availableSlots} ảnh nữa.`);
+    }
+
+    setIsUploadingImages(true);
+    const toastId = toast.loading(`Đang tải lên ${filesToUpload.length} ảnh...`);
+    const newUrls: string[] = [];
+
+    try {
+      for (const file of filesToUpload) {
+        // Validation: 5MB max
+        if (file.size > 5 * 1024 * 1024) {
+          toast.error(`Ảnh "${file.name}" vượt quá dung lượng 5MB.`, { id: toastId });
+          continue;
         }
-      } catch {
-        // No fake fallback
+
+        // Allowed formats
+        const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+        if (!validTypes.includes(file.type.toLowerCase())) {
+          toast.error(`Ảnh "${file.name}" không đúng định dạng (hỗ trợ JPG, PNG, WEBP).`, { id: toastId });
+          continue;
+        }
+
+        const fileExt = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+        const cleanName = file.name
+          .replace(/\.[^/.]+$/, '')
+          .replace(/[^a-zA-Z0-9_-]/g, '_')
+          .substring(0, 20);
+        const timestamp = Date.now();
+        const randomStr = Math.random().toString(36).substring(2, 8);
+        const filePath = `reviews/${user.id}/${timestamp}_${randomStr}_${cleanName}.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('shop-photos')
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: false,
+          });
+
+        if (uploadError) {
+          console.error('Lỗi tải ảnh:', uploadError);
+          toast.error(`Không thể tải "${file.name}": ${uploadError.message}`, { id: toastId });
+          continue;
+        }
+
+        const { data: publicUrlData } = supabase.storage
+          .from('shop-photos')
+          .getPublicUrl(filePath);
+
+        if (publicUrlData?.publicUrl) {
+          newUrls.push(publicUrlData.publicUrl);
+        }
       }
-    };
-    fetchReviews();
-    return () => {
-      isMounted = false;
-    };
-  }, [shop.place_id, shop.id]);
+
+      if (newUrls.length > 0) {
+        setUploadedImages((prev) => [...prev, ...newUrls].slice(0, 3));
+        toast.success(`Đã thêm thành công ${newUrls.length} ảnh!`, { id: toastId });
+      } else {
+        toast.dismiss(toastId);
+      }
+    } catch (err: any) {
+      console.error('Lỗi tải ảnh:', err);
+      toast.error('Không thể tải ảnh lên. Vui lòng thử lại.', { id: toastId });
+    } finally {
+      setIsUploadingImages(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleRemoveImage = (indexToRemove: number) => {
+    setUploadedImages((prev) => prev.filter((_, idx) => idx !== indexToRemove));
+  };
 
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -776,36 +906,48 @@ export const ReviewsTab = memo(function ReviewsTab({
         body: JSON.stringify({
           shop_place_id: placeId,
           rating,
-          comment: comment.trim()
+          comment: comment.trim(),
+          images: uploadedImages,
         })
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'Gửi đánh giá thất bại');
+        throw new Error(data.error || 'Không thể gửi đánh giá. Vui lòng thử lại.');
       }
 
+      const returned = data.review;
       const newReview: ReviewItem = {
-        id: data.review?.id || String(Date.now()),
+        id: returned?.id || String(Date.now()),
         author:
-          profile?.full_name || user.user_metadata?.full_name || user.email?.split('@')[0] || 'Bạn',
+          returned?.author ||
+          returned?.profiles?.full_name ||
+          profile?.full_name ||
+          user.user_metadata?.full_name ||
+          user.email?.split('@')[0] ||
+          'Bạn',
         avatar:
+          returned?.avatar ||
+          returned?.profiles?.avatar_url ||
           profile?.avatar_url ||
           user.user_metadata?.avatar_url ||
           undefined,
-        rating,
+        rating: returned?.rating || rating,
         date: 'Vừa xong',
         highlight: 'Đánh giá của bạn',
         comment: comment.trim(),
+        images: returned?.images || uploadedImages,
         isUserSubmission: true
       };
 
       setReviewsList((prev) => [newReview, ...prev]);
       setComment('');
       setRating(5);
+      setUploadedImages([]);
       setFormError('');
       setIsFormOpen(false);
+      queryClient.invalidateQueries({ queryKey: ['shops', 'reviews', placeId] });
       toast.success('Cảm ơn bạn! Đánh giá của bạn đã được đăng tải.');
     } catch (err: any) {
       const msg = err.message || 'Không thể gửi đánh giá. Vui lòng thử lại.';
@@ -955,7 +1097,72 @@ export const ReviewsTab = memo(function ReviewsTab({
         )}
       </div>
 
-      {/* 4. Action Buttons */}
+      {/* 4. Image Upload Section */}
+      <div className='space-y-1.5 pt-0.5'>
+        <div className='flex items-center justify-between'>
+          <label className='text-xs font-semibold text-foreground flex items-center gap-1.5'>
+            <Camera size={13} className='text-amber-gold' />
+            <span>Hình ảnh thực tế</span>
+            <span className='text-[10px] text-muted-foreground font-normal'>(Tối đa 3 ảnh)</span>
+          </label>
+          <span className='text-[10px] text-muted-foreground font-medium'>
+            {uploadedImages.length}/3 ảnh
+          </span>
+        </div>
+
+        {/* Thumbnail Previews & Add Button */}
+        <div className='flex flex-wrap items-center gap-2'>
+          {uploadedImages.map((imgUrl, idx) => (
+            <div
+              key={idx}
+              className='relative w-16 h-16 sm:w-18 sm:h-18 rounded-xl overflow-hidden border border-border/80 bg-muted shadow-xs group'
+            >
+              <img
+                src={imgUrl}
+                alt={`Ảnh đánh giá ${idx + 1}`}
+                className='w-full h-full object-cover'
+              />
+              <button
+                type='button'
+                onClick={() => handleRemoveImage(idx)}
+                className='absolute top-1 right-1 w-5 h-5 rounded-full bg-black/70 text-white flex items-center justify-center hover:bg-rose-600 transition-colors shadow-xs cursor-pointer'
+                aria-label='Xóa ảnh này'
+              >
+                <X size={11} strokeWidth={2.5} />
+              </button>
+            </div>
+          ))}
+
+          {uploadedImages.length < 3 && (
+            <button
+              type='button'
+              disabled={isUploadingImages || isSubmitting}
+              onClick={() => fileInputRef.current?.click()}
+              className='w-16 h-16 sm:w-18 sm:h-18 rounded-xl border-2 border-dashed border-border/80 hover:border-amber-gold/60 bg-secondary/30 hover:bg-secondary/60 flex flex-col items-center justify-center gap-1 text-muted-foreground hover:text-foreground transition-all cursor-pointer disabled:opacity-50 disabled:pointer-events-none'
+            >
+              {isUploadingImages ? (
+                <Loader2 size={16} className='animate-spin text-amber-gold' />
+              ) : (
+                <>
+                  <ImagePlus size={16} className='text-amber-gold' />
+                  <span className='text-[9px] font-semibold'>Thêm ảnh</span>
+                </>
+              )}
+            </button>
+          )}
+
+          <input
+            ref={fileInputRef}
+            type='file'
+            accept='image/jpeg,image/png,image/webp,image/jpg'
+            multiple
+            className='hidden'
+            onChange={handleImageUpload}
+          />
+        </div>
+      </div>
+
+      {/* 5. Action Buttons */}
       <div className='flex items-center justify-end gap-2.5 pt-1'>
         <Button
           type='button'
@@ -1098,7 +1305,27 @@ export const ReviewsTab = memo(function ReviewsTab({
         <span className='text-xs font-bold text-foreground block'>
           Đánh giá &amp; Trải nghiệm cộng đồng ({reviewsList.length})
         </span>
-        {reviewsList.length === 0 ? (
+
+        {isLoadingReviews ? (
+          <div className='space-y-2.5'>
+            {[1, 2].map((i) => (
+              <div
+                key={i}
+                className='p-3.5 rounded-2xl border border-border/60 bg-secondary/30 animate-pulse space-y-2.5'
+              >
+                <div className='flex items-center gap-2.5'>
+                  <div className='w-7 h-7 rounded-full bg-muted-foreground/20' />
+                  <div className='space-y-1 flex-1'>
+                    <div className='h-3 w-28 bg-muted-foreground/20 rounded' />
+                    <div className='h-2.5 w-16 bg-muted-foreground/15 rounded' />
+                  </div>
+                </div>
+                <div className='h-3 w-full bg-muted-foreground/15 rounded' />
+                <div className='h-3 w-3/4 bg-muted-foreground/10 rounded' />
+              </div>
+            ))}
+          </div>
+        ) : reviewsList.length === 0 ? (
           <div className='flex flex-col items-center justify-center py-10 px-4 text-center space-y-3 bg-secondary/20 rounded-2xl border border-dashed border-border'>
             <EmptyIllustration type='no-reviews' size={140} />
             <div className='space-y-1 max-w-xs'>
@@ -1118,19 +1345,21 @@ export const ReviewsTab = memo(function ReviewsTab({
           </div>
         ) : (
           <div className='grid grid-cols-1 gap-2.5'>
-            {reviewsList.map((rev, idx) => (
-              <motion.div
-                key={rev.id || idx}
-                initial={rev.isUserSubmission ? { opacity: 0, y: -12, scale: 0.98 } : false}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ duration: 0.35, ease: 'easeOut' }}
-                className={cn(
-                  'p-3.5 rounded-2xl border flex flex-col gap-2 transition-all shadow-xs',
-                  rev.isUserSubmission
-                    ? 'bg-amber-gold/10 border-amber-gold/40 shadow-sm'
-                    : 'bg-secondary/50 border-border/60 hover:border-border/90'
-                )}
-              >
+            <AnimatePresence initial={false}>
+              {reviewsList.map((rev, idx) => (
+                <motion.div
+                  key={rev.id || idx}
+                  initial={{ opacity: 0, y: -16, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.35, ease: 'easeOut' }}
+                  className={cn(
+                    'p-3.5 rounded-2xl border flex flex-col gap-2 transition-all shadow-xs',
+                    rev.isUserSubmission
+                      ? 'bg-amber-gold/10 border-amber-gold/40 shadow-sm'
+                      : 'bg-secondary/50 border-border/60 hover:border-border/90'
+                  )}
+                >
                 {/* Header Row: Avatar, Author, Verified, Rating, and Date */}
                 <div className='flex items-start justify-between gap-2 min-w-0'>
                   <div className='flex items-center gap-2.5 min-w-0'>
@@ -1173,9 +1402,32 @@ export const ReviewsTab = memo(function ReviewsTab({
                 <p className='text-xs text-secondary-foreground leading-relaxed break-words whitespace-normal'>
                   {rev.comment}
                 </p>
+
+                {/* Review Attached Photos */}
+                {rev.images && rev.images.length > 0 && (
+                  <div className='flex items-center gap-2 pt-1 overflow-x-auto pb-1'>
+                    {rev.images.map((imgUrl, imgIdx) => (
+                      <div
+                        key={imgIdx}
+                        onClick={() => openImagePreview(rev.images || [], imgIdx)}
+                        className='relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border border-border/80 bg-muted cursor-pointer flex-shrink-0 group hover:border-amber-gold/60 transition-all shadow-xs'
+                      >
+                        <img
+                          src={imgUrl}
+                          alt={`Ảnh đánh giá từ ${rev.author}`}
+                          className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-200'
+                          onError={(e) => {
+                            (e.target as HTMLElement).style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </motion.div>
             ))}
-          </div>
+          </AnimatePresence>
+        </div>
         )}
 
         {/* 4. Inline Review Form when isStandalone */}
@@ -1548,21 +1800,56 @@ export const ShopDetailsContent = memo(function ShopDetailsContent({
     return `https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lon}`;
   };
 
+  const placeId = shop.place_id || shop.id || '';
+  const { data: reviews = [], isLoading: isReviewsLoading } = useShopReviews(placeId);
+
   const galleryPhotos = useMemo(() => {
+    const list: Array<{ url: string; title: string; category: string; isCommunity?: boolean }> = [];
+    const seenUrls = new Set<string>();
+
+    // 1. Official shop photos
     if (shop.photos && shop.photos.length > 0) {
-      return shop.photos.map((url, i) => ({
-        url,
-        title: `${shop.name} - Ảnh ${i + 1}`,
-        category: i === 0 ? 'Nổi bật' : i % 2 === 0 ? 'Không gian' : 'Cà phê'
-      }));
+      shop.photos.forEach((url, i) => {
+        if (url && !seenUrls.has(url)) {
+          seenUrls.add(url);
+          list.push({
+            url,
+            title: `${shop.name} - Ảnh ${i + 1}`,
+            category: i === 0 ? 'Nổi bật' : i % 2 === 0 ? 'Không gian' : 'Cà phê',
+            isCommunity: false
+          });
+        }
+      });
     }
-    return [];
-  }, [shop]);
+
+    // 2. Aggregated review photos from community
+    if (reviews && reviews.length > 0) {
+      reviews.forEach((rev) => {
+        if (rev.images && Array.isArray(rev.images)) {
+          rev.images.forEach((imgUrl) => {
+            if (imgUrl && !seenUrls.has(imgUrl)) {
+              seenUrls.add(imgUrl);
+              list.push({
+                url: imgUrl,
+                title: `${shop.name} - Ảnh từ đánh giá của ${rev.author || rev.profiles?.full_name || 'cộng đồng'}`,
+                category: 'Từ đánh giá cộng đồng',
+                isCommunity: true
+              });
+            }
+          });
+        }
+      });
+    }
+
+    return list;
+  }, [shop, reviews]);
 
   const hasRating = typeof shop.rating === 'number' && shop.rating > 0;
   const distanceText =
     shop.distance_text && shop.distance_text !== '0 m' ? shop.distance_text : 'Gần đây';
   const isOpenNow = scheduleInfo.isOpenNow;
+
+  const imageCount = galleryPhotos.length;
 
   return (
     <Tabs
@@ -1574,64 +1861,167 @@ export const ShopDetailsContent = memo(function ShopDetailsContent({
       <div className={cn('flex-shrink-0 space-y-3.5 select-none', isSidebar ? 'px-4 pt-3' : isStandalone ? 'px-0 pt-0' : 'px-4 sm:px-6 pt-2')}>
         {/* 1. Curated Interactive Visual Collage Banner */}
         <div className='relative w-full h-36 sm:h-44 rounded-2xl overflow-hidden bg-card shadow-md border border-border/80 group'>
-          {imgError || galleryPhotos.length === 0 ? (
+          {isReviewsLoading && (!shop.photos || shop.photos.length === 0) ? (
+            <div className='w-full h-full flex gap-1.5 p-1.5 bg-card animate-pulse'>
+              <div className='flex-[3] h-full rounded-xl bg-muted/60' />
+              <div className='flex-[2] flex flex-col gap-1.5'>
+                <div className='h-[calc(50%-3px)] rounded-xl bg-muted/50' />
+                <div className='h-[calc(50%-3px)] rounded-xl bg-muted/50' />
+              </div>
+            </div>
+          ) : imgError || imageCount === 0 ? (
             <div className='w-full h-full relative overflow-hidden'>
               <ShopCardPlaceholder shopId={shop.place_id || shop.id} shopName={shop.name} />
             </div>
-          ) : (
-            <div className='w-full h-full flex gap-1.5 p-1.5 bg-card'>
+          ) : imageCount === 1 ? (
+            /* Layout 1 Image: Full width & full height */
+            <div className='w-full h-full p-1.5 bg-card'>
               <div
                 onClick={() => openImagePreview(galleryPhotos, 0)}
-                className='flex-1 h-full rounded-xl overflow-hidden relative cursor-pointer group select-none pointer-events-auto bg-card border border-border/40'
+                className='w-full h-full rounded-xl overflow-hidden relative cursor-pointer group select-none pointer-events-auto bg-card border border-border/40'
               >
                 <img
                   draggable={false}
                   src={galleryPhotos[0]?.url}
-                  alt={shop.name}
+                  alt={galleryPhotos[0]?.title || shop.name}
                   onError={() => setImgError(true)}
                   className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 select-none pointer-events-auto [user-drag:none] [-webkit-user-drag:none]'
                 />
-                <div className='absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-2.5'>
+                {galleryPhotos[0]?.isCommunity && (
+                  <div className='absolute top-2 left-2 bg-black/60 backdrop-blur-xs border border-white/10 px-2 py-0.5 rounded-full text-[10px] font-medium text-amber-gold flex items-center gap-1 shadow-xs z-10'>
+                    <Camera size={10} />
+                    <span>Từ đánh giá cộng đồng</span>
+                  </div>
+                )}
+                <div className='absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-2.5 pointer-events-none'>
                   <span className='text-xs font-bold text-white drop-shadow-md flex items-center gap-1.5'>
                     <Images size={13} className='text-amber-gold' />
-                    <span>Xem bộ sưu tập ảnh</span>
+                    <span>Xem bộ sưu tập ảnh (1)</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          ) : imageCount === 2 ? (
+            /* Layout 2 Images: 60/40 side-by-side split */
+            <div className='w-full h-full flex gap-1.5 p-1.5 bg-card'>
+              {/* Left: main image (60%) */}
+              <div
+                onClick={() => openImagePreview(galleryPhotos, 0)}
+                className='flex-[3] h-full rounded-xl overflow-hidden relative cursor-pointer group select-none pointer-events-auto bg-card border border-border/40'
+              >
+                <img
+                  draggable={false}
+                  src={galleryPhotos[0]?.url}
+                  alt={galleryPhotos[0]?.title || shop.name}
+                  onError={() => setImgError(true)}
+                  className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 select-none pointer-events-auto [user-drag:none] [-webkit-user-drag:none]'
+                />
+                {galleryPhotos[0]?.isCommunity && (
+                  <div className='absolute top-2 left-2 bg-black/60 backdrop-blur-xs border border-white/10 px-2 py-0.5 rounded-full text-[10px] font-medium text-amber-gold flex items-center gap-1 shadow-xs z-10'>
+                    <Camera size={10} />
+                    <span>Từ đánh giá cộng đồng</span>
+                  </div>
+                )}
+                <div className='absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-2.5 pointer-events-none'>
+                  <span className='text-xs font-bold text-white drop-shadow-md flex items-center gap-1.5'>
+                    <Images size={13} className='text-amber-gold' />
+                    <span>Xem bộ sưu tập ảnh (2)</span>
                   </span>
                 </div>
               </div>
 
-              {galleryPhotos.length > 1 && (
-                <div className='hidden xs:flex sm:flex flex-col w-28 sm:w-36 gap-1.5'>
-                  <div
-                    onClick={() => openImagePreview(galleryPhotos, 1)}
-                    className='h-[calc(50%-3px)] rounded-xl overflow-hidden relative bg-card border border-border/40 cursor-pointer group select-none pointer-events-auto'
-                  >
-                    <img
-                      draggable={false}
-                      src={galleryPhotos[1]?.url}
-                      alt={`${shop.name} - Ảnh 2`}
-                      className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 select-none pointer-events-auto [user-drag:none] [-webkit-user-drag:none]'
-                    />
+              {/* Right: second image occupying entire right column (40%) */}
+              <div
+                onClick={() => openImagePreview(galleryPhotos, 1)}
+                className='flex-[2] h-full rounded-xl overflow-hidden relative bg-card border border-border/40 cursor-pointer group select-none pointer-events-auto'
+              >
+                <img
+                  draggable={false}
+                  src={galleryPhotos[1]?.url}
+                  alt={galleryPhotos[1]?.title || `${shop.name} - Ảnh 2`}
+                  className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 select-none pointer-events-auto [user-drag:none] [-webkit-user-drag:none]'
+                />
+                {galleryPhotos[1]?.isCommunity && (
+                  <div className='absolute top-2 left-2 bg-black/60 backdrop-blur-xs px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-medium text-amber-gold flex items-center gap-1 z-10 border border-white/10 shadow-xs'>
+                    <Camera size={10} />
+                    <span>Đánh giá</span>
                   </div>
-
-                  <div
-                    onClick={() => openImagePreview(galleryPhotos, 2)}
-                    className='h-[calc(50%-3px)] rounded-xl overflow-hidden relative bg-card border border-border/40 cursor-pointer group select-none pointer-events-auto'
-                  >
-                    <img
-                      draggable={false}
-                      src={galleryPhotos[2]?.url}
-                      alt={`${shop.name} - Ảnh 3`}
-                      className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 select-none pointer-events-auto [user-drag:none] [-webkit-user-drag:none]'
-                    />
-                    {galleryPhotos.length > 3 && (
-                      <div className='absolute inset-0 bg-black/65 backdrop-blur-[1px] flex items-center justify-center text-amber-gold font-bold text-xs tracking-tight gap-1 hover:bg-black/50 transition-colors pointer-events-none'>
-                        <Images size={12} className='text-amber-gold' />
-                        <span>+{galleryPhotos.length - 2} ảnh</span>
-                      </div>
-                    )}
+                )}
+              </div>
+            </div>
+          ) : (
+            /* Layout 3+ Images: 60/40 magazine grid with 2 stacked images on right */
+            <div className='w-full h-full flex gap-1.5 p-1.5 bg-card'>
+              {/* Left: main image (60%) */}
+              <div
+                onClick={() => openImagePreview(galleryPhotos, 0)}
+                className='flex-[3] h-full rounded-xl overflow-hidden relative cursor-pointer group select-none pointer-events-auto bg-card border border-border/40'
+              >
+                <img
+                  draggable={false}
+                  src={galleryPhotos[0]?.url}
+                  alt={galleryPhotos[0]?.title || shop.name}
+                  onError={() => setImgError(true)}
+                  className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 select-none pointer-events-auto [user-drag:none] [-webkit-user-drag:none]'
+                />
+                {galleryPhotos[0]?.isCommunity && (
+                  <div className='absolute top-2 left-2 bg-black/60 backdrop-blur-xs border border-white/10 px-2 py-0.5 rounded-full text-[10px] font-medium text-amber-gold flex items-center gap-1 shadow-xs z-10'>
+                    <Camera size={10} />
+                    <span>Từ đánh giá cộng đồng</span>
                   </div>
+                )}
+                <div className='absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-2.5 pointer-events-none'>
+                  <span className='text-xs font-bold text-white drop-shadow-md flex items-center gap-1.5'>
+                    <Images size={13} className='text-amber-gold' />
+                    <span>Xem bộ sưu tập ảnh ({imageCount})</span>
+                  </span>
                 </div>
-              )}
+              </div>
+
+              {/* Right: two stacked images (40%) */}
+              <div className='flex-[2] flex flex-col h-full gap-1.5'>
+                <div
+                  onClick={() => openImagePreview(galleryPhotos, 1)}
+                  className='flex-1 h-[calc(50%-3px)] rounded-xl overflow-hidden relative bg-card border border-border/40 cursor-pointer group select-none pointer-events-auto'
+                >
+                  <img
+                    draggable={false}
+                    src={galleryPhotos[1]?.url}
+                    alt={galleryPhotos[1]?.title || `${shop.name} - Ảnh 2`}
+                    className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 select-none pointer-events-auto [user-drag:none] [-webkit-user-drag:none]'
+                  />
+                  {galleryPhotos[1]?.isCommunity && (
+                    <div className='absolute top-1.5 left-1.5 bg-black/60 backdrop-blur-xs px-1.5 py-0.5 rounded text-[9px] font-medium text-amber-gold flex items-center gap-1 z-10'>
+                      <Camera size={8} />
+                      <span>Đánh giá</span>
+                    </div>
+                  )}
+                </div>
+
+                <div
+                  onClick={() => openImagePreview(galleryPhotos, 2)}
+                  className='flex-1 h-[calc(50%-3px)] rounded-xl overflow-hidden relative bg-card border border-border/40 cursor-pointer group select-none pointer-events-auto'
+                >
+                  <img
+                    draggable={false}
+                    src={galleryPhotos[2]?.url}
+                    alt={galleryPhotos[2]?.title || `${shop.name} - Ảnh 3`}
+                    className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 select-none pointer-events-auto [user-drag:none] [-webkit-user-drag:none]'
+                  />
+                  {galleryPhotos[2]?.isCommunity && imageCount <= 3 && (
+                    <div className='absolute top-1.5 left-1.5 bg-black/60 backdrop-blur-xs px-1.5 py-0.5 rounded text-[9px] font-medium text-amber-gold flex items-center gap-1 z-10'>
+                      <Camera size={8} />
+                      <span>Đánh giá</span>
+                    </div>
+                  )}
+                  {imageCount > 3 && (
+                    <div className='absolute inset-0 bg-black/65 backdrop-blur-[1px] flex items-center justify-center text-amber-gold font-bold text-xs sm:text-sm tracking-tight gap-1 hover:bg-black/50 transition-colors pointer-events-none'>
+                      <Images size={13} className='text-amber-gold' />
+                      <span>+{imageCount - 2} ảnh</span>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -1764,7 +2154,7 @@ export const ShopDetailsContent = memo(function ShopDetailsContent({
         </TabsContent>
 
         <TabsContent value='photos' className='mt-0 focus-visible:outline-none'>
-          <PhotosTab shop={shop} />
+          <PhotosTab shop={shop} photos={galleryPhotos} />
         </TabsContent>
 
         <TabsContent value='reviews' className='mt-0 focus-visible:outline-none min-h-full flex flex-col flex-1'>
