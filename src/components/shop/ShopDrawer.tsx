@@ -1,12 +1,14 @@
 'use client';
 
-import { Heart, Navigation, Share2 } from 'lucide-react';
+import { CheckCircle2, Heart, Navigation, Share2 } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Drawer as DrawerPrimitive } from 'vaul';
 
 import { cn } from '@/lib/utils';
 import { CoffeeShop } from '@/types/shop';
+import { useShopStore } from '@/stores/useShopStore';
+import { useToggleVisit } from '@/hooks/useShops';
 import {
   AmenitiesTab,
   ComputedSchedule,
@@ -27,21 +29,35 @@ export interface ShopDrawerProps {
   onClose: () => void;
   onToggleFavorite?: (placeId: string) => void;
   isFavorite?: boolean;
+  onToggleVisit?: (placeId: string) => void;
+  isVisited?: boolean;
 }
-
-const SNAP_POINTS = [0.5, 0.92];
 
 export function ShopDrawer({
   shop,
   isOpen,
   onClose,
   onToggleFavorite,
-  isFavorite = false
+  isFavorite,
+  onToggleVisit,
+  isVisited
 }: ShopDrawerProps) {
   const [displayedShop, setDisplayedShop] = useState<CoffeeShop | null>(shop);
-  const [activeSnapPoint, setActiveSnapPoint] = useState<number | string | null>(0.5);
   const [isHeartAnimating, setIsHeartAnimating] = useState(false);
+  const [isVisitAnimating, setIsVisitAnimating] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const storeIsFavorite = useShopStore((state) =>
+    displayedShop ? state.favorites.includes(displayedShop.place_id) : false
+  );
+  const currentIsFavorite = isFavorite !== undefined ? isFavorite : storeIsFavorite;
+
+  const storeIsVisited = useShopStore((state) =>
+    displayedShop ? state.visits.includes(displayedShop.place_id) : false
+  );
+  const currentIsVisited = isVisited !== undefined ? isVisited : storeIsVisited;
+
+  const toggleVisitMutation = useToggleVisit();
 
   // Keep displayed shop cached during exit animations
   useEffect(() => {
@@ -50,13 +66,10 @@ export function ShopDrawer({
     }
   }, [shop]);
 
-  // When drawer opens, reset snap point to 0.5 preview and reset scroll
+  // When drawer opens, reset scroll
   useEffect(() => {
-    if (shop && isOpen) {
-      setActiveSnapPoint(0.5);
-      if (scrollContainerRef.current) {
-        scrollContainerRef.current.scrollTop = 0;
-      }
+    if (shop && isOpen && scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0;
     }
   }, [shop?.id, isOpen]);
 
@@ -111,6 +124,21 @@ export function ShopDrawer({
     onToggleFavorite?.(displayedShop.place_id);
   };
 
+  const handleVisitClick = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (!displayedShop) return;
+    setIsVisitAnimating(true);
+    setTimeout(() => setIsVisitAnimating(false), 300);
+    if (onToggleVisit) {
+      onToggleVisit(displayedShop.place_id);
+    } else {
+      toggleVisitMutation(displayedShop.place_id, {
+        name: displayedShop.name,
+        address: displayedShop.address,
+      });
+    }
+  };
+
   const handleShare = (e?: React.MouseEvent) => {
     e?.stopPropagation();
     if (!displayedShop || typeof window === 'undefined') return;
@@ -135,10 +163,6 @@ export function ShopDrawer({
     return `https://www.google.com/maps/dir/?api=1&destination=${displayedShop.lat},${displayedShop.lon}`;
   };
 
-  const handleTabChange = React.useCallback(() => {
-    setActiveSnapPoint(0.92);
-  }, []);
-
   if (!displayedShop) return null;
 
   return (
@@ -147,10 +171,6 @@ export function ShopDrawer({
       onOpenChange={(open) => {
         if (!open) handleDrawerClose();
       }}
-      snapPoints={SNAP_POINTS}
-      activeSnapPoint={activeSnapPoint}
-      setActiveSnapPoint={setActiveSnapPoint}
-      fadeFromIndex={0}
       direction='bottom'
       shouldScaleBackground={false}
       preventScrollRestoration={true}
@@ -158,29 +178,26 @@ export function ShopDrawer({
       <DrawerPrimitive.Portal>
         {/* Subtle Semi-Transparent Backdrop Overlay */}
         <DrawerPrimitive.Overlay
-          className={cn(
-            'fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px] transition-opacity duration-200 ease-out will-change-opacity pointer-events-auto',
-            activeSnapPoint === 0.5 && 'opacity-0 pointer-events-none'
-          )}
+          className='fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px] transition-opacity duration-200 ease-out will-change-opacity pointer-events-auto'
           style={{ willChange: 'opacity' }}
         />
 
         {/* DRAGGABLE BOTTOM SHEET DRAWER CONTAINER */}
         <DrawerPrimitive.Content
           aria-describedby='shop-drawer-description'
-          className='fixed inset-x-0 bottom-0 z-50 flex flex-col bg-card border-t border-border shadow-2xl max-w-2xl mx-auto rounded-t-[2rem] outline-none h-[92vh] text-foreground overflow-hidden will-change-transform'
+          className='fixed inset-x-0 bottom-0 z-50 flex flex-col bg-card border-t border-border shadow-2xl max-w-2xl mx-auto rounded-t-[2rem] outline-none h-full max-h-[92vh] text-foreground overflow-hidden will-change-transform'
         >
-          {/* Top Pill Handle Bar with Click-to-Expand */}
+          {/* Top Pill Handle Bar */}
           <div
-            onClick={() => setActiveSnapPoint((prev) => (prev === 0.92 ? 0.5 : 0.92))}
+            onClick={onClose}
             className='flex items-center justify-center pt-3 pb-1.5 cursor-pointer touch-none select-none flex-shrink-0 group/handle'
-            aria-label='Mở rộng hoặc thu nhỏ chi tiết quán cà phê'
+            aria-label='Đóng chi tiết quán cà phê'
             role='button'
             tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                setActiveSnapPoint((prev) => (prev === 0.92 ? 0.5 : 0.92));
+                onClose();
               }
             }}
           >
@@ -192,63 +209,100 @@ export function ShopDrawer({
               shop={displayedShop}
               isSidebar={false}
               scrollRef={scrollContainerRef}
-              onTabChange={handleTabChange}
+              hideInlineActions={true}
             />
           </div>
 
           {/* ALWAYS-VISIBLE FIXED BOTTOM ACTION BAR */}
-          <div
-            data-vaul-no-drag
-            onPointerDown={(e) => e.stopPropagation()}
-            onClick={(e) => e.stopPropagation()}
-            className='flex-shrink-0 pointer-events-auto bg-card/95 backdrop-blur-xl border-t border-border px-4 sm:px-6 py-3 shadow-2xl select-none z-50'
-          >
-            <div className='grid grid-cols-3 gap-2'>
-              <a
-                href={getDirectionsUrl()}
-                target='_blank'
-                rel='noopener noreferrer'
-                className='flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 px-3 rounded-full bg-amber-gold text-primary-foreground font-bold hover:bg-amber-gold-hover transition-all text-xs shadow-md group active:scale-95 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background'
-              >
-                <Navigation
-                  size={15}
-                  className='fill-primary-foreground group-hover:scale-110 transition-transform flex-shrink-0'
-                />
-                <span className='truncate'>Chỉ đường</span>
-              </a>
+          {isOpen && Boolean(displayedShop) && (
+            <div
+              data-vaul-no-drag
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
+              className='flex-shrink-0 pointer-events-auto bg-card/95 backdrop-blur-md border-t border-border px-4 py-3 shadow-2xl select-none z-20 pb-[max(0.75rem,env(safe-area-inset-bottom))]'
+            >
+              <div className='grid grid-cols-4 gap-2'>
+                {/* 1. Directions Button */}
+                <a
+                  href={getDirectionsUrl()}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  aria-label='Chỉ đường'
+                  title='Chỉ đường'
+                  className='flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-full bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground text-xs font-bold shadow-md group active:scale-95 min-h-[44px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background'
+                >
+                  <Navigation
+                    size={15}
+                    className='fill-primary-foreground group-hover:scale-110 transition-transform flex-shrink-0'
+                  />
+                  <span className='truncate'>Chỉ đường</span>
+                </a>
 
-              <button
-                type='button'
-                onClick={handleFavoriteClick}
-                className={cn(
-                  'flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 px-3 rounded-full border transition-all text-xs font-semibold shadow-xs active:scale-95 min-h-[44px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background',
-                  isFavorite
-                    ? 'bg-rose-500/15 border-rose-500/40 text-rose-400 hover:bg-rose-500/25 hover:border-rose-500/60'
-                    : 'bg-secondary border-border text-secondary-foreground hover:text-foreground hover:bg-accent hover:border-amber-gold/40'
-                )}
-              >
-                <Heart
-                  size={15}
+                {/* 2. Favorite Toggle Button */}
+                <button
+                  type='button'
+                  onClick={handleFavoriteClick}
+                  aria-pressed={currentIsFavorite}
+                  aria-label={currentIsFavorite ? 'Đã lưu' : 'Lưu lại'}
+                  title={currentIsFavorite ? 'Đã lưu' : 'Lưu lại'}
                   className={cn(
-                    'transition-all duration-200 flex-shrink-0',
-                    isFavorite ? 'fill-rose-500 text-rose-500' : 'text-muted-foreground',
-                    isHeartAnimating && 'scale-125'
+                    'flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-full border text-xs font-bold shadow-sm transition-all active:scale-95 min-h-[44px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+                    currentIsFavorite
+                      ? 'bg-rose-500/15 border-rose-500/40 text-rose-500 hover:bg-rose-500/25 hover:border-rose-500/60'
+                      : 'bg-secondary border-border text-secondary-foreground hover:text-foreground hover:bg-accent hover:border-amber-gold/40'
                   )}
-                />
-                <span className='truncate'>{isFavorite ? 'Đã lưu' : 'Lưu lại'}</span>
-              </button>
+                >
+                  <Heart
+                    size={15}
+                    className={cn(
+                      'transition-all duration-200 flex-shrink-0',
+                      currentIsFavorite ? 'fill-rose-500 text-rose-500' : 'text-muted-foreground',
+                      isHeartAnimating && 'scale-125'
+                    )}
+                  />
+                  <span className='truncate'>{currentIsFavorite ? 'Đã lưu' : 'Lưu lại'}</span>
+                </button>
 
-              <button
-                type='button'
-                onClick={handleShare}
-                onPointerDown={(e) => e.stopPropagation()}
-                className='flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 px-3 rounded-full bg-secondary border border-border text-secondary-foreground hover:text-foreground hover:bg-accent hover:border-amber-gold/40 transition-all text-xs font-semibold shadow-xs active:scale-95 min-h-[44px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background'
-              >
-                <Share2 size={15} className='text-amber-gold flex-shrink-0' />
-                <span className='truncate'>Chia sẻ</span>
-              </button>
+                {/* 3. Visit Toggle Button */}
+                <button
+                  type='button'
+                  onClick={handleVisitClick}
+                  aria-pressed={currentIsVisited}
+                  aria-label={currentIsVisited ? 'Đã ghé' : 'Ghé thăm'}
+                  title={currentIsVisited ? 'Đã ghé quán này' : 'Đánh dấu đã ghé thăm'}
+                  className={cn(
+                    'flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-full border text-xs font-bold shadow-sm transition-all active:scale-95 min-h-[44px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+                    currentIsVisited
+                      ? 'bg-teal/15 border-teal/40 text-teal hover:bg-teal/25 hover:border-teal/60'
+                      : 'bg-secondary border-border text-secondary-foreground hover:text-foreground hover:bg-accent hover:border-amber-gold/40'
+                  )}
+                >
+                  <CheckCircle2
+                    size={15}
+                    className={cn(
+                      'transition-all duration-200 flex-shrink-0',
+                      currentIsVisited ? 'text-teal fill-teal/20' : 'text-muted-foreground',
+                      isVisitAnimating && 'scale-125'
+                    )}
+                  />
+                  <span className='truncate'>{currentIsVisited ? 'Đã ghé' : 'Ghé thăm'}</span>
+                </button>
+
+                {/* 4. Share Button */}
+                <button
+                  type='button'
+                  onClick={handleShare}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  aria-label='Chia sẻ'
+                  title='Chia sẻ'
+                  className='flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-full bg-secondary border border-border text-secondary-foreground hover:text-foreground hover:bg-accent hover:border-amber-gold/40 transition-all text-xs font-bold shadow-sm active:scale-95 min-h-[44px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background'
+                >
+                  <Share2 size={15} className='text-amber-gold flex-shrink-0' />
+                  <span className='truncate'>Chia sẻ</span>
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </DrawerPrimitive.Content>
       </DrawerPrimitive.Portal>
     </DrawerPrimitive.Root>

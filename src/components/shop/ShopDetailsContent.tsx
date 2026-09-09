@@ -2,7 +2,7 @@
 
 import {
   Check, CheckCircle2, ChevronDown, ChevronRight, Clock, Coffee, Compass, Copy, CreditCard,
-  CupSoda, Edit3, Flame, Footprints, Globe, Heart, Images, ImagePlus, Loader2, LogIn, MapPin, Navigation,
+  CupSoda, Edit3, Flame, Footprints, Globe, Heart, Images, Loader2, LogIn, MapPin, Navigation,
   Phone, Quote, Send, Sparkles, Star, Sun, Utensils, Wifi, Wind, X, Zap, Camera, Tag
 } from 'lucide-react';
 import Link from 'next/link';
@@ -24,8 +24,8 @@ import { cleanCategoryLabel } from '@/lib/utils/placeholders';
 import { useShopStore } from '@/stores/useShopStore';
 import { useUIStore } from '@/stores/useUIStore';
 import { useShopReviews } from '@/hooks/useShops';
-import { createClient } from '@/lib/supabase/client';
 import { CoffeeShop } from '@/types/shop';
+import { ReviewModal, ReviewItem } from './ReviewModal';
 
 
 
@@ -184,7 +184,8 @@ export const OverviewTab = memo(function OverviewTab({
   similarShops,
   scheduleInfo,
   isStandalone = false,
-  hideActions = false
+  hideActions = false,
+  hideInlineActions = false
 }: {
   shop: CoffeeShop;
   experienceTagline: string;
@@ -194,6 +195,7 @@ export const OverviewTab = memo(function OverviewTab({
   scheduleInfo: ComputedSchedule;
   isStandalone?: boolean;
   hideActions?: boolean;
+  hideInlineActions?: boolean;
 }) {
   const [copied, setCopied] = useState(false);
   const [isHoursExpanded, setIsHoursExpanded] = useState(false);
@@ -497,7 +499,7 @@ export const OverviewTab = memo(function OverviewTab({
           </div>
         </div>
 
-        {!(isStandalone || hideActions) && (
+        {!(isStandalone || hideActions || hideInlineActions) && (
           <a
             href={getDirectionsUrl()}
             target='_blank'
@@ -678,47 +680,20 @@ export const PhotosTab = memo(function PhotosTab({
   );
 });
 
-interface ReviewItem {
-  id?: string;
-  author: string;
-  avatar?: string;
-  rating: number;
-  date: string;
-  highlight?: string;
-  comment: string;
-  images?: string[];
-  isUserSubmission?: boolean;
-}
-
 export const ReviewsTab = memo(function ReviewsTab({
   shop,
-  isSidebar = false,
-  isStandalone = false
 }: {
   shop: CoffeeShop;
   isSidebar?: boolean;
   isStandalone?: boolean;
 }) {
-  const router = useRouter();
-  const queryClient = useQueryClient();
   const openImagePreview = useUIStore((state) => state.openImagePreview);
   const { user, profile, isAuthenticated } = useAuth();
-  const supabase = useMemo(() => createClient(), []);
 
   const placeId = shop.place_id || shop.id || '';
   const { data: dbReviews = [], isLoading: isLoadingReviews } = useShopReviews(placeId);
   const [reviewsList, setReviewsList] = useState<ReviewItem[]>([]);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [rating, setRating] = useState(5);
-  const [hoverRating, setHoverRating] = useState(0);
-  const [comment, setComment] = useState('');
-  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
-  const [isUploadingImages, setIsUploadingImages] = useState(false);
-  const [formError, setFormError] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const formRef = useRef<HTMLDivElement>(null);
-  const triggerRef = useRef<HTMLButtonElement>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const hasShopRating = typeof shop.rating === 'number' && shop.rating > 0;
   const shopRating = shop.rating || 0;
@@ -749,559 +724,111 @@ export const ReviewsTab = memo(function ReviewsTab({
     }
   }, [dbReviews]);
 
-  // Auto-scroll to review form in standalone view
-  useEffect(() => {
-    if (isFormOpen && isStandalone && formRef.current) {
-      formRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
-  }, [isFormOpen, isStandalone]);
-
-  // Click outside listener for drawer/sidebar only
-  useEffect(() => {
-    if (!isFormOpen || isStandalone) return;
-
-    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
-      const target = event.target as Node;
-      if (
-        formRef.current &&
-        !formRef.current.contains(target) &&
-        !triggerRef.current?.contains(target)
-      ) {
-        setIsFormOpen(false);
-        setFormError('');
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('touchstart', handleClickOutside, { passive: true });
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('touchstart', handleClickOutside);
-    };
-  }, [isFormOpen, isStandalone]);
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
-    if (!user) {
-      toast.error('Vui lòng đăng nhập để tải ảnh lên.');
-      return;
-    }
-
-    const availableSlots = 3 - uploadedImages.length;
-    if (availableSlots <= 0) {
-      toast.error('Bạn chỉ có thể tải lên tối đa 3 hình ảnh cho mỗi đánh giá.');
-      return;
-    }
-
-    const filesToUpload = Array.from(files).slice(0, availableSlots);
-    if (files.length > availableSlots) {
-      toast.warning(`Chỉ có thể thêm tối đa ${availableSlots} ảnh nữa.`);
-    }
-
-    setIsUploadingImages(true);
-    const toastId = toast.loading(`Đang tải lên ${filesToUpload.length} ảnh...`);
-    const newUrls: string[] = [];
-
-    try {
-      for (const file of filesToUpload) {
-        // Validation: 5MB max
-        if (file.size > 5 * 1024 * 1024) {
-          toast.error(`Ảnh "${file.name}" vượt quá dung lượng 5MB.`, { id: toastId });
-          continue;
-        }
-
-        // Allowed formats
-        const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
-        if (!validTypes.includes(file.type.toLowerCase())) {
-          toast.error(`Ảnh "${file.name}" không đúng định dạng (hỗ trợ JPG, PNG, WEBP).`, { id: toastId });
-          continue;
-        }
-
-        const fileExt = file.name.split('.').pop()?.toLowerCase() || 'jpg';
-        const cleanName = file.name
-          .replace(/\.[^/.]+$/, '')
-          .replace(/[^a-zA-Z0-9_-]/g, '_')
-          .substring(0, 20);
-        const timestamp = Date.now();
-        const randomStr = Math.random().toString(36).substring(2, 8);
-        const filePath = `reviews/${user.id}/${timestamp}_${randomStr}_${cleanName}.${fileExt}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from('shop-photos')
-          .upload(filePath, file, {
-            cacheControl: '3600',
-            upsert: false,
-          });
-
-        if (uploadError) {
-          console.error('Lỗi tải ảnh:', uploadError);
-          toast.error(`Không thể tải "${file.name}": ${uploadError.message}`, { id: toastId });
-          continue;
-        }
-
-        const { data: publicUrlData } = supabase.storage
-          .from('shop-photos')
-          .getPublicUrl(filePath);
-
-        if (publicUrlData?.publicUrl) {
-          newUrls.push(publicUrlData.publicUrl);
-        }
-      }
-
-      if (newUrls.length > 0) {
-        setUploadedImages((prev) => [...prev, ...newUrls].slice(0, 3));
-        toast.success(`Đã thêm thành công ${newUrls.length} ảnh!`, { id: toastId });
-      } else {
-        toast.dismiss(toastId);
-      }
-    } catch (err: any) {
-      console.error('Lỗi tải ảnh:', err);
-      toast.error('Không thể tải ảnh lên. Vui lòng thử lại.', { id: toastId });
-    } finally {
-      setIsUploadingImages(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    }
-  };
-
-  const handleRemoveImage = (indexToRemove: number) => {
-    setUploadedImages((prev) => prev.filter((_, idx) => idx !== indexToRemove));
-  };
-
-  const handleSubmitReview = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isAuthenticated || !user) {
-      toast('Yêu cầu đăng nhập', {
-        description: 'Đăng nhập để chia sẻ câu chuyện cà phê của bạn cùng cộng đồng.',
-        action: {
-          label: 'Đăng nhập',
-          onClick: () => router.push(APP_ROUTES.LOGIN),
-        },
-      });
-      return;
-    }
-
-    if (!rating || rating < 1 || rating > 5) {
-      setFormError('Vui lòng chọn số sao đánh giá từ 1 đến 5.');
-      toast.error('Vui lòng chọn số sao đánh giá từ 1 đến 5.');
-      return;
-    }
-
-    if (!comment || comment.trim().length < 3) {
-      setFormError('Vui lòng viết ít nhất 3 ký tự cho bài đánh giá của bạn.');
-      toast.error('Vui lòng viết ít nhất 3 ký tự cho bài đánh giá của bạn.');
-      return;
-    }
-
-    setIsSubmitting(true);
-    setFormError('');
-    try {
-      const placeId = shop.place_id || shop.id;
-      const res = await fetch('/api/reviews', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          shop_place_id: placeId,
-          rating,
-          comment: comment.trim(),
-          images: uploadedImages,
-        })
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Không thể gửi đánh giá. Vui lòng thử lại.');
-      }
-
-      const returned = data.review;
-      const newReview: ReviewItem = {
-        id: returned?.id || String(Date.now()),
-        author:
-          returned?.author ||
-          returned?.profiles?.full_name ||
-          profile?.full_name ||
-          user.user_metadata?.full_name ||
-          user.email?.split('@')[0] ||
-          'Bạn',
-        avatar:
-          returned?.avatar ||
-          returned?.profiles?.avatar_url ||
-          profile?.avatar_url ||
-          user.user_metadata?.avatar_url ||
-          undefined,
-        rating: returned?.rating || rating,
-        date: 'Vừa xong',
-        highlight: 'Đánh giá của bạn',
-        comment: comment.trim(),
-        images: returned?.images || uploadedImages,
-        isUserSubmission: true
-      };
-
-      setReviewsList((prev) => [newReview, ...prev]);
-      setComment('');
-      setRating(5);
-      setUploadedImages([]);
-      setFormError('');
-      setIsFormOpen(false);
-      queryClient.invalidateQueries({ queryKey: ['shops', 'reviews', placeId] });
-      toast.success('Cảm ơn bạn! Đánh giá của bạn đã được đăng tải.');
-    } catch (err: any) {
-      const msg = err.message || 'Không thể gửi đánh giá. Vui lòng thử lại.';
-      setFormError(msg);
-      toast.error(msg);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const renderReviewForm = (
-    <motion.div
-      ref={formRef}
-      key='review-form'
-      initial={{ opacity: 0, y: isStandalone ? 12 : '100%' }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: isStandalone ? 12 : '100%' }}
-      transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-      className={cn(
-        'select-none text-foreground flex flex-col gap-3.5',
-        isStandalone
-          ? 'bg-card/85 backdrop-blur-sm border border-border/80 rounded-2xl p-4 sm:p-5 shadow-md mt-4'
-          : cn(
-              'sticky bottom-0 z-30 bg-card/95 backdrop-blur-md border-t border-border/70 mt-auto shadow-xl',
-              isSidebar
-                ? '-mx-4 px-4 pt-3.5 pb-4'
-                : '-mx-4 sm:-mx-6 px-4 sm:px-6 pt-3.5 pb-4'
-            )
-      )}
-    >
-      {/* 1. Prominent Header with Icon, Title, Subtitle, and Close Button */}
-      <div className='flex items-center justify-between border-b border-border/50 pb-2.5'>
-        <div className='flex items-center gap-2'>
-          <div className='w-7 h-7 rounded-xl bg-amber-gold/15 border border-amber-gold/30 flex items-center justify-center text-amber-gold shadow-xs flex-shrink-0'>
-            <Edit3 size={14} />
+  return (
+    <div className='flex flex-col gap-4'>
+      {/* 1. Top Section: Score Breakdown & Auth / Review Trigger Action */}
+      <div className='space-y-3'>
+        {/* Rating Breakdown Score Card */}
+        <div className='bg-secondary/50 p-3.5 rounded-2xl border border-border/60 grid grid-cols-[110px_1fr] items-center gap-4 shadow-sm'>
+          <div className='flex flex-col items-center justify-center text-center pr-3 border-r border-border/50'>
+            <span className='text-3xl font-black text-foreground tracking-tight leading-none'>
+              {shopRating.toFixed(1)}
+            </span>
+            <div className='flex items-center gap-0.5 text-amber-gold my-1'>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Star
+                  key={star}
+                  size={12}
+                  className={
+                    hasShopRating && star <= Math.round(shopRating)
+                      ? 'fill-amber-gold text-amber-gold'
+                      : 'text-border'
+                  }
+                />
+              ))}
+            </div>
+            <span className='text-[10px] text-muted-foreground font-medium leading-none'>
+              {totalReviews > 0 ? `${totalReviews} Đánh giá` : 'Chưa có đánh giá'}
+            </span>
           </div>
-          <div>
-            <h4 className='font-bold text-xs sm:text-sm text-foreground leading-none'>
-              Viết Đánh Giá Của Bạn
-            </h4>
-            <p className='text-[10px] text-muted-foreground mt-0.5'>
-              Chia sẻ trải nghiệm thực tế với quán cà phê
+
+          <div className='space-y-1 text-xs text-secondary-foreground'>
+            <p className='text-xs text-muted-foreground font-medium'>
+              {hasShopRating || totalReviews > 0
+                ? 'Đánh giá trung bình từ cộng đồng người dùng PhinFind.'
+                : 'Chưa có đánh giá từ cộng đồng cho quán này.'}
             </p>
           </div>
         </div>
-        <button
-          type='button'
-          onClick={() => {
-            setIsFormOpen(false);
-            setFormError('');
-          }}
-          className='text-muted-foreground hover:text-foreground p-1.5 rounded-full hover:bg-muted transition-colors cursor-pointer'
-          aria-label='Đóng form đánh giá'
-        >
-          <X size={15} />
-        </button>
-      </div>
 
-      {/* 2. Interactive Star Rating Selector */}
-      <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-secondary/40 p-3 rounded-xl border border-border/50'>
-        <span className='text-xs font-semibold text-foreground flex items-center gap-1'>
-          <span>Đánh giá tổng quan</span>
-          <span className='text-rose-500'>*</span>
-        </span>
-        <div className='flex items-center gap-1 sm:gap-1.5'>
-          <div
-            role='radiogroup'
-            aria-label='Chọn số sao đánh giá'
-            className='flex items-center gap-0.5 sm:gap-1'
-          >
-            {[1, 2, 3, 4, 5].map((star) => {
-              const active = (hoverRating || rating) >= star;
-              return (
-                <button
-                  key={star}
-                  type='button'
-                  role='radio'
-                  aria-checked={rating === star}
-                  aria-label={`Đánh giá ${star} sao`}
-                  onClick={() => setRating(star)}
-                  onMouseEnter={() => setHoverRating(star)}
-                  onMouseLeave={() => setHoverRating(0)}
-                  className='p-1 rounded-lg text-amber-gold hover:scale-125 active:scale-95 transition-transform duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold cursor-pointer touch-manipulation'
-                >
-                  <Star
-                    size={26}
-                    className={cn(
-                      'transition-colors duration-150',
-                      active
-                        ? 'fill-amber-gold text-amber-gold drop-shadow-[0_1px_2px_rgba(184,134,11,0.25)]'
-                        : 'text-muted-foreground/30 hover:text-amber-gold/50'
-                    )}
-                  />
-                </button>
-              );
-            })}
+        {/* Inline "Write a Review" Action / Guest Auth Prompt */}
+        {!isAuthenticated ? (
+          <div className='bg-secondary/40 p-3 rounded-2xl border border-border/60 flex items-center justify-between gap-3 shadow-xs'>
+            <div className='flex items-center gap-2.5 min-w-0 flex-1'>
+              <div className='w-8 h-8 rounded-xl bg-amber-gold/15 border border-amber-gold/30 flex items-center justify-center text-amber-gold flex-shrink-0'>
+                <Edit3 size={15} />
+              </div>
+              <div className='min-w-0'>
+                <span className='font-bold text-foreground text-xs block truncate'>
+                  Bạn đã từng ghé quán cà phê này?
+                </span>
+                <p className='text-[11px] text-muted-foreground truncate'>
+                  Chia sẻ cảm nhận và trải nghiệm của bạn
+                </p>
+              </div>
+            </div>
+            <Link
+              href={`/login?redirect=${encodeURIComponent(`/?shop=${shop.id}`)}`}
+              className='flex-shrink-0'
+            >
+              <Button
+                type='button'
+                className='bg-primary hover:bg-primary-hover text-primary-foreground text-xs font-bold rounded-xl px-3.5 py-1.5 h-8.5 flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-md'
+              >
+                <LogIn size={13} />
+                <span>Đăng nhập</span>
+              </Button>
+            </Link>
           </div>
-          <span className='text-xs font-bold text-foreground ml-1.5 min-w-[38px] text-right bg-background/80 px-2 py-0.5 rounded-md border border-border/60'>
-            {hoverRating || rating} / 5
-          </span>
-        </div>
-      </div>
-
-      {/* 3. Comment Textarea */}
-      <div className='space-y-1.5'>
-        <div className='flex items-center justify-between'>
-          <label
-            htmlFor='review-comment-textarea'
-            className='text-xs font-semibold text-foreground flex items-center gap-1'
-          >
-            <span>Nội dung cảm nhận</span>
-            <span className='text-rose-500'>*</span>
-          </label>
-          <span
-            className={cn(
-              'text-[10px] font-medium transition-colors',
-              comment.trim().length > 0 && comment.trim().length < 3
-                ? 'text-rose-500 font-semibold'
-                : 'text-muted-foreground'
-            )}
-          >
-            {comment.trim().length < 3
-              ? `Tối thiểu 3 ký tự (${comment.trim().length}/3)`
-              : `${comment.trim().length} ký tự`}
-          </span>
-        </div>
-        <textarea
-          id='review-comment-textarea'
-          value={comment}
-          onChange={(e) => {
-            setComment(e.target.value);
-            if (formError) setFormError('');
-          }}
-          placeholder='Chia sẻ cảm nhận của bạn về hương vị, không gian, dịch vụ...'
-          rows={4}
-          className={cn(
-            'w-full bg-secondary/50 border rounded-xl p-3 text-xs text-foreground placeholder:text-muted-foreground',
-            'focus:outline-none focus:border-amber-gold focus:ring-2 focus:ring-amber-gold/20 resize-none transition-all',
-            formError ? 'border-rose-500 ring-1 ring-rose-500/20' : 'border-border/70 hover:border-border'
-          )}
-        />
-        {formError && (
-          <p className='text-[11px] text-rose-500 font-medium flex items-center gap-1 pt-0.5'>
-            <span>⚠️</span>
-            <span>{formError}</span>
-          </p>
+        ) : (
+          <div className='flex items-center justify-between bg-secondary/40 p-3 rounded-2xl border border-border/60 gap-3 shadow-xs'>
+            <div className='flex items-center gap-2.5 min-w-0 flex-1'>
+              <div className='w-8 h-8 rounded-full overflow-hidden border border-amber-gold/40 bg-muted flex-shrink-0 flex items-center justify-center'>
+                {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
+                  <img
+                    src={profile?.avatar_url || user?.user_metadata?.avatar_url}
+                    alt='Ảnh đại diện của bạn'
+                    className='w-full h-full object-cover'
+                  />
+                ) : (
+                  <div className='w-full h-full bg-amber-gold/20 flex items-center justify-center text-amber-gold text-xs font-bold'>
+                    {(profile?.full_name || user?.user_metadata?.full_name || 'U')[0].toUpperCase()}
+                  </div>
+                )}
+              </div>
+              <div className='min-w-0'>
+                <span className='text-xs font-bold text-foreground block truncate'>
+                  Đánh giá với tư cách {profile?.full_name || user?.user_metadata?.full_name || 'Tín đồ cà phê'}
+                </span>
+                <p className='text-[11px] text-muted-foreground truncate'>
+                  Chia sẻ cảm nhận của bạn cùng cộng đồng
+                </p>
+              </div>
+            </div>
+            <Button
+              type='button'
+              onClick={() => setIsModalOpen(true)}
+              className='bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground font-bold text-xs rounded-xl px-3.5 py-1.5 h-8.5 shadow-md flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer flex-shrink-0'
+            >
+              <Edit3 size={13} />
+              <span>Viết đánh giá</span>
+            </Button>
+          </div>
         )}
       </div>
 
-      {/* 4. Image Upload Section */}
-      <div className='space-y-1.5 pt-0.5'>
-        <div className='flex items-center justify-between'>
-          <label className='text-xs font-semibold text-foreground flex items-center gap-1.5'>
-            <Camera size={13} className='text-amber-gold' />
-            <span>Hình ảnh thực tế</span>
-            <span className='text-[10px] text-muted-foreground font-normal'>(Tối đa 3 ảnh)</span>
-          </label>
-          <span className='text-[10px] text-muted-foreground font-medium'>
-            {uploadedImages.length}/3 ảnh
-          </span>
-        </div>
-
-        {/* Thumbnail Previews & Add Button */}
-        <div className='flex flex-wrap items-center gap-2'>
-          {uploadedImages.map((imgUrl, idx) => (
-            <div
-              key={idx}
-              className='relative w-16 h-16 sm:w-18 sm:h-18 rounded-xl overflow-hidden border border-border/80 bg-muted shadow-xs group'
-            >
-              <img
-                src={imgUrl}
-                alt={`Ảnh đánh giá ${idx + 1}`}
-                className='w-full h-full object-cover'
-              />
-              <button
-                type='button'
-                onClick={() => handleRemoveImage(idx)}
-                className='absolute top-1 right-1 w-5 h-5 rounded-full bg-black/70 text-white flex items-center justify-center hover:bg-rose-600 transition-colors shadow-xs cursor-pointer'
-                aria-label='Xóa ảnh này'
-              >
-                <X size={11} strokeWidth={2.5} />
-              </button>
-            </div>
-          ))}
-
-          {uploadedImages.length < 3 && (
-            <button
-              type='button'
-              disabled={isUploadingImages || isSubmitting}
-              onClick={() => fileInputRef.current?.click()}
-              className='w-16 h-16 sm:w-18 sm:h-18 rounded-xl border-2 border-dashed border-border/80 hover:border-amber-gold/60 bg-secondary/30 hover:bg-secondary/60 flex flex-col items-center justify-center gap-1 text-muted-foreground hover:text-foreground transition-all cursor-pointer disabled:opacity-50 disabled:pointer-events-none'
-            >
-              {isUploadingImages ? (
-                <Loader2 size={16} className='animate-spin text-amber-gold' />
-              ) : (
-                <>
-                  <ImagePlus size={16} className='text-amber-gold' />
-                  <span className='text-[9px] font-semibold'>Thêm ảnh</span>
-                </>
-              )}
-            </button>
-          )}
-
-          <input
-            ref={fileInputRef}
-            type='file'
-            accept='image/jpeg,image/png,image/webp,image/jpg'
-            multiple
-            className='hidden'
-            onChange={handleImageUpload}
-          />
-        </div>
-      </div>
-
-      {/* 5. Action Buttons */}
-      <div className='flex items-center justify-end gap-2.5 pt-1'>
-        <Button
-          type='button'
-          variant='ghost'
-          size='sm'
-          onClick={() => {
-            setIsFormOpen(false);
-            setFormError('');
-          }}
-          disabled={isSubmitting}
-          className='text-xs text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl px-3.5 h-9 font-medium cursor-pointer transition-colors'
-        >
-          Hủy
-        </Button>
-        <Button
-          type='button'
-          onClick={handleSubmitReview}
-          disabled={isSubmitting || comment.trim().length < 3}
-          className='bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground font-bold text-xs rounded-xl px-4 h-9 shadow-md flex items-center gap-2 active:scale-95 disabled:opacity-50 disabled:pointer-events-none cursor-pointer transition-all'
-        >
-          {isSubmitting ? (
-            <>
-              <Loader2 size={13} className='animate-spin' />
-              <span>Đang gửi...</span>
-            </>
-          ) : (
-            <>
-              <Send size={13} />
-              <span>Gửi đánh giá</span>
-            </>
-          )}
-        </Button>
-      </div>
-    </motion.div>
-  );
-
-  return (
-    <div className='relative flex flex-col flex-1 min-h-full space-y-4'>
-      {/* 1. Rating Breakdown Score Card */}
-      <div className='bg-secondary/50 p-3.5 rounded-2xl border border-border/60 grid grid-cols-[110px_1fr] items-center gap-4 shadow-sm'>
-        <div className='flex flex-col items-center justify-center text-center pr-3 border-r border-border/50'>
-          <span className='text-3xl font-black text-foreground tracking-tight leading-none'>
-            {shopRating.toFixed(1)}
-          </span>
-          <div className='flex items-center gap-0.5 text-amber-gold my-1'>
-            {[1, 2, 3, 4, 5].map((star) => (
-              <Star
-                key={star}
-                size={12}
-                className={
-                  hasShopRating && star <= Math.round(shopRating)
-                    ? 'fill-amber-gold text-amber-gold'
-                    : 'text-border'
-                }
-              />
-            ))}
-          </div>
-          <span className='text-[10px] text-muted-foreground font-medium leading-none'>
-            {totalReviews > 0 ? `${totalReviews} Đánh giá` : 'Chưa có đánh giá'}
-          </span>
-        </div>
-
-        <div className='space-y-1 text-xs text-secondary-foreground'>
-          <p className='text-xs text-muted-foreground font-medium'>
-            {hasShopRating || totalReviews > 0
-              ? 'Đánh giá trung bình từ cộng đồng người dùng PhinFind.'
-              : 'Chưa có đánh giá từ cộng đồng cho quán này.'}
-          </p>
-        </div>
-      </div>
-
-      {/* 2. Inline "Write a Review" Action / Guest Auth Prompt */}
-      {!isAuthenticated ? (
-        <div className='bg-secondary/40 p-3 rounded-2xl border border-border/60 flex items-center justify-between gap-3 shadow-xs'>
-          <div className='flex items-center gap-2.5 min-w-0 flex-1'>
-            <div className='w-8 h-8 rounded-xl bg-amber-gold/15 border border-amber-gold/30 flex items-center justify-center text-amber-gold flex-shrink-0'>
-              <Edit3 size={15} />
-            </div>
-            <div className='min-w-0'>
-              <span className='font-bold text-foreground text-xs block truncate'>
-                Bạn đã từng ghé quán cà phê này?
-              </span>
-              <p className='text-[11px] text-muted-foreground truncate'>
-                Chia sẻ cảm nhận và trải nghiệm của bạn
-              </p>
-            </div>
-          </div>
-          <Link
-            href={`/login?redirect=${encodeURIComponent(`/?shop=${shop.id}`)}`}
-            className='flex-shrink-0'
-          >
-            <Button
-              type='button'
-              className='bg-primary hover:bg-primary-hover text-primary-foreground text-xs font-bold rounded-xl px-3.5 py-1.5 h-8.5 flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-md'
-            >
-              <LogIn size={13} />
-              <span>Đăng nhập</span>
-            </Button>
-          </Link>
-        </div>
-      ) : (
-        <div className='flex items-center justify-between bg-secondary/40 p-3 rounded-2xl border border-border/60 gap-3 shadow-xs'>
-          <div className='flex items-center gap-2.5 min-w-0 flex-1'>
-            <div className='w-8 h-8 rounded-full overflow-hidden border border-amber-gold/40 bg-muted flex-shrink-0 flex items-center justify-center'>
-              {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
-                <img
-                  src={profile?.avatar_url || user?.user_metadata?.avatar_url}
-                  alt='Ảnh đại diện của bạn'
-                  className='w-full h-full object-cover'
-                />
-              ) : (
-                <div className='w-full h-full bg-amber-gold/20 flex items-center justify-center text-amber-gold text-xs font-bold'>
-                  {(profile?.full_name || user?.user_metadata?.full_name || 'U')[0].toUpperCase()}
-                </div>
-              )}
-            </div>
-            <div className='min-w-0'>
-              <span className='text-xs font-bold text-foreground block truncate'>
-                Đánh giá với tư cách {profile?.full_name || user?.user_metadata?.full_name || 'Tín đồ cà phê'}
-              </span>
-              <p className='text-[11px] text-muted-foreground truncate'>
-                Chia sẻ cảm nhận của bạn cùng cộng đồng
-              </p>
-            </div>
-          </div>
-          <Button
-            ref={triggerRef}
-            type='button'
-            onClick={() => setIsFormOpen((prev) => !prev)}
-            className='bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground font-bold text-xs rounded-xl px-3.5 py-1.5 h-8.5 shadow-md flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer flex-shrink-0'
-          >
-            <Edit3 size={13} />
-            <span>{isFormOpen ? 'Đang viết đánh giá' : 'Viết đánh giá'}</span>
-          </Button>
-        </div>
-      )}
-
-      {/* 3. Review Comments Feed */}
-      <div className={cn('space-y-2.5', !isStandalone && isFormOpen ? 'pb-48' : 'pb-4')}>
+      {/* 2. Reviews List */}
+      <div className='space-y-2.5'>
         <span className='text-xs font-bold text-foreground block'>
           Đánh giá &amp; Trải nghiệm cộng đồng ({reviewsList.length})
         </span>
@@ -1334,14 +861,26 @@ export const ReviewsTab = memo(function ReviewsTab({
                 Hãy là người đầu tiên trải nghiệm và chia sẻ cảm nhận về quán này cùng cộng đồng!
               </p>
             </div>
-            <Button
-              type='button'
-              onClick={() => setIsFormOpen(true)}
-              className='bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground font-bold text-xs rounded-xl px-4 py-2 h-8 shadow-xs flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer'
-            >
-              <Edit3 size={13} />
-              <span>Viết đánh giá đầu tiên</span>
-            </Button>
+            {isAuthenticated ? (
+              <Button
+                type='button'
+                onClick={() => setIsModalOpen(true)}
+                className='bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground font-bold text-xs rounded-xl px-4 py-2 h-8 shadow-xs flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer'
+              >
+                <Edit3 size={13} />
+                <span>Viết đánh giá đầu tiên</span>
+              </Button>
+            ) : (
+              <Link href={`/login?redirect=${encodeURIComponent(`/?shop=${shop.id}`)}`}>
+                <Button
+                  type='button'
+                  className='bg-primary hover:bg-primary-hover text-primary-foreground font-bold text-xs rounded-xl px-4 py-2 h-8 shadow-xs flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer'
+                >
+                  <LogIn size={13} />
+                  <span>Đăng nhập để đánh giá</span>
+                </Button>
+              </Link>
+            )}
           </div>
         ) : (
           <div className='grid grid-cols-1 gap-2.5'>
@@ -1360,90 +899,88 @@ export const ReviewsTab = memo(function ReviewsTab({
                       : 'bg-secondary/50 border-border/60 hover:border-border/90'
                   )}
                 >
-                {/* Header Row: Avatar, Author, Verified, Rating, and Date */}
-                <div className='flex items-start justify-between gap-2 min-w-0'>
-                  <div className='flex items-center gap-2.5 min-w-0'>
-                    <div className='w-7 h-7 rounded-full overflow-hidden border border-amber-gold/30 bg-muted flex-shrink-0 flex items-center justify-center'>
-                      {rev.avatar ? (
-                        <img
-                          src={rev.avatar}
-                          alt={rev.author}
-                          className='w-full h-full object-cover'
-                        />
-                      ) : (
-                        <div className='w-full h-full bg-amber-gold/20 flex items-center justify-center text-amber-gold text-[10px] font-bold'>
-                          {rev.author[0]?.toUpperCase() || 'U'}
-                        </div>
-                      )}
-                    </div>
-                    <div className='min-w-0 flex flex-col'>
-                      <div className='flex items-center gap-1.5 min-w-0'>
-                        <span className='font-bold text-foreground text-xs truncate'>{rev.author}</span>
-                        <CheckCircle2 size={12} className='text-teal flex-shrink-0' />
-                        {rev.isUserSubmission && (
-                          <span className='text-[9px] bg-amber-gold text-primary-foreground font-extrabold px-1.5 py-0.2 rounded uppercase tracking-wider flex-shrink-0'>
-                            Bạn
-                          </span>
+                  {/* Header Row: Avatar, Author, Verified, Rating, and Date */}
+                  <div className='flex items-start justify-between gap-2 min-w-0'>
+                    <div className='flex items-center gap-2.5 min-w-0'>
+                      <div className='w-7 h-7 rounded-full overflow-hidden border border-amber-gold/30 bg-muted flex-shrink-0 flex items-center justify-center'>
+                        {rev.avatar ? (
+                          <img
+                            src={rev.avatar}
+                            alt={rev.author}
+                            className='w-full h-full object-cover'
+                          />
+                        ) : (
+                          <div className='w-full h-full bg-amber-gold/20 flex items-center justify-center text-amber-gold text-[10px] font-bold'>
+                            {rev.author[0]?.toUpperCase() || 'U'}
+                          </div>
                         )}
                       </div>
-                      <div className='flex items-center gap-0.5 text-amber-gold mt-0.5'>
-                        {[...Array(rev.rating)].map((_, i) => (
-                          <Star key={i} size={10} className='fill-amber-gold text-amber-gold' />
-                        ))}
+                      <div className='min-w-0 flex flex-col'>
+                        <div className='flex items-center gap-1.5 min-w-0'>
+                          <span className='font-bold text-foreground text-xs truncate'>{rev.author}</span>
+                          <CheckCircle2 size={12} className='text-teal flex-shrink-0' />
+                          {rev.isUserSubmission && (
+                            <span className='text-[9px] bg-amber-gold text-primary-foreground font-extrabold px-1.5 py-0.2 rounded uppercase tracking-wider flex-shrink-0'>
+                              Bạn
+                            </span>
+                          )}
+                        </div>
+                        <div className='flex items-center gap-0.5 text-amber-gold mt-0.5'>
+                          {[...Array(rev.rating)].map((_, i) => (
+                            <Star key={i} size={10} className='fill-amber-gold text-amber-gold' />
+                          ))}
+                        </div>
                       </div>
                     </div>
+                    <span className='text-[10px] text-muted-foreground font-medium whitespace-nowrap flex-shrink-0 pt-0.5'>
+                      {rev.date}
+                    </span>
                   </div>
-                  <span className='text-[10px] text-muted-foreground font-medium whitespace-nowrap flex-shrink-0 pt-0.5'>
-                    {rev.date}
-                  </span>
-                </div>
 
-                {/* Review Comment Body with natural wrapping */}
-                <p className='text-xs text-secondary-foreground leading-relaxed break-words whitespace-normal'>
-                  {rev.comment}
-                </p>
+                  {/* Review Comment Body with natural wrapping */}
+                  <p className='text-xs text-secondary-foreground leading-relaxed break-words whitespace-normal'>
+                    {rev.comment}
+                  </p>
 
-                {/* Review Attached Photos */}
-                {rev.images && rev.images.length > 0 && (
-                  <div className='flex items-center gap-2 pt-1 overflow-x-auto pb-1'>
-                    {rev.images.map((imgUrl, imgIdx) => (
-                      <div
-                        key={imgIdx}
-                        onClick={() => openImagePreview(rev.images || [], imgIdx)}
-                        className='relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border border-border/80 bg-muted cursor-pointer flex-shrink-0 group hover:border-amber-gold/60 transition-all shadow-xs'
-                      >
-                        <img
-                          src={imgUrl}
-                          alt={`Ảnh đánh giá từ ${rev.author}`}
-                          className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-200'
-                          onError={(e) => {
-                            (e.target as HTMLElement).style.display = 'none';
-                          }}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
-        )}
-
-        {/* 4. Inline Review Form when isStandalone */}
-        {isStandalone && (
-          <AnimatePresence>
-            {isFormOpen && renderReviewForm}
-          </AnimatePresence>
+                  {/* Review Attached Photos */}
+                  {rev.images && rev.images.length > 0 && (
+                    <div className='flex items-center gap-2 pt-1 overflow-x-auto pb-1'>
+                      {rev.images.map((imgUrl, imgIdx) => (
+                        <div
+                          key={imgIdx}
+                          onClick={() => openImagePreview(rev.images || [], imgIdx)}
+                          className='relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border border-border/80 bg-muted cursor-pointer flex-shrink-0 group hover:border-amber-gold/60 transition-all shadow-xs'
+                        >
+                          <img
+                            src={imgUrl}
+                            alt={`Ảnh đánh giá từ ${rev.author}`}
+                            className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-200'
+                            onError={(e) => {
+                              (e.target as HTMLElement).style.display = 'none';
+                            }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
         )}
       </div>
 
-      {/* 5. Sticky Bottom Review Form when !isStandalone */}
-      {!isStandalone && (
-        <AnimatePresence>
-          {isFormOpen && renderReviewForm}
-        </AnimatePresence>
-      )}
+      {/* 3. Review Modal */}
+      <ReviewModal
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        shop={shop}
+        onSuccess={(newReview) => {
+          if (newReview) {
+            setReviewsList((prev) => [newReview, ...prev]);
+          }
+        }}
+      />
     </div>
   );
 });
@@ -1742,6 +1279,7 @@ export interface ShopDetailsContentProps {
   isSidebar?: boolean;
   isStandalone?: boolean;
   hideActions?: boolean;
+  hideInlineActions?: boolean;
   onSelectShop?: (shop: CoffeeShop) => void;
   scrollRef?: React.RefObject<HTMLDivElement | null>;
   onTabChange?: () => void;
@@ -1752,6 +1290,7 @@ export const ShopDetailsContent = memo(function ShopDetailsContent({
   isSidebar = false,
   isStandalone = false,
   hideActions = false,
+  hideInlineActions = false,
   onSelectShop,
   scrollRef,
   onTabChange
@@ -1855,7 +1394,7 @@ export const ShopDetailsContent = memo(function ShopDetailsContent({
     <Tabs
       value={activeTab}
       onValueChange={(val) => setActiveTab(val as any)}
-      className='flex-1 flex flex-col min-h-0'
+      className='flex-1 flex flex-col min-h-0 h-full w-full'
     >
       {/* HEADER SECTION: Gallery collage, title, metrics, and tab navigation */}
       <div className={cn('flex-shrink-0 space-y-3.5 select-none', isSidebar ? 'px-4 pt-3' : isStandalone ? 'px-0 pt-0' : 'px-4 sm:px-6 pt-2')}>
@@ -2136,7 +1675,7 @@ export const ShopDetailsContent = memo(function ShopDetailsContent({
         className={cn(
           isStandalone
             ? 'w-full pt-3'
-            : 'flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain contain-layout contain-style [contain:layout_style] pt-3',
+            : 'flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain pt-3 pb-24 sm:pb-28',
           isSidebar ? 'px-4' : isStandalone ? 'px-0' : 'px-4 sm:px-6'
         )}
       >
@@ -2150,6 +1689,7 @@ export const ShopDetailsContent = memo(function ShopDetailsContent({
             scheduleInfo={scheduleInfo}
             isStandalone={isStandalone}
             hideActions={hideActions}
+            hideInlineActions={hideInlineActions}
           />
         </TabsContent>
 
@@ -2157,7 +1697,7 @@ export const ShopDetailsContent = memo(function ShopDetailsContent({
           <PhotosTab shop={shop} photos={galleryPhotos} />
         </TabsContent>
 
-        <TabsContent value='reviews' className='mt-0 focus-visible:outline-none min-h-full flex flex-col flex-1'>
+        <TabsContent value='reviews' className='mt-0 focus-visible:outline-none'>
           <ReviewsTab shop={shop} isSidebar={isSidebar} isStandalone={isStandalone} />
         </TabsContent>
 

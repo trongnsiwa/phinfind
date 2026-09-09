@@ -1,6 +1,6 @@
 'use client';
 
-import { Heart, Navigation, Share2, X } from 'lucide-react';
+import { CheckCircle2, Heart, Navigation, Share2, X } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -8,6 +8,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { CoffeeShop } from '@/types/shop';
+import { useShopStore } from '@/stores/useShopStore';
+import { useToggleVisit } from '@/hooks/useShops';
 import { ShopDetailsContent } from './ShopDetailsContent';
 
 export interface ShopSidebarProps {
@@ -16,6 +18,8 @@ export interface ShopSidebarProps {
   onClose: () => void;
   onToggleFavorite?: (placeId: string) => void;
   isFavorite?: boolean;
+  onToggleVisit?: (placeId: string) => void;
+  isVisited?: boolean;
 }
 
 export function ShopSidebar({
@@ -23,11 +27,26 @@ export function ShopSidebar({
   isOpen,
   onClose,
   onToggleFavorite,
-  isFavorite = false
+  isFavorite,
+  onToggleVisit,
+  isVisited
 }: ShopSidebarProps) {
   const [displayedShop, setDisplayedShop] = useState<CoffeeShop | null>(shop);
   const [isHeartAnimating, setIsHeartAnimating] = useState(false);
+  const [isVisitAnimating, setIsVisitAnimating] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const storeIsFavorite = useShopStore((state) =>
+    displayedShop ? state.favorites.includes(displayedShop.place_id) : false
+  );
+  const currentIsFavorite = isFavorite !== undefined ? isFavorite : storeIsFavorite;
+
+  const storeIsVisited = useShopStore((state) =>
+    displayedShop ? state.visits.includes(displayedShop.place_id) : false
+  );
+  const currentIsVisited = isVisited !== undefined ? isVisited : storeIsVisited;
+
+  const toggleVisitMutation = useToggleVisit();
 
   // Keep displayed shop cached during exit animations
   useEffect(() => {
@@ -85,6 +104,21 @@ export function ShopSidebar({
     setIsHeartAnimating(true);
     setTimeout(() => setIsHeartAnimating(false), 300);
     onToggleFavorite?.(displayedShop.place_id);
+  };
+
+  const handleVisitClick = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (!displayedShop) return;
+    setIsVisitAnimating(true);
+    setTimeout(() => setIsVisitAnimating(false), 300);
+    if (onToggleVisit) {
+      onToggleVisit(displayedShop.place_id);
+    } else {
+      toggleVisitMutation(displayedShop.place_id, {
+        name: displayedShop.name,
+        address: displayedShop.address,
+      });
+    }
   };
 
   const handleShare = (e?: React.MouseEvent) => {
@@ -167,12 +201,15 @@ export function ShopSidebar({
             onPointerDown={(e) => e.stopPropagation()}
             className='flex-shrink-0 bg-card/95 backdrop-blur-xl border-t border-border px-4 py-3 shadow-2xl select-none'
           >
-            <div className='grid grid-cols-3 gap-2'>
+            <div className='grid grid-cols-4 gap-2'>
+              {/* 1. Directions Button */}
               <a
                 href={getDirectionsUrl()}
                 target='_blank'
                 rel='noopener noreferrer'
-                className='flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 px-3 rounded-full bg-amber-gold text-primary-foreground font-bold hover:bg-amber-gold-hover transition-all text-xs shadow-md group active:scale-95 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background'
+                aria-label='Chỉ đường'
+                title='Chỉ đường'
+                className='flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-full bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground text-xs font-bold shadow-md group active:scale-95 min-h-[44px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background'
               >
                 <Navigation
                   size={15}
@@ -181,13 +218,17 @@ export function ShopSidebar({
                 <span className='truncate'>Chỉ đường</span>
               </a>
 
+              {/* 2. Favorite Toggle Button */}
               <button
                 type='button'
                 onClick={handleFavoriteClick}
+                aria-pressed={currentIsFavorite}
+                aria-label={currentIsFavorite ? 'Đã lưu' : 'Lưu lại'}
+                title={currentIsFavorite ? 'Đã lưu' : 'Lưu lại'}
                 className={cn(
-                  'flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 px-3 rounded-full border transition-all text-xs font-semibold shadow-xs active:scale-95 min-h-[44px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background',
-                  isFavorite
-                    ? 'bg-rose-500/15 border-rose-500/40 text-rose-400 hover:bg-rose-500/25 hover:border-rose-500/60'
+                  'flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-full border text-xs font-bold shadow-sm transition-all active:scale-95 min-h-[44px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+                  currentIsFavorite
+                    ? 'bg-rose-500/15 border-rose-500/40 text-rose-500 hover:bg-rose-500/25 hover:border-rose-500/60'
                     : 'bg-secondary border-border text-secondary-foreground hover:text-foreground hover:bg-accent hover:border-amber-gold/40'
                 )}
               >
@@ -195,18 +236,46 @@ export function ShopSidebar({
                   size={15}
                   className={cn(
                     'transition-all duration-200 flex-shrink-0',
-                    isFavorite ? 'fill-rose-500 text-rose-500' : 'text-muted-foreground',
+                    currentIsFavorite ? 'fill-rose-500 text-rose-500' : 'text-muted-foreground',
                     isHeartAnimating && 'scale-125'
                   )}
                 />
-                <span className='truncate'>{isFavorite ? 'Đã lưu' : 'Lưu lại'}</span>
+                <span className='truncate'>{currentIsFavorite ? 'Đã lưu' : 'Lưu lại'}</span>
               </button>
 
+              {/* 3. Visit Toggle Button */}
+              <button
+                type='button'
+                onClick={handleVisitClick}
+                aria-pressed={currentIsVisited}
+                aria-label={currentIsVisited ? 'Đã ghé' : 'Ghé thăm'}
+                title={currentIsVisited ? 'Đã ghé quán này' : 'Đánh dấu đã ghé thăm'}
+                className={cn(
+                  'flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-full border text-xs font-bold shadow-sm transition-all active:scale-95 min-h-[44px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+                  currentIsVisited
+                    ? 'bg-teal/15 border-teal/40 text-teal hover:bg-teal/25 hover:border-teal/60'
+                    : 'bg-secondary border-border text-secondary-foreground hover:text-foreground hover:bg-accent hover:border-amber-gold/40'
+                )}
+              >
+                <CheckCircle2
+                  size={15}
+                  className={cn(
+                    'transition-all duration-200 flex-shrink-0',
+                    currentIsVisited ? 'text-teal fill-teal/20' : 'text-muted-foreground',
+                    isVisitAnimating && 'scale-125'
+                  )}
+                />
+                <span className='truncate'>{currentIsVisited ? 'Đã ghé' : 'Ghé thăm'}</span>
+              </button>
+
+              {/* 4. Share Button */}
               <button
                 type='button'
                 onClick={handleShare}
                 onPointerDown={(e) => e.stopPropagation()}
-                className='flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 px-3 rounded-full bg-secondary border border-border text-secondary-foreground hover:text-foreground hover:bg-accent hover:border-amber-gold/40 transition-all text-xs font-semibold shadow-xs active:scale-95 min-h-[44px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background'
+                aria-label='Chia sẻ'
+                title='Chia sẻ'
+                className='flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-full bg-secondary border border-border text-secondary-foreground hover:text-foreground hover:bg-accent hover:border-amber-gold/40 transition-all text-xs font-bold shadow-sm active:scale-95 min-h-[44px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background'
               >
                 <Share2 size={15} className='text-amber-gold flex-shrink-0' />
                 <span className='truncate'>Chia sẻ</span>
