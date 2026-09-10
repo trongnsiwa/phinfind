@@ -56,7 +56,9 @@ export function mapDbShopToCoffeeShop(
     custom_amenities: Array.isArray(row.custom_amenities) ? row.custom_amenities : [],
     amenities: Array.isArray(row.amenities) ? row.amenities : [],
     created_by: row.created_by || null,
-    verified: typeof row.verified === 'boolean' ? row.verified : (row.created_by ? false : true)
+    verified: typeof row.verified === 'boolean' ? row.verified : (row.created_by ? false : true),
+    hidden: typeof row.hidden === 'boolean' ? row.hidden : false,
+    created_at: row.created_at || undefined
   };
 }
 

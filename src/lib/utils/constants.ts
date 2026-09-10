@@ -15,6 +15,7 @@ export const APP_ROUTES = {
   FAVORITES: '/favorites',
   PROFILE: '/profile',
   SETTINGS: '/settings',
+  ADMIN: '/admin',
   SHOP_DETAIL: (id: string) => `/shop/${id}`,
 };
 
@@ -25,6 +26,7 @@ export const API_ENDPOINTS = {
   CREATE_SHOP: '/api/shops/create',
   UPDATE_SHOP: '/api/shops/update',
   DELETE_SHOP: '/api/shops/delete',
+  ADMIN_SHOPS: '/api/admin/shops',
   USER_FAVORITES: '/api/user/favorites',
   USER_VISITS: '/api/user/visits',
   USER_PROFILE: '/api/user/profile',

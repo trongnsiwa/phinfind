@@ -16,6 +16,7 @@ export async function GET(request: NextRequest) {
       .from('shops')
       .select('*')
       .eq('place_id', placeId)
+      .neq('hidden', true)
       .maybeSingle();
 
     if (error) {
@@ -23,7 +24,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Database error' }, { status: 500 });
     }
 
-    if (!data) {
+    if (!data || data.hidden) {
       return NextResponse.json({ error: 'Shop not found' }, { status: 404 });
     }
 

@@ -10,6 +10,7 @@ import {
   Moon,
   Search,
   Settings,
+  Shield,
   Sparkles,
   Star,
   Sun,
@@ -542,6 +543,20 @@ export function Header() {
                     <span>Cài đặt</span>
                   </Link>
                 </DropdownMenuItem>
+                {profile?.role === 'admin' && (
+                  <DropdownMenuItem
+                    asChild
+                    className='cursor-pointer px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-secondary-foreground hover:text-foreground hover:bg-accent/60 focus:bg-accent focus:text-foreground transition-all duration-200 group'
+                  >
+                    <Link href={APP_ROUTES.ADMIN} className='flex items-center gap-2.5 w-full'>
+                      <Shield
+                        size={16}
+                        className='text-amber-gold group-hover:text-amber-gold transition-colors shrink-0'
+                      />
+                      <span>Quản trị</span>
+                    </Link>
+                  </DropdownMenuItem>
+                )}
 
 
                 <DropdownMenuSeparator className='bg-border/60 my-1' />
@@ -706,6 +721,33 @@ export function Header() {
                     )}
                   </Link>
                 </SheetClose>
+
+                {profile?.role === 'admin' && (
+                  <SheetClose asChild>
+                    <Link
+                      href={APP_ROUTES.ADMIN}
+                      className={cn(
+                        'relative group flex items-center gap-2.5 p-2.5 rounded-xl text-xs transition-colors duration-200',
+                        pathname === APP_ROUTES.ADMIN
+                          ? 'text-foreground bg-primary/20 font-bold'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-muted font-semibold'
+                      )}
+                    >
+                      <Shield
+                        size={16}
+                        strokeWidth={2.2}
+                        className={cn(
+                          'transition-all duration-200 group-hover:scale-110',
+                          pathname === APP_ROUTES.ADMIN ? 'text-primary' : 'text-amber-gold'
+                        )}
+                      />
+                      <span>Quản trị</span>
+                      {pathname === APP_ROUTES.ADMIN && (
+                        <span className='absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-primary rounded-r-full' />
+                      )}
+                    </Link>
+                  </SheetClose>
+                )}
 
                 <div className='my-2 border-t border-border' />
 

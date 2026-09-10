@@ -18,7 +18,8 @@ export async function GET(request: NextRequest) {
     const { data, error } = await supabase
       .from('shops')
       .select('*')
-      .or(`name.ilike.%${cleanQ}%,address.ilike.%${cleanQ}%`);
+      .or(`name.ilike.%${cleanQ}%,address.ilike.%${cleanQ}%`)
+      .neq('hidden', true);
 
     if (error) {
       console.error('Supabase search error in /api/shops/search:', error);
@@ -29,7 +30,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ shops: [] });
     }
 
-    const shops = data.map((row) => mapDbShopToCoffeeShop(row, lat, lng));
+    const shops = data
+      .filter((row) => !row.hidden)
+      .map((row) => mapDbShopToCoffeeShop(row, lat, lng));
 
     if (typeof lat === 'number' && typeof lng === 'number') {
       shops.sort((a, b) => a.distance - b.distance);

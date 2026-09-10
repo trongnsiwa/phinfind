@@ -17,7 +17,10 @@ export async function GET(request: NextRequest) {
 
   try {
     const supabase = await createPublicClient();
-    const { data, error } = await supabase.from('shops').select('*');
+    const { data, error } = await supabase
+      .from('shops')
+      .select('*')
+      .neq('hidden', true);
 
     if (error) {
       console.error('[API /api/shops/nearby] Supabase query error:', error);
@@ -29,6 +32,7 @@ export async function GET(request: NextRequest) {
     }
 
     const allSortedShops = data
+      .filter((row) => !row.hidden)
       .map((row) => mapDbShopToCoffeeShop(row, lat, lng))
       .sort((a, b) => a.distance - b.distance);
 

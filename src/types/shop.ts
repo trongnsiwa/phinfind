@@ -41,6 +41,8 @@ export interface CoffeeShop {
   amenities?: ShopAmenity[];
   created_by?: string | null;
   verified?: boolean;
+  hidden?: boolean;
+  created_at?: string;
 }
 
 export interface ShopFilterState {
