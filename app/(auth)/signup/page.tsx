@@ -82,19 +82,39 @@ function SignupForm() {
     }
   };
 
-  const handleGoogleSignIn = () => {
-    toast.info('Tính năng Đăng ký bằng Google sẽ sớm ra mắt! Hãy đón chờ nhé ☕', {
-      duration: 4000,
-    });
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true);
+    try {
+      const redirectUrl = new URL('/auth/callback', window.location.origin);
+      const redirectParam = searchParams.get('redirect');
+      if (redirectParam) {
+        redirectUrl.searchParams.set('redirect', redirectParam);
+      }
+
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: redirectUrl.toString(),
+        },
+      });
+
+      if (error) {
+        toast.error(error.message || 'Đăng ký bằng Google thất bại');
+        setIsLoading(false);
+      }
+    } catch {
+      toast.error('Đã xảy ra lỗi trong quá trình kết nối với Google');
+      setIsLoading(false);
+    }
   };
 
   return (
     <Card className="border-0 shadow-none bg-transparent p-0">
       <CardHeader className="p-0 mb-6 sm:mb-8 space-y-1.5 text-left">
-        <CardTitle className="font-sans font-bold text-2xl sm:text-3xl text-white tracking-tight">
+        <CardTitle className="font-sans font-bold text-2xl sm:text-3xl text-foreground tracking-tight">
           Tạo Tài Khoản
         </CardTitle>
-        <CardDescription className="text-xs sm:text-sm text-[#D0D0D0]/80 leading-relaxed font-body">
+        <CardDescription className="text-xs sm:text-sm text-muted-foreground leading-relaxed font-body">
           Tham gia PhinFind để bắt đầu khám phá những quán cà phê độc đáo
         </CardDescription>
       </CardHeader>
@@ -102,52 +122,49 @@ function SignupForm() {
       <CardContent className="p-0 space-y-5">
         <form className="space-y-4" onSubmit={handleSignup}>
           <div className="space-y-2">
-            <Label htmlFor="fullname" className="text-[#D0D0D0]/80 font-semibold text-xs uppercase tracking-wider">
+            <Label htmlFor="fullname" className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">
               Họ và tên
             </Label>
             <Input
               id="fullname"
               type="text"
-              placeholder="vd: Nguyễn Văn Linh"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               disabled={isLoading}
               required
-              className="h-11 text-sm bg-[#141414]/80 border-[#2A2A2A] text-white placeholder:text-[#A0A0A0]/60 focus-visible:ring-2 focus-visible:ring-amber-gold/30 focus-visible:border-amber-gold rounded-xl shadow-inner transition-all duration-150"
+              className="h-11 text-sm bg-input-bg border-border text-foreground focus-visible:ring-2 focus-visible:ring-amber-gold/30 focus-visible:border-amber-gold rounded-xl shadow-inner transition-all duration-150"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-[#D0D0D0]/80 font-semibold text-xs uppercase tracking-wider">
+            <Label htmlFor="email" className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">
               Địa chỉ email
             </Label>
             <Input
               id="email"
               type="email"
-              placeholder="ban@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={isLoading}
               required
-              className="h-11 text-sm bg-[#141414]/80 border-[#2A2A2A] text-white placeholder:text-[#A0A0A0]/60 focus-visible:ring-2 focus-visible:ring-amber-gold/30 focus-visible:border-amber-gold rounded-xl shadow-inner transition-all duration-150"
+              className="h-11 text-sm bg-input-bg border-border text-foreground focus-visible:ring-2 focus-visible:ring-amber-gold/30 focus-visible:border-amber-gold rounded-xl shadow-inner transition-all duration-150"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password" className="text-[#D0D0D0]/80 font-semibold text-xs uppercase tracking-wider">
+            <Label htmlFor="password" className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">
               Mật khẩu
             </Label>
             <div className="relative">
               <Input
                 id="password"
                 type={showPassword ? 'text' : 'password'}
-                placeholder="Tối thiểu 8 ký tự"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
                 required
                 minLength={8}
-                className="h-11 text-sm bg-[#141414]/80 border-[#2A2A2A] text-white placeholder:text-[#A0A0A0]/60 focus-visible:ring-2 focus-visible:ring-amber-gold/30 focus-visible:border-amber-gold rounded-xl pr-11 shadow-inner transition-all duration-150"
+                className="h-11 text-sm bg-input-bg border-border text-foreground focus-visible:ring-2 focus-visible:ring-amber-gold/30 focus-visible:border-amber-gold rounded-xl pr-11 shadow-inner transition-all duration-150"
               />
               <Button
                 type="button"
@@ -155,10 +172,10 @@ function SignupForm() {
                 size="icon"
                 disabled={isLoading}
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-1 top-1/2 -translate-y-1/2 h-9 w-9 text-[#A0A0A0] hover:text-white hover:bg-white/5 rounded-lg cursor-pointer transition-colors"
-                aria-label="Ẩn/hiện mật khẩu"
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full cursor-pointer transition-colors focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:outline-none"
+                aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
               >
-                {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </Button>
             </div>
           </div>
@@ -166,11 +183,11 @@ function SignupForm() {
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full h-11 bg-gradient-to-r from-amber-gold to-amber-gold-hover text-[#101010] font-bold rounded-xl py-3 text-sm shadow-md hover:shadow-lg hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 cursor-pointer border-0 mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full h-11 bg-gradient-to-r from-amber-gold to-amber-gold-hover text-phin-950 font-bold rounded-xl py-3 text-sm shadow-md hover:shadow-lg hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 cursor-pointer border-0 mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <span className="flex items-center gap-2">
-                <span className="w-4 h-4 rounded-full border-2 border-[#101010]/30 border-t-[#101010] animate-spin" />
+                <span className="w-4 h-4 rounded-full border-2 border-current/30 border-t-current animate-spin" />
                 Đang tạo tài khoản...
               </span>
             ) : (
@@ -181,18 +198,18 @@ function SignupForm() {
           </Button>
 
           {/* Security Reassurance Badge */}
-          <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#A0A0A0] font-medium pt-0.5">
+          <div className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground font-medium pt-0.5">
             <ShieldCheck size={13} className="text-amber-gold" />
             <span>Miễn phí trọn đời &amp; bảo mật thông tin</span>
           </div>
         </form>
 
         <div className="flex items-center gap-3 my-3">
-          <div className="h-px bg-[#2A2A2A]/60 flex-1" />
-          <span className="text-[10px] text-[#A0A0A0] font-bold uppercase tracking-wider select-none bg-transparent">
+          <div className="h-px bg-border flex-1" />
+          <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider select-none bg-transparent">
             Hoặc
           </span>
-          <div className="h-px bg-[#2A2A2A]/60 flex-1" />
+          <div className="h-px bg-border flex-1" />
         </div>
 
         <Button
@@ -200,7 +217,7 @@ function SignupForm() {
           variant="outline"
           disabled={isLoading}
           onClick={handleGoogleSignIn}
-          className="w-full h-11 gap-2.5 border border-[#2A2A2A] bg-[#141414]/40 hover:bg-[#141414]/70 hover:border-amber-gold/30 text-[#D0D0D0] hover:text-white text-sm font-semibold rounded-xl shadow-sm transition-all duration-150 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+          className="w-full h-11 gap-2.5 border border-border bg-card/60 hover:bg-muted hover:border-amber-gold/50 text-foreground text-sm font-semibold rounded-xl shadow-sm transition-all duration-150 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
         >
           <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
             <path
@@ -223,7 +240,7 @@ function SignupForm() {
           Đăng ký bằng Google
         </Button>
 
-        <p className="text-center text-xs text-[#D0D0D0]/80 pt-1">
+        <p className="text-center text-xs text-muted-foreground pt-1">
           Đã có tài khoản?{' '}
           <Link
             href={`/login${redirect && redirect !== '/' ? `?redirect=${encodeURIComponent(redirect)}` : ''}`}
