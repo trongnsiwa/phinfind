@@ -293,9 +293,10 @@ interface AddShopDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: (newShop: CoffeeShop) => void;
+  shop?: CoffeeShop;
 }
 
-export function AddShopDialog({ open, onOpenChange, onSuccess }: AddShopDialogProps) {
+export function AddShopDialog({ open, onOpenChange, onSuccess, shop }: AddShopDialogProps) {
   const queryClient = useQueryClient();
   const {
     lat: userLat,
@@ -364,16 +365,6 @@ export function AddShopDialog({ open, onOpenChange, onSuccess }: AddShopDialogPr
     });
     return initial;
   });
-
-  // Set user's current location when modal opens or when GPS coords become available
-  useEffect(() => {
-    if (open) {
-      if (!isLocationFallback && typeof userLat === 'number' && !isNaN(userLat)) {
-        setValue('lat', userLat, { shouldValidate: true });
-        setValue('lon', userLng, { shouldValidate: true });
-      }
-    }
-  }, [open, isLocationFallback, userLat, userLng, setValue]);
 
 
   const watchedName = watch('name');
@@ -451,6 +442,121 @@ export function AddShopDialog({ open, onOpenChange, onSuccess }: AddShopDialogPr
     });
     setWeekSchedule(resetWeek);
   };
+
+  // Initialize or reset form based on open state and shop (create vs edit mode)
+  useEffect(() => {
+    if (open) {
+      if (shop) {
+        reset({
+          name: shop.name || '',
+          address: shop.address || '',
+          lat: shop.lat,
+          lon: shop.lon,
+          phone: shop.phone || '',
+          website: shop.website || '',
+          price_range: (['₫', '₫₫', '₫₫₫', '₫₫₫₫'].includes(shop.price_range as any)
+            ? (shop.price_range as '₫' | '₫₫' | '₫₫₫' | '₫₫₫₫')
+            : undefined),
+          photos: shop.photos || [],
+          opening_hours: {
+            open_now: shop.opening_hours?.open_now ?? true,
+            periods: shop.opening_hours?.periods || []
+          }
+        });
+
+        // Prepopulate amenities
+        if (shop.amenities && Array.isArray(shop.amenities) && shop.amenities.length > 0) {
+          setAmenities(
+            shop.amenities.map((a) => ({
+              id: a.id || a.name,
+              name: a.name,
+              type: a.type === 'predefined' ? 'predefined' : 'custom',
+              description: a.description || ''
+            }))
+          );
+        } else if (shop.categories && Array.isArray(shop.categories) && shop.categories.length > 0) {
+          const mappedAmenities: Amenity[] = [];
+          shop.categories.forEach((catId: string) => {
+            const predefined = POPULAR_CATEGORIES.find((c) => c.id === catId);
+            if (predefined) {
+              mappedAmenities.push({
+                id: predefined.id,
+                name: predefined.label,
+                type: 'predefined',
+                description: predefined.defaultDescription
+              });
+            }
+          });
+          setAmenities(mappedAmenities);
+        } else {
+          setAmenities([]);
+        }
+
+        // Prepopulate schedule
+        const periods = shop.opening_hours?.periods || [];
+        if (periods.length > 0) {
+          const nextSchedule: Record<number, DayScheduleState> = {};
+          DAYS_LIST.forEach((d) => {
+            const p = periods.find((item) => item.open.day === d.day);
+            if (p) {
+              nextSchedule[d.day] = {
+                enabled: true,
+                open: p.open.time,
+                close: p.close.time
+              };
+            } else {
+              nextSchedule[d.day] = { enabled: false, open: '', close: '' };
+            }
+          });
+          setWeekSchedule(nextSchedule);
+
+          const enabledPeriods = periods.filter((p) => p.open?.time && p.close?.time);
+          const first = enabledPeriods[0];
+          const isUniform =
+            enabledPeriods.length === 7 &&
+            enabledPeriods.every(
+              (p) => p.open.time === first?.open.time && p.close.time === first?.close.time
+            );
+
+          if (isUniform && first) {
+            setSameOpenTime(first.open.time);
+            setSameCloseTime(first.close.time);
+            setIsCustomPerDay(false);
+          } else {
+            setIsCustomPerDay(true);
+          }
+        } else {
+          clearAllHours();
+          setIsCustomPerDay(false);
+        }
+      } else {
+        // Create mode
+        reset({
+          name: '',
+          address: '',
+          lat:
+            typeof userLat === 'number' && !isNaN(userLat) && !isLocationFallback
+              ? userLat
+              : DEFAULT_LOCATION.lat,
+          lon:
+            typeof userLng === 'number' && !isNaN(userLng) && !isLocationFallback
+              ? userLng
+              : DEFAULT_LOCATION.lng,
+          phone: '',
+          website: '',
+          price_range: undefined,
+          photos: [],
+          opening_hours: {
+            open_now: true,
+            periods: []
+          }
+        });
+        setAmenities([]);
+        clearAllHours();
+        setIsCustomPerDay(false);
+      }
+    }
+  }, [open, shop, isLocationFallback, userLat, userLng, setValue, reset]);
 
   const enableAllDays = () => {
     setWeekSchedule((prev) => {
@@ -694,7 +800,7 @@ export function AddShopDialog({ open, onOpenChange, onSuccess }: AddShopDialogPr
 
   const onSubmit = async (data: AddShopFormData) => {
     if (!isAuthenticated) {
-      toast.error('Vui lòng đăng nhập để thực hiện thêm quán cà phê.');
+      toast.error(shop ? 'Vui lòng đăng nhập để cập nhật quán cà phê.' : 'Vui lòng đăng nhập để thêm quán cà phê.');
       return;
     }
 
@@ -723,43 +829,68 @@ export function AddShopDialog({ open, onOpenChange, onSuccess }: AddShopDialogPr
         opening_hours: openingHoursPayload
       };
 
+      if (shop) {
+        const updatePayload = {
+          ...payload,
+          place_id: shop.place_id || shop.id
+        };
 
-      const response = await axios.post<{
-        success: boolean;
-        message: string;
-        shop: CoffeeShop;
-      }>(API_ENDPOINTS.CREATE_SHOP, payload);
+        const response = await axios.put<{
+          success: boolean;
+          message: string;
+          shop: CoffeeShop;
+        }>(API_ENDPOINTS.UPDATE_SHOP, updatePayload);
 
-      if (response.data.success) {
-        toast.success('Thêm quán cà phê thành công!', {
-          description: 'Quán đã được lưu vào hệ thống và đang chờ quản trị viên xác minh.'
-        });
+        if (response.data.success) {
+          toast.success('Cập nhật quán cà phê thành công!', {
+            description: 'Thông tin quán đã được cập nhật và đang chờ quản trị viên xác minh lại.'
+          });
 
-        // Invalidate React Query caches so lists & maps immediately refresh
-        await queryClient.invalidateQueries({ queryKey: ['shops'] });
+          await queryClient.invalidateQueries({ queryKey: ['shops'] });
 
-        if (onSuccess && response.data.shop) {
-          onSuccess(response.data.shop);
+          if (onSuccess && response.data.shop) {
+            onSuccess(response.data.shop);
+          }
+
+          onOpenChange(false);
         }
+      } else {
+        const response = await axios.post<{
+          success: boolean;
+          message: string;
+          shop: CoffeeShop;
+        }>(API_ENDPOINTS.CREATE_SHOP, payload);
 
-        reset();
-        clearAllHours();
-        setIsCustomPerDay(false);
-        setShowUrlInput(false);
-        setAmenities([]);
-        setCustomAmenityName('');
-        setCustomAmenityDesc('');
-        if (fileInputRef.current) {
-          fileInputRef.current.value = '';
+        if (response.data.success) {
+          toast.success('Thêm quán cà phê thành công!', {
+            description: 'Quán đã được lưu vào hệ thống và đang chờ quản trị viên xác minh.'
+          });
+
+          await queryClient.invalidateQueries({ queryKey: ['shops'] });
+
+          if (onSuccess && response.data.shop) {
+            onSuccess(response.data.shop);
+          }
+
+          reset();
+          clearAllHours();
+          setIsCustomPerDay(false);
+          setShowUrlInput(false);
+          setAmenities([]);
+          setCustomAmenityName('');
+          setCustomAmenityDesc('');
+          if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+          }
+          onOpenChange(false);
         }
-        onOpenChange(false);
       }
     } catch (error: any) {
       const errorMsg =
         error.response?.data?.error ||
         error.response?.data?.message ||
-        'Không thể thêm quán cà phê. Vui lòng thử lại.';
-      toast.error('Lỗi khi thêm quán', { description: errorMsg });
+        (shop ? 'Không thể cập nhật quán cà phê. Vui lòng thử lại.' : 'Không thể thêm quán cà phê. Vui lòng thử lại.');
+      toast.error(shop ? 'Lỗi khi cập nhật quán' : 'Lỗi khi thêm quán', { description: errorMsg });
     } finally {
       setIsSubmitting(false);
     }
@@ -779,13 +910,15 @@ export function AddShopDialog({ open, onOpenChange, onSuccess }: AddShopDialogPr
             </div>
             <div>
               <DialogTitle className='font-sans font-bold text-lg sm:text-xl text-foreground'>
-                Thêm Quán Cà Phê Mới
+                {shop ? 'Chỉnh sửa quán cà phê' : 'Thêm Quán Cà Phê Mới'}
               </DialogTitle>
               <DialogDescription
                 id='add-shop-dialog-desc'
                 className='text-xs text-muted-foreground mt-0.5'
               >
-                Chia sẻ không gian cà phê yêu thích của bạn cùng cộng đồng PhinFind
+                {shop
+                  ? 'Cập nhật thông tin quán cà phê của bạn trên PhinFind'
+                  : 'Chia sẻ không gian cà phê yêu thích của bạn cùng cộng đồng PhinFind'}
               </DialogDescription>
             </div>
           </div>
@@ -1954,12 +2087,16 @@ export function AddShopDialog({ open, onOpenChange, onSuccess }: AddShopDialogPr
             {isSubmitting ? (
               <>
                 <Loader2 size={14} className='animate-spin' />
-                <span>Đang gửi thông tin...</span>
+                <span>{shop ? 'Đang lưu thay đổi...' : 'Đang gửi thông tin...'}</span>
               </>
             ) : (
               <>
-                <Plus size={14} strokeWidth={2.5} />
-                <span>Thêm quán cà phê</span>
+                {shop ? (
+                  <Check size={14} strokeWidth={2.5} />
+                ) : (
+                  <Plus size={14} strokeWidth={2.5} />
+                )}
+                <span>{shop ? 'Lưu thay đổi' : 'Thêm quán cà phê'}</span>
               </>
             )}
           </Button>

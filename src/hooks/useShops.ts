@@ -498,4 +498,62 @@ export function useUpdateProfile() {
   });
 }
 
+export function useUpdateShop() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: any) => {
+      const res = await axios.put<{
+        success: boolean;
+        message: string;
+        shop: CoffeeShop;
+      }>(API_ENDPOINTS.UPDATE_SHOP, payload);
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success('Cập nhật quán cà phê thành công!', {
+        description: 'Thông tin đã được lưu và chuyển sang trạng thái chờ duyệt lại.',
+      });
+      queryClient.invalidateQueries({ queryKey: ['shops'] });
+    },
+    onError: (error: any) => {
+      const msg =
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        'Không thể cập nhật quán cà phê. Vui lòng thử lại.';
+      toast.error('Lỗi khi cập nhật quán', { description: msg });
+    },
+  });
+}
+
+export function useDeleteShop() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (placeId: string) => {
+      const res = await axios.delete<{
+        success: boolean;
+        message?: string;
+      }>(API_ENDPOINTS.DELETE_SHOP, {
+        params: { placeId },
+      });
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success('Đã xóa quán cà phê thành công!');
+      queryClient.invalidateQueries({ queryKey: ['shops'] });
+      queryClient.invalidateQueries({ queryKey: ['user', 'favorites'] });
+      queryClient.invalidateQueries({ queryKey: ['user', 'visits'] });
+    },
+    onError: (error: any) => {
+      const msg =
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        'Không thể xóa quán cà phê. Vui lòng thử lại.';
+      toast.error('Lỗi khi xóa quán', { description: msg });
+    },
+  });
+}
+
+
 

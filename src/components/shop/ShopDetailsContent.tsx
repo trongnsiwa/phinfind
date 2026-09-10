@@ -2,8 +2,9 @@
 
 import {
   Check, CheckCircle2, ChevronDown, ChevronRight, Clock, Coffee, Compass, Copy, CreditCard,
-  CupSoda, Edit3, Flame, Footprints, Globe, Heart, Images, Loader2, LogIn, MapPin, Navigation,
-  Phone, Quote, Send, Sparkles, Star, Sun, Utensils, Wifi, Wind, X, Zap, Camera, Tag
+  CupSoda, Edit3, Flame, Footprints, Globe, Heart, Images, Loader2, LogIn, MapPin, MoreVertical,
+  Navigation, Pencil, Phone, Quote, Send, Sparkles, Star, Sun, Trash2, Utensils, Wifi, Wind, X,
+  Zap, Camera, Tag
 } from 'lucide-react';
 import Link from 'next/link';
 import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
@@ -23,9 +24,27 @@ import { ShopCardPlaceholder } from '@/components/common/ShopCardPlaceholder';
 import { cleanCategoryLabel } from '@/lib/utils/placeholders';
 import { useShopStore } from '@/stores/useShopStore';
 import { useUIStore } from '@/stores/useUIStore';
-import { useShopReviews } from '@/hooks/useShops';
+import { useShopReviews, useDeleteShop } from '@/hooks/useShops';
 import { CoffeeShop } from '@/types/shop';
 import { ReviewModal, ReviewItem } from './ReviewModal';
+import { AddShopDialog } from '@/components/shop/AddShopDialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from '@/components/ui/alert-dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
 
 
 
@@ -1297,9 +1316,29 @@ export const ShopDetailsContent = memo(function ShopDetailsContent({
 }: ShopDetailsContentProps) {
   const { shops, setSelectedShop } = useShopStore();
   const openImagePreview = useUIStore((state) => state.openImagePreview);
+  const { user } = useAuth();
+  const router = useRouter();
+  const deleteShopMutation = useDeleteShop();
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'photos' | 'reviews' | 'amenities'>('overview');
   const [imgError, setImgError] = useState(false);
   const isFirstRender = useRef(true);
+
+  const isOwner = Boolean(user && shop.created_by && user.id === shop.created_by);
+
+  const handleDeleteShop = async () => {
+    try {
+      await deleteShopMutation.mutateAsync(shop.place_id || shop.id);
+      setIsDeleteDialogOpen(false);
+      setSelectedShop(null);
+      if (isStandalone) {
+        router.push('/');
+      }
+    } catch {
+      // Error is handled by useDeleteShop toast
+    }
+  };
 
   useEffect(() => {
     if (isFirstRender.current) {
@@ -1567,9 +1606,43 @@ export const ShopDetailsContent = memo(function ShopDetailsContent({
 
         {/* 2. Shop Title, Address & Metrics */}
         <div className='space-y-1.5'>
-          <h2 className='font-sans font-bold text-lg sm:text-xl text-foreground tracking-tight leading-snug break-words'>
-            {shop.name}
-          </h2>
+          <div className='flex items-start justify-between gap-2'>
+            <h2 className='flex-1 min-w-0 font-sans font-bold text-lg sm:text-xl text-foreground tracking-tight leading-snug break-words'>
+              {shop.name}
+            </h2>
+
+            {isOwner && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant='ghost'
+                    size='icon'
+                    aria-label='Tùy chọn quán cà phê'
+                    className='h-8 w-8 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0 flex-shrink-0 cursor-pointer'
+                  >
+                    <MoreVertical size={16} />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align='end' className='w-44 bg-popover text-popover-foreground border-border'>
+                  <DropdownMenuItem
+                    onClick={() => setIsEditDialogOpen(true)}
+                    className='cursor-pointer gap-2'
+                  >
+                    <Pencil size={14} className='text-muted-foreground' />
+                    <span>Chỉnh sửa quán</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => setIsDeleteDialogOpen(true)}
+                    className='cursor-pointer gap-2 text-destructive focus:bg-destructive/10 focus:text-destructive'
+                  >
+                    <Trash2 size={14} />
+                    <span>Xóa quán</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
 
           <div className='text-xs text-secondary-foreground flex items-start gap-1.5'>
             <MapPin size={13} className='text-amber-gold flex-shrink-0 mt-0.5' />
@@ -1705,6 +1778,61 @@ export const ShopDetailsContent = memo(function ShopDetailsContent({
           <AmenitiesTab shop={shop} />
         </TabsContent>
       </div>
+
+      {/* Dialogs for Shop Owner */}
+      {isOwner && (
+        <>
+          <AddShopDialog
+            open={isEditDialogOpen}
+            onOpenChange={setIsEditDialogOpen}
+            shop={shop}
+            onSuccess={(updatedShop) => {
+              setSelectedShop(updatedShop);
+            }}
+          />
+
+          <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+            <AlertDialogContent className='bg-card text-card-foreground border-border max-w-md rounded-2xl'>
+              <AlertDialogHeader>
+                <AlertDialogTitle className='text-foreground text-base sm:text-lg font-bold'>
+                  Xác nhận xóa quán cà phê
+                </AlertDialogTitle>
+                <AlertDialogDescription className='text-muted-foreground text-xs sm:text-sm'>
+                  Bạn có chắc chắn muốn xóa quán &ldquo;{shop.name}&rdquo; không? Hành động này không thể hoàn tác và sẽ xóa vĩnh viễn thông tin quán cùng tất cả lượt đánh giá liên quan.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter className='flex-row gap-2 justify-end mt-4'>
+                <AlertDialogCancel
+                  disabled={deleteShopMutation.isPending}
+                  className='rounded-xl text-xs h-9 px-4 cursor-pointer mt-0'
+                >
+                  Hủy bỏ
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleDeleteShop();
+                  }}
+                  disabled={deleteShopMutation.isPending}
+                  className='bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl text-xs font-bold h-9 px-4 cursor-pointer disabled:opacity-50 flex items-center gap-1.5'
+                >
+                  {deleteShopMutation.isPending ? (
+                    <>
+                      <Loader2 size={14} className='animate-spin' />
+                      <span>Đang xóa...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 size={14} />
+                      <span>Xóa quán</span>
+                    </>
+                  )}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </>
+      )}
     </Tabs>
   );
 });

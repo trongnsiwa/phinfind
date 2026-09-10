@@ -23,6 +23,8 @@ export const API_ENDPOINTS = {
   SHOP_DETAILS: '/api/shops/details',
   SEARCH_SHOPS: '/api/shops/search',
   CREATE_SHOP: '/api/shops/create',
+  UPDATE_SHOP: '/api/shops/update',
+  DELETE_SHOP: '/api/shops/delete',
   USER_FAVORITES: '/api/user/favorites',
   USER_VISITS: '/api/user/visits',
   USER_PROFILE: '/api/user/profile',

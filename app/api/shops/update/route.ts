@@ -2,17 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { createClient } from '@/lib/supabase/server';
 import { mapDbShopToCoffeeShop } from '@/lib/supabase/shops';
-import { createShopSchema, CreateShopInput } from '@/lib/validations/shop';
+import { updateShopSchema } from '@/lib/validations/shop';
 
-export type { CreateShopInput };
-
-function generateUniquePlaceId(): string {
-  const timestamp = Date.now().toString(36);
-  const random = Math.random().toString(36).substring(2, 10);
-  return `custom_${timestamp}_${random}`;
-}
-
-export async function POST(request: NextRequest) {
+export async function PUT(request: NextRequest) {
   try {
     const supabase = await createClient();
     const {
@@ -22,7 +14,7 @@ export async function POST(request: NextRequest) {
 
     if (authError || !user) {
       return NextResponse.json(
-        { error: 'Yêu cầu xác thực. Vui lòng đăng nhập để thêm quán cà phê.' },
+        { error: 'Yêu cầu xác thực. Vui lòng đăng nhập để cập nhật quán cà phê.' },
         { status: 401 }
       );
     }
@@ -37,7 +29,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const validationResult = createShopSchema.safeParse(body);
+    const validationResult = updateShopSchema.safeParse(body);
     if (!validationResult.success) {
       const issues = validationResult.error.issues;
       const firstMessage = issues[0]?.message || 'Dữ liệu không hợp lệ.';
@@ -51,9 +43,29 @@ export async function POST(request: NextRequest) {
     }
 
     const data = validationResult.data;
-    const placeId = generateUniquePlaceId();
 
-    // Derive amenities if only categories or custom_amenities are sent (backward compatibility)
+    // Verify ownership
+    const { data: existingShop, error: fetchError } = await supabase
+      .from('shops')
+      .select('place_id, created_by')
+      .eq('place_id', data.place_id)
+      .single();
+
+    if (fetchError || !existingShop) {
+      return NextResponse.json(
+        { error: 'Không tìm thấy quán cà phê này trên hệ thống.' },
+        { status: 404 }
+      );
+    }
+
+    if (existingShop.created_by !== user.id) {
+      return NextResponse.json(
+        { error: 'Bạn không có quyền chỉnh sửa quán cà phê này.' },
+        { status: 403 }
+      );
+    }
+
+    // Derive amenities if only categories or custom_amenities are sent
     let finalAmenities = data.amenities || [];
     let finalCategories = data.categories || [];
 
@@ -86,8 +98,8 @@ export async function POST(request: NextRequest) {
             .filter((a) => a.type === 'custom')
             .map((a) => ({ name: a.name, description: a.description }));
 
-    const insertPayload = {
-      place_id: placeId,
+    // Never allow client to change place_id, created_by, rating, total_ratings, created_at, or verified
+    const updatePayload = {
       name: data.name,
       address: data.address,
       lat: data.lat,
@@ -100,51 +112,36 @@ export async function POST(request: NextRequest) {
       amenities: finalAmenities,
       photos: data.photos,
       opening_hours: data.opening_hours,
-      created_by: user.id,
       verified: false,
-      rating: 0,
-      total_ratings: 0,
-      created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
 
-
-    const { data: createdRow, error: insertError } = await supabase
+    const { data: updatedRow, error: updateError } = await supabase
       .from('shops')
-      .insert([insertPayload])
+      .update(updatePayload)
+      .eq('place_id', data.place_id)
       .select('*')
       .single();
 
-    if (insertError) {
-      console.error('[API /api/shops/create] Supabase insert error:', insertError);
-
-      if (insertError.code === '23505') {
-        return NextResponse.json(
-          { error: 'Quán cà phê với định danh này đã tồn tại trên hệ thống.' },
-          { status: 409 }
-        );
-      }
-
+    if (updateError) {
+      console.error('[API /api/shops/update] Supabase update error:', updateError);
       return NextResponse.json(
-        { error: `Không thể thêm quán: ${insertError.message}` },
+        { error: `Không thể cập nhật quán: ${updateError.message}` },
         { status: 500 }
       );
     }
 
-    const coffeeShop = mapDbShopToCoffeeShop(createdRow, data.lat, data.lon);
+    const coffeeShop = mapDbShopToCoffeeShop(updatedRow, data.lat, data.lon);
 
-    return NextResponse.json(
-      {
-        success: true,
-        message: 'Thêm quán cà phê thành công! Quán đang chờ ban quản trị xác minh.',
-        shop: coffeeShop
-      },
-      { status: 201 }
-    );
+    return NextResponse.json({
+      success: true,
+      message: 'Cập nhật quán cà phê thành công! Quán đang chờ xác minh lại.',
+      shop: coffeeShop
+    });
   } catch (error: any) {
-    console.error('[API /api/shops/create] Unhandled error:', error);
+    console.error('[API /api/shops/update] Unhandled error:', error);
     return NextResponse.json(
-      { error: error?.message || 'Đã xảy ra lỗi máy chủ trong quá trình thêm quán.' },
+      { error: error?.message || 'Đã xảy ra lỗi máy chủ trong quá trình cập nhật quán.' },
       { status: 500 }
     );
   }
