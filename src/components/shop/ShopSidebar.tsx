@@ -9,7 +9,10 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { CoffeeShop } from '@/types/shop';
 import { useShopStore } from '@/stores/useShopStore';
-import { useToggleVisit } from '@/hooks/useShops';
+import { useToggleVisit, VisitedShopItem } from '@/hooks/useShops';
+import { useAuth } from '@/hooks/useAuth';
+import { useQueryClient } from '@tanstack/react-query';
+import { VisitNoteDialog } from './VisitNoteDialog';
 import { ShopDetailsContent } from './ShopDetailsContent';
 
 export interface ShopSidebarProps {
@@ -45,6 +48,16 @@ export function ShopSidebar({
     displayedShop ? state.visits.includes(displayedShop.place_id) : false
   );
   const currentIsVisited = isVisited !== undefined ? isVisited : storeIsVisited;
+
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const [isNoteDialogOpen, setIsNoteDialogOpen] = useState(false);
+
+  const visitsData = queryClient.getQueryData<VisitedShopItem[]>(['user', 'visits', user?.id]);
+  const existingVisit = visitsData?.find(
+    (v) => v.shop_place_id === (displayedShop?.place_id || displayedShop?.id)
+  );
+  const existingNote = existingVisit?.note || null;
 
   const toggleVisitMutation = useToggleVisit();
 
@@ -111,14 +124,25 @@ export function ShopSidebar({
     if (!displayedShop) return;
     setIsVisitAnimating(true);
     setTimeout(() => setIsVisitAnimating(false), 300);
-    if (onToggleVisit) {
-      onToggleVisit(displayedShop.place_id);
+
+    if (currentIsVisited) {
+      if (onToggleVisit) {
+        onToggleVisit(displayedShop.place_id || displayedShop.id);
+      } else {
+        toggleVisitMutation(displayedShop.place_id || displayedShop.id);
+      }
     } else {
-      toggleVisitMutation(displayedShop.place_id, {
-        name: displayedShop.name,
-        address: displayedShop.address,
-      });
+      setIsNoteDialogOpen(true);
     }
+  };
+
+  const handleConfirmVisitNote = (note: string | null) => {
+    if (!displayedShop) return;
+    toggleVisitMutation(displayedShop.place_id || displayedShop.id, {
+      name: displayedShop.name,
+      address: displayedShop.address,
+      note,
+    });
   };
 
   const handleShare = (e?: React.MouseEvent) => {
@@ -146,7 +170,8 @@ export function ShopSidebar({
   };
 
   return (
-    <AnimatePresence>
+    <>
+      <AnimatePresence>
       {isOpen && displayedShop && (
         <>
           {/* Full-Screen Transparent Backdrop Overlay to capture outside clicks on map */}
@@ -192,6 +217,7 @@ export function ShopSidebar({
               shop={displayedShop}
               isSidebar={true}
               scrollRef={scrollContainerRef}
+              isVisited={currentIsVisited}
             />
           </div>
 
@@ -286,5 +312,16 @@ export function ShopSidebar({
       </>
     )}
   </AnimatePresence>
+
+  {displayedShop && (
+    <VisitNoteDialog
+      open={isNoteDialogOpen}
+      onOpenChange={setIsNoteDialogOpen}
+      shop={displayedShop}
+      existingNote={existingNote}
+      onConfirm={handleConfirmVisitNote}
+    />
+  )}
+  </>
 );
 }

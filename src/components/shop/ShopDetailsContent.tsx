@@ -24,10 +24,11 @@ import { ShopCardPlaceholder } from '@/components/common/ShopCardPlaceholder';
 import { cleanCategoryLabel } from '@/lib/utils/placeholders';
 import { useShopStore } from '@/stores/useShopStore';
 import { useUIStore } from '@/stores/useUIStore';
-import { useShopReviews, useDeleteShop } from '@/hooks/useShops';
+import { useShopReviews, useDeleteShop, useUserVisits, useToggleVisit } from '@/hooks/useShops';
 import { CoffeeShop } from '@/types/shop';
 import { ReviewModal, ReviewItem } from './ReviewModal';
 import { AddShopDialog } from '@/components/shop/AddShopDialog';
+import { VisitNoteDialog } from '@/components/shop/VisitNoteDialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -204,7 +205,10 @@ export const OverviewTab = memo(function OverviewTab({
   scheduleInfo,
   isStandalone = false,
   hideActions = false,
-  hideInlineActions = false
+  hideInlineActions = false,
+  isVisited = false,
+  visitNote = null,
+  onEditNote
 }: {
   shop: CoffeeShop;
   experienceTagline: string;
@@ -215,6 +219,9 @@ export const OverviewTab = memo(function OverviewTab({
   isStandalone?: boolean;
   hideActions?: boolean;
   hideInlineActions?: boolean;
+  isVisited?: boolean;
+  visitNote?: string | null;
+  onEditNote?: () => void;
 }) {
   const [copied, setCopied] = useState(false);
   const [isHoursExpanded, setIsHoursExpanded] = useState(false);
@@ -248,6 +255,30 @@ export const OverviewTab = memo(function OverviewTab({
 
   return (
     <div className='space-y-4 pb-16'>
+      {/* User's Visit Note Card */}
+      {isVisited && visitNote && (
+        <div className='bg-secondary/40 p-3.5 rounded-2xl border border-border/50 space-y-2'>
+          <div className='flex items-center justify-between'>
+            <div className='flex items-center gap-1.5 text-xs font-bold text-foreground'>
+              <Quote size={13} className='text-amber-gold flex-shrink-0' />
+              <span>Ghi chú của bạn</span>
+            </div>
+            {onEditNote && (
+              <button
+                type='button'
+                onClick={onEditNote}
+                className='text-xs font-semibold text-amber-gold hover:text-amber-gold-hover hover:underline transition-colors cursor-pointer'
+              >
+                Chỉnh sửa
+              </button>
+            )}
+          </div>
+          <p className='text-xs text-muted-foreground italic leading-relaxed break-words whitespace-pre-wrap'>
+            &ldquo;{visitNote}&rdquo;
+          </p>
+        </div>
+      )}
+
       {/* 1. Real Amenities & Categories Chips */}
       {visibleCategories.length > 0 && (
         <div className='space-y-2'>
@@ -1302,6 +1333,7 @@ export interface ShopDetailsContentProps {
   onSelectShop?: (shop: CoffeeShop) => void;
   scrollRef?: React.RefObject<HTMLDivElement | null>;
   onTabChange?: () => void;
+  isVisited?: boolean;
 }
 
 export const ShopDetailsContent = memo(function ShopDetailsContent({
@@ -1312,20 +1344,39 @@ export const ShopDetailsContent = memo(function ShopDetailsContent({
   hideInlineActions = false,
   onSelectShop,
   scrollRef,
-  onTabChange
+  onTabChange,
+  isVisited: isVisitedProp
 }: ShopDetailsContentProps) {
   const { shops, setSelectedShop } = useShopStore();
   const openImagePreview = useUIStore((state) => state.openImagePreview);
   const { user } = useAuth();
   const router = useRouter();
   const deleteShopMutation = useDeleteShop();
+  const { data: userVisits = [] } = useUserVisits();
+  const toggleVisitMutation = useToggleVisit();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isNoteDialogOpen, setIsNoteDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'photos' | 'reviews' | 'amenities'>('overview');
   const [imgError, setImgError] = useState(false);
   const isFirstRender = useRef(true);
 
   const isOwner = Boolean(user && shop.created_by && user.id === shop.created_by);
+
+  const shopPlaceId = shop.place_id || shop.id;
+  const currentVisit = userVisits.find((v) => v.shop_place_id === shopPlaceId);
+  const storeIsVisited = useShopStore((state) => state.visits.includes(shopPlaceId));
+  const currentIsVisited = isVisitedProp !== undefined ? isVisitedProp : Boolean(storeIsVisited || currentVisit);
+  const currentVisitNote = currentVisit?.note || null;
+
+  const handleConfirmVisitNote = (note: string | null) => {
+    toggleVisitMutation(shopPlaceId, {
+      name: shop.name,
+      address: shop.address,
+      note,
+      updateOnly: true
+    });
+  };
 
   const handleDeleteShop = async () => {
     try {
@@ -1763,6 +1814,9 @@ export const ShopDetailsContent = memo(function ShopDetailsContent({
             isStandalone={isStandalone}
             hideActions={hideActions}
             hideInlineActions={hideInlineActions}
+            isVisited={currentIsVisited}
+            visitNote={currentVisitNote}
+            onEditNote={() => setIsNoteDialogOpen(true)}
           />
         </TabsContent>
 
@@ -1833,6 +1887,15 @@ export const ShopDetailsContent = memo(function ShopDetailsContent({
           </AlertDialog>
         </>
       )}
+
+      {/* Visit Note Dialog for Editing/Adding Notes from Overview tab */}
+      <VisitNoteDialog
+        open={isNoteDialogOpen}
+        onOpenChange={setIsNoteDialogOpen}
+        shop={shop}
+        existingNote={currentVisitNote}
+        onConfirm={handleConfirmVisitNote}
+      />
     </Tabs>
   );
 });

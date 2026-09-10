@@ -11,7 +11,10 @@ import { APP_ROUTES } from '@/lib/utils/constants';
 import { CoffeeShop } from '@/types/shop';
 import { cn } from '@/lib/utils';
 import { useShopStore } from '@/stores/useShopStore';
-import { useToggleVisit } from '@/hooks/useShops';
+import { useToggleVisit, VisitedShopItem } from '@/hooks/useShops';
+import { useAuth } from '@/hooks/useAuth';
+import { useQueryClient } from '@tanstack/react-query';
+import { VisitNoteDialog } from './VisitNoteDialog';
 
 import { ShopCardPlaceholder } from '@/components/common/ShopCardPlaceholder';
 
@@ -37,6 +40,15 @@ export function ShopCard({
   const storeIsVisited = useShopStore((state) => state.visits.includes(shop.place_id));
   const isVisited = propsIsVisited ?? storeIsVisited;
   const { toggleVisit } = useToggleVisit();
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const [isNoteDialogOpen, setIsNoteDialogOpen] = useState(false);
+
+  const visitsData = queryClient.getQueryData<VisitedShopItem[]>(['user', 'visits', user?.id]);
+  const existingVisit = visitsData?.find(
+    (v) => v.shop_place_id === (shop.place_id || shop.id)
+  );
+  const existingNote = existingVisit?.note || null;
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -49,11 +61,23 @@ export function ShopCard({
   const handleVisitClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    if (onToggleVisit) {
-      onToggleVisit(shop.place_id);
+    if (isVisited) {
+      if (onToggleVisit) {
+        onToggleVisit(shop.place_id || shop.id);
+      } else {
+        toggleVisit(shop.place_id || shop.id);
+      }
     } else {
-      toggleVisit(shop.place_id, { name: shop.name, address: shop.address });
+      setIsNoteDialogOpen(true);
     }
+  };
+
+  const handleConfirmVisitNote = (note: string | null) => {
+    toggleVisit(shop.place_id || shop.id, {
+      name: shop.name,
+      address: shop.address,
+      note,
+    });
   };
 
   const getDirectionsUrl = () => {
@@ -63,7 +87,8 @@ export function ShopCard({
   const coverImage = shop.photos?.[0];
 
   return (
-    <Card
+    <>
+      <Card
       className="group p-0 bg-white rounded-2xl border border-phin-100 shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1 cursor-pointer overflow-hidden flex flex-col justify-between"
       onClick={() => onSelect?.(shop)}
     >
@@ -203,5 +228,14 @@ export function ShopCard({
         </div>
       </CardContent>
     </Card>
-  );
+
+    <VisitNoteDialog
+      open={isNoteDialogOpen}
+      onOpenChange={setIsNoteDialogOpen}
+      shop={shop}
+      existingNote={existingNote}
+      onConfirm={handleConfirmVisitNote}
+    />
+  </>
+);
 }

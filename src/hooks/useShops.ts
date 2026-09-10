@@ -341,6 +341,7 @@ export interface ToggleVisitInput {
   name?: string;
   address?: string | null;
   note?: string | null;
+  updateOnly?: boolean;
 }
 
 export function useUserVisits() {
@@ -395,23 +396,30 @@ export function useToggleVisit() {
   const toggleVisit = useCallback(
     async (
       input: string | ToggleVisitInput,
-      details?: { name?: string; address?: string | null; note?: string | null }
+      details?: { name?: string; address?: string | null; note?: string | null; updateOnly?: boolean }
     ) => {
       let placeId: string;
       let name: string = 'Quán Cà Phê';
       let address: string | null = null;
       let note: string | null = null;
+      let updateOnly: boolean = false;
 
       if (typeof input === 'string') {
         placeId = input;
         if (details?.name) name = details.name;
         if (details?.address !== undefined) address = details.address;
         if (details?.note !== undefined) note = details.note;
+        if (details?.updateOnly) updateOnly = details.updateOnly;
       } else {
         placeId = input.place_id || (input as any).id;
         if (input.name) name = input.name;
         if (input.address !== undefined) address = input.address;
         if (input.note !== undefined) note = input.note;
+        if (input.updateOnly) updateOnly = input.updateOnly;
+        if (details?.name) name = details.name;
+        if (details?.address !== undefined) address = details.address;
+        if (details?.note !== undefined) note = details.note;
+        if (details?.updateOnly) updateOnly = details.updateOnly;
       }
 
       if (!placeId) return;
@@ -430,8 +438,8 @@ export function useToggleVisit() {
 
       const isCurrentlyVisited = useShopStore.getState().visits.includes(placeId);
 
-      // If adding and shop name wasn't provided, look up from Zustand store
-      if (!isCurrentlyVisited && name === 'Quán Cà Phê') {
+      // If adding or updating and shop name wasn't provided, look up from Zustand store
+      if ((!isCurrentlyVisited || updateOnly) && name === 'Quán Cà Phê') {
         const store = useShopStore.getState();
         const candidate =
           store.shops.find((s) => s.place_id === placeId || s.id === placeId) ||
@@ -443,11 +451,13 @@ export function useToggleVisit() {
         }
       }
 
-      // Optimistic store update
-      useShopStore.getState().toggleVisit(placeId);
+      // Optimistic store update only when toggling visited status (not when updating note)
+      if (!updateOnly) {
+        useShopStore.getState().toggleVisit(placeId);
+      }
 
       try {
-        if (isCurrentlyVisited) {
+        if (isCurrentlyVisited && !updateOnly) {
           await axios.delete(API_ENDPOINTS.USER_VISITS, {
             params: { placeId },
           });
@@ -457,16 +467,22 @@ export function useToggleVisit() {
             shop_place_id: placeId,
             name,
             address: address || null,
-            note: note || null,
+            note: note !== undefined ? note : null,
           });
-          toast.success('Đã đánh dấu đã ghé thăm quán!');
+          if (updateOnly) {
+            toast.success(note ? 'Đã cập nhật ghi chú ghé thăm!' : 'Đã xóa ghi chú ghé thăm!');
+          } else {
+            toast.success('Đã đánh dấu đã ghé thăm quán!');
+          }
         }
 
         await queryClient.invalidateQueries({ queryKey: ['user', 'visits'] });
       } catch (error) {
         console.error('Lỗi khi cập nhật trạng thái đã ghé:', error);
         // Rollback store state on failure
-        useShopStore.getState().toggleVisit(placeId);
+        if (!updateOnly) {
+          useShopStore.getState().toggleVisit(placeId);
+        }
         toast.error('Không thể cập nhật trạng thái đã ghé. Vui lòng thử lại.');
       }
     },

@@ -9,8 +9,11 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardTitle } from '@/components/ui/card';
 import { DetailSkeleton } from '@/components/common/LoadingSkeleton';
-import { useShopDetails, useToggleFavorite, useUserFavorites, useToggleVisit, useUserVisits } from '@/hooks/useShops';
+import { useShopDetails, useToggleFavorite, useUserFavorites, useToggleVisit, useUserVisits, VisitedShopItem } from '@/hooks/useShops';
 import { ShopDetailsContent } from '@/components/shop/ShopDetailsContent';
+import { VisitNoteDialog } from '@/components/shop/VisitNoteDialog';
+import { useAuth } from '@/hooks/useAuth';
+import { useQueryClient } from '@tanstack/react-query';
 import { useShopStore } from '@/stores/useShopStore';
 import { DEFAULT_LOCATION } from '@/lib/utils/constants';
 import { cn } from '@/lib/utils';
@@ -36,6 +39,16 @@ export default function ShopDetailPage({ params }: { params: Promise<{ id: strin
   } = useShopDetails(resolvedParams.id);
 
   const [isHeartAnimating, setIsHeartAnimating] = useState(false);
+  const [isNoteDialogOpen, setIsNoteDialogOpen] = useState(false);
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  const visitsData = queryClient.getQueryData<VisitedShopItem[]>(['user', 'visits', user?.id]);
+  const existingVisit = visitsData?.find(
+    (v) => v.shop_place_id === (shop?.place_id || shop?.id)
+  );
+  const existingNote = existingVisit?.note || null;
+  const isCurrentShopVisited = Boolean(shop && visits.includes(shop.place_id || shop.id));
 
   // Back navigation to home
   const handleBack = useCallback(
@@ -57,8 +70,24 @@ export default function ShopDetailPage({ params }: { params: Promise<{ id: strin
   // Visit check-in toggle
   const handleToggleVisit = useCallback(() => {
     if (!shop) return;
-    toggleVisit(shop.place_id || shop.id, { name: shop.name, address: shop.address });
-  }, [shop, toggleVisit]);
+    if (isCurrentShopVisited) {
+      toggleVisit(shop.place_id || shop.id, { name: shop.name, address: shop.address });
+    } else {
+      setIsNoteDialogOpen(true);
+    }
+  }, [shop, isCurrentShopVisited, toggleVisit]);
+
+  const handleConfirmVisitNote = useCallback(
+    (note: string | null) => {
+      if (!shop) return;
+      toggleVisit(shop.place_id || shop.id, {
+        name: shop.name,
+        address: shop.address,
+        note,
+      });
+    },
+    [shop, toggleVisit]
+  );
 
   // Native share or clipboard copy
   const handleShare = useCallback(async () => {
@@ -159,7 +188,13 @@ export default function ShopDetailPage({ params }: { params: Promise<{ id: strin
       {/* 1. Main Full-Page Scrolling Container with pb-24 */}
       <div className="max-w-3xl lg:max-w-4xl mx-auto px-3 sm:px-6 pt-2 sm:pt-3 pb-24 sm:pb-28">
         <Card className="bg-card text-card-foreground rounded-3xl border border-border/80 shadow-card p-4 sm:p-5">
-          <ShopDetailsContent shop={shop} isSidebar={false} isStandalone={true} hideActions={true} />
+          <ShopDetailsContent
+            shop={shop}
+            isSidebar={false}
+            isStandalone={true}
+            hideActions={true}
+            isVisited={isVisited}
+          />
         </Card>
       </div>
 
@@ -256,6 +291,16 @@ export default function ShopDetailPage({ params }: { params: Promise<{ id: strin
           </button>
         </div>
       </div>
+
+      {shop && (
+        <VisitNoteDialog
+          open={isNoteDialogOpen}
+          onOpenChange={setIsNoteDialogOpen}
+          shop={shop}
+          existingNote={existingNote}
+          onConfirm={handleConfirmVisitNote}
+        />
+      )}
     </div>
   );
 }
