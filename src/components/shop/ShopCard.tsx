@@ -89,11 +89,11 @@ export function ShopCard({
   return (
     <>
       <Card
-      className="group p-0 bg-white rounded-2xl border border-phin-100 shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1 cursor-pointer overflow-hidden flex flex-col justify-between"
+      className="group p-0 bg-card rounded-2xl border border-border shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1 cursor-pointer overflow-hidden flex flex-col justify-between"
       onClick={() => onSelect?.(shop)}
     >
       {/* Shop Image Header with Overlay & Floating Badges */}
-      <div className="relative w-full h-40 overflow-hidden bg-phin-100">
+      <div className="relative w-full h-40 overflow-hidden bg-secondary">
         {coverImage ? (
           <>
             <img
@@ -130,7 +130,7 @@ export function ShopCard({
           </Badge>
 
           {shop.price_range && (
-            <Badge variant="secondary" className="bg-white/90 text-phin-900 font-bold text-[10px] shadow-sm backdrop-blur-md">
+            <Badge variant="secondary" className="bg-card/90 text-foreground font-bold text-[10px] shadow-sm backdrop-blur-md">
               {shop.price_range}
             </Badge>
           )}
@@ -150,10 +150,10 @@ export function ShopCard({
               'h-8 w-8 rounded-full backdrop-blur-md shadow-sm transition-all active:scale-95 cursor-pointer',
               isVisited
                 ? 'bg-amber-500 text-white hover:bg-amber-600'
-                : 'bg-white/90 text-phin-700 hover:bg-white hover:text-amber-600'
+                : 'bg-card/90 text-foreground hover:bg-card hover:text-amber-gold'
             )}
           >
-            <CheckCircle2 size={15} className={cn(isVisited ? 'text-white' : 'text-phin-600 hover:text-amber-600')} />
+            <CheckCircle2 size={15} className={cn(isVisited ? 'text-white' : 'text-muted-foreground hover:text-amber-gold')} />
           </Button>
 
           {/* Floating Heart Favorite Button */}
@@ -163,13 +163,13 @@ export function ShopCard({
             onClick={handleFavoriteClick}
             aria-label={isFavorite ? 'Xóa khỏi danh sách yêu thích' : 'Thêm vào danh sách yêu thích'}
             title={isFavorite ? 'Đã lưu yêu thích' : 'Thêm vào yêu thích'}
-            className="h-8 w-8 rounded-full bg-white/90 backdrop-blur-md hover:bg-white text-phin-700 shadow-sm transition-transform active:scale-95 cursor-pointer"
+            className="h-8 w-8 rounded-full bg-card/90 backdrop-blur-md hover:bg-card text-foreground shadow-sm transition-transform active:scale-95 cursor-pointer"
           >
             <Heart
               size={16}
               className={cn(
                 'transition-all duration-300',
-                isFavorite ? 'fill-rose-500 text-rose-500' : 'text-phin-600 hover:text-rose-500',
+                isFavorite ? 'fill-rose-500 text-rose-500' : 'text-muted-foreground hover:text-rose-500',
                 isHeartAnimating && 'animate-heart-beat'
               )}
             />
@@ -178,28 +178,28 @@ export function ShopCard({
 
         {/* Shop Name & Address on Image Overlay */}
         <div className="absolute bottom-3 left-3 right-3 text-white">
-          <h3 className="font-sans font-bold text-base leading-tight drop-shadow-md group-hover:text-phin-100 transition-colors line-clamp-1">
+          <h3 className="font-sans font-bold text-base leading-tight drop-shadow-md group-hover:text-amber-gold transition-colors line-clamp-1">
             {shop.name}
           </h3>
-          <p className="text-[11px] text-phin-100/90 flex items-center gap-1 mt-0.5 line-clamp-1 drop-shadow-sm">
-            <MapPin size={12} className="text-phin-300 flex-shrink-0" />
+          <p className="text-[11px] text-white/90 flex items-center gap-1 mt-0.5 line-clamp-1 drop-shadow-sm">
+            <MapPin size={12} className="text-amber-gold flex-shrink-0" />
             {shop.address || 'Chưa có địa chỉ'}
           </p>
         </div>
       </div>
 
       {/* Card Content & Details Footer */}
-      <CardContent className="p-3.5 space-y-3 bg-white">
-        <div className="flex items-center justify-between text-xs pt-1 border-t border-phin-50">
+      <CardContent className="p-3.5 space-y-3 bg-card">
+        <div className="flex items-center justify-between text-xs pt-1 border-t border-border/50">
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="bg-amber-50 text-amber-800 border-amber-200 flex items-center gap-1 font-bold text-[11px] py-0.5 px-2">
-              <Star size={12} className="fill-amber-400 text-amber-400" />
+            <Badge variant="outline" className="bg-secondary text-amber-gold border-border flex items-center gap-1 font-bold text-[11px] py-0.5 px-2">
+              <Star size={12} className="fill-amber-gold text-amber-gold" />
               {shop.rating.toFixed(1)}
-              <span className="text-[10px] text-amber-600 font-normal">({shop.total_ratings})</span>
+              <span className="text-[10px] text-muted-foreground font-normal">({shop.total_ratings})</span>
             </Badge>
 
-            <span className="text-phin-600 font-medium text-[11px] flex items-center gap-1">
-              <Footprints size={12} className="text-phin-500" />
+            <span className="text-muted-foreground font-medium text-[11px] flex items-center gap-1">
+              <Footprints size={12} className="text-muted-foreground" />
               {shop.distance_text || 'Gần đây'}
             </span>
           </div>
@@ -212,14 +212,14 @@ export function ShopCard({
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
             >
-              <Button variant="outline" size="sm" className="h-7 px-2.5 text-[11px] border-phin-200 text-phin-800 hover:bg-phin-100 rounded-lg">
+              <Button variant="outline" size="sm" className="h-7 px-2.5 text-[11px] border-border text-foreground hover:bg-muted rounded-lg">
                 <Navigation size={11} className="mr-1 text-primary" />
                 Chỉ đường
               </Button>
             </a>
 
             <Link href={APP_ROUTES.SHOP_DETAIL(shop.id)} onClick={(e) => e.stopPropagation()}>
-              <Button variant="default" size="sm" className="h-7 px-2.5 text-[11px] bg-phin-800 text-white hover:bg-phin-900 rounded-lg font-semibold">
+              <Button variant="default" size="sm" className="h-7 px-2.5 text-[11px] bg-primary text-primary-foreground hover:bg-primary-hover rounded-lg font-semibold">
                 Xem
                 <ExternalLink size={10} className="ml-1 opacity-70" />
               </Button>
