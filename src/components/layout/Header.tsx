@@ -50,6 +50,7 @@ import { useSearchShops } from '@/hooks/useShops';
 import { cn } from '@/lib/utils';
 import { APP_ROUTES } from '@/lib/utils/constants';
 import { NotificationBell } from '@/components/layout/NotificationBell';
+import { useUserBadges } from '@/hooks/useUserBadges';
 import { useShopStore } from '@/stores/useShopStore';
 import { useThemeStore } from '@/stores/useThemeStore';
 import { useUIStore } from '@/stores/useUIStore';
@@ -62,6 +63,7 @@ export function Header() {
   const { theme, toggleTheme } = useThemeStore();
   const { setSelectedShop } = useShopStore();
   const { user, profile, isAuthenticated, signOut, loading } = useAuth();
+  const { label: badgeTierLabel } = useUserBadges();
   const { lat, lng } = useLocation();
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -501,9 +503,16 @@ export function Header() {
                       </AvatarFallback>
                     </Avatar>
                     <div className='flex flex-col min-w-0'>
-                      <span className='text-sm font-bold text-foreground truncate'>
-                        {displayName}
-                      </span>
+                      <div className='flex items-center gap-1.5 min-w-0'>
+                        <span className='text-sm font-bold text-foreground truncate'>
+                          {displayName}
+                        </span>
+                        {badgeTierLabel && (
+                          <span className='px-1.5 py-0.2 rounded-full text-[9px] font-semibold bg-secondary border border-border/80 text-muted-foreground shrink-0'>
+                            {badgeTierLabel}
+                          </span>
+                        )}
+                      </div>
                       <span className='text-[11px] font-normal text-muted-foreground truncate'>
                         {userEmail || 'Người sành cà phê'}
                       </span>

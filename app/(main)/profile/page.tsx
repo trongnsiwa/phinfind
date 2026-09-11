@@ -61,6 +61,9 @@ import { EmptyState } from '@/components/common/EmptyState';
 import { ProfileSkeleton } from '@/components/common/LoadingSkeleton';
 import { FavoriteShopCard } from '@/components/shop/FavoriteShopCard';
 import { ReviewModal } from '@/components/shop/ReviewModal';
+import { Skeleton } from '@/components/ui/skeleton';
+import { BadgeCard } from '@/components/profile/BadgeCard';
+import { useUserBadges } from '@/hooks/useUserBadges';
 import { PublicReviewCard } from '@/components/profile/PublicReviewCard';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocation } from '@/hooks/useLocation';
@@ -131,6 +134,7 @@ export default function ProfilePage() {
   } = useUserFavorites();
   const savedFavorites = savedFavoritesData || [];
   const { toggleFavorite } = useToggleFavorite();
+  const badgeData = useUserBadges();
   const [shopToRemove, setShopToRemove] = useState<CoffeeShop | null>(null);
   const [isRemovingShop, setIsRemovingShop] = useState(false);
 
@@ -516,7 +520,7 @@ export default function ProfilePage() {
           {/* Stat 3: Huy hiệu */}
           <div className="text-left space-y-1">
             <span className="font-sans font-bold text-xl sm:text-2xl text-foreground block leading-tight">
-              Đồng
+              {badgeData.label}
             </span>
             <div className="flex items-center gap-1.5 text-muted-foreground">
               <Award size={13} className="text-amber-500 fill-amber-500/20 shrink-0" />
@@ -527,6 +531,39 @@ export default function ProfilePage() {
           </div>
         </div>
       </Card>
+
+      {/* 2.5 Badge & Achievement System Card */}
+      {isAuthenticated &&
+        (badgeData.isLoading ? (
+          <Card className="bg-card border-border rounded-2xl p-4 sm:p-5 space-y-4">
+            <div className="flex items-center gap-3.5">
+              <Skeleton className="w-14 h-14 rounded-2xl" />
+              <div className="space-y-2 flex-1">
+                <Skeleton className="h-5 w-32" />
+                <Skeleton className="h-3 w-48" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-2 w-full rounded-full" />
+              <Skeleton className="h-3 w-40" />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2">
+              <Skeleton className="h-14 rounded-xl" />
+              <Skeleton className="h-14 rounded-xl" />
+              <Skeleton className="h-14 rounded-xl" />
+            </div>
+          </Card>
+        ) : (
+          <BadgeCard
+            tier={badgeData.tier}
+            label={badgeData.label}
+            totalContributions={badgeData.totalContributions}
+            progressPercent={badgeData.progressPercent}
+            remaining={badgeData.remaining}
+            nextTierLabel={badgeData.nextTierLabel}
+            categoryBadges={badgeData.categoryBadges}
+          />
+        ))}
 
       {/* 3. TABBED CONTENT (Reviews First) */}
       <Tabs
