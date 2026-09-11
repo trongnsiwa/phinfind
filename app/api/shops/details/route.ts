@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createPublicClient } from '@/lib/supabase/server';
-import { mapDbShopToCoffeeShop } from '@/lib/supabase/shops';
+import { fetchCommunityCoverPhotos, mapDbShopToCoffeeShop } from '@/lib/supabase/shops';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -31,7 +31,16 @@ export async function GET(request: NextRequest) {
     const userLat = searchParams.get('lat') ? parseFloat(searchParams.get('lat')!) : undefined;
     const userLng = searchParams.get('lng') ? parseFloat(searchParams.get('lng')!) : undefined;
 
-    const shop = mapDbShopToCoffeeShop(data, userLat, userLng);
+    let communityCover = null;
+    if (!Array.isArray(data.photos) || data.photos.length === 0) {
+      const pid = data.place_id || data.id;
+      if (pid) {
+        const covers = await fetchCommunityCoverPhotos(supabase, [pid]);
+        communityCover = covers[pid] || null;
+      }
+    }
+
+    const shop = mapDbShopToCoffeeShop(data, userLat, userLng, communityCover);
     return NextResponse.json({ shop });
   } catch (error) {
     console.error('API Error in /api/shops/details:', error);

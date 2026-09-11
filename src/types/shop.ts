@@ -43,6 +43,8 @@ export interface CoffeeShop {
   verified?: boolean;
   hidden?: boolean;
   created_at?: string;
+  cover_source?: 'official' | 'community';
+  cover_from_review_id?: string;
 }
 
 export interface ShopFilterState {

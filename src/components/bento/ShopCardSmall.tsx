@@ -1,6 +1,6 @@
 'use client';
 
-import { Clock, Coffee, Footprints, Heart, MapPin, Star, Tag } from 'lucide-react';
+import { Camera, Clock, Coffee, Footprints, Heart, MapPin, Star, Tag } from 'lucide-react';
 import React, { memo, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
@@ -102,6 +102,16 @@ export const ShopCardSmall = memo(function ShopCardSmall({
               />
               <span>{isOpen ? 'Đang mở cửa' : 'Đã đóng cửa'}</span>
             </Badge>
+          )}
+
+          {shop.cover_source === 'community' && (
+            <div
+              title="Ảnh do người dùng đóng góp, chưa được xác minh chính thức"
+              className="inline-flex items-center gap-1 h-5 text-[10px] rounded-full px-2 bg-black/60 text-white backdrop-blur-md border border-white/10 font-medium select-none shadow-xs"
+            >
+              <Camera size={10} className="text-amber-gold" />
+              <span>Ảnh cộng đồng</span>
+            </div>
           )}
         </div>
 

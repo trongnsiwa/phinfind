@@ -138,16 +138,25 @@ export function buildGalleryPhotos(
   const list: GalleryPhoto[] = [];
   const seenUrls = new Set<string>();
 
-  // 1. Official shop photos
+  // 1. Official shop photos or community cover fallback
   if (shop.photos && shop.photos.length > 0) {
+    const isCommunityCover = shop.cover_source === 'community';
     shop.photos.forEach((url, i) => {
       if (url && !seenUrls.has(url)) {
         seenUrls.add(url);
         list.push({
           url,
-          title: `${shop.name} - Ảnh ${i + 1}`,
-          category: i === 0 ? 'Nổi bật' : i % 2 === 0 ? 'Không gian' : 'Cà phê',
-          isCommunity: false
+          title: isCommunityCover
+            ? `${shop.name} - Ảnh từ đánh giá cộng đồng`
+            : `${shop.name} - Ảnh ${i + 1}`,
+          category: isCommunityCover
+            ? 'Từ đánh giá cộng đồng'
+            : i === 0
+              ? 'Nổi bật'
+              : i % 2 === 0
+                ? 'Không gian'
+                : 'Cà phê',
+          isCommunity: isCommunityCover
         });
       }
     });

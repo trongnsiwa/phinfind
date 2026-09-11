@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  Camera,
   Clock,
   Coffee,
   ExternalLink,
@@ -144,37 +145,49 @@ export const ShopCardFeatured = memo(function ShopCardFeatured({
 
 
         {/* Floating Badges on Top-Left */}
-        <div className="absolute top-6 left-6 z-10 flex items-center gap-2 flex-wrap">
-          {shop.verified === false && (
-            <Badge
-              variant="outline"
-              className="text-xs font-bold px-3 py-1 rounded-full border backdrop-blur-md shadow-md bg-amber-500/85 text-white border-amber-400 flex items-center gap-1.5"
-            >
-              <Clock size={12} />
-              <span>Chờ xác minh</span>
-            </Badge>
-          )}
+        <div className="absolute top-6 left-6 z-10 flex flex-col gap-1.5 items-start">
+          <div className="flex items-center gap-2 flex-wrap">
+            {shop.verified === false && (
+              <Badge
+                variant="outline"
+                className="text-xs font-bold px-3 py-1 rounded-full border backdrop-blur-md shadow-md bg-amber-500/85 text-white border-amber-400 flex items-center gap-1.5"
+              >
+                <Clock size={12} />
+                <span>Chờ xác minh</span>
+              </Badge>
+            )}
 
-          <Badge
-            variant="secondary"
-            className="badge-featured-gradient font-bold text-xs px-4 py-1.5 rounded-full shadow-md tracking-wide"
-          >
-            <Sparkles size={12} className="mr-1 fill-white text-white" /> Lựa chọn nổi bật
-          </Badge>
-
-          {hasOpenInfo && (
             <Badge
-              variant="outline"
-              className="text-xs font-bold px-2.5 py-1 rounded-full border border-white/15 bg-black/60 backdrop-blur-md text-white shadow-md tracking-wide flex items-center gap-1.5"
+              variant="secondary"
+              className="badge-featured-gradient font-bold text-xs px-4 py-1.5 rounded-full shadow-md tracking-wide"
             >
-              <span
-                className={cn(
-                  'w-1.5 h-1.5 rounded-full inline-block',
-                  isOpen ? 'bg-teal animate-pulse' : 'bg-rose-400'
-                )}
-              />
-              <span>{isOpen ? 'Đang mở cửa' : 'Đã đóng cửa'}</span>
+              <Sparkles size={12} className="mr-1 fill-white text-white" /> Lựa chọn nổi bật
             </Badge>
+
+            {hasOpenInfo && (
+              <Badge
+                variant="outline"
+                className="text-xs font-bold px-2.5 py-1 rounded-full border border-white/15 bg-black/60 backdrop-blur-md text-white shadow-md tracking-wide flex items-center gap-1.5"
+              >
+                <span
+                  className={cn(
+                    'w-1.5 h-1.5 rounded-full inline-block',
+                    isOpen ? 'bg-teal animate-pulse' : 'bg-rose-400'
+                  )}
+                />
+                <span>{isOpen ? 'Đang mở cửa' : 'Đã đóng cửa'}</span>
+              </Badge>
+            )}
+          </div>
+
+          {shop.cover_source === 'community' && (
+            <div
+              title="Ảnh do người dùng đóng góp, chưa được xác minh chính thức"
+              className="inline-flex items-center gap-1 h-5 text-[10px] rounded-full px-2 bg-black/60 text-white backdrop-blur-md border border-white/10 font-medium select-none shadow-xs"
+            >
+              <Camera size={10} className="text-amber-gold" />
+              <span>Ảnh cộng đồng</span>
+            </div>
           )}
         </div>
 

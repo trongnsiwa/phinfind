@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createPublicClient } from '@/lib/supabase/server';
-import { mapDbShopToCoffeeShop } from '@/lib/supabase/shops';
+import { fetchCommunityCoverPhotos, mapDbShopToCoffeeShop } from '@/lib/supabase/shops';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -30,9 +30,18 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ shops: [] });
     }
 
+    const missingPhotoPlaceIds = data
+      .filter((row) => !row.hidden && (!Array.isArray(row.photos) || row.photos.length === 0))
+      .map((row) => row.place_id || row.id)
+      .filter(Boolean);
+
+    const communityCovers = await fetchCommunityCoverPhotos(supabase, missingPhotoPlaceIds);
+
     const shops = data
       .filter((row) => !row.hidden)
-      .map((row) => mapDbShopToCoffeeShop(row, lat, lng));
+      .map((row) =>
+        mapDbShopToCoffeeShop(row, lat, lng, communityCovers[row.place_id || row.id])
+      );
 
     if (typeof lat === 'number' && typeof lng === 'number') {
       shops.sort((a, b) => a.distance - b.distance);
