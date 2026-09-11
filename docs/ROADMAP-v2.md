@@ -607,7 +607,7 @@ CREATE TABLE public.shop_edit_suggestions (
 
 ## Tier 3 — Technical Debt & Refactoring
 
-### [ ] TD-01 — Split `AddShopDialog.tsx` (1,857 lines)
+### [x] TD-01 — Split `AddShopDialog.tsx` (1,857 lines)
 
 | Field    | Value                                            |
 | -------- | ------------------------------------------------ |
@@ -632,10 +632,10 @@ src/components/shop/AddShopDialog/
 
 **Acceptance Criteria**
 
-- [ ] Each file < 300 lines
-- [ ] No behavior change — feature parity verified manually
-- [ ] All imports updated
-- [ ] Build + lint pass
+- [x] Each file < 300 lines
+- [x] No behavior change — feature parity verified manually
+- [x] All imports updated
+- [x] Build + lint pass
 
 ---
 
