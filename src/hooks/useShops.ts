@@ -803,3 +803,171 @@ export function usePublicUserReviews(username: string) {
     enabled: Boolean(username),
   });
 }
+
+export interface EditSuggestionFieldDiff {
+  from: any;
+  to: any;
+}
+
+export interface ShopEditSuggestion {
+  id: string;
+  shop_place_id: string;
+  suggested_by: string;
+  changes: Record<string, EditSuggestionFieldDiff>;
+  reason?: string | null;
+  status: 'pending' | 'approved' | 'rejected';
+  reviewed_by?: string | null;
+  reviewed_at?: string | null;
+  review_note?: string | null;
+  created_at: string;
+  shop?: {
+    place_id: string;
+    name: string;
+    address?: string | null;
+  } | null;
+  suggester?: {
+    id: string;
+    full_name: string | null;
+    username: string | null;
+    avatar_url: string | null;
+  } | null;
+  reviewer?: {
+    id: string;
+    full_name: string | null;
+    username: string | null;
+    avatar_url: string | null;
+  } | null;
+  trust?: {
+    reviewsCount: number;
+    visitsCount: number;
+    score: number;
+  };
+}
+
+export interface AdminSuggestionsResponse {
+  pending: ShopEditSuggestion[];
+  recentlyReviewed: ShopEditSuggestion[];
+}
+
+export interface SuggestEditPayload {
+  shop_place_id: string;
+  changes: Record<string, EditSuggestionFieldDiff>;
+  reason?: string;
+}
+
+export interface ReviewSuggestionPayload {
+  id: string;
+  action: 'approve' | 'reject';
+  note?: string;
+}
+
+export function useSuggestEdit() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: SuggestEditPayload) => {
+      const res = await axios.post<{ suggestion: ShopEditSuggestion }>(
+        API_ENDPOINTS.SUGGEST_EDIT,
+        payload
+      );
+      return res.data;
+    },
+    onSuccess: (_data, variables) => {
+      toast.success('Đã gửi đề xuất, đang chờ duyệt');
+      queryClient.invalidateQueries({ queryKey: ['admin', 'suggestions'] });
+      queryClient.invalidateQueries({ queryKey: ['user', 'suggestions'] });
+      queryClient.invalidateQueries({
+        queryKey: ['user', 'suggestions', variables.shop_place_id],
+      });
+    },
+    onError: (error: any) => {
+      const msg =
+        error.response?.data?.error ||
+        error.message ||
+        'Không thể gửi đề xuất chỉnh sửa. Vui lòng thử lại.';
+      toast.error(msg);
+    },
+  });
+}
+
+export function useAdminSuggestions(options?: { enabled?: boolean }) {
+  return useQuery<AdminSuggestionsResponse>({
+    queryKey: ['admin', 'suggestions'],
+    queryFn: async () => {
+      const res = await axios.get<AdminSuggestionsResponse>(
+        API_ENDPOINTS.ADMIN_SUGGESTIONS
+      );
+      return res.data;
+    },
+    staleTime: 30 * 1000,
+    enabled: options?.enabled ?? false,
+  });
+}
+
+export function useReviewSuggestion() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: ReviewSuggestionPayload) => {
+      const res = await axios.patch<{
+        success: boolean;
+        action: 'approve' | 'reject';
+        suggestion: ShopEditSuggestion;
+      }>(API_ENDPOINTS.ADMIN_SUGGESTIONS, payload);
+      return res.data;
+    },
+    onSuccess: (data) => {
+      if (data.action === 'approve') {
+        toast.success('Đã duyệt đề xuất chỉnh sửa thành công');
+      } else {
+        toast.success('Đã từ chối đề xuất chỉnh sửa');
+      }
+      queryClient.invalidateQueries({ queryKey: ['admin', 'suggestions'] });
+      queryClient.invalidateQueries({ queryKey: ['shops'] });
+      queryClient.invalidateQueries({ queryKey: ['user', 'suggestions'] });
+      if (data.suggestion?.shop_place_id) {
+        queryClient.invalidateQueries({
+          queryKey: ['shops', 'details', data.suggestion.shop_place_id],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['user', 'suggestions', data.suggestion.shop_place_id],
+        });
+      }
+    },
+    onError: (error: any) => {
+      const msg =
+        error.response?.data?.error ||
+        error.message ||
+        'Không thể xử lý đề xuất. Vui lòng thử lại.';
+      toast.error(msg);
+    },
+  });
+}
+
+export function useUserSuggestions(shopPlaceId?: string) {
+  const { user, isAuthenticated, loading: isAuthLoading } = useAuth();
+
+  return useQuery<{
+    hasPending: boolean;
+    pending?: ShopEditSuggestion | null;
+    suggestions?: ShopEditSuggestion[];
+  }>({
+    queryKey: ['user', 'suggestions', shopPlaceId, user?.id],
+    queryFn: async () => {
+      try {
+        const res = await axios.get(API_ENDPOINTS.SUGGEST_EDIT, {
+          params: shopPlaceId ? { shop_place_id: shopPlaceId } : undefined,
+        });
+        return res.data;
+      } catch (err: any) {
+        if (err?.response?.status === 401) {
+          return { hasPending: false, pending: null, suggestions: [] };
+        }
+        throw err;
+      }
+    },
+    enabled: !isAuthLoading && isAuthenticated && Boolean(user?.id),
+    staleTime: 60 * 1000,
+  });
+}
+

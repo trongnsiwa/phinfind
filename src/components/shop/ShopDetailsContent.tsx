@@ -24,11 +24,18 @@ import { ShopCardPlaceholder } from '@/components/common/ShopCardPlaceholder';
 import { cleanCategoryLabel } from '@/lib/utils/placeholders';
 import { useShopStore } from '@/stores/useShopStore';
 import { useUIStore } from '@/stores/useUIStore';
-import { useShopReviews, useDeleteShop, useUserVisits, useToggleVisit, useToggleReviewLike, useDeleteReview } from '@/hooks/useShops';
+import { useShopReviews, useDeleteShop, useUserVisits, useToggleVisit, useToggleReviewLike, useDeleteReview, useUserSuggestions } from '@/hooks/useShops';
 import { CoffeeShop } from '@/types/shop';
 import { ReviewModal, ReviewItem } from './ReviewModal';
 import { AddShopDialog } from '@/components/shop/AddShopDialog';
+import { SuggestEditDialog } from '@/components/shop/SuggestEditDialog';
 import { VisitNoteDialog } from '@/components/shop/VisitNoteDialog';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -1481,7 +1488,7 @@ export const ShopDetailsContent = memo(function ShopDetailsContent({
 }: ShopDetailsContentProps) {
   const { shops, setSelectedShop } = useShopStore();
   const openImagePreview = useUIStore((state) => state.openImagePreview);
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const router = useRouter();
   const deleteShopMutation = useDeleteShop();
   const { data: userVisits = [] } = useUserVisits();
@@ -1489,13 +1496,18 @@ export const ShopDetailsContent = memo(function ShopDetailsContent({
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isNoteDialogOpen, setIsNoteDialogOpen] = useState(false);
+  const [isSuggestDialogOpen, setIsSuggestDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'photos' | 'reviews' | 'amenities'>('overview');
   const [imgError, setImgError] = useState(false);
   const isFirstRender = useRef(true);
 
   const isOwner = Boolean(user && shop.created_by && user.id === shop.created_by);
-
   const shopPlaceId = shop.place_id || shop.id;
+
+  const { data: userSuggestionData } = useUserSuggestions(
+    isAuthenticated && !isOwner ? shopPlaceId : undefined
+  );
+  const hasPendingSuggestion = Boolean(userSuggestionData?.hasPending);
   const currentVisit = userVisits.find((v) => v.shop_place_id === shopPlaceId);
   const storeIsVisited = useShopStore((state) => state.visits.includes(shopPlaceId));
   const currentIsVisited = isVisitedProp !== undefined ? isVisitedProp : Boolean(storeIsVisited || currentVisit);
@@ -1794,7 +1806,7 @@ export const ShopDetailsContent = memo(function ShopDetailsContent({
               {shop.name}
             </h2>
 
-            {isOwner && (
+            {isAuthenticated && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -1806,22 +1818,53 @@ export const ShopDetailsContent = memo(function ShopDetailsContent({
                     <MoreVertical size={16} />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align='end' className='w-44 bg-popover text-popover-foreground border-border'>
-                  <DropdownMenuItem
-                    onClick={() => setIsEditDialogOpen(true)}
-                    className='cursor-pointer gap-2'
-                  >
-                    <Pencil size={14} className='text-muted-foreground' />
-                    <span>Chỉnh sửa quán</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() => setIsDeleteDialogOpen(true)}
-                    className='cursor-pointer gap-2 text-destructive focus:bg-destructive/10 focus:text-destructive'
-                  >
-                    <Trash2 size={14} />
-                    <span>Xóa quán</span>
-                  </DropdownMenuItem>
+                <DropdownMenuContent align='end' className='w-48 bg-popover text-popover-foreground border-border'>
+                  {isOwner ? (
+                    <>
+                      <DropdownMenuItem
+                        onClick={() => setIsEditDialogOpen(true)}
+                        className='cursor-pointer gap-2'
+                      >
+                        <Pencil size={14} className='text-muted-foreground' />
+                        <span>Chỉnh sửa quán</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={() => setIsDeleteDialogOpen(true)}
+                        className='cursor-pointer gap-2 text-destructive focus:bg-destructive/10 focus:text-destructive'
+                      >
+                        <Trash2 size={14} />
+                        <span>Xóa quán</span>
+                      </DropdownMenuItem>
+                    </>
+                  ) : hasPendingSuggestion ? (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div>
+                            <DropdownMenuItem
+                              disabled
+                              className='gap-2 opacity-50 cursor-not-allowed'
+                            >
+                              <Pencil size={14} className='text-muted-foreground' />
+                              <span>Đề xuất chỉnh sửa</span>
+                            </DropdownMenuItem>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent side='left'>
+                          <p>Bạn đã có một đề xuất đang chờ duyệt</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  ) : (
+                    <DropdownMenuItem
+                      onClick={() => setIsSuggestDialogOpen(true)}
+                      className='cursor-pointer gap-2'
+                    >
+                      <Pencil size={14} className='text-muted-foreground' />
+                      <span>Đề xuất chỉnh sửa</span>
+                    </DropdownMenuItem>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
@@ -2018,6 +2061,15 @@ export const ShopDetailsContent = memo(function ShopDetailsContent({
             </AlertDialogContent>
           </AlertDialog>
         </>
+      )}
+
+      {/* Community Suggest Edit Dialog */}
+      {isAuthenticated && !isOwner && (
+        <SuggestEditDialog
+          open={isSuggestDialogOpen}
+          onOpenChange={setIsSuggestDialogOpen}
+          shop={shop}
+        />
       )}
 
       {/* Visit Note Dialog for Editing/Adding Notes from Overview tab */}

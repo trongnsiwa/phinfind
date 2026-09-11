@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { Heart, ShieldCheck, XCircle, Pencil, X } from 'lucide-react';
+import { Heart, ShieldCheck, XCircle, Pencil, X, CheckCircle2 } from 'lucide-react';
 import { NotificationItem as NotificationItemType } from '@/hooks/useNotifications';
 import { formatRelativeTime } from '@/lib/utils/formatTime';
 import { cn } from '@/lib/utils';
@@ -32,9 +32,11 @@ export function NotificationItem({
       case 'shop_rejected':
         return <XCircle className="w-4 h-4 text-destructive flex-shrink-0" />;
       case 'edit_suggestion_pending':
-      case 'edit_suggestion_approved':
-      case 'edit_suggestion_rejected':
         return <Pencil className="w-4 h-4 text-amber-gold flex-shrink-0" />;
+      case 'edit_suggestion_approved':
+        return <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />;
+      case 'edit_suggestion_rejected':
+        return <XCircle className="w-4 h-4 text-destructive flex-shrink-0" />;
       default:
         return <Heart className="w-4 h-4 text-amber-gold flex-shrink-0" />;
     }
@@ -43,6 +45,7 @@ export function NotificationItem({
   const getMessage = () => {
     const actorName = notification.actor_name || 'Một người dùng';
     const shopName = notification.payload?.shop_name;
+    const reviewNote = notification.payload?.review_note;
 
     switch (notification.type) {
       case 'review_liked':
@@ -61,12 +64,12 @@ export function NotificationItem({
           : 'Có đề xuất chỉnh sửa mới cho quán của bạn';
       case 'edit_suggestion_approved':
         return shopName
-          ? `Đề xuất chỉnh sửa quán "${shopName}" đã được duyệt`
-          : 'Đề xuất chỉnh sửa của bạn đã được duyệt';
+          ? `Đề xuất chỉnh sửa quán "${shopName}" của bạn đã được chấp nhận`
+          : 'Đề xuất chỉnh sửa của bạn đã được chấp nhận';
       case 'edit_suggestion_rejected':
         return shopName
-          ? `Đề xuất chỉnh sửa quán "${shopName}" đã bị từ chối`
-          : 'Đề xuất chỉnh sửa của bạn đã bị từ chối';
+          ? `Đề xuất chỉnh sửa quán "${shopName}" của bạn đã bị từ chối${reviewNote ? `: "${reviewNote}"` : ''}`
+          : `Đề xuất chỉnh sửa của bạn đã bị từ chối${reviewNote ? `: "${reviewNote}"` : ''}`;
       default:
         return 'Bạn có một thông báo mới';
     }

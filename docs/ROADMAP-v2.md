@@ -523,7 +523,7 @@ Apply client-side (small dataset) or server-side via query params. Add a filter 
 
 ---
 
-### [ ] FEAT-08 — Community edit suggestions
+### [x] FEAT-08 — Community edit suggestions
 
 | Field      | Value                                                                                                                                                                                                                                                              |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -594,14 +594,14 @@ CREATE TABLE public.shop_edit_suggestions (
 
 **Acceptance Criteria**
 
-- [ ] Authenticated non-owners see "Đề xuất chỉnh sửa" in the kebab menu
-- [ ] Owners do NOT see this option (they use "Chỉnh sửa quán" instead)
-- [ ] Suggestions land in the admin queue with a readable diff
-- [ ] Approving a suggestion applies only the changed fields
-- [ ] Rejecting preserves the audit trail
-- [ ] Field allowlist enforced server-side
-- [ ] Rate limit returns 429 with Retry-After
-- [ ] Owner receives an in-app notification when a suggestion is pending
+- [x] Authenticated non-owners see "Đề xuất chỉnh sửa" in the kebab menu
+- [x] Owners do NOT see this option (they use "Chỉnh sửa quán" instead)
+- [x] Suggestions land in the admin queue with a readable diff
+- [x] Approving a suggestion applies only the changed fields
+- [x] Rejecting preserves the audit trail
+- [x] Field allowlist enforced server-side
+- [x] Rate limit returns 429 with Retry-After
+- [x] Owner receives an in-app notification when a suggestion is pending
 
 ---
 

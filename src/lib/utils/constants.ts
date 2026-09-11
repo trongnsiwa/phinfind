@@ -32,5 +32,7 @@ export const API_ENDPOINTS = {
   USER_VISITS: '/api/user/visits',
   USER_PROFILE: '/api/user/profile',
   PUBLIC_PROFILE: '/api/user/public-profile',
+  SUGGEST_EDIT: '/api/shops/suggest-edit',
+  ADMIN_SUGGESTIONS: '/api/admin/suggestions',
 };
 
