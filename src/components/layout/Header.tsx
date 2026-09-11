@@ -49,6 +49,7 @@ import { useLocation } from '@/hooks/useLocation';
 import { useSearchShops } from '@/hooks/useShops';
 import { cn } from '@/lib/utils';
 import { APP_ROUTES } from '@/lib/utils/constants';
+import { NotificationBell } from '@/components/layout/NotificationBell';
 import { useShopStore } from '@/stores/useShopStore';
 import { useThemeStore } from '@/stores/useThemeStore';
 import { useUIStore } from '@/stores/useUIStore';
@@ -287,6 +288,9 @@ export function Header() {
               <Moon size={16} className='text-muted-foreground' />
             )}
           </Button>
+
+          {/* Notification Bell (authenticated only) */}
+          {isAuthenticated && !loading && <NotificationBell />}
 
           {/* Search container */}
           <div ref={searchContainerRef} className='relative flex items-center'>

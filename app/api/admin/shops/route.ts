@@ -158,6 +158,33 @@ export async function PATCH(request: NextRequest) {
 
     const creator = Array.isArray(updatedShop.creator) ? updatedShop.creator[0] : (updatedShop.creator || null);
 
+    // Dispatch notification to shop creator if not an orphaned shop.
+    // NOTE: These notification inserts happen in the API layer instead of a DB trigger
+    // because administrators perform the verification decision explicitly, and there is
+    // no natural row-level event on shops that maps 1:1 to a user notification.
+    if (updatedShop.created_by) {
+      if (action === 'approve') {
+        await supabase.from('notifications').insert({
+          user_id: updatedShop.created_by,
+          type: 'shop_approved',
+          actor_id: user.id,
+          shop_place_id: cleanPlaceId,
+          payload: { shop_name: updatedShop.name },
+        });
+      } else if (action === 'reject') {
+        await supabase.from('notifications').insert({
+          user_id: updatedShop.created_by,
+          type: 'shop_rejected',
+          actor_id: user.id,
+          shop_place_id: cleanPlaceId,
+          payload: {
+            shop_name: updatedShop.name,
+            reason: body.reason || undefined,
+          },
+        });
+      }
+    }
+
     return NextResponse.json({
       success: true,
       action,
