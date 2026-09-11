@@ -10,6 +10,21 @@ import { CoffeeShop } from '@/types/shop';
 import { UserProfile } from '@/types/user';
 import { useShopStore } from '@/stores/useShopStore';
 import { useAuth } from '@/hooks/useAuth';
+import { enqueue } from '@/lib/offline/queue';
+
+export function isOnline(): boolean {
+  if (typeof navigator !== 'undefined' && typeof navigator.onLine === 'boolean') {
+    return navigator.onLine;
+  }
+  return true;
+}
+
+export async function enqueueReviewAdd(payload: Record<string, unknown>): Promise<number> {
+  return enqueue({
+    kind: 'review_add',
+    payload,
+  });
+}
 
 export interface SavedShopItem {
   id?: string;
@@ -402,6 +417,32 @@ export function useToggleFavorite() {
       // Optimistic store update
       useShopStore.getState().toggleFavorite(placeId);
 
+      // Offline interception: if offline, enqueue action and keep optimistic state
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        try {
+          if (isCurrentlyFav) {
+            await enqueue({
+              kind: 'favorite_remove',
+              payload: { placeId },
+            });
+            toast.info('Đã xóa ngoại tuyến, sẽ đồng bộ khi có kết nối');
+          } else {
+            await enqueue({
+              kind: 'favorite_add',
+              payload: {
+                place_id: placeId,
+                name,
+                address: address || null,
+              },
+            });
+            toast.info('Đã lưu ngoại tuyến, sẽ đồng bộ khi có kết nối');
+          }
+          return;
+        } catch (enqueueError) {
+          console.warn('[useToggleFavorite] Offline enqueue error, falling back to online path:', enqueueError);
+        }
+      }
+
       try {
         if (isCurrentlyFav) {
           await axios.delete(API_ENDPOINTS.USER_FAVORITES, {
@@ -562,6 +603,33 @@ export function useToggleVisit() {
       // Optimistic store update only when toggling visited status (not when updating note)
       if (!updateOnly) {
         useShopStore.getState().toggleVisit(placeId);
+      }
+
+      // Offline interception: if offline, enqueue action and keep optimistic state
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        try {
+          if (isCurrentlyVisited && !updateOnly) {
+            await enqueue({
+              kind: 'visit_remove',
+              payload: { placeId },
+            });
+            toast.info('Đã bỏ đánh dấu ngoại tuyến, sẽ đồng bộ khi có kết nối');
+          } else {
+            await enqueue({
+              kind: 'visit_add',
+              payload: {
+                shop_place_id: placeId,
+                name,
+                address: address || null,
+                note: note !== undefined ? note : null,
+              },
+            });
+            toast.info('Đã lưu ngoại tuyến, sẽ đồng bộ khi có kết nối');
+          }
+          return;
+        } catch (enqueueError) {
+          console.warn('[useToggleVisit] Offline enqueue error, falling back to online path:', enqueueError);
+        }
       }
 
       try {
