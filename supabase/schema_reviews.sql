@@ -1,3 +1,20 @@
+-- ==============================================================================
+-- WARNING: FOREIGN KEY RELATIONSHIPS & EMBEDDING ON public.reviews
+-- `public.reviews` has `user_id REFERENCES public.profiles(id)` (reviews_user_id_fkey).
+-- Additionally, junction tables such as `public.review_likes` create a many-to-many
+-- relationship between `reviews` and `profiles`.
+--
+-- Because PostgREST detects multiple relationships between `reviews` and `profiles`,
+-- attempting to embed `profiles(...)` without naming the foreign key will fail with:
+--   "Could not embed because more than one relationship was found for 'reviews' and 'profiles'"
+--
+-- ALWAYS explicitly disambiguate the author relationship using PostgREST's syntax:
+--   `profiles!reviews_user_id_fkey(full_name, avatar_url, username)`
+--
+-- Do NOT add any additional direct foreign key columns pointing to `public.profiles`
+-- (e.g. reviewed_by, edited_by, moderated_by) on this table.
+-- ==============================================================================
+
 -- Reviews Table and Row Level Security Setup
 
 -- 1. Reviews Table

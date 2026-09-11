@@ -4,7 +4,7 @@ import {
   Check, CheckCircle2, ChevronDown, ChevronRight, Clock, Coffee, Compass, Copy, CreditCard,
   CupSoda, Edit3, Flame, Footprints, Globe, Heart, Images, Loader2, LogIn, MapPin, MoreVertical,
   Navigation, Pencil, Phone, Quote, Send, Sparkles, Star, Sun, Trash2, Utensils, Wifi, Wind, X,
-  Zap, Camera, Tag
+  Zap, Camera, Tag, ThumbsUp
 } from 'lucide-react';
 import Link from 'next/link';
 import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
@@ -24,7 +24,7 @@ import { ShopCardPlaceholder } from '@/components/common/ShopCardPlaceholder';
 import { cleanCategoryLabel } from '@/lib/utils/placeholders';
 import { useShopStore } from '@/stores/useShopStore';
 import { useUIStore } from '@/stores/useUIStore';
-import { useShopReviews, useDeleteShop, useUserVisits, useToggleVisit } from '@/hooks/useShops';
+import { useShopReviews, useDeleteShop, useUserVisits, useToggleVisit, useToggleReviewLike, useDeleteReview } from '@/hooks/useShops';
 import { CoffeeShop } from '@/types/shop';
 import { ReviewModal, ReviewItem } from './ReviewModal';
 import { AddShopDialog } from '@/components/shop/AddShopDialog';
@@ -739,11 +739,16 @@ export const ReviewsTab = memo(function ReviewsTab({
 }) {
   const openImagePreview = useUIStore((state) => state.openImagePreview);
   const { user, profile, isAuthenticated } = useAuth();
+  const router = useRouter();
+  const toggleLikeMutation = useToggleReviewLike();
+  const deleteReviewMutation = useDeleteReview();
 
   const placeId = shop.place_id || shop.id || '';
   const { data: dbReviews = [], isLoading: isLoadingReviews } = useShopReviews(placeId);
   const [reviewsList, setReviewsList] = useState<ReviewItem[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [reviewToEdit, setReviewToEdit] = useState<ReviewItem | null>(null);
+  const [reviewToDelete, setReviewToDelete] = useState<ReviewItem | null>(null);
 
   const hasShopRating = typeof shop.rating === 'number' && shop.rating > 0;
   const shopRating = shop.rating || 0;
@@ -754,6 +759,7 @@ export const ReviewsTab = memo(function ReviewsTab({
     if (dbReviews && Array.isArray(dbReviews)) {
       const formatted: ReviewItem[] = dbReviews.map((r: any) => ({
         id: r.id,
+        user_id: r.user_id,
         author:
           r.author ||
           r.profiles?.full_name ||
@@ -769,11 +775,40 @@ export const ReviewsTab = memo(function ReviewsTab({
         }),
         highlight: 'Đánh giá từ cộng đồng',
         comment: r.comment,
-        images: Array.isArray(r.images) ? r.images : []
+        images: Array.isArray(r.images) ? r.images : [],
+        like_count: r.like_count || 0,
+        liked_by_me: Boolean(r.liked_by_me),
+        is_edited: Boolean(r.is_edited),
       }));
       setReviewsList(formatted);
     }
   }, [dbReviews]);
+
+  const handleToggleLike = (rev: ReviewItem) => {
+    if (!isAuthenticated) {
+      toast('Yêu cầu đăng nhập', {
+        description: 'Vui lòng đăng nhập để đánh dấu bài đánh giá này là hữu ích.',
+        action: {
+          label: 'Đăng nhập',
+          onClick: () => router.push(APP_ROUTES.LOGIN),
+        },
+      });
+      return;
+    }
+
+    if (user && rev.user_id === user.id) {
+      toast.error('Bạn không thể tự đánh dấu hữu ích cho đánh giá của mình.');
+      return;
+    }
+
+    if (!rev.id) return;
+
+    toggleLikeMutation.mutate({
+      reviewId: rev.id,
+      isCurrentlyLiked: Boolean(rev.liked_by_me),
+      placeId,
+    });
+  };
 
   return (
     <div className='flex flex-col gap-4'>
@@ -992,9 +1027,36 @@ export const ReviewsTab = memo(function ReviewsTab({
                         </div>
                       </div>
                     </div>
-                    <span className='text-[10px] text-muted-foreground font-medium whitespace-nowrap flex-shrink-0 pt-0.5'>
-                      {rev.date}
-                    </span>
+                    <div className='flex items-center gap-2 flex-shrink-0 pt-0.5'>
+                      {user && rev.user_id === user.id && (
+                        <div className='flex items-center gap-1.5'>
+                          <button
+                            type='button'
+                            onClick={() => {
+                              setReviewToEdit(rev);
+                              setIsModalOpen(true);
+                            }}
+                            className='text-[11px] font-medium text-muted-foreground hover:text-primary transition-colors cursor-pointer'
+                          >
+                            Chỉnh sửa
+                          </button>
+                          <span className='text-muted-foreground/40 text-[10px]'>•</span>
+                          <button
+                            type='button'
+                            onClick={() => setReviewToDelete(rev)}
+                            className='text-[11px] font-medium text-muted-foreground hover:text-destructive transition-colors cursor-pointer'
+                          >
+                            Xóa
+                          </button>
+                        </div>
+                      )}
+                      <div className='flex items-center gap-1 text-[10px] text-muted-foreground font-medium whitespace-nowrap'>
+                        <span>{rev.date}</span>
+                        {rev.is_edited && (
+                          <span className='text-[10px] text-muted-foreground/70 italic'>(đã chỉnh sửa)</span>
+                        )}
+                      </div>
+                    </div>
                   </div>
 
                   {/* Review Comment Body with natural wrapping */}
@@ -1023,6 +1085,31 @@ export const ReviewsTab = memo(function ReviewsTab({
                       ))}
                     </div>
                   )}
+
+                  {/* Helpful Vote Button */}
+                  <div className='flex items-center gap-2 pt-1'>
+                    <Button
+                      type='button'
+                      variant='ghost'
+                      size='sm'
+                      onClick={() => handleToggleLike(rev)}
+                      className={cn(
+                        'rounded-full h-7 px-2.5 text-[11px] font-medium gap-1.5 border transition-all cursor-pointer shadow-none',
+                        rev.liked_by_me
+                          ? 'bg-amber-gold/15 text-amber-gold border-amber-gold/40 hover:bg-amber-gold/25'
+                          : 'bg-background/60 hover:bg-secondary border-border/60 text-muted-foreground hover:text-foreground'
+                      )}
+                    >
+                      <ThumbsUp
+                        size={12}
+                        className={cn(
+                          'transition-colors',
+                          rev.liked_by_me ? 'fill-amber-gold text-amber-gold' : 'text-muted-foreground'
+                        )}
+                      />
+                      <span>Hữu ích{rev.like_count && rev.like_count > 0 ? ` (${rev.like_count})` : ''}</span>
+                    </Button>
+                  </div>
                 </motion.div>
               ))}
             </AnimatePresence>
@@ -1033,14 +1120,49 @@ export const ReviewsTab = memo(function ReviewsTab({
       {/* 3. Review Modal */}
       <ReviewModal
         open={isModalOpen}
-        onOpenChange={setIsModalOpen}
+        onOpenChange={(open) => {
+          setIsModalOpen(open);
+          if (!open) setReviewToEdit(null);
+        }}
         shop={shop}
+        existingReview={reviewToEdit || undefined}
         onSuccess={(newReview) => {
           if (newReview) {
             setReviewsList((prev) => [newReview, ...prev]);
           }
         }}
       />
+
+      {/* 4. Delete Review Confirmation */}
+      {reviewToDelete && (
+        <AlertDialog open={Boolean(reviewToDelete)} onOpenChange={(open) => !open && setReviewToDelete(null)}>
+          <AlertDialogContent className='bg-card text-card-foreground border-border max-w-sm rounded-2xl'>
+            <AlertDialogHeader>
+              <AlertDialogTitle className='text-foreground text-base font-bold'>
+                Xóa bài đánh giá?
+              </AlertDialogTitle>
+              <AlertDialogDescription className='text-muted-foreground text-xs'>
+                Bạn có chắc chắn muốn xóa bài đánh giá này? Hành động này không thể hoàn tác.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className='flex-row gap-2 justify-end mt-4'>
+              <AlertDialogCancel className='rounded-xl text-xs h-8'>Hủy</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => {
+                  if (reviewToDelete.id) {
+                    deleteReviewMutation.mutate(reviewToDelete.id);
+                    setReviewsList((prev) => prev.filter((r) => r.id !== reviewToDelete.id));
+                  }
+                  setReviewToDelete(null);
+                }}
+                className='bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-xl text-xs h-8'
+              >
+                Xóa
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </div>
   );
 });

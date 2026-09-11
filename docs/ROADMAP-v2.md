@@ -569,6 +569,13 @@ CREATE TABLE public.shop_edit_suggestions (
 -- 4. UPDATE (admin): Admins can update status, reviewed_by, reviewed_at, and review notes
 ```
 
+> [!WARNING]
+> **Schema Guardrail (REVIEWS-FK-AMBIGUITY):**
+> Ensure `reviewed_by` belongs strictly to `public.shop_edit_suggestions`.
+> Do NOT add `reviewed_by` or any other foreign key pointing to `public.profiles` on `public.reviews`.
+> `public.reviews` already has `user_id REFERENCES public.profiles(id)`. Adding a second foreign key pointing to `profiles` on `reviews` breaks all PostgREST relationship embeds (`profiles(...)`) with:
+> *"Could not embed because more than one relationship was found for 'reviews' and 'profiles'"*.
+
 **Guardrails**
 
 - Rate limit to 3 suggestions/day/user, reusing the Upstash limiter from OPS-03

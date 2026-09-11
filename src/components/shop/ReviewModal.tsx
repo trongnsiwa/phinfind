@@ -1,26 +1,13 @@
 'use client';
 
 import React, { useState, useRef, useMemo, useEffect } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import {
-  Star,
-  Camera,
-  ImagePlus,
-  Loader2,
-  Send,
-  X,
-  Edit3,
-} from 'lucide-react';
+import { Star, Camera, ImagePlus, Loader2, Send, X, Edit3 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
+import { useEditReview } from '@/hooks/useShops';
 import { createClient } from '@/lib/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
@@ -29,6 +16,7 @@ import { CoffeeShop } from '@/types/shop';
 
 export interface ReviewItem {
   id?: string;
+  user_id?: string;
   author: string;
   avatar?: string;
   username?: string;
@@ -38,12 +26,16 @@ export interface ReviewItem {
   comment: string;
   images?: string[];
   isUserSubmission?: boolean;
+  like_count?: number;
+  liked_by_me?: boolean;
+  is_edited?: boolean;
 }
 
 interface ReviewModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   shop: CoffeeShop;
+  existingReview?: ReviewItem;
   onSuccess?: (newReview?: ReviewItem) => void;
 }
 
@@ -51,12 +43,14 @@ export function ReviewModal({
   open,
   onOpenChange,
   shop,
+  existingReview,
   onSuccess,
 }: ReviewModalProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { user, profile, isAuthenticated } = useAuth();
   const supabase = useMemo(() => createClient(), []);
+  const editReviewMutation = useEditReview();
 
   const [rating, setRating] = useState(5);
   const [hoverRating, setHoverRating] = useState(0);
@@ -67,13 +61,22 @@ export function ReviewModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Reset form when modal closes or opens
+  // Sync state when modal opens or closes
   useEffect(() => {
-    if (!open) {
-      setFormError('');
-      setIsSubmitting(false);
+    if (open) {
+      if (existingReview) {
+        setRating(existingReview.rating || 5);
+        setComment(existingReview.comment || '');
+        setUploadedImages(existingReview.images || []);
+      } else {
+        setRating(5);
+        setComment('');
+        setUploadedImages([]);
+      }
     }
-  }, [open]);
+    setFormError('');
+    setIsSubmitting(false);
+  }, [open, existingReview]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -105,42 +108,26 @@ export function ReviewModal({
           toast.error(`Ảnh "${file.name}" vượt quá dung lượng 5MB.`, { id: toastId });
           continue;
         }
-
         const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
         if (!validTypes.includes(file.type.toLowerCase())) {
           toast.error(`Ảnh "${file.name}" không đúng định dạng (hỗ trợ JPG, PNG, WEBP).`, { id: toastId });
           continue;
         }
-
         const fileExt = file.name.split('.').pop()?.toLowerCase() || 'jpg';
-        const cleanName = file.name
-          .replace(/\.[^/.]+$/, '')
-          .replace(/[^a-zA-Z0-9_-]/g, '_')
-          .substring(0, 20);
-        const timestamp = Date.now();
-        const randomStr = Math.random().toString(36).substring(2, 8);
-        const filePath = `reviews/${user.id}/${timestamp}_${randomStr}_${cleanName}.${fileExt}`;
+        const cleanName = file.name.replace(/\.[^/.]+$/, '').replace(/[^a-zA-Z0-9_-]/g, '_').substring(0, 20);
+        const filePath = `reviews/${user.id}/${Date.now()}_${Math.random().toString(36).substring(2, 8)}_${cleanName}.${fileExt}`;
 
         const { error: uploadError } = await supabase.storage
           .from('shop-photos')
-          .upload(filePath, file, {
-            cacheControl: '3600',
-            upsert: false,
-          });
+          .upload(filePath, file, { cacheControl: '3600', upsert: false });
 
         if (uploadError) {
-          console.error('Lỗi tải ảnh:', uploadError);
           toast.error(`Không thể tải "${file.name}": ${uploadError.message}`, { id: toastId });
           continue;
         }
 
-        const { data: publicUrlData } = supabase.storage
-          .from('shop-photos')
-          .getPublicUrl(filePath);
-
-        if (publicUrlData?.publicUrl) {
-          newUrls.push(publicUrlData.publicUrl);
-        }
+        const { data: publicUrlData } = supabase.storage.from('shop-photos').getPublicUrl(filePath);
+        if (publicUrlData?.publicUrl) newUrls.push(publicUrlData.publicUrl);
       }
 
       if (newUrls.length > 0) {
@@ -149,14 +136,11 @@ export function ReviewModal({
       } else {
         toast.dismiss(toastId);
       }
-    } catch (err: any) {
-      console.error('Lỗi tải ảnh:', err);
+    } catch {
       toast.error('Không thể tải ảnh lên. Vui lòng thử lại.', { id: toastId });
     } finally {
       setIsUploadingImages(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -191,8 +175,27 @@ export function ReviewModal({
 
     setIsSubmitting(true);
     setFormError('');
+    const placeId = shop.place_id || shop.id;
+
+    if (existingReview?.id) {
+      try {
+        await editReviewMutation.mutateAsync({
+          id: existingReview.id,
+          rating,
+          comment: comment.trim(),
+          images: uploadedImages,
+          shop_place_id: placeId,
+        });
+        onOpenChange(false);
+      } catch {
+        // Handled by mutation toast
+      } finally {
+        setIsSubmitting(false);
+      }
+      return;
+    }
+
     try {
-      const placeId = shop.place_id || shop.id;
       const res = await fetch('/api/reviews', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -205,7 +208,6 @@ export function ReviewModal({
       });
 
       const data = await res.json();
-
       if (!res.ok) {
         throw new Error(data.error || 'Không thể gửi đánh giá. Vui lòng thử lại.');
       }
@@ -213,18 +215,19 @@ export function ReviewModal({
       const returned = data.review;
       const newReview: ReviewItem = {
         id: returned?.id || String(Date.now()),
+        user_id: user?.id,
         author:
           returned?.author ||
           returned?.profiles?.full_name ||
           profile?.full_name ||
-          user.user_metadata?.full_name ||
-          user.email?.split('@')[0] ||
+          user?.user_metadata?.full_name ||
+          user?.email?.split('@')[0] ||
           'Bạn',
         avatar:
           returned?.avatar ||
           returned?.profiles?.avatar_url ||
           profile?.avatar_url ||
-          user.user_metadata?.avatar_url ||
+          user?.user_metadata?.avatar_url ||
           undefined,
         username: returned?.username || profile?.username || undefined,
         rating: returned?.rating || rating,
@@ -235,7 +238,6 @@ export function ReviewModal({
         isUserSubmission: true,
       };
 
-      // Reset state
       setComment('');
       setRating(5);
       setUploadedImages([]);
@@ -264,10 +266,12 @@ export function ReviewModal({
             </div>
             <div>
               <DialogTitle className='text-base font-bold text-foreground leading-snug'>
-                Viết Đánh Giá Của Bạn
+                {existingReview ? 'Chỉnh sửa đánh giá' : 'Viết Đánh Giá Của Bạn'}
               </DialogTitle>
               <DialogDescription className='text-xs text-muted-foreground mt-0.5'>
-                Chia sẻ trải nghiệm thực tế tại {shop.name}
+                {existingReview
+                  ? `Cập nhật trải nghiệm của bạn tại ${shop.name}`
+                  : `Chia sẻ trải nghiệm thực tế tại ${shop.name}`}
               </DialogDescription>
             </div>
           </div>
@@ -474,12 +478,12 @@ export function ReviewModal({
               {isSubmitting ? (
                 <>
                   <Loader2 size={13} className='animate-spin' />
-                  <span>Đang gửi...</span>
+                  <span>{existingReview ? 'Đang lưu...' : 'Đang gửi...'}</span>
                 </>
               ) : (
                 <>
                   <Send size={13} />
-                  <span>Gửi đánh giá</span>
+                  <span>{existingReview ? 'Lưu thay đổi' : 'Gửi đánh giá'}</span>
                 </>
               )}
             </Button>

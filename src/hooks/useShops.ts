@@ -113,6 +113,9 @@ export interface ReviewData {
   shop_name?: string;
   shop_address?: string | null;
   shop_photo?: string | null;
+  like_count?: number;
+  liked_by_me?: boolean;
+  is_edited?: boolean;
   profiles?: {
     full_name: string | null;
     avatar_url: string | null;
@@ -176,6 +179,110 @@ export function useDeleteReview() {
     },
     onError: (error: any) => {
       toast.error(error?.response?.data?.error || 'Không thể xóa đánh giá. Vui lòng thử lại.');
+    },
+  });
+}
+
+export interface EditReviewPayload {
+  id: string;
+  rating: number;
+  comment: string;
+  images?: string[];
+  shop_place_id?: string;
+}
+
+export function useEditReview() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: EditReviewPayload) => {
+      const res = await axios.put<{ review: ReviewData; success: boolean }>(
+        '/api/reviews',
+        payload
+      );
+      return res.data;
+    },
+    onSuccess: (_data, variables) => {
+      toast.success('Đã cập nhật đánh giá');
+      queryClient.invalidateQueries({ queryKey: ['shops', 'reviews'] });
+      queryClient.invalidateQueries({ queryKey: ['user', 'reviews'] });
+      if (variables.shop_place_id) {
+        queryClient.invalidateQueries({ queryKey: ['shops', 'reviews', variables.shop_place_id] });
+      }
+    },
+    onError: (err: any) => {
+      const msg =
+        err?.response?.data?.error ||
+        err?.message ||
+        'Không thể cập nhật đánh giá. Vui lòng thử lại.';
+      toast.error(msg);
+    },
+  });
+}
+
+export interface ToggleReviewLikeInput {
+  reviewId: string;
+  isCurrentlyLiked: boolean;
+  placeId?: string;
+}
+
+export function useToggleReviewLike() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ reviewId, isCurrentlyLiked }: ToggleReviewLikeInput) => {
+      if (isCurrentlyLiked) {
+        const res = await axios.delete<{ liked: boolean; like_count: number }>(
+          `/api/reviews/${reviewId}/like`
+        );
+        return res.data;
+      } else {
+        const res = await axios.post<{ liked: boolean; like_count: number }>(
+          `/api/reviews/${reviewId}/like`
+        );
+        return res.data;
+      }
+    },
+    onMutate: async ({ reviewId, isCurrentlyLiked, placeId }) => {
+      const queryKey = placeId ? ['shops', 'reviews', placeId] : ['shops', 'reviews'];
+      await queryClient.cancelQueries({ queryKey });
+
+      const previousReviews = queryClient.getQueryData<ReviewData[]>(queryKey);
+
+      if (previousReviews) {
+        queryClient.setQueryData<ReviewData[]>(queryKey, (old) => {
+          if (!old) return [];
+          return old.map((rev) => {
+            if (rev.id === reviewId) {
+              const currentCount = rev.like_count || 0;
+              const newCount = isCurrentlyLiked
+                ? Math.max(0, currentCount - 1)
+                : currentCount + 1;
+              return {
+                ...rev,
+                liked_by_me: !isCurrentlyLiked,
+                like_count: newCount,
+              };
+            }
+            return rev;
+          });
+        });
+      }
+
+      return { previousReviews, queryKey };
+    },
+    onError: (_err, _variables, context) => {
+      if (context?.previousReviews && context?.queryKey) {
+        queryClient.setQueryData(context.queryKey, context.previousReviews);
+      }
+      toast.error('Không thể cập nhật. Vui lòng thử lại.');
+    },
+    onSettled: (_data, _error, variables) => {
+      if (variables.placeId) {
+        queryClient.invalidateQueries({ queryKey: ['shops', 'reviews', variables.placeId] });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ['shops', 'reviews'] });
+      }
     },
   });
 }

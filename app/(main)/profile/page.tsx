@@ -60,6 +60,7 @@ import {
 import { EmptyState } from '@/components/common/EmptyState';
 import { ProfileSkeleton } from '@/components/common/LoadingSkeleton';
 import { FavoriteShopCard } from '@/components/shop/FavoriteShopCard';
+import { ReviewModal } from '@/components/shop/ReviewModal';
 import { PublicReviewCard } from '@/components/profile/PublicReviewCard';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocation } from '@/hooks/useLocation';
@@ -211,6 +212,8 @@ export default function ProfilePage() {
   const userReviews = userReviewsData || [];
   const deleteReviewMutation = useDeleteReview();
   const [reviewToDelete, setReviewToDelete] = useState<ReviewData | null>(null);
+  const [reviewToEdit, setReviewToEdit] = useState<ReviewData | null>(null);
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
 
   const handleConfirmDeleteReview = async () => {
     if (!reviewToDelete) return;
@@ -602,16 +605,31 @@ export default function ProfilePage() {
                   key={review.id}
                   review={review}
                   action={
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setReviewToDelete(review)}
-                      className="self-end sm:self-start text-muted-foreground hover:text-destructive hover:bg-destructive/10 h-8 px-2.5 rounded-xl text-xs gap-1.5 cursor-pointer transition-colors"
-                      title="Xóa đánh giá này"
-                    >
-                      <Trash2 size={13} />
-                      <span>Xóa</span>
-                    </Button>
+                    <div className="flex items-center gap-1.5 self-end sm:self-start">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setReviewToEdit(review);
+                          setIsReviewModalOpen(true);
+                        }}
+                        className="text-muted-foreground hover:text-primary hover:bg-primary/10 h-8 px-2.5 rounded-xl text-xs gap-1.5 cursor-pointer transition-colors"
+                        title="Chỉnh sửa đánh giá này"
+                      >
+                        <Pencil size={13} />
+                        <span>Sửa</span>
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setReviewToDelete(review)}
+                        className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 h-8 px-2.5 rounded-xl text-xs gap-1.5 cursor-pointer transition-colors"
+                        title="Xóa đánh giá này"
+                      >
+                        <Trash2 size={13} />
+                        <span>Xóa</span>
+                      </Button>
+                    </div>
                   }
                 />
               ))}
@@ -1061,6 +1079,43 @@ export default function ProfilePage() {
           </Form>
         </DialogContent>
       </Dialog>
+
+      {/* 5. Review Edit Modal */}
+      {reviewToEdit && (
+        <ReviewModal
+          open={isReviewModalOpen}
+          onOpenChange={(open) => {
+            setIsReviewModalOpen(open);
+            if (!open) setReviewToEdit(null);
+          }}
+          shop={{
+            id: reviewToEdit.shop_place_id,
+            place_id: reviewToEdit.shop_place_id,
+            name: reviewToEdit.shop_name || 'Quán Cà Phê',
+            address: reviewToEdit.shop_address || '',
+            lat: 0,
+            lon: 0,
+            distance: 0,
+            distance_text: '',
+            rating: 0,
+            total_ratings: 0,
+            photos: reviewToEdit.shop_photo ? [reviewToEdit.shop_photo] : [],
+            categories: [],
+            verified: false,
+          }}
+          existingReview={{
+            id: reviewToEdit.id,
+            user_id: reviewToEdit.user_id,
+            author: reviewToEdit.author,
+            avatar: reviewToEdit.avatar || undefined,
+            username: reviewToEdit.username || undefined,
+            rating: reviewToEdit.rating,
+            date: new Date(reviewToEdit.created_at).toLocaleDateString('vi-VN'),
+            comment: reviewToEdit.comment,
+            images: reviewToEdit.images || [],
+          }}
+        />
+      )}
     </div>
   );
 }

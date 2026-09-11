@@ -68,11 +68,16 @@ export function PublicReviewCard({ review, action }: PublicReviewCardProps) {
 
             <span className="text-xs text-muted-foreground flex items-center gap-1">
               <Calendar size={12} />
-              {new Date(review.created_at).toLocaleDateString('vi-VN', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-              })}
+              <span>
+                {new Date(review.created_at).toLocaleDateString('vi-VN', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric',
+                })}
+              </span>
+              {review.is_edited && (
+                <span className="text-[10px] text-muted-foreground/70 italic">(đã chỉnh sửa)</span>
+              )}
             </span>
           </div>
         </div>
