@@ -639,7 +639,7 @@ src/components/shop/AddShopDialog/
 
 ---
 
-### [ ] TD-02 — Split `ShopDetailsContent.tsx` (1,600 lines)
+### [x] TD-02 — Split `ShopDetailsContent.tsx` (1,600 lines)
 
 | Field    | Value                                                 |
 | -------- | ----------------------------------------------------- |
@@ -664,10 +664,10 @@ src/components/shop/ShopDetailsContent/
 
 **Acceptance Criteria**
 
-- [ ] Each file < 400 lines
-- [ ] Public exports preserved (used by Drawer, Sidebar, standalone page)
-- [ ] No visual regression
-- [ ] Build passes
+- [x] Each file < 400 lines
+- [x] Public exports preserved (used by Drawer, Sidebar, standalone page)
+- [x] No visual regression
+- [x] Build passes
 
 ---
 
