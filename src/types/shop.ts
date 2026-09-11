@@ -49,6 +49,9 @@ export interface ShopFilterState {
   openNowOnly: boolean;
   minRating: number;
   sortBy: 'distance' | 'rating' | 'name';
+  priceRanges: Array<'₫' | '₫₫' | '₫₫₫' | '₫₫₫₫'>;
+  requiredAmenityIds: string[];
+  radiusKm: number | null;
 }
 
 export interface GeoapifyFeature {

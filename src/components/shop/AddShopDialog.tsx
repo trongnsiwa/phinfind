@@ -72,7 +72,7 @@ export interface PredefinedCategoryConfig {
   defaultDescription: string;
 }
 
-const POPULAR_CATEGORIES: PredefinedCategoryConfig[] = [
+export const POPULAR_CATEGORIES: PredefinedCategoryConfig[] = [
   {
     id: 'catering.cafe',
     label: 'Cà phê phin',

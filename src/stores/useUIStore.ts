@@ -39,6 +39,9 @@ const defaultFilters: ShopFilterState = {
   openNowOnly: false,
   minRating: 0,
   sortBy: 'distance',
+  priceRanges: [],
+  requiredAmenityIds: [],
+  radiusKm: null,
 };
 
 const defaultImagePreview: ImagePreviewState = {

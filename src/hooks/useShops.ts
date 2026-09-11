@@ -50,15 +50,22 @@ export interface PaginatedShopsResponse {
 export function useInfiniteShops(
   lat: number,
   lng: number,
-  limit: number = 12
+  limit: number = 12,
+  radiusKm: number | null = null
 ) {
   return useInfiniteQuery({
-    queryKey: ['shops', 'infinite', lat, lng, limit],
+    queryKey: ['shops', 'infinite', lat, lng, limit, radiusKm],
     queryFn: async ({ pageParam = 1 }) => {
       const response = await axios.get<PaginatedShopsResponse>(
         API_ENDPOINTS.NEARBY_SHOPS,
         {
-          params: { lat, lng, limit, page: pageParam },
+          params: {
+            lat,
+            lng,
+            limit,
+            page: pageParam,
+            ...(radiusKm !== null ? { radius: radiusKm } : {}),
+          },
         }
       );
       return response.data;
@@ -82,15 +89,22 @@ export function useNearbyShops(
   lat: number,
   lng: number,
   limit: number = 200,
-  offset: number = 0
+  offset: number = 0,
+  radiusKm: number | null = null
 ) {
   return useQuery({
-    queryKey: ['shops', 'nearby', lat, lng, limit, offset],
+    queryKey: ['shops', 'nearby', lat, lng, limit, offset, radiusKm],
     queryFn: async () => {
       const response = await axios.get<{ shops: CoffeeShop[]; total: number }>(
         API_ENDPOINTS.NEARBY_SHOPS,
         {
-          params: { lat, lng, limit, offset },
+          params: {
+            lat,
+            lng,
+            limit,
+            offset,
+            ...(radiusKm !== null ? { radius: radiusKm } : {}),
+          },
         }
       );
       return response.data.shops;

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createPublicClient } from '@/lib/supabase/server';
 import { DEFAULT_LOCATION } from '@/lib/utils/constants';
-import { mapDbShopToCoffeeShop } from '@/lib/supabase/shops';
+import { calculateDistanceMeters, mapDbShopToCoffeeShop } from '@/lib/supabase/shops';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -9,6 +9,10 @@ export async function GET(request: NextRequest) {
   const parsedLng = parseFloat(searchParams.get('lng') || '');
   const lat = !isNaN(parsedLat) ? parsedLat : DEFAULT_LOCATION.lat;
   const lng = !isNaN(parsedLng) ? parsedLng : DEFAULT_LOCATION.lng;
+  const rawRadius = searchParams.get('radius');
+  const parsedRadius = rawRadius !== null && rawRadius.trim() !== '' ? parseFloat(rawRadius) : NaN;
+  const radiusKm = !isNaN(parsedRadius) ? Math.min(Math.max(parsedRadius, 1), 100) : null;
+  const radiusMeters = radiusKm !== null ? radiusKm * 1000 : null;
   const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '12', 10), 1), 1000);
   const page = Math.max(parseInt(searchParams.get('page') || '1', 10), 1);
   const offset = searchParams.has('offset')
@@ -31,10 +35,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ shops: [], total: 0, page: 1, totalPages: 0 });
     }
 
-    const allSortedShops = data
+    let allSortedShops = data
       .filter((row) => !row.hidden)
-      .map((row) => mapDbShopToCoffeeShop(row, lat, lng))
-      .sort((a, b) => a.distance - b.distance);
+      .map((row) => mapDbShopToCoffeeShop(row, lat, lng));
+
+    if (radiusMeters !== null) {
+      allSortedShops = allSortedShops.filter((shop) => shop.distance <= radiusMeters);
+    }
+
+    allSortedShops.sort((a, b) => a.distance - b.distance);
 
     const total = allSortedShops.length;
     const paginatedShops = allSortedShops.slice(offset, offset + limit);

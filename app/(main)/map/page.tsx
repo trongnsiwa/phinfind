@@ -19,7 +19,9 @@ import {
 import { Map } from '@/components/map/Map';
 import { ShopDrawer } from '@/components/shop/ShopDrawer';
 import { ShopSidebar } from '@/components/shop/ShopSidebar';
-import { AddShopDialog } from '@/components/shop/AddShopDialog';
+import { AddShopDialog, POPULAR_CATEGORIES } from '@/components/shop/AddShopDialog';
+import { RadiusSlider } from '@/components/shop/RadiusSlider';
+import { applyShopFilters, countActiveFilters } from '@/lib/utils/filters';
 
 import { useRouter } from 'next/navigation';
 import { useLocation } from '@/hooks/useLocation';
@@ -44,6 +46,7 @@ function getShopDistance(shop: CoffeeShop, userLat: number, userLng: number): nu
   return Infinity;
 }
 
+const PRICE_OPTIONS: Array<'₫' | '₫₫' | '₫₫₫' | '₫₫₫₫'> = ['₫', '₫₫', '₫₫₫', '₫₫₫₫'];
 export default function MapPage() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
@@ -54,7 +57,9 @@ export default function MapPage() {
   useUserFavorites();
   const { toggleFavorite: toggleFavoriteMutation } = useToggleFavorite();
   const { filters, setFilters, resetFilters } = useUIStore();
-  const { data: apiShops = [], isLoading: isShopsLoading } = useNearbyShops(lat, lng);
+  const topAmenities = useMemo(() => POPULAR_CATEGORIES.slice(0, 8), []);
+
+  const { data: apiShops = [], isLoading: isShopsLoading } = useNearbyShops(lat, lng, 200, 0, filters.radiusKm);
   const { data: locationName, isLoading: isLocationNameLoading } = useReverseGeocode(lat, lng, isFallback);
 
   const isLocationLoading = locationLoading || isLocationNameLoading || !locationName;
@@ -124,12 +129,7 @@ export default function MapPage() {
     );
 
     // Apply active filters before picking nearest
-    if (filters.openNowOnly) {
-      matches = matches.filter((s) => s.opening_hours?.open_now === true);
-    }
-    if (filters.minRating > 0) {
-      matches = matches.filter((s) => (s.rating || 0) >= filters.minRating);
-    }
+    matches = applyShopFilters(matches, filters);
 
     if (matches.length === 0) {
       return [];
@@ -151,31 +151,11 @@ export default function MapPage() {
       return searchMatchedShops;
     }
 
-    let list = [...apiShops];
-
-    if (filters.openNowOnly) {
-      list = list.filter((s) => s.opening_hours?.open_now === true);
-    }
-
-    if (filters.minRating > 0) {
-      list = list.filter((s) => (s.rating || 0) >= filters.minRating);
-    }
-
-    if (filters.sortBy === 'rating') {
-      list.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-    } else if (filters.sortBy === 'distance') {
-      list.sort((a, b) => (a.distance || 0) - (b.distance || 0));
-    }
-
-    return list;
+    return applyShopFilters(apiShops, filters);
   }, [apiShops, searchMatchedShops, filters]);
 
   const activeFilterCount = useMemo(() => {
-    let count = 0;
-    if (filters.openNowOnly) count++;
-    if (filters.minRating > 0) count++;
-    if (filters.sortBy && filters.sortBy !== 'distance') count++;
-    return count;
+    return countActiveFilters(filters, '');
   }, [filters]);
 
   // Auto-focus input when search expands
@@ -256,12 +236,7 @@ export default function MapPage() {
         (s.address && s.address.toLowerCase().includes(lowerQ))
     );
 
-    if (filters.openNowOnly) {
-      matches = matches.filter((s) => s.opening_hours?.open_now === true);
-    }
-    if (filters.minRating > 0) {
-      matches = matches.filter((s) => (s.rating || 0) >= filters.minRating);
-    }
+    matches = applyShopFilters(matches, filters);
 
     if (matches.length > 0) {
       matches.sort((a, b) => {
@@ -586,7 +561,7 @@ export default function MapPage() {
             </SheetTrigger>
             <SheetContent
               side="bottom"
-              className="bg-popover/95 backdrop-blur-2xl border-t border-border text-popover-foreground rounded-t-[28px] max-w-lg mx-auto p-5 pb-8 space-y-4 shadow-2xl z-[600]"
+              className="bg-popover/95 backdrop-blur-2xl border-t border-border text-popover-foreground rounded-t-[28px] max-w-lg mx-auto p-5 pb-8 space-y-4 shadow-2xl z-[600] max-h-[85vh] overflow-y-auto no-scrollbar"
             >
               <SheetHeader className="text-left space-y-1">
                 <div className="flex items-center justify-between pr-6">
@@ -599,7 +574,7 @@ export default function MapPage() {
                       variant="ghost"
                       size="sm"
                       onClick={resetFilters}
-                      className="text-xs text-muted-foreground hover:text-amber-gold hover:bg-muted h-7 px-2 rounded-lg flex items-center gap-1 cursor-pointer"
+                      className="text-xs text-muted-foreground hover:text-amber-gold hover:bg-muted h-7 px-2 rounded-lg flex items-center gap-1 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold"
                     >
                       <RotateCcw size={12} />
                       <span>Đặt lại</span>
@@ -656,7 +631,7 @@ export default function MapPage() {
                           type="button"
                           onClick={() => setFilters({ minRating: opt.value })}
                           className={cn(
-                            'py-2 px-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer text-center',
+                            'py-2 px-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer text-center select-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold',
                             isSelected
                               ? 'bg-amber-gold text-primary-foreground border-amber-gold shadow-md'
                               : 'bg-secondary/50 border-border/60 text-muted-foreground hover:border-amber-gold/40 hover:text-foreground'
@@ -669,7 +644,87 @@ export default function MapPage() {
                   </div>
                 </div>
 
-                {/* 3. Sort Order */}
+                {/* 3. Price Range */}
+                <div className="space-y-1.5">
+                  <div className="flex justify-between text-xs">
+                    <span className="font-semibold text-muted-foreground">Mức giá</span>
+                    {filters.priceRanges.length > 0 && (
+                      <span className="font-bold text-amber-gold">{filters.priceRanges.join(', ')}</span>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-4 gap-2">
+                    {PRICE_OPTIONS.map((price) => {
+                      const isSelected = filters.priceRanges.includes(price);
+                      return (
+                        <button
+                          key={price}
+                          type="button"
+                          onClick={() => {
+                            const next = isSelected
+                              ? filters.priceRanges.filter((p) => p !== price)
+                              : [...filters.priceRanges, price];
+                            setFilters({ priceRanges: next });
+                          }}
+                          className={cn(
+                            'py-2 px-2 rounded-xl border text-xs font-bold transition-all cursor-pointer text-center select-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold',
+                            isSelected
+                              ? 'bg-amber-gold text-primary-foreground border-amber-gold shadow-md font-bold'
+                              : 'bg-secondary/50 border-border/60 text-muted-foreground hover:border-amber-gold/40 hover:text-foreground'
+                          )}
+                        >
+                          {price}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* 4. Predefined Amenities */}
+                <div className="space-y-1.5">
+                  <div className="flex justify-between text-xs">
+                    <span className="font-semibold text-muted-foreground">Tiện ích phổ biến</span>
+                    {filters.requiredAmenityIds.length > 0 && (
+                      <span className="font-bold text-amber-gold">{filters.requiredAmenityIds.length} đã chọn</span>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {topAmenities.map((cat) => {
+                      const Icon = cat.icon;
+                      const isSelected = filters.requiredAmenityIds.includes(cat.id);
+                      return (
+                        <button
+                          key={cat.id}
+                          type="button"
+                          onClick={() => {
+                            const next = isSelected
+                              ? filters.requiredAmenityIds.filter((id) => id !== cat.id)
+                              : [...filters.requiredAmenityIds, cat.id];
+                            setFilters({ requiredAmenityIds: next });
+                          }}
+                          className={cn(
+                            'py-1.5 px-2.5 rounded-xl border text-xs font-medium transition-all cursor-pointer flex items-center gap-1.5 select-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold',
+                            isSelected
+                              ? 'bg-amber-gold text-primary-foreground border-amber-gold font-bold shadow-md'
+                              : 'bg-secondary/50 border-border/60 text-muted-foreground hover:border-amber-gold/40 hover:text-foreground'
+                          )}
+                        >
+                          <Icon size={13} className={isSelected ? 'text-primary-foreground' : 'text-amber-gold'} />
+                          <span>{cat.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* 5. Radius Segmented Buttons */}
+                {/* 5. Radius Shared Component */}
+                <RadiusSlider
+                  value={filters.radiusKm}
+                  onChange={(val) => setFilters({ radiusKm: val })}
+                  className="bg-secondary/40 p-3 rounded-2xl border border-border/60"
+                />
+
+                {/* 6. Sort Order */}
                 <div className="space-y-1.5">
                   <span className="text-xs font-semibold text-muted-foreground block">Sắp xếp theo</span>
                   <div className="grid grid-cols-2 gap-2">
@@ -684,7 +739,7 @@ export default function MapPage() {
                           type="button"
                           onClick={() => setFilters({ sortBy: opt.value })}
                           className={cn(
-                            'py-2 px-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer text-center',
+                            'py-2 px-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer text-center select-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold',
                             isSelected
                               ? 'bg-amber-gold text-primary-foreground border-amber-gold shadow-md'
                               : 'bg-secondary/50 border-border/60 text-muted-foreground hover:border-amber-gold/40 hover:text-foreground'
@@ -701,7 +756,7 @@ export default function MapPage() {
                 <Button
                   type="button"
                   onClick={() => setIsFilterSheetOpen(false)}
-                  className="w-full h-10 bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground font-bold text-xs rounded-xl shadow-md transition-all active:scale-98 cursor-pointer mt-2"
+                  className="w-full h-10 bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground font-bold text-xs rounded-xl shadow-md transition-all active:scale-98 cursor-pointer mt-2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold"
                 >
                   Áp dụng &amp; Xem {filteredShops.length} quán
                 </Button>

@@ -33,6 +33,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useShopStore } from '@/stores/useShopStore';
 import { useUIStore } from '@/stores/useUIStore';
 import { generateCardSizes } from '@/lib/utils/bentoLayout';
+import { applyShopFilters, countActiveFilters } from '@/lib/utils/filters';
 import type { CoffeeShop } from '@/types/shop';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
@@ -59,7 +60,7 @@ export default function DiscoverPage() {
     isPending: shopsPending,
     isError,
     refetch,
-  } = useInfiniteShops(lat, lng, 12);
+  } = useInfiniteShops(lat, lng, 12, filters.radiusKm);
 
   const rawShops = useMemo(() => {
     return data?.pages.flatMap((page) => page.shops) || [];
@@ -125,29 +126,12 @@ export default function DiscoverPage() {
   const deferredSearchQuery = useDeferredValue(searchQuery);
   const deferredFilters = useDeferredValue(filters);
 
-  const isFilterActive = Boolean(
-    searchQuery.trim() ||
-    filters.openNowOnly ||
-    (filters.minRating && filters.minRating > 0)
-  );
+  const isFilterActive = countActiveFilters(filters, searchQuery) > 0;
+  const isFiltered = countActiveFilters(deferredFilters, deferredSearchQuery) > 0;
 
-  const isFiltered = Boolean(
-    deferredSearchQuery.trim() ||
-    deferredFilters.openNowOnly ||
-    (deferredFilters.minRating && deferredFilters.minRating > 0)
-  );
-
-  // Filter & sort shop results
+  // Filter & sort shop results using central pure utility
   const filteredShops = useMemo(() => {
-    let result = [...rawShops];
-
-    if (deferredFilters.openNowOnly) {
-      result = result.filter((s) => s.opening_hours?.open_now);
-    }
-
-    if (deferredFilters.minRating && deferredFilters.minRating > 0) {
-      result = result.filter((s) => (s.rating || 0) >= (deferredFilters.minRating || 0));
-    }
+    let result = applyShopFilters(rawShops, deferredFilters);
 
     const q = deferredSearchQuery.trim().toLowerCase();
     if (q) {
@@ -156,14 +140,6 @@ export default function DiscoverPage() {
           (s.name && s.name.toLowerCase().includes(q)) ||
           (s.address && s.address.toLowerCase().includes(q))
       );
-    }
-
-    if (deferredFilters.sortBy === 'rating') {
-      result.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-    } else if (deferredFilters.sortBy === 'name') {
-      result.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-    } else {
-      result.sort((a, b) => (a.distance || 0) - (b.distance || 0));
     }
 
     return result;

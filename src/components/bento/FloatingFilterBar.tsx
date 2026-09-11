@@ -10,6 +10,7 @@ import {
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { countActiveFilters } from '@/lib/utils/filters';
 import { useUIStore } from '@/stores/useUIStore';
 
 interface FloatingFilterBarProps {
@@ -51,11 +52,7 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const activeCount =
-    (filters.openNowOnly ? 1 : 0) +
-    (filters.minRating && filters.minRating > 0 ? 1 : 0) +
-    (filters.sortBy !== 'distance' ? 1 : 0) +
-    (searchQuery.trim().length > 0 ? 1 : 0);
+  const activeCount = countActiveFilters(filters, searchQuery);
 
   const shouldShow = isVisible && !isDismissed;
 
