@@ -17,6 +17,7 @@ export const APP_ROUTES = {
   SETTINGS: '/settings',
   ADMIN: '/admin',
   SHOP_DETAIL: (id: string) => `/shop/${id}`,
+  PUBLIC_PROFILE: (username: string) => `/u/${encodeURIComponent(username)}`,
 };
 
 export const API_ENDPOINTS = {
@@ -30,5 +31,6 @@ export const API_ENDPOINTS = {
   USER_FAVORITES: '/api/user/favorites',
   USER_VISITS: '/api/user/visits',
   USER_PROFILE: '/api/user/profile',
+  PUBLIC_PROFILE: '/api/user/public-profile',
 };
 

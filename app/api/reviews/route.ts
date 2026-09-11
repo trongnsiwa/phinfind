@@ -68,6 +68,7 @@ export async function GET(request: NextRequest) {
         images: Array.isArray(item.images) ? item.images : [],
         author: item.profiles?.full_name || item.profiles?.username || 'Tín đồ cà phê',
         avatar: item.profiles?.avatar_url || null,
+        username: item.profiles?.username || null,
         shop_name: shopInfo?.name || 'Quán Cà Phê',
         shop_address: shopInfo?.address || null,
         shop_photo: shopInfo?.photo || null,
@@ -201,6 +202,7 @@ export async function POST(request: NextRequest) {
       images: Array.isArray((data as any)?.images) ? (data as any).images : validatedImages,
       author: authorName,
       avatar: authorAvatar,
+      username: profileData?.username || null,
     };
 
     return NextResponse.json({ review: returnReview, success: true }, { status: 201 });

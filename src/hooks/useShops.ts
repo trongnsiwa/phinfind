@@ -109,6 +109,7 @@ export interface ReviewData {
   created_at: string;
   author: string;
   avatar?: string | null;
+  username?: string | null;
   shop_name?: string;
   shop_address?: string | null;
   shop_photo?: string | null;
@@ -571,5 +572,45 @@ export function useDeleteShop() {
   });
 }
 
+export interface PublicProfileData {
+  id: string;
+  username: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  bio?: string | null;
+  created_at: string;
+}
 
+export interface PublicProfileResponse {
+  profile: PublicProfileData;
+  reviews: ReviewData[];
+}
 
+export function usePublicProfile(username: string) {
+  return useQuery<PublicProfileResponse>({
+    queryKey: ['user', 'public', username],
+    queryFn: async () => {
+      const res = await axios.get<PublicProfileResponse>(API_ENDPOINTS.PUBLIC_PROFILE, {
+        params: { username },
+      });
+      return res.data;
+    },
+    staleTime: 5 * 60 * 1000,
+    enabled: Boolean(username),
+  });
+}
+
+export function usePublicUserReviews(username: string) {
+  return useQuery<PublicProfileResponse, Error, ReviewData[]>({
+    queryKey: ['user', 'public', username],
+    queryFn: async () => {
+      const res = await axios.get<PublicProfileResponse>(API_ENDPOINTS.PUBLIC_PROFILE, {
+        params: { username },
+      });
+      return res.data;
+    },
+    select: (data) => data?.reviews || [],
+    staleTime: 5 * 60 * 1000,
+    enabled: Boolean(username),
+  });
+}

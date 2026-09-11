@@ -31,6 +31,7 @@ export interface ReviewItem {
   id?: string;
   author: string;
   avatar?: string;
+  username?: string;
   rating: number;
   date: string;
   highlight?: string;
@@ -225,6 +226,7 @@ export function ReviewModal({
           profile?.avatar_url ||
           user.user_metadata?.avatar_url ||
           undefined,
+        username: returned?.username || profile?.username || undefined,
         rating: returned?.rating || rating,
         date: 'Vừa xong',
         highlight: 'Đánh giá của bạn',

@@ -760,6 +760,7 @@ export const ReviewsTab = memo(function ReviewsTab({
           r.profiles?.username ||
           'Tín đồ cà phê',
         avatar: r.avatar || r.profiles?.avatar_url || undefined,
+        username: r.username || r.profiles?.username || undefined,
         rating: r.rating,
         date: new Date(r.created_at).toLocaleDateString('vi-VN', {
           month: 'short',
@@ -967,7 +968,16 @@ export const ReviewsTab = memo(function ReviewsTab({
                       </div>
                       <div className='min-w-0 flex flex-col'>
                         <div className='flex items-center gap-1.5 min-w-0'>
-                          <span className='font-bold text-foreground text-xs truncate'>{rev.author}</span>
+                          {rev.username ? (
+                            <Link
+                              href={`/u/${encodeURIComponent(rev.username)}`}
+                              className='font-bold text-foreground text-xs truncate hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold rounded-xs'
+                            >
+                              {rev.author}
+                            </Link>
+                          ) : (
+                            <span className='font-bold text-foreground text-xs truncate'>{rev.author}</span>
+                          )}
                           <CheckCircle2 size={12} className='text-teal flex-shrink-0' />
                           {rev.isUserSubmission && (
                             <span className='text-[9px] bg-amber-gold text-primary-foreground font-extrabold px-1.5 py-0.2 rounded uppercase tracking-wider flex-shrink-0'>
