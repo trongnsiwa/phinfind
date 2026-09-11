@@ -1,9 +1,13 @@
 'use client';
 
+// Note: The main preview image in this component intentionally uses framer-motion's <motion.img>
+// to support fluid scale/exit transitions and high-resolution fullscreen pixel fidelity without layout shifts.
+
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { X, ChevronLeft, ChevronRight, Loader2, Image as ImageIcon } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { ShopImage } from '@/components/common/ShopImage';
 import { useUIStore } from '@/stores/useUIStore';
 import { cn } from '@/lib/utils';
 
@@ -180,6 +184,7 @@ export function ImageOverlay() {
                 <p className="text-sm font-medium text-[#D0D0D0]">Không thể tải hình ảnh</p>
               </div>
             ) : (
+              /* eslint-disable-next-line @next/next/no-img-element -- framer-motion motion.img needed for lightbox animation */
               <motion.img
                 key={currentImage?.url}
                 src={currentImage?.url}
@@ -259,7 +264,12 @@ export function ImageOverlay() {
                         : 'border-white/10 opacity-50 hover:opacity-80 hover:border-white/30'
                     )}
                   >
-                    <img src={img.url} alt={`Ảnh thu nhỏ ${idx + 1}`} className="w-full h-full object-cover" />
+                    <ShopImage
+                      src={img.url}
+                      alt={`Ảnh thu nhỏ ${idx + 1}`}
+                      imageClassName="object-cover"
+                      sizes="48px"
+                    />
                   </button>
                 ))}
               </div>

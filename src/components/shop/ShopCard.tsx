@@ -17,6 +17,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { VisitNoteDialog } from './VisitNoteDialog';
 
 import { ShopCardPlaceholder } from '@/components/common/ShopCardPlaceholder';
+import { ShopImage } from '@/components/common/ShopImage';
 
 interface ShopCardProps {
   shop: CoffeeShop;
@@ -94,19 +95,15 @@ export function ShopCard({
     >
       {/* Shop Image Header with Overlay & Floating Badges */}
       <div className="relative w-full h-40 overflow-hidden bg-secondary">
-        {coverImage ? (
-          <>
-            <img
-              src={coverImage}
-              alt={shop.name}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              loading="lazy"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
-          </>
-        ) : (
-          <ShopCardPlaceholder shopId={shop.place_id || shop.id} shopName={shop.name} />
-        )}
+        <ShopImage
+          src={coverImage}
+          alt={shop.name}
+          fallback={<ShopCardPlaceholder shopId={shop.place_id || shop.id} shopName={shop.name} />}
+          imageClassName="object-cover group-hover:scale-105 transition-transform duration-500"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+        >
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none" />
+        </ShopImage>
 
 
         {/* Floating Open/Closed Status Badge & Verification Badge */}

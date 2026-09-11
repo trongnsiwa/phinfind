@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ShopCardPlaceholder } from '@/components/common/ShopCardPlaceholder';
+import { ShopImage } from '@/components/common/ShopImage';
 import { cleanCategoryLabel } from '@/lib/utils/placeholders';
 import { CoffeeShop } from '@/types/shop';
 
@@ -89,19 +90,13 @@ export function AdminShopCard({
       <div className="flex gap-3.5 items-start">
         {/* Left column: 80x80 thumbnail */}
         <div className="relative w-20 h-20 shrink-0 rounded-xl overflow-hidden bg-secondary border border-border/50">
-          {coverImage ? (
-            <img
-              src={coverImage}
-              alt={shop.name}
-              className={`w-full h-full object-cover ${!isPending ? 'grayscale-[20%]' : ''}`}
-              loading="lazy"
-            />
-          ) : (
-            <ShopCardPlaceholder
-              shopId={shop.place_id || shop.id}
-              shopName={shop.name}
-            />
-          )}
+          <ShopImage
+            src={coverImage}
+            alt={shop.name}
+            fallback={<ShopCardPlaceholder shopId={shop.place_id || shop.id} shopName={shop.name} />}
+            imageClassName={`object-cover ${!isPending ? 'grayscale-[20%]' : ''}`}
+            sizes="80px"
+          />
         </div>
 
         {/* Right column flex-1 */}

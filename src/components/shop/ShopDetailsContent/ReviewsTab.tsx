@@ -7,6 +7,7 @@ import React, { memo, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { AnimatePresence } from 'framer-motion';
 import { EmptyIllustration } from '@/components/common/EmptyIllustration';
+import { ShopImage } from '@/components/common/ShopImage';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -175,19 +176,18 @@ export const ReviewsTab = memo(function ReviewsTab({
         ) : (
           <div className='flex items-center justify-between bg-secondary/40 p-3 rounded-2xl border border-border/60 gap-3 shadow-xs'>
             <div className='flex items-center gap-2.5 min-w-0 flex-1'>
-              <div className='w-8 h-8 rounded-full overflow-hidden border border-amber-gold/40 bg-muted flex-shrink-0 flex items-center justify-center'>
-                {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
-                  <img
-                    src={profile?.avatar_url || user?.user_metadata?.avatar_url}
-                    alt='Ảnh đại diện của bạn'
-                    className='w-full h-full object-cover'
-                  />
-                ) : (
+              <ShopImage
+                src={profile?.avatar_url || user?.user_metadata?.avatar_url}
+                alt='Ảnh đại diện của bạn'
+                fallback={
                   <div className='w-full h-full bg-amber-gold/20 flex items-center justify-center text-amber-gold text-xs font-bold'>
                     {(profile?.full_name || user?.user_metadata?.full_name || 'U')[0].toUpperCase()}
                   </div>
-                )}
-              </div>
+                }
+                sizes="32px"
+                className="w-8 h-8 rounded-full overflow-hidden border border-amber-gold/40 bg-muted flex-shrink-0"
+                imageClassName="object-cover"
+              />
               <div className='min-w-0'>
                 <span className='text-xs font-bold text-foreground block truncate'>
                   Đánh giá với tư cách {profile?.full_name || user?.user_metadata?.full_name || 'Tín đồ cà phê'}

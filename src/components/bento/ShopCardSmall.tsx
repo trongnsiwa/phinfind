@@ -11,6 +11,7 @@ import { CardSize } from '@/lib/utils/bentoLayout';
 import { CoffeeShop } from '@/types/shop';
 
 import { ShopCardPlaceholder } from '@/components/common/ShopCardPlaceholder';
+import { ShopImage } from '@/components/common/ShopImage';
 
 interface ShopCardSmallProps {
   shop: CoffeeShop;
@@ -29,7 +30,6 @@ export const ShopCardSmall = memo(function ShopCardSmall({
   const hasOpenInfo = shop.opening_hours?.open_now !== undefined;
   const isOpen = shop.opening_hours?.open_now ?? true;
   const [isHeartAnimating, setIsHeartAnimating] = useState(false);
-  const [imgError, setImgError] = useState(false);
 
   const handleFav = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -66,19 +66,15 @@ export const ShopCardSmall = memo(function ShopCardSmall({
     >
       {/* Compact Image Container */}
       <div className="relative w-full h-24 sm:h-28 flex-shrink-0 rounded-xl overflow-hidden bg-muted border border-border/60">
-        {coverImage && !imgError ? (
-          <>
-            <img
-              src={coverImage}
-              alt={shop.name}
-              onError={() => setImgError(true)}
-              className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500 ease-out"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent pointer-events-none" />
-          </>
-        ) : (
-          <ShopCardPlaceholder shopId={shop.place_id || shop.id} shopName={shop.name} />
-        )}
+        <ShopImage
+          src={coverImage}
+          alt={shop.name}
+          fallback={<ShopCardPlaceholder shopId={shop.place_id || shop.id} shopName={shop.name} />}
+          imageClassName="object-cover group-hover:scale-108 transition-transform duration-500 ease-out"
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+        >
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent pointer-events-none" />
+        </ShopImage>
 
 
         {/* Floating Status Pill & Verification Badge */}

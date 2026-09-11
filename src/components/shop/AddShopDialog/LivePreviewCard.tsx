@@ -1,6 +1,7 @@
 import { ChevronDown, Clock, Coffee, Eye, MapPin } from 'lucide-react';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
+import { ShopImage } from '@/components/common/ShopImage';
 import { cn } from '@/lib/utils';
 import type { OpeningPeriod, PriceOption } from './types';
 
@@ -59,19 +60,19 @@ export function LivePreviewCard({
           </div>
 
           <div className='p-3 bg-card rounded-xl border border-border flex items-start gap-3 shadow-sm'>
-            <div className='w-16 h-16 rounded-lg bg-muted overflow-hidden flex-shrink-0 flex items-center justify-center border border-border/40'>
-              {photo ? (
-                <img
-                  src={photo}
-                  alt='Preview'
-                  className='w-full h-full object-cover'
-                />
-              ) : (
-                <div className='flex flex-col items-center justify-center text-muted-foreground/50'>
-                  <Coffee size={20} />
-                  <span className='text-[8px] mt-0.5'>Chưa có ảnh</span>
-                </div>
-              )}
+            <div className='w-16 h-16 rounded-lg bg-muted overflow-hidden flex-shrink-0 flex items-center justify-center border border-border/40 relative'>
+              <ShopImage
+                src={photo}
+                alt={name ? `Ảnh quán ${name}` : 'Ảnh xem trước quán'}
+                fallback={
+                  <div className='w-full h-full flex flex-col items-center justify-center text-muted-foreground/50'>
+                    <Coffee size={20} />
+                    <span className='text-[8px] mt-0.5'>Chưa có ảnh</span>
+                  </div>
+                }
+                imageClassName='object-cover'
+                sizes='64px'
+              />
             </div>
             <div className='flex-1 min-w-0'>
               <h4 className='font-bold text-xs text-foreground truncate'>

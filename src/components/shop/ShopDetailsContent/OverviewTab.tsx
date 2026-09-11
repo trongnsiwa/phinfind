@@ -19,6 +19,7 @@ import React, { memo, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { ShopImage } from '@/components/common/ShopImage';
 import { cn } from '@/lib/utils';
 import { cleanCategoryLabel } from '@/lib/utils/placeholders';
 import type { CoffeeShop } from '@/types/shop';
@@ -271,16 +272,14 @@ export const OverviewTab = memo(function OverviewTab({
                 onClick={() => onSelectShop(simShop)}
                 className='bg-secondary/40 hover:bg-secondary/80 p-2.5 rounded-2xl border border-border/50 flex items-center gap-2.5 cursor-pointer transition-all hover:border-amber-gold/40 group'
               >
-                <div className='w-12 h-12 rounded-xl bg-card overflow-hidden flex-shrink-0 border border-border/40 flex items-center justify-center'>
-                  {simShop.photos?.[0] ? (
-                    <img
-                      src={simShop.photos[0]}
-                      alt={simShop.name}
-                      className='w-full h-full object-cover group-hover:scale-105 transition-transform'
-                    />
-                  ) : (
-                    <Coffee size={18} className='text-amber-gold/70' />
-                  )}
+                <div className='w-12 h-12 rounded-xl bg-card overflow-hidden flex-shrink-0 border border-border/40 flex items-center justify-center relative'>
+                  <ShopImage
+                    src={simShop.photos?.[0]}
+                    alt={simShop.name}
+                    fallback={<Coffee size={18} className='text-amber-gold/70' />}
+                    imageClassName='object-cover group-hover:scale-105 transition-transform'
+                    sizes="48px"
+                  />
                 </div>
                 <div className='min-w-0 flex-1 space-y-0.5'>
                   <span className='font-bold text-foreground text-xs block truncate group-hover:text-amber-gold transition-colors'>

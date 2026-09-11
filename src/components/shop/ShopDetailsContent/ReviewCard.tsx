@@ -4,6 +4,7 @@ import { CheckCircle2, Star, ThumbsUp } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { ShopImage } from '@/components/common/ShopImage';
 import { cn } from '@/lib/utils';
 import type { ReviewItem } from '../ReviewModal';
 
@@ -42,19 +43,18 @@ export function ReviewCard({
       {/* Header Row: Avatar, Author, Verified, Rating, and Date */}
       <div className='flex items-start justify-between gap-2 min-w-0'>
         <div className='flex items-center gap-2.5 min-w-0'>
-          <div className='w-7 h-7 rounded-full overflow-hidden border border-amber-gold/30 bg-muted flex-shrink-0 flex items-center justify-center'>
-            {review.avatar ? (
-              <img
-                src={review.avatar}
-                alt={review.author}
-                className='w-full h-full object-cover'
-              />
-            ) : (
+          <ShopImage
+            src={review.avatar}
+            alt={review.author}
+            fallback={
               <div className='w-full h-full bg-amber-gold/20 flex items-center justify-center text-amber-gold text-[10px] font-bold'>
                 {review.author[0]?.toUpperCase() || 'U'}
               </div>
-            )}
-          </div>
+            }
+            sizes="28px"
+            className="w-7 h-7 rounded-full overflow-hidden border border-amber-gold/30 bg-muted flex-shrink-0"
+            imageClassName="object-cover"
+          />
           <div className='min-w-0 flex flex-col'>
             <div className='flex items-center gap-1.5 min-w-0'>
               {review.username ? (
@@ -128,13 +128,11 @@ export function ReviewCard({
               onClick={() => onOpenImage(review.images || [], imgIdx)}
               className='relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border border-border/80 bg-muted cursor-pointer flex-shrink-0 group hover:border-amber-gold/60 transition-all shadow-xs'
             >
-              <img
+              <ShopImage
                 src={imgUrl}
                 alt={`Ảnh đánh giá từ ${review.author}`}
-                className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-200'
-                onError={(e) => {
-                  (e.target as HTMLElement).style.display = 'none';
-                }}
+                imageClassName='object-cover group-hover:scale-105 transition-transform duration-200'
+                sizes='(max-width: 640px) 64px, 80px'
               />
             </div>
           ))}

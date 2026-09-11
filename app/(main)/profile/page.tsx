@@ -61,6 +61,7 @@ import { EmptyState } from '@/components/common/EmptyState';
 import { ProfileSkeleton } from '@/components/common/LoadingSkeleton';
 import { FavoriteShopCard } from '@/components/shop/FavoriteShopCard';
 import { ReviewModal } from '@/components/shop/ReviewModal';
+import { ShopImage } from '@/components/common/ShopImage';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BadgeCard } from '@/components/profile/BadgeCard';
 import { useUserBadges } from '@/hooks/useUserBadges';
@@ -753,19 +754,18 @@ export default function ProfilePage() {
                     <div className="space-y-3">
                       {/* Thumbnail or placeholder */}
                       <div className="relative w-full h-36 rounded-xl overflow-hidden bg-secondary">
-                        {coverPhoto ? (
-                          <img
-                            src={coverPhoto}
-                            alt={visit.shop_name}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            loading="lazy"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground bg-secondary/70">
-                            <MapPin size={24} className="text-primary/70 mb-1" />
-                            <span className="text-[11px] font-medium">Quán Cà Phê</span>
-                          </div>
-                        )}
+                        <ShopImage
+                          src={coverPhoto}
+                          alt={visit.shop_name}
+                          fallback={
+                            <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground bg-secondary/70">
+                              <MapPin size={24} className="text-primary/70 mb-1" />
+                              <span className="text-[11px] font-medium">Quán Cà Phê</span>
+                            </div>
+                          }
+                          imageClassName="object-cover group-hover:scale-105 transition-transform duration-300"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        />
 
                         {/* Visited Date Badge */}
                         <div className="absolute top-2.5 left-2.5">

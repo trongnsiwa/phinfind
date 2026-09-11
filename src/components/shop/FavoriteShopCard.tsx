@@ -18,6 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ShopCardPlaceholder } from '@/components/common/ShopCardPlaceholder';
+import { ShopImage } from '@/components/common/ShopImage';
 import { cn } from '@/lib/utils';
 import { APP_ROUTES, DEFAULT_LOCATION } from '@/lib/utils/constants';
 import { CoffeeShop } from '@/types/shop';
@@ -39,7 +40,6 @@ export const FavoriteShopCard = memo(function FavoriteShopCard({
   onRequestRemove,
   onSelect,
 }: FavoriteShopCardProps) {
-  const [imgError, setImgError] = useState(false);
   const [isHeartAnimating, setIsHeartAnimating] = useState(false);
 
   const hasOpenInfo = shop.opening_hours?.open_now !== undefined;
@@ -96,19 +96,15 @@ export const FavoriteShopCard = memo(function FavoriteShopCard({
     >
       {/* Image Container */}
       <div className="relative w-full h-32 sm:h-36 flex-shrink-0 rounded-xl overflow-hidden bg-muted border border-border/60">
-        {coverImage && !imgError ? (
-          <>
-            <img
-              src={coverImage}
-              alt={shop.name}
-              onError={() => setImgError(true)}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent pointer-events-none" />
-          </>
-        ) : (
-          <ShopCardPlaceholder shopId={shop.place_id || shop.id} shopName={shop.name} />
-        )}
+        <ShopImage
+          src={coverImage}
+          alt={shop.name}
+          fallback={<ShopCardPlaceholder shopId={shop.place_id || shop.id} shopName={shop.name} />}
+          imageClassName="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+        >
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent pointer-events-none" />
+        </ShopImage>
 
         {/* Status badges */}
         <div className="absolute top-2 left-2 z-10 flex flex-col gap-1 items-start">

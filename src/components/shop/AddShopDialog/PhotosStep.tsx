@@ -3,6 +3,7 @@ import type React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { ShopImage } from '@/components/common/ShopImage';
 import { cn } from '@/lib/utils';
 
 interface PhotosStepProps {
@@ -132,13 +133,14 @@ export function PhotosStep({
                 key={index}
                 className='relative aspect-video rounded-xl overflow-hidden bg-muted border border-border/80 group shadow-2xs'
               >
-                <img
+                <ShopImage
                   src={url}
                   alt={`Ảnh quán ${index + 1}`}
-                  className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-200'
+                  imageClassName='object-cover group-hover:scale-105 transition-transform duration-200'
+                  sizes='(max-width: 640px) 33vw, 25vw'
                 />
                 {index === 0 && (
-                  <div className='absolute bottom-1 left-1 bg-black/75 text-amber-gold text-[9px] font-bold px-1.5 py-0.5 rounded-md backdrop-blur-xs'>
+                  <div className='absolute bottom-1 left-1 bg-black/75 text-amber-gold text-[9px] font-bold px-1.5 py-0.5 rounded-md backdrop-blur-xs z-10'>
                     Ảnh đại diện
                   </div>
                 )}

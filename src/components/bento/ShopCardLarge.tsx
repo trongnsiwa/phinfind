@@ -11,6 +11,7 @@ import { CoffeeShop } from '@/types/shop';
 import { CardSize } from '@/lib/utils/bentoLayout';
 import { cn } from '@/lib/utils';
 import { ShopCardPlaceholder } from '@/components/common/ShopCardPlaceholder';
+import { ShopImage } from '@/components/common/ShopImage';
 import { formatShopCategoryTagline } from '@/lib/utils/placeholders';
 
 interface ShopCardLargeProps {
@@ -30,7 +31,6 @@ export const ShopCardLarge = memo(function ShopCardLarge({
   const hasOpenInfo = shop.opening_hours?.open_now !== undefined;
   const isOpen = shop.opening_hours?.open_now ?? true;
   const [isHeartAnimating, setIsHeartAnimating] = useState(false);
-  const [imgError, setImgError] = useState(false);
 
   const handleFav = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -72,42 +72,49 @@ export const ShopCardLarge = memo(function ShopCardLarge({
     >
       {/* 2-Column Magazine-Style Gallery (60% Left, 40% Right Stacked) - Stretching flex-1 */}
       <div className="relative w-full flex-1 min-h-[190px] p-3.5 flex gap-2.5 bg-muted/60 border-b border-border/60 overflow-hidden">
-        {photo1 && !imgError ? (
+        {photo1 ? (
           <>
             {/* Left Column (60% Width) - Primary Image */}
-            <div className="flex-1 h-full rounded-xl overflow-hidden relative bg-secondary border border-border/40">
-              <img
+            <div className={cn("h-full rounded-xl overflow-hidden relative bg-secondary border border-border/40", photo2 ? "flex-1" : "w-full")}>
+              <ShopImage
                 src={photo1}
-                alt={`${shop.name} main`}
-                onError={() => setImgError(true)}
-                className="w-full h-full object-cover group-hover:scale-106 transition-transform duration-700 ease-out"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent pointer-events-none" />
+                alt={`${shop.name} - Ảnh chính`}
+                fallback={<ShopCardPlaceholder shopId={shop.place_id || shop.id} shopName={shop.name} />}
+                imageClassName="object-cover group-hover:scale-106 transition-transform duration-700 ease-out"
+                sizes="(max-width: 640px) 60vw, 40vw"
+              >
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent pointer-events-none" />
+              </ShopImage>
             </div>
 
             {/* Right Column (40% Width) if photos exist */}
             {photo2 && (
               <div className="w-[35%] h-full flex flex-col gap-2.5">
                 <div className="h-1/2 rounded-lg overflow-hidden relative bg-secondary border border-border/40">
-                  <img
+                  <ShopImage
                     src={photo2}
-                    alt={`${shop.name} secondary`}
-                    className="w-full h-full object-cover group-hover:scale-106 transition-transform duration-700 ease-out"
+                    alt={`${shop.name} - Ảnh phụ 1`}
+                    fallback={<div className="w-full h-full bg-muted" />}
+                    imageClassName="object-cover group-hover:scale-106 transition-transform duration-700 ease-out"
+                    sizes="(max-width: 640px) 40vw, 20vw"
                   />
                 </div>
                 {photo3 && (
                   <div className="h-1/2 rounded-lg overflow-hidden relative bg-secondary border border-border/40">
-                    <img
+                    <ShopImage
                       src={photo3}
-                      alt={`${shop.name} detail`}
-                      className="w-full h-full object-cover group-hover:scale-106 transition-transform duration-700 ease-out"
-                    />
-                    {extraCount > 0 && (
-                      <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex items-center justify-center text-amber-gold font-bold text-[10px] sm:text-[11px] tracking-tight gap-1 hover:bg-black/50 transition-colors">
-                        <Images size={11} className="text-amber-gold" />
-                        <span>+{extraCount}</span>
-                      </div>
-                    )}
+                      alt={`${shop.name} - Chi tiết`}
+                      fallback={<div className="w-full h-full bg-muted" />}
+                      imageClassName="object-cover group-hover:scale-106 transition-transform duration-700 ease-out"
+                      sizes="(max-width: 640px) 40vw, 20vw"
+                    >
+                      {extraCount > 0 && (
+                        <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex items-center justify-center text-amber-gold font-bold text-[10px] sm:text-[11px] tracking-tight gap-1 hover:bg-black/50 transition-colors">
+                          <Images size={11} className="text-amber-gold" />
+                          <span>+{extraCount}</span>
+                        </div>
+                      )}
+                    </ShopImage>
                   </div>
                 )}
               </div>

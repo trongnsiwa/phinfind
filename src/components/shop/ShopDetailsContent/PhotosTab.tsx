@@ -2,6 +2,7 @@
 
 import React, { memo, useMemo } from 'react';
 import { EmptyIllustration } from '@/components/common/EmptyIllustration';
+import { ShopImage } from '@/components/common/ShopImage';
 import { Badge } from '@/components/ui/badge';
 import { useShopReviews } from '@/hooks/useShops';
 import { useUIStore } from '@/stores/useUIStore';
@@ -100,11 +101,11 @@ export const PhotosTab = memo(function PhotosTab({
             onClick={() => openImagePreview(photoList, idx)}
             className='group relative aspect-square rounded-2xl overflow-hidden bg-card border border-border/60 cursor-pointer shadow-sm active:scale-95 transition-transform select-none pointer-events-auto'
           >
-            <img
-              draggable={false}
+            <ShopImage
               src={item.url}
               alt={item.title}
-              className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 select-none pointer-events-auto [user-drag:none] [-webkit-user-drag:none]'
+              sizes="(max-width: 640px) 33vw, 12vw"
+              imageClassName='object-cover group-hover:scale-105 transition-transform duration-300 select-none pointer-events-auto [user-drag:none] [-webkit-user-drag:none]'
             />
             <div className='absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-1.5 sm:p-2'>
               <span className='text-[9.5px] sm:text-[10px] font-semibold text-white truncate'>

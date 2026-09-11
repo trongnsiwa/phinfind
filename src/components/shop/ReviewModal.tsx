@@ -4,6 +4,7 @@ import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Star, Camera, ImagePlus, Loader2, Send, X, Edit3 } from 'lucide-react';
+import { ShopImage } from '@/components/common/ShopImage';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
@@ -281,19 +282,18 @@ export function ReviewModal({
           {/* User Reviewer Identity Banner */}
           {isAuthenticated && (
             <div className='flex items-center gap-2.5 bg-secondary/40 p-2.5 rounded-xl border border-border/50'>
-              <div className='w-7 h-7 rounded-full overflow-hidden border border-amber-gold/40 bg-muted flex-shrink-0 flex items-center justify-center'>
-                {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
-                  <img
-                    src={profile?.avatar_url || user?.user_metadata?.avatar_url}
-                    alt='Ảnh đại diện'
-                    className='w-full h-full object-cover'
-                  />
-                ) : (
+              <ShopImage
+                src={profile?.avatar_url || user?.user_metadata?.avatar_url}
+                alt='Ảnh đại diện'
+                fallback={
                   <div className='w-full h-full bg-amber-gold/20 flex items-center justify-center text-amber-gold text-xs font-bold'>
                     {(profile?.full_name || user?.user_metadata?.full_name || 'U')[0].toUpperCase()}
                   </div>
-                )}
-              </div>
+                }
+                sizes="28px"
+                className="w-7 h-7 rounded-full overflow-hidden border border-amber-gold/40 bg-muted flex-shrink-0"
+                imageClassName="object-cover"
+              />
               <span className='text-xs text-muted-foreground truncate'>
                 Đánh giá dưới tên{' '}
                 <strong className='text-foreground font-semibold'>
@@ -413,15 +413,16 @@ export function ReviewModal({
                   key={idx}
                   className='relative w-16 h-16 rounded-xl overflow-hidden border border-border/80 bg-muted shadow-xs group'
                 >
-                  <img
+                  <ShopImage
                     src={imgUrl}
                     alt={`Ảnh đánh giá ${idx + 1}`}
-                    className='w-full h-full object-cover'
+                    imageClassName='object-cover'
+                    sizes="64px"
                   />
                   <button
                     type='button'
                     onClick={() => handleRemoveImage(idx)}
-                    className='absolute top-1 right-1 w-5 h-5 rounded-full bg-black/70 text-white flex items-center justify-center hover:bg-rose-600 transition-colors shadow-xs cursor-pointer'
+                    className='absolute top-1 right-1 w-5 h-5 rounded-full bg-black/70 text-white flex items-center justify-center hover:bg-rose-600 transition-colors shadow-xs cursor-pointer z-10'
                     aria-label='Xóa ảnh này'
                   >
                     <X size={11} strokeWidth={2.5} />

@@ -29,6 +29,7 @@ export function ShopCardPlaceholder({
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,rgba(212,160,87,0.16),transparent_70%)] pointer-events-none" />
 
       {/* Vector Illustration */}
+      {/* eslint-disable-next-line @next/next/no-img-element -- Local static SVG illustration from /illustrations */}
       <img
         src={illustrationSrc}
         alt={shopName || 'Coffee Shop'}

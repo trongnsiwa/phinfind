@@ -11,6 +11,7 @@ import { CardSize } from '@/lib/utils/bentoLayout';
 import { CoffeeShop } from '@/types/shop';
 
 import { ShopCardPlaceholder } from '@/components/common/ShopCardPlaceholder';
+import { ShopImage } from '@/components/common/ShopImage';
 
 interface ShopCardMediumProps {
   shop: CoffeeShop;
@@ -29,7 +30,6 @@ export const ShopCardMedium = memo(function ShopCardMedium({
   const hasOpenInfo = shop.opening_hours?.open_now !== undefined;
   const isOpen = shop.opening_hours?.open_now ?? true;
   const [isHeartAnimating, setIsHeartAnimating] = useState(false);
-  const [imgError, setImgError] = useState(false);
 
   const handleFav = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -66,19 +66,15 @@ export const ShopCardMedium = memo(function ShopCardMedium({
     >
       {/* Left Media Container */}
       <div className='relative w-[36%] sm:w-[34%] h-full min-h-[130px] rounded-xl overflow-hidden bg-muted border border-border/60 flex-shrink-0'>
-        {coverImage && !imgError ? (
-          <>
-            <img
-              src={coverImage}
-              alt={shop.name}
-              onError={() => setImgError(true)}
-              className='w-full h-full object-cover group-hover:scale-108 transition-transform duration-500 ease-out'
-            />
-            <div className='absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent pointer-events-none' />
-          </>
-        ) : (
-          <ShopCardPlaceholder shopId={shop.place_id || shop.id} shopName={shop.name} />
-        )}
+        <ShopImage
+          src={coverImage}
+          alt={shop.name}
+          fallback={<ShopCardPlaceholder shopId={shop.place_id || shop.id} shopName={shop.name} />}
+          imageClassName='object-cover group-hover:scale-108 transition-transform duration-500 ease-out'
+          sizes='(max-width: 640px) 40vw, 20vw'
+        >
+          <div className='absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent pointer-events-none' />
+        </ShopImage>
 
         {/* Floating Status Pill & Verification Badge */}
         <div className='absolute top-2 left-2 z-10 flex flex-col gap-1 items-start'>

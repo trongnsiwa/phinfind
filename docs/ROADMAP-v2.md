@@ -671,7 +671,7 @@ src/components/shop/ShopDetailsContent/
 
 ---
 
-### [ ] TD-03 — Standardize on Next.js `<Image>`
+### [x] TD-03 — Standardize on Next.js `<Image>`
 
 | Field    | Value                                                                    |
 | -------- | ------------------------------------------------------------------------ |
@@ -692,10 +692,10 @@ src/components/shop/ShopDetailsContent/
 
 **Acceptance Criteria**
 
-- [ ] All shop/photo images use `<ShopImage>`
-- [ ] LCP improved (verify in Lighthouse)
-- [ ] Placeholder fallback still works on broken URLs
-- [ ] No console errors for unconfigured hosts
+- [x] All shop/photo images use `<ShopImage>`
+- [x] LCP improved (verify in Lighthouse)
+- [x] Placeholder fallback still works on broken URLs
+- [x] No console errors for unconfigured hosts
 
 ---
 

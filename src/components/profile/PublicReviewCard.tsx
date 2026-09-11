@@ -7,6 +7,7 @@ import { Star, MapPin, Calendar, ExternalLink } from 'lucide-react';
 import { ReviewData } from '@/hooks/useShops';
 import { useUIStore } from '@/stores/useUIStore';
 import { APP_ROUTES } from '@/lib/utils/constants';
+import { ShopImage } from '@/components/common/ShopImage';
 
 interface PublicReviewCardProps {
   review: ReviewData;
@@ -104,13 +105,11 @@ export function PublicReviewCard({ review, action }: PublicReviewCardProps) {
               className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border border-border/80 bg-muted cursor-pointer shrink-0 hover:border-primary/60 transition-all shadow-xs group focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold"
               aria-label={`Xem ảnh đánh giá ${idx + 1}`}
             >
-              <img
+              <ShopImage
                 src={img}
                 alt={`Ảnh đánh giá ${idx + 1}`}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                onError={(e) => {
-                  (e.target as HTMLElement).style.display = 'none';
-                }}
+                imageClassName="object-cover group-hover:scale-105 transition-transform duration-200"
+                sizes="(max-width: 640px) 64px, 80px"
               />
             </button>
           ))}

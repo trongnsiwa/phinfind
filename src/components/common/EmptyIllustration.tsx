@@ -1,5 +1,6 @@
 'use client';
 
+/* eslint-disable @next/next/no-img-element -- Local static SVG illustrations from /illustrations */
 import React from 'react';
 import { cn } from '@/lib/utils';
 
