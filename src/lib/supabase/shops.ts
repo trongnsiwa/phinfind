@@ -37,18 +37,15 @@ export function mapDbShopToCoffeeShop(
       ? calculateDistanceMeters(userLat, userLng, Number(row.lat), Number(row.lon))
       : 0;
 
-  const hasOfficialPhotos = Array.isArray(row.photos) && row.photos.length > 0;
-  let photos: string[] = [];
-  let cover_source: 'official' | 'community' | undefined = undefined;
-  let cover_from_review_id: string | undefined = undefined;
+  const officialPhotos = Array.isArray(row.photos) ? row.photos : [];
+  let photos = officialPhotos;
+  let coverSource: 'official' | 'community' | undefined = officialPhotos.length > 0 ? 'official' : undefined;
+  let coverFromReviewId: string | undefined;
 
-  if (hasOfficialPhotos) {
-    photos = row.photos;
-    cover_source = 'official';
-  } else if (communityCoverPhoto?.url) {
+  if (officialPhotos.length === 0 && communityCoverPhoto) {
     photos = [communityCoverPhoto.url];
-    cover_source = 'community';
-    cover_from_review_id = communityCoverPhoto.review_id;
+    coverSource = 'community';
+    coverFromReviewId = communityCoverPhoto.review_id;
   }
 
   return {
@@ -65,8 +62,8 @@ export function mapDbShopToCoffeeShop(
     opening_hours: row.opening_hours || undefined,
     price_range: row.price_range || undefined,
     photos,
-    cover_source,
-    cover_from_review_id,
+    cover_source: coverSource,
+    cover_from_review_id: coverFromReviewId,
     website: row.website || undefined,
     phone: row.phone || undefined,
     categories: Array.isArray(row.categories) ? row.categories : [],
@@ -93,43 +90,52 @@ export async function fetchCommunityCoverPhotos(
   }
 
   try {
-    const { data, error } = await supabase
-      .from('reviews')
-      .select('id, shop_place_id, images, rating, created_at')
-      .in('shop_place_id', validPlaceIds)
-      .gte('rating', 3)
-      .not('images', 'is', null)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('[fetchCommunityCoverPhotos] Error querying reviews:', error);
-      return {};
+    const CHUNK_SIZE = 30;
+    const chunks: string[][] = [];
+    for (let i = 0; i < validPlaceIds.length; i += CHUNK_SIZE) {
+      chunks.push(validPlaceIds.slice(i, i + CHUNK_SIZE));
     }
 
-    if (!data || data.length === 0) {
+    const chunkResults = await Promise.all(
+      chunks.map(async (chunk) => {
+        const { data, error } = await supabase
+          .from('reviews')
+          .select('id, shop_place_id, images, rating, created_at')
+          .in('shop_place_id', chunk)
+          .gte('rating', 3)
+          .not('images', 'is', null)
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('[fetchCommunityCoverPhotos] Error querying reviews:', error);
+          return [];
+        }
+        return data || [];
+      })
+    );
+
+    const allRows = chunkResults.flat();
+    if (allRows.length === 0) {
       return {};
     }
 
     const result: Record<string, { url: string; review_id: string }> = {};
 
-    for (const row of data) {
+    for (const row of allRows) {
       const placeId = row.shop_place_id;
       if (!placeId || result[placeId]) {
         continue;
       }
-      if (Array.isArray(row.images) && row.images.length > 0) {
-        const firstValidUrl = row.images.find(
-          (img: any) =>
-            typeof img === 'string' &&
-            img.trim().length > 0 &&
-            (img.startsWith('http://') || img.startsWith('https://'))
-        );
-        if (firstValidUrl) {
-          result[placeId] = {
-            url: firstValidUrl.trim(),
-            review_id: row.id
-          };
-        }
+      if (
+        Array.isArray(row.images) &&
+        row.images.length > 0 &&
+        typeof row.images[0] === 'string' &&
+        row.images[0].startsWith('http')
+      ) {
+        result[placeId] = {
+          url: row.images[0].trim(),
+          review_id: row.id
+        };
       }
     }
 

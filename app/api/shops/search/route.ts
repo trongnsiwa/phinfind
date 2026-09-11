@@ -30,17 +30,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ shops: [] });
     }
 
-    const missingPhotoPlaceIds = data
-      .filter((row) => !row.hidden && (!Array.isArray(row.photos) || row.photos.length === 0))
-      .map((row) => row.place_id || row.id)
-      .filter(Boolean);
+    const needsCover = data
+      .filter((row) => !Array.isArray(row.photos) || row.photos.length === 0)
+      .map((row) => row.place_id);
 
-    const communityCovers = await fetchCommunityCoverPhotos(supabase, missingPhotoPlaceIds);
+    const communityCovers = await fetchCommunityCoverPhotos(supabase, needsCover);
 
     const shops = data
       .filter((row) => !row.hidden)
       .map((row) =>
-        mapDbShopToCoffeeShop(row, lat, lng, communityCovers[row.place_id || row.id])
+        mapDbShopToCoffeeShop(row, lat, lng, communityCovers[row.place_id] ?? null)
       );
 
     if (typeof lat === 'number' && typeof lng === 'number') {

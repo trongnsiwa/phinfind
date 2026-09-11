@@ -2,7 +2,7 @@
 
 import React, { memo, useState } from 'react';
 import Link from 'next/link';
-import { Heart, MapPin, Navigation, Star, Footprints, ExternalLink, Quote, Coffee, Clock, Tag, Images, Camera } from 'lucide-react';
+import { Heart, MapPin, Navigation, Star, Footprints, ExternalLink, Quote, Coffee, Clock, Tag, Images } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -147,16 +147,6 @@ export const ShopCardLarge = memo(function ShopCardLarge({
               <span className={cn('w-1.5 h-1.5 rounded-full inline-block', isOpen ? 'bg-teal animate-pulse' : 'bg-rose-400')} />
               <span>{isOpen ? 'Đang mở cửa' : 'Đã đóng cửa'}</span>
             </Badge>
-          )}
-
-          {shop.cover_source === 'community' && (
-            <div
-              title="Ảnh do người dùng đóng góp, chưa được xác minh chính thức"
-              className="inline-flex items-center gap-1 h-5 text-[10px] rounded-full px-2 bg-black/60 text-white backdrop-blur-md border border-white/10 font-medium select-none shadow-xs"
-            >
-              <Camera size={10} className="text-amber-gold" />
-              <span>Ảnh cộng đồng</span>
-            </div>
           )}
         </div>
 

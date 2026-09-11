@@ -33,11 +33,8 @@ export async function GET(request: NextRequest) {
 
     let communityCover = null;
     if (!Array.isArray(data.photos) || data.photos.length === 0) {
-      const pid = data.place_id || data.id;
-      if (pid) {
-        const covers = await fetchCommunityCoverPhotos(supabase, [pid]);
-        communityCover = covers[pid] || null;
-      }
+      const covers = await fetchCommunityCoverPhotos(supabase, [data.place_id]);
+      communityCover = covers[data.place_id] ?? null;
     }
 
     const shop = mapDbShopToCoffeeShop(data, userLat, userLng, communityCover);
