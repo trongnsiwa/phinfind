@@ -12,19 +12,7 @@ import { useToggleVisit, VisitedShopItem } from '@/hooks/useShops';
 import { useAuth } from '@/hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
 import { VisitNoteDialog } from './VisitNoteDialog';
-import {
-  AmenitiesTab,
-  ComputedSchedule,
-  DaySchedule,
-  getShopSchedule,
-  OverviewTab,
-  PhotosTab,
-  ReviewsTab,
-  ShopDetailsContent
-} from './ShopDetailsContent';
-
-export type { ComputedSchedule, DaySchedule };
-export { AmenitiesTab, getShopSchedule, OverviewTab, PhotosTab, ReviewsTab, ShopDetailsContent };
+import { ShopDetailsContent } from './ShopDetailsContent';
 
 export interface ShopDrawerProps {
   shop: CoffeeShop | null;
