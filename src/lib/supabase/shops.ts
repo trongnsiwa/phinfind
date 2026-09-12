@@ -1,4 +1,5 @@
 import { CoffeeShop } from '@/types/shop';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 export function calculateDistanceMeters(
   lat1: number,
@@ -144,5 +145,66 @@ export async function fetchCommunityCoverPhotos(
     console.error('[fetchCommunityCoverPhotos] Unexpected error:', err);
     return {};
   }
+}
+
+export interface FetchNearbyShopsParams {
+  lat: number;
+  lng: number;
+  radiusKm: number | null;
+  limit: number;
+  offset: number;
+}
+
+export async function fetchNearbyShopsRpc(
+  supabase: SupabaseClient<any>,
+  params: FetchNearbyShopsParams
+): Promise<{ shops: CoffeeShop[]; total: number }> {
+  const { lat, lng, radiusKm, limit, offset } = params;
+
+  const [shopsRes, countRes] = await Promise.all([
+    supabase.rpc('nearby_shops', {
+      user_lat: lat,
+      user_lon: lng,
+      radius_km: radiusKm,
+      page_limit: limit,
+      page_offset: offset,
+    }),
+    supabase.rpc('nearby_shops_count', {
+      user_lat: lat,
+      user_lon: lng,
+      radius_km: radiusKm,
+    }),
+  ]);
+
+  if (shopsRes.error) {
+    console.error('[fetchNearbyShopsRpc] Error calling nearby_shops RPC:', shopsRes.error);
+    return { shops: [], total: 0 };
+  }
+
+  const rows: any[] = shopsRes.data || [];
+  const total = typeof countRes.data === 'number' ? countRes.data : Number(countRes.data || 0);
+
+  if (rows.length === 0) {
+    return { shops: [], total };
+  }
+
+  const needsCover = rows
+    .filter((r) => !Array.isArray(r.photos) || r.photos.length === 0)
+    .map((r) => r.place_id);
+  const communityCovers = await fetchCommunityCoverPhotos(supabase, needsCover);
+
+  const shops = rows.map((row) => {
+    const shop = mapDbShopToCoffeeShop(row, lat, lng, communityCovers[row.place_id] ?? null);
+    if (typeof row.distance_meters === 'number') {
+      const sqlDist = Math.round(row.distance_meters);
+      if (Math.abs(shop.distance - sqlDist) > 1) {
+        shop.distance = sqlDist;
+        shop.distance_text = formatDistanceText(sqlDist);
+      }
+    }
+    return shop;
+  });
+
+  return { shops, total };
 }
 

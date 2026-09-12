@@ -4,6 +4,7 @@ import {
   formatDistanceText,
   mapDbShopToCoffeeShop,
   fetchCommunityCoverPhotos,
+  fetchNearbyShopsRpc,
 } from '../shops';
 
 describe('Supabase Shops Helpers', () => {
@@ -172,6 +173,117 @@ describe('Supabase Shops Helpers', () => {
 
       expect(covers['p1']).toEqual({ url: 'https://img.com/p1.jpg', review_id: 'r1' });
       expect(covers['p2']).toEqual({ url: 'https://img.com/p2.jpg', review_id: 'r2' });
+    });
+  });
+
+  describe('fetchNearbyShopsRpc', () => {
+    it('calls nearby_shops and nearby_shops_count RPCs and maps results', async () => {
+      const mockRpc = vi.fn().mockImplementation((fnName: string) => {
+        if (fnName === 'nearby_shops') {
+          return Promise.resolve({
+            data: [
+              {
+                place_id: 'shop-1',
+                name: 'Cà Phê Phố Cổ',
+                lat: 21.03,
+                lon: 105.85,
+                photos: ['https://example.com/p1.jpg'],
+                distance_meters: 154.2,
+                hidden: false,
+              },
+            ],
+            error: null,
+          });
+        }
+        if (fnName === 'nearby_shops_count') {
+          return Promise.resolve({ data: 42, error: null });
+        }
+        return Promise.resolve({ data: null, error: null });
+      });
+
+      const mockSupabase = { rpc: mockRpc } as any;
+
+      const result = await fetchNearbyShopsRpc(mockSupabase, {
+        lat: 21.0285,
+        lng: 105.8542,
+        radiusKm: 5,
+        limit: 10,
+        offset: 0,
+      });
+
+      expect(mockRpc).toHaveBeenCalledWith('nearby_shops', {
+        user_lat: 21.0285,
+        user_lon: 105.8542,
+        radius_km: 5,
+        page_limit: 10,
+        page_offset: 0,
+      });
+      expect(mockRpc).toHaveBeenCalledWith('nearby_shops_count', {
+        user_lat: 21.0285,
+        user_lon: 105.8542,
+        radius_km: 5,
+      });
+
+      expect(result.total).toBe(42);
+      expect(result.shops).toHaveLength(1);
+      expect(result.shops[0].name).toBe('Cà Phê Phố Cổ');
+    });
+
+    it('overrides distance with SQL distance_meters when divergence exceeds 1m', async () => {
+      const mockRpc = vi.fn().mockImplementation((fnName: string) => {
+        if (fnName === 'nearby_shops') {
+          return Promise.resolve({
+            data: [
+              {
+                place_id: 'shop-div',
+                name: 'Divergent Shop',
+                lat: 21.03,
+                lon: 105.85,
+                photos: ['https://example.com/p.jpg'],
+                distance_meters: 500, // Deliberately divergent from Haversine calculation
+                hidden: false,
+              },
+            ],
+            error: null,
+          });
+        }
+        return Promise.resolve({ data: 1, error: null });
+      });
+
+      const mockSupabase = { rpc: mockRpc } as any;
+
+      const result = await fetchNearbyShopsRpc(mockSupabase, {
+        lat: 21.0285,
+        lng: 105.8542,
+        radiusKm: null,
+        limit: 10,
+        offset: 0,
+      });
+
+      expect(result.shops[0].distance).toBe(500);
+      expect(result.shops[0].distance_text).toBe('500 m');
+    });
+
+    it('returns empty shops and total 0 on RPC error', async () => {
+      const mockRpc = vi.fn().mockImplementation((fnName: string) => {
+        if (fnName === 'nearby_shops') {
+          return Promise.resolve({ data: null, error: { message: 'Function not found' } });
+        }
+        return Promise.resolve({ data: null, error: null });
+      });
+
+      const mockSupabase = { rpc: mockRpc } as any;
+
+      const result = await fetchNearbyShopsRpc(mockSupabase, {
+        lat: 21.0285,
+        lng: 105.8542,
+        radiusKm: null,
+        limit: 10,
+        offset: 0,
+      });
+
+      expect(result.shops).toEqual([]);
+      expect(result.total).toBe(0);
     });
   });
 });
