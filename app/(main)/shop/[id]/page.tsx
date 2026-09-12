@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { fetchShopForServer } from '@/lib/supabase/shop-detail';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { buildShopJsonLd, buildBreadcrumbJsonLd } from '@/lib/seo/jsonLd';
 import { ShopDetailClient } from './ShopDetailClient';
 import type { CoffeeShop } from '@/types/shop';
 
@@ -72,5 +74,18 @@ export default async function ShopDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  return <ShopDetailClient shop={shop} />;
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://phinfind.com';
+  const shopJsonLd = buildShopJsonLd(shop, baseUrl);
+  const breadcrumbJsonLd = buildBreadcrumbJsonLd([
+    { name: 'Trang chủ', url: baseUrl },
+    { name: 'Bản đồ', url: `${baseUrl}/map` },
+    { name: shop.name, url: `${baseUrl}/shop/${shop.place_id || id}` },
+  ]);
+
+  return (
+    <>
+      <JsonLd data={[shopJsonLd, breadcrumbJsonLd]} />
+      <ShopDetailClient shop={shop} />
+    </>
+  );
 }
