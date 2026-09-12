@@ -152,13 +152,40 @@ export interface ReviewData {
   } | null;
 }
 
-export function useShopReviews(placeId: string) {
+export interface PaginatedReviewsResponse {
+  reviews: ReviewData[];
+  next_cursor: string | null;
+  total: number;
+}
+
+export function useInfiniteShopReviews(placeId: string) {
+  return useInfiniteQuery<PaginatedReviewsResponse>({
+    queryKey: ['shops', 'reviews', 'infinite', placeId],
+    queryFn: async ({ pageParam = null }) => {
+      if (!placeId) return { reviews: [], next_cursor: null, total: 0 };
+      const res = await axios.get<PaginatedReviewsResponse>('/api/reviews', {
+        params: {
+          placeId,
+          limit: 20,
+          ...(pageParam ? { cursor: pageParam } : {}),
+        },
+      });
+      return res.data;
+    },
+    initialPageParam: null,
+    getNextPageParam: (lastPage) => lastPage?.next_cursor ?? undefined,
+    staleTime: 5 * 60 * 1000,
+    enabled: Boolean(placeId),
+  });
+}
+
+export function useShopReviews(placeId: string, limit: number = 100) {
   return useQuery<ReviewData[]>({
-    queryKey: ['shops', 'reviews', placeId],
+    queryKey: ['shops', 'reviews', placeId, limit],
     queryFn: async () => {
       if (!placeId) return [];
       const res = await axios.get<{ reviews: ReviewData[] }>(`/api/reviews`, {
-        params: { placeId },
+        params: { placeId, limit },
       });
       return res.data?.reviews || [];
     },
@@ -174,8 +201,9 @@ export function useUserReviews() {
     queryKey: ['user', 'reviews', user?.id],
     queryFn: async () => {
       try {
+        // Pass limit=100 so the API always returns a cursor-friendly response shape
         const res = await axios.get<{ reviews: ReviewData[] }>('/api/reviews', {
-          params: { userId: user?.id },
+          params: { userId: user?.id, limit: 100 },
         });
         return res.data?.reviews || [];
       } catch (err: any) {
@@ -204,6 +232,7 @@ export function useDeleteReview() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user', 'reviews'] });
       queryClient.invalidateQueries({ queryKey: ['shops', 'reviews'] });
+      queryClient.invalidateQueries({ queryKey: ['shops', 'reviews', 'infinite'] });
       toast.success('Đã xóa đánh giá thành công!');
     },
     onError: (error: any) => {
@@ -234,9 +263,11 @@ export function useEditReview() {
     onSuccess: (_data, variables) => {
       toast.success('Đã cập nhật đánh giá');
       queryClient.invalidateQueries({ queryKey: ['shops', 'reviews'] });
+      queryClient.invalidateQueries({ queryKey: ['shops', 'reviews', 'infinite'] });
       queryClient.invalidateQueries({ queryKey: ['user', 'reviews'] });
       if (variables.shop_place_id) {
         queryClient.invalidateQueries({ queryKey: ['shops', 'reviews', variables.shop_place_id] });
+        queryClient.invalidateQueries({ queryKey: ['shops', 'reviews', 'infinite', variables.shop_place_id] });
       }
     },
     onError: (err: any) => {
@@ -307,6 +338,7 @@ export function useToggleReviewLike() {
       toast.error('Không thể cập nhật. Vui lòng thử lại.');
     },
     onSettled: (_data, _error, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['shops', 'reviews', 'infinite'] });
       if (variables.placeId) {
         queryClient.invalidateQueries({ queryKey: ['shops', 'reviews', variables.placeId] });
       } else {

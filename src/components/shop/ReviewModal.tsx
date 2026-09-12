@@ -246,6 +246,7 @@ export function ReviewModal({
       onOpenChange(false);
 
       queryClient.invalidateQueries({ queryKey: ['shops', 'reviews', placeId] });
+      queryClient.invalidateQueries({ queryKey: ['shops', 'reviews', 'infinite', placeId] });
       onSuccess?.(newReview);
       toast.success('Cảm ơn bạn! Đánh giá của bạn đã được đăng tải.');
     } catch (err: any) {

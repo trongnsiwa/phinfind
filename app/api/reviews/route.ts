@@ -6,12 +6,31 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const placeId = searchParams.get('placeId');
     const userId = searchParams.get('userId');
+    const cursor = searchParams.get('cursor');
+    const rawLimit = searchParams.get('limit');
+    const parsedLimit = rawLimit ? parseInt(rawLimit, 10) : 20;
+    const limit = Math.min(Math.max(isNaN(parsedLimit) ? 20 : parsedLimit, 1), 100);
 
     if (!placeId && !userId) {
       return NextResponse.json({ error: 'placeId or userId required' }, { status: 400 });
     }
 
     const supabase = await createPublicClient();
+
+    // Query total count without cursor
+    let countQuery = supabase
+      .from('reviews')
+      .select('*', { count: 'exact', head: true });
+
+    if (placeId) {
+      countQuery = countQuery.eq('shop_place_id', placeId);
+    } else if (userId) {
+      countQuery = countQuery.eq('user_id', userId);
+    }
+
+    const countRes = await countQuery;
+    const total = countRes.count || 0;
+
     let query = supabase
       .from('reviews')
       .select(
@@ -24,19 +43,27 @@ export async function GET(request: NextRequest) {
       query = query.eq('user_id', userId);
     }
 
-    const { data, error } = await query.order('created_at', { ascending: false });
+    if (cursor) {
+      query = query.lt('created_at', cursor);
+    }
+
+    const { data, error } = await query
+      .order('created_at', { ascending: false })
+      .limit(limit);
 
     if (error) {
       if (error.code === 'PGRST205') {
         return NextResponse.json(
           {
             reviews: [],
+            next_cursor: null,
+            total: 0,
             error: 'Bảng reviews chưa được khởi tạo trong Supabase.',
           },
           { status: 200 }
         );
       }
-      return NextResponse.json({ reviews: [] });
+      return NextResponse.json({ reviews: [], next_cursor: null, total: 0 });
     }
 
     // Inspect user auth for liked_by_me computation
@@ -123,9 +150,18 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    return NextResponse.json({ reviews: formattedReviews });
+    const nextCursor =
+      data && data.length === limit && data.length > 0
+        ? data[data.length - 1].created_at
+        : null;
+
+    return NextResponse.json({
+      reviews: formattedReviews,
+      next_cursor: nextCursor,
+      total,
+    });
   } catch {
-    return NextResponse.json({ reviews: [] });
+    return NextResponse.json({ reviews: [], next_cursor: null, total: 0 });
   }
 }
 

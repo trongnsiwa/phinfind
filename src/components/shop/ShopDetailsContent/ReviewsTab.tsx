@@ -1,9 +1,9 @@
 'use client';
 
-import { Edit3, LogIn, Star } from 'lucide-react';
+import { Edit3, Loader2, LogIn, Star } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { AnimatePresence } from 'framer-motion';
 import { EmptyIllustration } from '@/components/common/EmptyIllustration';
@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
-import { useDeleteReview, useShopReviews, useToggleReviewLike } from '@/hooks/useShops';
+import { useDeleteReview, useInfiniteShopReviews, useToggleReviewLike } from '@/hooks/useShops';
 import { APP_ROUTES } from '@/lib/utils/constants';
 import { useUIStore } from '@/stores/useUIStore';
 import type { CoffeeShop } from '@/types/shop';
@@ -41,45 +41,70 @@ export const ReviewsTab = memo(function ReviewsTab({
   const deleteReviewMutation = useDeleteReview();
 
   const placeId = shop.place_id || shop.id || '';
-  const { data: dbReviews = [], isLoading: isLoadingReviews } = useShopReviews(placeId);
-  const [reviewsList, setReviewsList] = useState<ReviewItem[]>([]);
+  const {
+    data,
+    isLoading: isLoadingReviews,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+  } = useInfiniteShopReviews(placeId);
+
+  const sentinelRef = useRef<HTMLDivElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [reviewToEdit, setReviewToEdit] = useState<ReviewItem | null>(null);
   const [reviewToDelete, setReviewToDelete] = useState<ReviewItem | null>(null);
 
   const hasShopRating = typeof shop.rating === 'number' && shop.rating > 0;
   const shopRating = shop.rating || 0;
-  const totalReviews = shop.total_ratings || reviewsList.length;
 
-  // Sync reviewsList from React Query cache
+  // Flatten reviews from paginated infinite query pages
+  const reviewsList: ReviewItem[] = useMemo(() => {
+    if (!data?.pages) return [];
+    const allRaw = data.pages.flatMap((page) => page.reviews || []);
+    return allRaw.map((r: any) => ({
+      id: r.id,
+      user_id: r.user_id,
+      author:
+        r.author ||
+        r.profiles?.full_name ||
+        r.profiles?.username ||
+        'Tín đồ cà phê',
+      avatar: r.avatar || r.profiles?.avatar_url || undefined,
+      username: r.username || r.profiles?.username || undefined,
+      rating: r.rating,
+      date: new Date(r.created_at).toLocaleDateString('vi-VN', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      }),
+      highlight: 'Đánh giá từ cộng đồng',
+      comment: r.comment,
+      images: Array.isArray(r.images) ? r.images : [],
+      like_count: r.like_count || 0,
+      liked_by_me: Boolean(r.liked_by_me),
+      is_edited: Boolean(r.is_edited),
+    }));
+  }, [data?.pages]);
+
+  const totalReviews = data?.pages?.[0]?.total ?? (shop.total_ratings || reviewsList.length);
+
+  // Auto-load next page on scroll into view
   useEffect(() => {
-    if (dbReviews && Array.isArray(dbReviews)) {
-      const formatted: ReviewItem[] = dbReviews.map((r: any) => ({
-        id: r.id,
-        user_id: r.user_id,
-        author:
-          r.author ||
-          r.profiles?.full_name ||
-          r.profiles?.username ||
-          'Tín đồ cà phê',
-        avatar: r.avatar || r.profiles?.avatar_url || undefined,
-        username: r.username || r.profiles?.username || undefined,
-        rating: r.rating,
-        date: new Date(r.created_at).toLocaleDateString('vi-VN', {
-          month: 'short',
-          day: 'numeric',
-          year: 'numeric'
-        }),
-        highlight: 'Đánh giá từ cộng đồng',
-        comment: r.comment,
-        images: Array.isArray(r.images) ? r.images : [],
-        like_count: r.like_count || 0,
-        liked_by_me: Boolean(r.liked_by_me),
-        is_edited: Boolean(r.is_edited),
-      }));
-      setReviewsList(formatted);
-    }
-  }, [dbReviews]);
+    const target = sentinelRef.current;
+    if (!target || !hasNextPage || isFetchingNextPage) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.1, rootMargin: '100px' }
+    );
+
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const handleToggleLike = (rev: ReviewItem) => {
     if (!isAuthenticated) {
@@ -212,7 +237,7 @@ export const ReviewsTab = memo(function ReviewsTab({
       {/* 2. Reviews List */}
       <div className='space-y-2.5'>
         <span className='text-xs font-bold text-foreground block'>
-          Đánh giá &amp; Trải nghiệm cộng đồng ({reviewsList.length})
+          Đánh giá &amp; Trải nghiệm cộng đồng ({totalReviews})
         </span>
 
         {isLoadingReviews ? (
@@ -282,6 +307,38 @@ export const ReviewsTab = memo(function ReviewsTab({
                 />
               ))}
             </AnimatePresence>
+
+            {/* Sentinel for infinite scroll */}
+            <div ref={sentinelRef} className='h-1' />
+
+            {/* Load more button / fetch next page state */}
+            {hasNextPage && (
+              <div className='pt-2 pb-1 flex justify-center'>
+                <Button
+                  type='button'
+                  variant='outline'
+                  size='sm'
+                  onClick={() => fetchNextPage()}
+                  disabled={isFetchingNextPage}
+                  className='text-xs h-8 px-4 rounded-xl border-border/80 text-muted-foreground hover:text-foreground'
+                >
+                  {isFetchingNextPage ? (
+                    <>
+                      <Loader2 size={13} className='mr-1.5 animate-spin' />
+                      <span>Đang tải...</span>
+                    </>
+                  ) : (
+                    <span>Tải thêm đánh giá</span>
+                  )}
+                </Button>
+              </div>
+            )}
+
+            {!hasNextPage && reviewsList.length > 0 && (
+              <p className='text-center text-[11px] text-muted-foreground py-2'>
+                Bạn đã xem hết đánh giá
+              </p>
+            )}
           </div>
         )}
       </div>
@@ -295,11 +352,6 @@ export const ReviewsTab = memo(function ReviewsTab({
         }}
         shop={shop}
         existingReview={reviewToEdit || undefined}
-        onSuccess={(newReview) => {
-          if (newReview) {
-            setReviewsList((prev) => [newReview, ...prev]);
-          }
-        }}
       />
 
       {/* 4. Delete Review Confirmation */}
@@ -320,7 +372,6 @@ export const ReviewsTab = memo(function ReviewsTab({
                 onClick={() => {
                   if (reviewToDelete.id) {
                     deleteReviewMutation.mutate(reviewToDelete.id);
-                    setReviewsList((prev) => prev.filter((r) => r.id !== reviewToDelete.id));
                   }
                   setReviewToDelete(null);
                 }}
