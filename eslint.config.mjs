@@ -4,7 +4,7 @@ import hooksPlugin from "eslint-plugin-react-hooks";
 
 export default [
   {
-    ignores: [".next/*", "node_modules/*", "out/*"],
+    ignores: [".next/*", "node_modules/*", "out/*", "coverage/*", "playwright-report/*", "test-results/*"],
   },
   {
     plugins: {
