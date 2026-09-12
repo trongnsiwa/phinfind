@@ -20,7 +20,12 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { FavoriteShopCard } from '@/components/shop/FavoriteShopCard';
-import { ShopDrawer } from '@/components/shop/ShopDrawer';
+import dynamic from 'next/dynamic';
+
+const ShopDrawer = dynamic(
+  () => import('@/components/shop/ShopDrawer').then((mod) => mod.ShopDrawer),
+  { ssr: false, loading: () => null }
+);
 import { useAuth } from '@/hooks/useAuth';
 import { useLocation } from '@/hooks/useLocation';
 import { useToggleFavorite, useUserFavorites } from '@/hooks/useShops';

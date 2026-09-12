@@ -17,9 +17,21 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { Map } from '@/components/map/Map';
-import { ShopDrawer } from '@/components/shop/ShopDrawer';
-import { ShopSidebar } from '@/components/shop/ShopSidebar';
-import { AddShopDialog, POPULAR_CATEGORIES } from '@/components/shop/AddShopDialog';
+import dynamic from 'next/dynamic';
+import { POPULAR_CATEGORIES } from '@/components/shop/AddShopDialog/constants';
+
+const ShopDrawer = dynamic(
+  () => import('@/components/shop/ShopDrawer').then((mod) => mod.ShopDrawer),
+  { ssr: false, loading: () => null }
+);
+const ShopSidebar = dynamic(
+  () => import('@/components/shop/ShopSidebar').then((mod) => mod.ShopSidebar),
+  { ssr: false, loading: () => null }
+);
+const AddShopDialog = dynamic(
+  () => import('@/components/shop/AddShopDialog').then((mod) => mod.AddShopDialog),
+  { ssr: false, loading: () => null }
+);
 import { RadiusSlider } from '@/components/shop/RadiusSlider';
 import { applyShopFilters, countActiveFilters } from '@/lib/utils/filters';
 

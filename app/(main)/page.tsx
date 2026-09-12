@@ -11,8 +11,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ShopDrawer } from '@/components/shop/ShopDrawer';
-import { AddShopDialog } from '@/components/shop/AddShopDialog';
+import dynamic from 'next/dynamic';
+
+const ShopDrawer = dynamic(
+  () => import('@/components/shop/ShopDrawer').then((mod) => mod.ShopDrawer),
+  { ssr: false, loading: () => null }
+);
+const AddShopDialog = dynamic(
+  () => import('@/components/shop/AddShopDialog').then((mod) => mod.AddShopDialog),
+  { ssr: false, loading: () => null }
+);
 
 
 import { BentoGrid } from '@/components/bento/BentoGrid';

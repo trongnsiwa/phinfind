@@ -16,7 +16,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
-import { POPULAR_CATEGORIES } from '@/components/shop/AddShopDialog';
+import { POPULAR_CATEGORIES } from '@/components/shop/AddShopDialog/constants';
 import { RadiusSlider } from '@/components/shop/RadiusSlider';
 import { isFilterDefault } from '@/lib/utils/filters';
 import { useUIStore } from '@/stores/useUIStore';

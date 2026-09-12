@@ -9,16 +9,34 @@ import { useAuth } from '@/hooks/useAuth';
 import { useLocation } from '@/hooks/useLocation';
 import { API_ENDPOINTS, DEFAULT_LOCATION } from '@/lib/utils/constants';
 import type { CoffeeShop } from '@/types/shop';
+import dynamic from 'next/dynamic';
 import { AddShopDialogFooter } from './AddShopDialogFooter';
 import { AddShopDialogHeader } from './AddShopDialogHeader';
 import { AmenitiesStep } from './AmenitiesStep';
 import { BasicInfoStep } from './BasicInfoStep';
 import { ContactStep } from './ContactStep';
-import { HoursStep } from './HoursStep';
 import { LivePreviewCard } from './LivePreviewCard';
-import { LocationStep } from './LocationStep';
-import { PhotosStep } from './PhotosStep';
 import { PriceStep } from './PriceStep';
+
+const LocationStep = dynamic(
+  () => import('./LocationStep').then((mod) => mod.LocationStep),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-48 rounded-xl border border-border bg-muted/20 animate-pulse flex items-center justify-center text-xs text-muted-foreground">
+        Đang tải bản đồ...
+      </div>
+    ),
+  }
+);
+const HoursStep = dynamic(
+  () => import('./HoursStep').then((mod) => mod.HoursStep),
+  { ssr: false }
+);
+const PhotosStep = dynamic(
+  () => import('./PhotosStep').then((mod) => mod.PhotosStep),
+  { ssr: false }
+);
 import type {
   AddShopDialogProps,
   AddShopFormData,

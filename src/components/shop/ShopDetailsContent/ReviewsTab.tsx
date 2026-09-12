@@ -24,7 +24,13 @@ import { useDeleteReview, useInfiniteShopReviews, useToggleReviewLike } from '@/
 import { APP_ROUTES } from '@/lib/utils/constants';
 import { useUIStore } from '@/stores/useUIStore';
 import type { CoffeeShop } from '@/types/shop';
-import { ReviewItem, ReviewModal } from '../ReviewModal';
+import dynamic from 'next/dynamic';
+import type { ReviewItem } from '../ReviewModal';
+
+const ReviewModal = dynamic(
+  () => import('../ReviewModal').then((mod) => mod.ReviewModal),
+  { ssr: false, loading: () => null }
+);
 import { ReviewCard } from './ReviewCard';
 
 export const ReviewsTab = memo(function ReviewsTab({

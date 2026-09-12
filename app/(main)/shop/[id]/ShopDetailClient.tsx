@@ -27,7 +27,12 @@ import {
   ReviewData,
 } from '@/hooks/useShops';
 import { ShopDetailsContent } from '@/components/shop/ShopDetailsContent';
-import { VisitNoteDialog } from '@/components/shop/VisitNoteDialog';
+import dynamic from 'next/dynamic';
+
+const VisitNoteDialog = dynamic(
+  () => import('@/components/shop/VisitNoteDialog').then((mod) => mod.VisitNoteDialog),
+  { ssr: false, loading: () => null }
+);
 import { useAuth } from '@/hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
 import { useShopStore } from '@/stores/useShopStore';

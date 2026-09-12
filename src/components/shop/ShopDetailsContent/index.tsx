@@ -2,9 +2,24 @@
 
 import { useRouter } from 'next/navigation';
 import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
-import { AddShopDialog } from '@/components/shop/AddShopDialog';
-import { SuggestEditDialog } from '@/components/shop/SuggestEditDialog';
-import { VisitNoteDialog } from '@/components/shop/VisitNoteDialog';
+import dynamic from 'next/dynamic';
+
+const AddShopDialog = dynamic(
+  () => import('@/components/shop/AddShopDialog').then((mod) => mod.AddShopDialog),
+  { ssr: false, loading: () => null }
+);
+const SuggestEditDialog = dynamic(
+  () => import('@/components/shop/SuggestEditDialog').then((mod) => mod.SuggestEditDialog),
+  { ssr: false, loading: () => null }
+);
+const VisitNoteDialog = dynamic(
+  () => import('@/components/shop/VisitNoteDialog').then((mod) => mod.VisitNoteDialog),
+  { ssr: false, loading: () => null }
+);
+const DeleteShopDialog = dynamic(
+  () => import('./DeleteShopDialog').then((mod) => mod.DeleteShopDialog),
+  { ssr: false, loading: () => null }
+);
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/useAuth';
 import {
@@ -19,12 +34,14 @@ import { useShopStore } from '@/stores/useShopStore';
 import { useUIStore } from '@/stores/useUIStore';
 import type { CoffeeShop } from '@/types/shop';
 import { AmenitiesTab } from './AmenitiesTab';
-import { DeleteShopDialog } from './DeleteShopDialog';
 import { Gallery } from './Gallery';
 import { Header } from './Header';
 import { OverviewTab } from './OverviewTab';
 import { PhotosTab } from './PhotosTab';
-import { ReviewsTab } from './ReviewsTab';
+const ReviewsTab = dynamic(
+  () => import('./ReviewsTab').then((mod) => mod.ReviewsTab),
+  { ssr: false, loading: () => null }
+);
 import { TabBar } from './TabBar';
 import type {
   AmenitiesTabProps,
@@ -217,7 +234,9 @@ export const ShopDetailsContent = memo(function ShopDetailsContent({
         </TabsContent>
 
         <TabsContent value='reviews' className='mt-0 focus-visible:outline-none'>
-          <ReviewsTab shop={shop} isSidebar={isSidebar} isStandalone={isStandalone} />
+          {activeTab === 'reviews' && (
+            <ReviewsTab shop={shop} isSidebar={isSidebar} isStandalone={isStandalone} />
+          )}
         </TabsContent>
 
         <TabsContent value='amenities' className='mt-0 focus-visible:outline-none'>
