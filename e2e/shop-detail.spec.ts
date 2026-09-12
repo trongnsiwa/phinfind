@@ -55,12 +55,12 @@ test.describe('Shop Detail Flow', () => {
 
     // Should display skeleton initially and eventually error/empty fallback without crash
     await expect(page.locator('body')).toBeVisible();
-    const notFoundText = page.getByText(/Không tìm thấy thông tin|Đã xảy ra sự cố/i);
-    const retryBtn = page.getByRole('button', { name: /thử lại|quay lại/i });
+    const notFoundText = page.getByText(/Không tìm thấy quán cà phê|Không tìm thấy thông tin|Đã xảy ra sự cố/i);
+    const homeBtn = page.getByRole('link', { name: /về trang chủ|quay lại/i });
 
     await Promise.race([
       notFoundText.waitFor({ state: 'visible', timeout: 5000 }).catch(() => null),
-      retryBtn.first().waitFor({ state: 'visible', timeout: 5000 }).catch(() => null),
+      homeBtn.first().waitFor({ state: 'visible', timeout: 5000 }).catch(() => null),
     ]);
   });
 });
