@@ -6,6 +6,55 @@ const withPWA = withPWAInit({
   dest: 'public',
   disable: process.env.NODE_ENV === 'development',
   register: true,
+  cacheStartUrl: false,
+  dynamicStartUrl: false,
+  workboxOptions: {
+    runtimeCaching: [
+      {
+        urlPattern: ({ request }) => request.mode === 'navigate',
+        handler: 'NetworkOnly',
+      },
+      {
+        urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|ico|avif)$/i,
+        handler: 'CacheFirst',
+        options: {
+          cacheName: 'phinfind-images',
+          expiration: {
+            maxEntries: 64,
+            maxAgeSeconds: 30 * 24 * 60 * 60,
+          },
+        },
+      },
+      {
+        urlPattern: /^\/_next\/static\/.*/i,
+        handler: 'CacheFirst',
+        options: {
+          cacheName: 'phinfind-static',
+          expiration: {
+            maxEntries: 128,
+            maxAgeSeconds: 30 * 24 * 60 * 60,
+          },
+        },
+      },
+      {
+        urlPattern: /^https:\/\/fonts\.(?:googleapis|gstatic)\.com\/.*/i,
+        handler: 'StaleWhileRevalidate',
+        options: {
+          cacheName: 'phinfind-fonts',
+          expiration: {
+            maxEntries: 8,
+            maxAgeSeconds: 365 * 24 * 60 * 60,
+          },
+        },
+      },
+      {
+        urlPattern: ({ url, sameOrigin }) =>
+          sameOrigin && url.pathname.startsWith('/api/'),
+        handler: 'NetworkOnly',
+        method: 'GET',
+      },
+    ],
+  },
 });
 
 const analyzeWrapper = withBundleAnalyzer({
