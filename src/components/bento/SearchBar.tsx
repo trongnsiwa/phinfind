@@ -42,10 +42,19 @@ export function SearchBar() {
         type="text"
         value={localValue}
         onChange={(e) => setLocalValue(e.target.value)}
-        placeholder="Tìm quán cà phê theo tên, đường phố hoặc quận..."
         aria-label="Tìm quán cà phê theo tên, đường phố hoặc quận"
         className="w-full h-9 pl-9 pr-8 text-xs bg-input-bg text-foreground border-input rounded-xl focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold/60 focus-visible:ring-offset-0 focus-visible:border-amber-gold/60 focus-visible:shadow-[0_0_0_1px_rgba(184,134,11,0.25)] focus-visible:scale-[1.005] hover:border-amber-gold/40 shadow-xs transition-all duration-200 ease-out placeholder:text-muted-foreground"
       />
+      {/* RESPONSIVE: Dual span placeholder avoids JS resize listener layout thrash */}
+      {!localValue && (
+        <div
+          className="absolute left-9 top-1/2 -translate-y-1/2 text-xs text-muted-foreground pointer-events-none truncate pr-8 select-none"
+          aria-hidden="true"
+        >
+          <span className="hidden sm:inline">Tìm quán cà phê theo tên, đường phố hoặc quận...</span>
+          <span className="sm:hidden">Tìm quán cà phê...</span>
+        </div>
+      )}
       {localValue && (
         <Button
           variant="ghost"

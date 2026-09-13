@@ -64,8 +64,9 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
   return (
     <aside
       aria-label="Thanh tìm kiếm và bộ lọc nhanh"
+      // RESPONSIVE: account for safe-area-inset-bottom above 4rem bottom navigation on mobile
       className={cn(
-        'fixed bottom-16 md:bottom-4 left-1/2 -translate-x-1/2 z-30 w-[95%] max-w-4xl transition-all duration-300 ease-out',
+        'fixed bottom-[calc(4rem+env(safe-area-inset-bottom))] md:bottom-4 left-1/2 -translate-x-1/2 z-30 w-[95%] max-w-4xl transition-all duration-300 ease-out',
         shouldShow
           ? 'translate-y-0 opacity-100 scale-100 pointer-events-auto'
           : 'translate-y-full opacity-0 pointer-events-none'
@@ -86,7 +87,8 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
               onChange={(e) => setLocalValue(e.target.value)}
               placeholder="Tìm kiếm..."
               aria-label="Tìm nhanh quán cà phê"
-              className="h-8 pl-8 pr-7 text-xs bg-input-bg text-foreground border-input rounded-xl sm:rounded-full focus-visible:ring-1 focus-visible:ring-amber-gold/60 focus-visible:border-amber-gold/60 placeholder:text-muted-foreground"
+              // RESPONSIVE: h-10 md:h-9 input height for mobile ergonomics
+              className="h-10 md:h-9 pl-8 pr-7 text-xs bg-input-bg text-foreground border-input rounded-xl sm:rounded-full focus-visible:ring-1 focus-visible:ring-amber-gold/60 focus-visible:border-amber-gold/60 placeholder:text-muted-foreground"
             />
             {localValue && (
               <Button
@@ -118,8 +120,9 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
             onClick={() => setFilters({ openNowOnly: !filters.openNowOnly })}
             aria-label="Lọc quán đang mở cửa"
             aria-pressed={filters.openNowOnly}
+            // RESPONSIVE: h-9 md:h-8 with min-h-[44px] tap target on mobile
             className={cn(
-              'h-8 px-2.5 sm:px-3 text-xs font-semibold rounded-full border transition-all duration-200 flex items-center gap-1.5 flex-shrink-0',
+              'h-9 md:h-8 min-h-[44px] md:min-h-0 px-2.5 sm:px-3 text-xs font-semibold rounded-full border transition-all duration-200 flex items-center gap-1.5 flex-shrink-0',
               filters.openNowOnly
                 ? 'bg-teal text-primary-foreground border-teal font-bold shadow-md shadow-teal/20 hover:bg-teal-hover'
                 : 'bg-secondary text-foreground border-border hover:border-teal/40 hover:text-teal'
@@ -141,8 +144,9 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
           >
             <SelectTrigger
               aria-label="Lọc theo đánh giá"
+              // RESPONSIVE: h-9 md:h-8 with min-h-[44px] tap target on mobile
               className={cn(
-                'h-8 px-2.5 sm:px-3 text-xs font-semibold rounded-full border border-input bg-input-bg text-foreground hover:border-amber-gold/40 hover:text-foreground flex-shrink-0 w-auto gap-1',
+                'h-9 md:h-8 min-h-[44px] md:min-h-0 px-2.5 sm:px-3 text-xs font-semibold rounded-full border border-input bg-input-bg text-foreground hover:border-amber-gold/40 hover:text-foreground flex-shrink-0 w-auto gap-1',
                 filters.minRating && filters.minRating > 0 && 'bg-amber-gold text-primary-foreground border-amber-gold font-bold'
               )}
             >
@@ -176,7 +180,8 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
           >
             <SelectTrigger
               aria-label="Sắp xếp quán cà phê"
-              className="h-8 px-2.5 sm:px-3 text-xs font-semibold rounded-full border border-input bg-input-bg text-foreground hover:border-amber-gold/40 hover:text-foreground flex-shrink-0 w-auto gap-1"
+              // RESPONSIVE: h-9 md:h-8 with min-h-[44px] tap target on mobile
+              className="h-9 md:h-8 min-h-[44px] md:min-h-0 px-2.5 sm:px-3 text-xs font-semibold rounded-full border border-input bg-input-bg text-foreground hover:border-amber-gold/40 hover:text-foreground flex-shrink-0 w-auto gap-1"
             >
               <ArrowUpDown size={12} className="text-amber-gold" />
               <SelectValue placeholder="Sắp xếp" />
@@ -202,7 +207,8 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
               onClick={resetFilters}
               aria-label="Đặt lại bộ lọc"
               title="Đặt lại bộ lọc"
-              className="h-8 w-8 text-muted-foreground hover:text-teal hover:bg-teal/10 rounded-full flex-shrink-0"
+              // RESPONSIVE: h-9 w-9 md:h-8 md:w-8 with min-h-[44px] min-w-[44px] tap target on mobile
+              className="h-9 w-9 md:h-8 md:w-8 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 text-muted-foreground hover:text-teal hover:bg-teal/10 rounded-full flex-shrink-0 flex items-center justify-center"
             >
               <RotateCcw size={13} />
             </Button>
@@ -215,7 +221,8 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
             onClick={scrollToTop}
             aria-label="Cuộn lên đầu trang"
             title="Cuộn lên đầu"
-            className="h-8 w-8 bg-secondary hover:bg-accent text-foreground hover:text-foreground border border-border rounded-full flex-shrink-0"
+            // RESPONSIVE: h-9 w-9 md:h-8 md:w-8 with min-h-[44px] min-w-[44px] tap target on mobile
+            className="h-9 w-9 md:h-8 md:w-8 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 bg-secondary hover:bg-accent text-foreground hover:text-foreground border border-border rounded-full flex-shrink-0 flex items-center justify-center"
           >
             <ChevronUp size={15} />
           </Button>
@@ -227,7 +234,8 @@ export const FloatingFilterBar = memo(function FloatingFilterBar({
             onClick={() => setIsDismissed(true)}
             aria-label="Ẩn thanh bộ lọc nhanh"
             title="Ẩn"
-            className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-accent rounded-full flex-shrink-0"
+            // RESPONSIVE: h-9 w-9 md:h-8 md:w-8 with min-h-[44px] min-w-[44px] tap target on mobile
+            className="h-9 w-9 md:h-8 md:w-8 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 text-muted-foreground hover:text-foreground hover:bg-accent rounded-full flex-shrink-0 flex items-center justify-center"
           >
             <X size={14} />
           </Button>

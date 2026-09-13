@@ -6,9 +6,16 @@ import { Compass, MapPin, Heart, User } from 'lucide-react';
 import { APP_ROUTES } from '@/lib/utils/constants';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useUIStore } from '@/stores/useUIStore';
 
 export function BottomNav() {
   const pathname = usePathname();
+  const mobileFilterSheetOpen = useUIStore((state) => state.mobileFilterSheetOpen);
+
+  // RESPONSIVE: Hide BottomNav when mobile filter sheet is open to prevent collision with sheet/footer
+  if (mobileFilterSheetOpen) {
+    return null;
+  }
 
   if (pathname?.startsWith('/shop/')) {
     return null;
@@ -38,7 +45,8 @@ export function BottomNav() {
   ];
 
   return (
-    // RESPONSIVE: safe-bottom clears physical gesture indicator on notched devices; md:hidden since tablet/desktop relies on Header nav
+    // RESPONSIVE: safe-bottom clears physical gesture indicator on notched devices; md:hidden since tablet/desktop relies on Header nav.
+    // Z-index hierarchy: BottomNav (z-40) > sticky bar (z-30) > scroll content (z-0..20).
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-lg border-t border-border px-4 pt-1.5 safe-bottom shadow-lg text-foreground">
       <div className="flex items-center justify-around">
         {navItems.map((item) => {

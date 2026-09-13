@@ -276,6 +276,7 @@ export function Header() {
         {/* Right Side: Theme Toggle + Right-Anchored Search + Profile Avatar + Mobile Hamburger Menu */}
         <div className='flex items-center gap-2 sm:gap-2.5 flex-shrink-0'>
           {/* Theme Toggle Button */}
+          {/* RESPONSIVE: Hidden on mobile (< md) to reduce header clutter to 4 tap targets; theme toggle remains accessible via Settings */}
           <Button
             variant='ghost'
             size='icon'
@@ -283,7 +284,7 @@ export function Header() {
             aria-label={
               theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'
             }
-            className='h-9 w-9 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent/70 border border-border/60 hover:border-amber-gold/40 transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold flex-shrink-0'
+            className='hidden md:flex h-9 w-9 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent/70 border border-border/60 hover:border-amber-gold/40 transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold flex-shrink-0'
           >
             {theme === 'dark' ? (
               <Sun size={16} className='text-amber-gold' />
@@ -604,13 +605,14 @@ export function Header() {
             </Button>
           )}
 
-          {/* Mobile Hamburger Navigation Sheet Button */}
+          {/* Mobile/Tablet Hamburger Navigation Sheet Button */}
+          {/* RESPONSIVE: Hidden on mobile (< md) as navigation is handled by avatar dropdown and BottomNav; kept on tablet/desktop (md+) */}
           <Sheet>
             <SheetTrigger asChild>
               <Button
                 variant='ghost'
                 size='icon'
-                className='md:hidden h-9 w-9 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent/70 border border-border/60 hover:border-amber-gold/40 transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold flex-shrink-0'
+                className='hidden md:flex h-9 w-9 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent/70 border border-border/60 hover:border-amber-gold/40 transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold flex-shrink-0'
                 aria-label='Mở menu'
               >
                 <Menu size={16} />

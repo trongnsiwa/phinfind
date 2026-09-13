@@ -30,14 +30,28 @@ const PRICE_LABELS: Record<string, string> = {
   '₫₫₫₫': 'Trên 100.000₫',
 };
 
-export function FilterChips() {
+export interface FilterChipsProps {
+  variant?: 'inline' | 'sheet';
+  className?: string;
+}
+
+export function FilterChips({ variant = 'inline', className }: FilterChipsProps) {
   const { searchQuery, filters, setFilters, resetFilters } = useUIStore();
   const topAmenities = React.useMemo(() => POPULAR_CATEGORIES.slice(0, 8), []);
 
   const isDefault = isFilterDefault(filters) && searchQuery.trim().length === 0;
+  const isSheet = variant === 'sheet';
 
   return (
-    <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 scroll-smooth">
+    // RESPONSIVE: Sheet variant wraps full-width; inline variant uses smooth horizontal scroll
+    <div
+      className={cn(
+        isSheet
+          ? 'flex flex-wrap gap-2 w-full py-1'
+          : 'flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 scroll-smooth [scroll-snap-type:x_proximity]',
+        className
+      )}
+    >
       {/* Open Now Toggle Chip */}
       <Button
         variant="ghost"
@@ -45,8 +59,11 @@ export function FilterChips() {
         onClick={() => setFilters({ openNowOnly: !filters.openNowOnly })}
         aria-label="Lọc quán đang mở cửa"
         aria-pressed={filters.openNowOnly}
+        // RESPONSIVE: h-9 in sheet; h-9 md:h-7 in inline
         className={cn(
-          'h-7 px-2.5 text-[11px] font-semibold rounded-full border transition-all duration-200 ease-out flex-shrink-0 flex items-center gap-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0 focus-visible:scale-[1.01]',
+          isSheet
+            ? 'h-9 px-3 text-xs font-semibold rounded-full border transition-all duration-200 ease-out flex items-center gap-1.5'
+            : 'h-9 md:h-7 px-3 md:px-2.5 [scroll-snap-align:start] text-xs md:text-[11px] font-semibold rounded-full border transition-all duration-200 ease-out flex-shrink-0 flex items-center gap-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0 focus-visible:scale-[1.01]',
           filters.openNowOnly
             ? 'bg-teal text-primary-foreground border-teal font-bold shadow-md shadow-teal/25 hover:bg-teal-hover hover:text-primary-foreground focus-visible:ring-teal focus-visible:border-teal focus-visible:shadow-[0_0_0_2px_rgba(46,196,182,0.35)]'
             : 'bg-input-bg text-foreground border-input hover:bg-accent hover:text-foreground hover:border-amber-gold/40 focus-visible:ring-primary/60 focus-visible:border-primary/60 focus-visible:bg-accent'
@@ -69,15 +86,18 @@ export function FilterChips() {
       >
         <SelectTrigger
           aria-label="Lọc theo đánh giá tối thiểu"
+          // RESPONSIVE: h-9 in sheet variant; h-9 md:h-7 in inline variant
           className={cn(
-            'h-7 px-2.5 text-[11px] font-semibold rounded-full border border-input bg-input-bg text-foreground focus:outline-none focus:ring-1 focus:ring-amber-gold focus:ring-offset-0 focus:border-amber-gold focus:scale-[1.01] hover:bg-accent hover:border-amber-gold/40 hover:text-foreground transition-all duration-200 ease-out flex-shrink-0 w-auto gap-1',
+            isSheet
+              ? 'h-9 px-3 text-xs font-semibold rounded-full border border-input bg-input-bg text-foreground focus:outline-none focus:ring-1 focus:ring-amber-gold focus:ring-offset-0 focus:border-amber-gold focus:scale-[1.01] hover:bg-accent hover:border-amber-gold/40 hover:text-foreground transition-all duration-200 ease-out w-auto gap-1.5'
+              : 'h-9 md:h-7 px-3 md:px-2.5 [scroll-snap-align:start] text-xs md:text-[11px] font-semibold rounded-full border border-input bg-input-bg text-foreground focus:outline-none focus:ring-1 focus:ring-amber-gold focus:ring-offset-0 focus:border-amber-gold focus:scale-[1.01] hover:bg-accent hover:border-amber-gold/40 hover:text-foreground transition-all duration-200 ease-out flex-shrink-0 w-auto gap-1',
             filters.minRating && filters.minRating > 0 && 'bg-amber-gold text-primary-foreground border-amber-gold font-bold shadow-md hover:bg-amber-gold-hover hover:text-primary-foreground focus:ring-amber-gold focus:border-amber-gold'
           )}
         >
           <Star size={12} className={cn('flex-shrink-0 transition-colors duration-200', filters.minRating && filters.minRating > 0 ? 'fill-primary-foreground text-primary-foreground' : 'text-amber-gold fill-amber-gold')} />
           <SelectValue placeholder="Đánh giá" />
         </SelectTrigger>
-        <SelectContent className="bg-popover border-input text-popover-foreground rounded-xl shadow-xl">
+        <SelectContent className="z-[60] bg-popover border-input text-popover-foreground rounded-xl shadow-xl">
           <SelectItem value="all" className="focus:bg-primary/20 focus:text-foreground text-xs transition-colors cursor-pointer">
             Tất cả đánh giá
           </SelectItem>
@@ -98,8 +118,11 @@ export function FilterChips() {
             size="sm"
             aria-label="Lọc theo mức giá"
             aria-pressed={filters.priceRanges.length > 0}
+            // RESPONSIVE: h-9 in sheet variant; h-9 md:h-7 in inline variant
             className={cn(
-              'h-7 px-2.5 text-[11px] font-semibold rounded-full border transition-all duration-200 ease-out flex-shrink-0 flex items-center gap-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0 focus-visible:scale-[1.01]',
+              isSheet
+                ? 'h-9 px-3 text-xs font-semibold rounded-full border transition-all duration-200 ease-out flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0 focus-visible:scale-[1.01]'
+                : 'h-9 md:h-7 px-3 md:px-2.5 [scroll-snap-align:start] text-xs md:text-[11px] font-semibold rounded-full border transition-all duration-200 ease-out flex-shrink-0 flex items-center gap-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0 focus-visible:scale-[1.01]',
               filters.priceRanges.length > 0
                 ? 'bg-amber-gold text-primary-foreground border-amber-gold font-bold shadow-md hover:bg-amber-gold-hover hover:text-primary-foreground focus-visible:ring-amber-gold focus-visible:border-amber-gold'
                 : 'bg-input-bg text-foreground border-input hover:bg-accent hover:text-foreground hover:border-amber-gold/40 focus-visible:ring-primary/60 focus-visible:border-primary/60 focus-visible:bg-accent'
@@ -109,7 +132,7 @@ export function FilterChips() {
             <span>{filters.priceRanges.length > 0 ? `Giá · ${filters.priceRanges.length}` : 'Giá'}</span>
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-56 p-3 bg-popover border-input text-popover-foreground rounded-xl shadow-xl space-y-2">
+        <PopoverContent className="z-[60] w-56 p-3 bg-popover border-input text-popover-foreground rounded-xl shadow-xl space-y-2">
           <div className="text-xs font-bold text-foreground">Mức giá</div>
           <div className="space-y-1">
             {PRICE_OPTIONS.map((price) => {
@@ -148,8 +171,11 @@ export function FilterChips() {
             size="sm"
             aria-label="Lọc theo tiện ích"
             aria-pressed={filters.requiredAmenityIds.length > 0}
+            // RESPONSIVE: h-9 in sheet variant; h-9 md:h-7 in inline variant
             className={cn(
-              'h-7 px-2.5 text-[11px] font-semibold rounded-full border transition-all duration-200 ease-out flex-shrink-0 flex items-center gap-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0 focus-visible:scale-[1.01]',
+              isSheet
+                ? 'h-9 px-3 text-xs font-semibold rounded-full border transition-all duration-200 ease-out flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0 focus-visible:scale-[1.01]'
+                : 'h-9 md:h-7 px-3 md:px-2.5 [scroll-snap-align:start] text-xs md:text-[11px] font-semibold rounded-full border transition-all duration-200 ease-out flex-shrink-0 flex items-center gap-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0 focus-visible:scale-[1.01]',
               filters.requiredAmenityIds.length > 0
                 ? 'bg-amber-gold text-primary-foreground border-amber-gold font-bold shadow-md hover:bg-amber-gold-hover hover:text-primary-foreground focus-visible:ring-amber-gold focus-visible:border-amber-gold'
                 : 'bg-input-bg text-foreground border-input hover:bg-accent hover:text-foreground hover:border-amber-gold/40 focus-visible:ring-primary/60 focus-visible:border-primary/60 focus-visible:bg-accent'
@@ -159,7 +185,7 @@ export function FilterChips() {
             <span>{filters.requiredAmenityIds.length > 0 ? `Tiện ích · ${filters.requiredAmenityIds.length}` : 'Tiện ích'}</span>
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-64 p-3 bg-popover border-input text-popover-foreground rounded-xl shadow-xl space-y-2">
+        <PopoverContent className="z-[60] w-64 p-3 bg-popover border-input text-popover-foreground rounded-xl shadow-xl space-y-2">
           <div className="text-xs font-bold text-foreground">Tiện ích phổ biến</div>
           <div className="space-y-1 max-h-60 overflow-y-auto pr-1">
             {topAmenities.map((cat) => {
@@ -189,59 +215,66 @@ export function FilterChips() {
         </PopoverContent>
       </Popover>
 
-      {/* Radius Popover Chip */}
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            aria-label="Lọc theo bán kính tìm kiếm"
-            aria-pressed={filters.radiusKm !== null}
-            className={cn(
-              'h-7 px-2.5 text-[11px] font-semibold rounded-full border transition-all duration-200 ease-out flex-shrink-0 flex items-center gap-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0 focus-visible:scale-[1.01]',
-              filters.radiusKm !== null
-                ? 'bg-amber-gold text-primary-foreground border-amber-gold font-bold shadow-md hover:bg-amber-gold-hover hover:text-primary-foreground focus-visible:ring-amber-gold focus-visible:border-amber-gold'
-                : 'bg-input-bg text-foreground border-input hover:bg-accent hover:text-foreground hover:border-amber-gold/40 focus-visible:ring-primary/60 focus-visible:border-primary/60 focus-visible:bg-accent'
-            )}
-          >
-            <Navigation size={12} className={cn('flex-shrink-0 transition-colors duration-200', filters.radiusKm !== null ? 'text-primary-foreground' : 'text-amber-gold')} />
-            <span>{filters.radiusKm !== null ? `${filters.radiusKm} km` : 'Bán kính'}</span>
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-72 p-4 bg-popover border-input text-popover-foreground rounded-xl shadow-xl">
-          <RadiusSlider
-            value={filters.radiusKm}
-            onChange={(val) => setFilters({ radiusKm: val })}
-          />
-        </PopoverContent>
-      </Popover>
+      {/* Radius Popover Chip - Only render inline when not in sheet (sheet has dedicated RadiusSlider) */}
+      {!isSheet && (
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              aria-label="Lọc theo bán kính tìm kiếm"
+              aria-pressed={filters.radiusKm !== null}
+              // RESPONSIVE: h-9 md:h-7 px-3 md:px-2.5 with scroll-snap-align: start
+              className={cn(
+                'h-9 md:h-7 px-3 md:px-2.5 [scroll-snap-align:start] text-xs md:text-[11px] font-semibold rounded-full border transition-all duration-200 ease-out flex-shrink-0 flex items-center gap-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0 focus-visible:scale-[1.01]',
+                filters.radiusKm !== null
+                  ? 'bg-amber-gold text-primary-foreground border-amber-gold font-bold shadow-md hover:bg-amber-gold-hover hover:text-primary-foreground focus-visible:ring-amber-gold focus-visible:border-amber-gold'
+                  : 'bg-input-bg text-foreground border-input hover:bg-accent hover:text-foreground hover:border-amber-gold/40 focus-visible:ring-primary/60 focus-visible:border-primary/60 focus-visible:bg-accent'
+              )}
+            >
+              <Navigation size={12} className={cn('flex-shrink-0 transition-colors duration-200', filters.radiusKm !== null ? 'text-primary-foreground' : 'text-amber-gold')} />
+              <span>{filters.radiusKm !== null ? `${filters.radiusKm} km` : 'Bán kính'}</span>
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="z-[60] w-72 p-4 bg-popover border-input text-popover-foreground rounded-xl shadow-xl">
+            <RadiusSlider
+              value={filters.radiusKm}
+              onChange={(val) => setFilters({ radiusKm: val })}
+            />
+          </PopoverContent>
+        </Popover>
+      )}
 
-      {/* Near Me Toggle Chip */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => setFilters({ sortBy: filters.sortBy === 'distance' ? 'rating' : 'distance' })}
-        aria-label="Sắp xếp theo khoảng cách gần tôi"
-        aria-pressed={filters.sortBy === 'distance'}
-        className={cn(
-          'h-7 px-2.5 text-[11px] font-semibold rounded-full border transition-all duration-200 ease-out flex-shrink-0 flex items-center gap-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0 focus-visible:scale-[1.01]',
-          filters.sortBy === 'distance'
-            ? 'bg-amber-gold text-primary-foreground border-amber-gold font-bold shadow-md hover:bg-amber-gold-hover hover:text-primary-foreground focus-visible:ring-amber-gold focus-visible:border-amber-gold'
-            : 'bg-input-bg text-foreground border-input hover:bg-accent hover:text-foreground hover:border-amber-gold/40 focus-visible:ring-primary/60 focus-visible:border-primary/60 focus-visible:bg-accent'
-        )}
-      >
-        <MapPin size={12} className={cn('flex-shrink-0 transition-colors duration-200', filters.sortBy === 'distance' ? 'text-primary-foreground' : 'text-amber-gold')} />
-        <span>Gần tôi</span>
-      </Button>
+      {/* Near Me Toggle Chip - Only rendered inline (sheet has dedicated segmented control in Section d) */}
+      {!isSheet && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setFilters({ sortBy: filters.sortBy === 'distance' ? 'rating' : 'distance' })}
+          aria-label="Sắp xếp theo khoảng cách gần tôi"
+          aria-pressed={filters.sortBy === 'distance'}
+          className={cn(
+            'h-9 md:h-7 px-3 md:px-2.5 [scroll-snap-align:start] text-xs md:text-[11px] font-semibold rounded-full border transition-all duration-200 ease-out flex-shrink-0 flex items-center gap-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0 focus-visible:scale-[1.01]',
+            filters.sortBy === 'distance'
+              ? 'bg-amber-gold text-primary-foreground border-amber-gold font-bold shadow-md hover:bg-amber-gold-hover hover:text-primary-foreground focus-visible:ring-amber-gold focus-visible:border-amber-gold'
+              : 'bg-input-bg text-foreground border-input hover:bg-accent hover:text-foreground hover:border-amber-gold/40 focus-visible:ring-primary/60 focus-visible:border-primary/60 focus-visible:bg-accent'
+          )}
+        >
+          <MapPin size={12} className={cn('flex-shrink-0 transition-colors duration-200', filters.sortBy === 'distance' ? 'text-primary-foreground' : 'text-amber-gold')} />
+          <span>Gần tôi</span>
+        </Button>
+      )}
 
-      {/* Reset Action Chip */}
-      {!isDefault && (
+      {/* Reset Action Chip - Only rendered inline (sheet has dedicated Reset button in sticky footer) */}
+      {!isSheet && !isDefault && (
         <Button
           variant="ghost"
           size="sm"
           onClick={resetFilters}
           aria-label="Đặt lại tất cả bộ lọc"
-          className="h-7 px-2 text-[11px] text-muted-foreground hover:text-teal hover:bg-teal/10 hover:border-teal/30 border border-transparent rounded-full flex-shrink-0 transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0 focus-visible:border-amber-gold"
+          className={cn(
+            'h-9 md:h-7 px-3 md:px-2 [scroll-snap-align:start] text-xs md:text-[11px] text-muted-foreground hover:text-teal hover:bg-teal/10 hover:border-teal/30 border border-transparent rounded-full flex-shrink-0 transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0 focus-visible:border-amber-gold'
+          )}
         >
           <RotateCcw size={12} className="mr-1" />
           Đặt lại

@@ -62,56 +62,58 @@ export const ShopCardSmall = memo(function ShopCardSmall({
       tabIndex={0}
       onClick={() => onSelect?.(shop)}
       onKeyDown={handleKeyDown}
-      className="col-span-1 row-span-1 w-full h-full card-glow-border bg-gradient-to-b from-card via-card to-secondary/30 rounded-2xl border border-border/80 shadow-card hover:shadow-card-hover hover:border-amber-gold/50 hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold transition-all duration-300 p-2.5 sm:p-3 flex flex-col justify-between cursor-pointer group relative overflow-hidden"
+      // RESPONSIVE: Fixed height h-[112px] self-start on mobile (< md) to keep cards genuinely compact, vertical card on tablet/desktop (md+) with h-full
+      className="col-span-1 row-span-1 w-full h-[112px] md:h-full self-start md:self-auto card-glow-border bg-gradient-to-b from-card via-card to-secondary/30 rounded-2xl border border-border/80 shadow-card hover:shadow-card-hover hover:border-amber-gold/50 hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold transition-all duration-300 p-0 md:p-3.5 lg:p-4 flex flex-row md:flex-col justify-between cursor-pointer group relative overflow-hidden gap-0 md:gap-0"
     >
-      {/* Compact Image Container */}
-      <div className="relative w-full h-24 sm:h-28 flex-shrink-0 rounded-xl overflow-hidden bg-muted border border-border/60">
+      {/* Media Container - RESPONSIVE: Left flush column on mobile (w-28 h-full fills 112px edge-to-edge), full width h-28 on md+ */}
+      <div className="relative h-full w-28 md:w-full md:h-28 md:aspect-auto flex-shrink-0 overflow-hidden bg-muted border-r md:border-r-0 md:rounded-xl border-border/60">
         <ShopImage
           src={coverImage}
           alt={shop.name}
           fallback={<ShopCardPlaceholder shopId={shop.place_id || shop.id} shopName={shop.name} />}
           imageClassName="object-cover group-hover:scale-108 transition-transform duration-500 ease-out"
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          sizes="(max-width: 768px) 112px, (max-width: 1024px) 33vw, 25vw"
         >
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent pointer-events-none" />
         </ShopImage>
 
-
-        {/* Floating Status Pill & Verification Badge */}
-        <div className="absolute top-2 left-2 z-10 flex flex-col gap-1 items-start">
+        {/* Floating Status Pill & Verification Badge - RESPONSIVE: flex-row with whitespace-nowrap and shrink-0 */}
+        <div className="absolute top-1 left-1 md:top-1.5 md:left-1.5 z-10 flex flex-row items-center gap-1.5 whitespace-nowrap max-w-[calc(100%-0.5rem)]">
           {shop.verified === false && (
             <Badge
               variant="outline"
-              className="text-[9px] font-bold px-2 py-0.5 rounded-full border backdrop-blur-md shadow-sm bg-amber-500/80 text-white border-amber-400 flex items-center gap-1"
+              className="shrink-0 text-[10px] sm:text-[11px] font-bold px-1.5 md:px-2 py-0.5 rounded-full border backdrop-blur-md shadow-sm bg-amber-500/80 text-white border-amber-400 flex items-center gap-1 whitespace-nowrap"
             >
-              <Clock size={9} />
-              <span>Chờ xác minh</span>
+              <Clock size={9} className="shrink-0" />
+              <span className="whitespace-nowrap">Chờ xác minh</span>
             </Badge>
           )}
 
           {hasOpenInfo && (
             <Badge
               variant="outline"
-              className="text-xs font-bold px-2.5 py-1 rounded-full border border-white/15 bg-black/60 backdrop-blur-md text-white shadow-sm tracking-wide flex items-center gap-1.5"
+              className="hidden md:flex shrink-0 text-[10px] sm:text-xs font-bold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full border border-white/15 bg-black/60 backdrop-blur-md text-white shadow-sm tracking-wide items-center gap-1 sm:gap-1.5 whitespace-nowrap"
             >
               <span
                 className={cn(
-                  'w-1.5 h-1.5 rounded-full inline-block',
+                  'w-1.5 h-1.5 rounded-full inline-block shrink-0',
                   isOpen ? 'bg-teal animate-pulse' : 'bg-rose-400'
                 )}
               />
-              <span>{isOpen ? 'Đang mở cửa' : 'Đã đóng cửa'}</span>
+              <span className="whitespace-nowrap">{isOpen ? 'Đang mở cửa' : 'Đã đóng cửa'}</span>
             </Badge>
           )}
         </div>
+      </div>
 
-        {/* Floating Favorite Button */}
+      {/* Floating Favorite Button with 44px hit zone - RESPONSIVE: top-right in both layouts */}
+      <div className="absolute top-0.5 right-0.5 md:top-1 md:right-1 z-20 flex items-center justify-center p-1.5 min-h-[44px] min-w-[44px]">
         <Button
           variant="ghost"
           size="icon"
           onClick={handleFav}
           aria-label={isFavorite ? 'Xóa khỏi danh sách yêu thích' : 'Thêm vào danh sách yêu thích'}
-          className="absolute top-2 right-2 z-10 h-7 w-7 rounded-full bg-background/80 backdrop-blur-md hover:bg-secondary border border-border/60 text-foreground shadow-sm transition-all active:scale-90 focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0"
+          className="h-8 w-8 md:h-7 md:w-7 rounded-full bg-background/80 backdrop-blur-md hover:bg-secondary border border-border/60 text-foreground shadow-sm transition-all active:scale-90 focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0"
         >
           <Heart
             size={13}
@@ -123,17 +125,49 @@ export const ShopCardSmall = memo(function ShopCardSmall({
         </Button>
       </div>
 
-      {/* Content Body - Balanced spacing */}
-      <div className="flex-1 flex flex-col justify-between mt-1.5 min-h-0 space-y-0.5">
-        <h4 className="font-sans font-bold text-xs sm:text-sm text-foreground line-clamp-1 group-hover:text-amber-gold-hover transition-colors tracking-tight">
-          {shop.name}
-        </h4>
-        <p className="text-[11px] text-foreground/80 font-medium line-clamp-1 flex items-center gap-1 mt-0.5">
-          <MapPin size={10} className="text-amber-gold flex-shrink-0" />
-          {addressDisplay}
-        </p>
+      {/* Content Body - RESPONSIVE: flex-1 min-w-0 h-full with three tight rows on mobile:
+          (a) title + address, (b) metrics row, (c) status pill row. Eliminates dead space below pill. */}
+      <div className="flex-1 min-w-0 h-full overflow-hidden flex flex-col justify-between pl-2.5 pr-2.5 py-2 sm:p-2.5 md:p-0 md:mt-1.5 space-y-0.5 md:space-y-0.5">
+        <div className="min-w-0 pr-8 md:pr-0 space-y-0.5">
+          <h4 className="font-sans font-bold text-sm md:text-base text-foreground line-clamp-1 group-hover:text-amber-gold-hover transition-colors tracking-tight">
+            {shop.name}
+          </h4>
+          <p className="text-[11px] sm:text-xs text-foreground/80 font-medium flex items-center gap-1 min-w-0">
+            <MapPin size={10} className="text-amber-gold flex-shrink-0" />
+            <span className="line-clamp-1 truncate">{addressDisplay}</span>
+          </p>
+        </div>
 
-        <div className="flex items-center gap-1.5 text-[10px] text-foreground/80 font-semibold mt-0.5">
+        {/* MOBILE METRICS ROW (< md): single line with gap-1, rating (⭐ value), distance (walking icon + text) */}
+        <div className="flex md:hidden items-center gap-1 text-[11px] text-foreground/80 font-medium whitespace-nowrap overflow-hidden">
+          <span className="font-bold text-amber-gold flex items-center gap-0.5 shrink-0">
+            <Star size={10} className={cn(hasRating ? 'fill-amber-gold text-amber-gold' : 'text-amber-gold/50')} />
+            <span className="text-foreground text-[11px]">{hasRating ? shop.rating.toFixed(1) : 'Mới'}</span>
+          </span>
+          <span className="text-border shrink-0">•</span>
+          <span className="text-foreground/80 font-medium flex items-center gap-0.5 shrink-0 text-[11px]">
+            <Footprints size={10} className="text-amber-gold shrink-0" />
+            <span>{distanceDisplay}</span>
+          </span>
+        </div>
+
+        {/* MOBILE STATUS PILL ROW (< md): colored pill on bottom-left */}
+        <div className="flex md:hidden items-center">
+          <span
+            className={cn(
+              'px-2 py-0.5 rounded-full text-[10px] font-semibold whitespace-nowrap border inline-flex items-center gap-1',
+              isOpen
+                ? 'bg-teal/10 text-teal border-teal/30'
+                : 'bg-rose-500/10 text-rose-500 border-rose-500/30'
+            )}
+          >
+            <span className={cn('w-1.5 h-1.5 rounded-full shrink-0', isOpen ? 'bg-teal animate-pulse' : 'bg-rose-500')} />
+            <span>{hasOpenInfo ? (isOpen ? 'Đang mở cửa' : 'Đã đóng cửa') : 'Đang mở cửa'}</span>
+          </span>
+        </div>
+
+        {/* TABLET / DESKTOP META ROWS (md+) */}
+        <div className="hidden md:flex items-center gap-1.5 text-[11px] sm:text-xs text-foreground/80 font-semibold mt-0.5">
           <Clock size={10} className="text-amber-gold flex-shrink-0" />
           <span className="truncate">{hasOpenInfo ? (isOpen ? 'Đang mở cửa' : 'Đã đóng cửa') : 'Giờ linh hoạt'}</span>
           <span className="text-border">•</span>
@@ -141,8 +175,7 @@ export const ShopCardSmall = memo(function ShopCardSmall({
           <span className="truncate">{shop.price_range || 'Bình dân'}</span>
         </div>
 
-
-        <div className="flex items-center justify-between text-[10px] pt-1 border-t border-border/50">
+        <div className="hidden md:flex items-center justify-between text-[11px] sm:text-xs pt-1 border-t border-border/50">
           <span className="font-bold text-amber-gold flex items-center gap-1 bg-secondary border border-border/80 px-1.5 py-0.5 rounded-md shadow-xs">
             {hasRating ? (
               <>

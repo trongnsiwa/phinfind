@@ -10,9 +10,10 @@ export interface RadiusSliderProps {
   value: number | null;
   onChange: (v: number | null) => void;
   className?: string;
+  compact?: boolean;
 }
 
-export function RadiusSlider({ value, onChange, className }: RadiusSliderProps) {
+export function RadiusSlider({ value, onChange, className, compact = false }: RadiusSliderProps) {
   const isEnabled = value !== null;
   const sliderValue = value ?? 20;
 
@@ -29,6 +30,47 @@ export function RadiusSlider({ value, onChange, className }: RadiusSliderProps) 
       onChange(vals[0]);
     }
   };
+
+  if (compact) {
+    return (
+      // RESPONSIVE: Compact 2-row layout for bottom sheet
+      <div className={cn('space-y-2.5', className)}>
+        {/* Row 1: Label + Toggle switch */}
+        <div className="flex items-center justify-between">
+          <Label
+            htmlFor="radius-filter-switch-compact"
+            className="text-xs font-bold text-foreground uppercase tracking-wider cursor-pointer select-none"
+          >
+            Bán kính tìm kiếm
+          </Label>
+          <Switch
+            id="radius-filter-switch-compact"
+            checked={isEnabled}
+            onCheckedChange={handleToggle}
+            className="focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0 data-[state=checked]:bg-amber-gold cursor-pointer"
+          />
+        </div>
+
+        {/* Row 2: Slider + Value display */}
+        <div className={cn('flex items-center gap-3 pt-0.5 transition-all', !isEnabled && 'opacity-40 pointer-events-none')}>
+          <div className="flex-1 min-w-0 touch-none">
+            <Slider
+              value={[sliderValue]}
+              min={1}
+              max={100}
+              step={1}
+              disabled={!isEnabled}
+              onValueChange={handleSliderChange}
+              className="py-1 touch-none"
+            />
+          </div>
+          <span className={cn('text-xs font-bold whitespace-nowrap min-w-[5.5rem] text-right', isEnabled ? 'text-foreground' : 'text-muted-foreground')}>
+            {isEnabled ? `${value} km` : 'Không giới hạn'}
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={cn('space-y-3', className)}>

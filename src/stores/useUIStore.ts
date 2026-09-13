@@ -20,6 +20,7 @@ interface UIState {
   error: string | null;
   filters: ShopFilterState;
   mobileNavOpen: boolean;
+  mobileFilterSheetOpen: boolean;
   imagePreview: ImagePreviewState;
   setViewMode: (mode: 'map' | 'list') => void;
   setSearchQuery: (query: string) => void;
@@ -28,6 +29,7 @@ interface UIState {
   setFilters: (filters: Partial<ShopFilterState>) => void;
   resetFilters: () => void;
   toggleMobileNav: () => void;
+  setMobileFilterSheetOpen: (open: boolean) => void;
   openImagePreview: (images: (string | ImagePreviewItem)[], initialIndex?: number) => void;
   closeImagePreview: () => void;
   nextImagePreview: () => void;
@@ -57,6 +59,7 @@ export const useUIStore = create<UIState>((set) => ({
   error: null,
   filters: defaultFilters,
   mobileNavOpen: false,
+  mobileFilterSheetOpen: false,
   imagePreview: defaultImagePreview,
   setViewMode: (viewMode) => set({ viewMode }),
   setSearchQuery: (searchQuery) => set({ searchQuery }),
@@ -72,6 +75,7 @@ export const useUIStore = create<UIState>((set) => ({
       filters: defaultFilters,
     }),
   toggleMobileNav: () => set((state) => ({ mobileNavOpen: !state.mobileNavOpen })),
+  setMobileFilterSheetOpen: (mobileFilterSheetOpen) => set({ mobileFilterSheetOpen }),
   openImagePreview: (images, initialIndex = 0) => {
     const formattedImages: ImagePreviewItem[] = images.map((img) =>
       typeof img === 'string' ? { url: img } : img

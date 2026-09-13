@@ -84,10 +84,11 @@ export const ShopCardFeatured = memo(function ShopCardFeatured({
       tabIndex={0}
       onClick={() => onSelect?.(shop)}
       onKeyDown={handleKeyDown}
-      className="col-span-1 sm:col-span-2 lg:col-span-3 row-span-2 w-full h-full card-glow-border bg-gradient-to-b from-card via-card to-secondary/30 text-foreground rounded-2xl border border-amber-gold/40 shadow-card hover:shadow-card-hover hover:border-amber-gold/70 hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold transition-all duration-500 p-0 flex flex-col justify-between cursor-pointer group relative overflow-hidden"
+      // RESPONSIVE: col-span-1 at base; md:col-span-2 lg:col-span-3 md:row-span-2 only on md+
+      className="col-span-1 md:col-span-2 lg:col-span-3 md:row-span-2 w-full h-full card-glow-border bg-gradient-to-b from-card via-card to-secondary/30 text-foreground rounded-2xl border border-amber-gold/40 shadow-card hover:shadow-card-hover hover:border-amber-gold/70 hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold transition-all duration-500 p-0 flex flex-col justify-between cursor-pointer group relative overflow-hidden"
     >
-      {/* 2-Column Magazine-Style Gallery (60% Left, 40% Right Stacked) - Stretching flex-1 */}
-      <div className="relative w-full flex-1 min-h-[200px] p-3.5 flex gap-2.5 bg-muted/60 border-b border-border/60 overflow-hidden">
+      {/* 2-Column Magazine-Style Gallery - RESPONSIVE: aspect-[16/10] md:aspect-[16/9] fixed wrapper without flex-1 */}
+      <div className="relative w-full aspect-[16/10] md:aspect-[16/9] p-2.5 sm:p-3.5 flex gap-2.5 bg-muted/60 border-b border-border/60 overflow-hidden flex-shrink-0">
         {photo1 ? (
           <>
             {/* Left Column (60% Width) - Primary Image */}
@@ -142,70 +143,73 @@ export const ShopCardFeatured = memo(function ShopCardFeatured({
           </div>
         )}
 
-
         {/* Floating Badges on Top-Left */}
-        <div className="absolute top-6 left-6 z-10 flex items-center gap-2 flex-wrap">
+        <div className="absolute top-2 left-2 sm:top-3 sm:left-3 z-10 flex flex-row items-center gap-1.5 whitespace-nowrap max-w-[calc(100%-3rem)]">
           {shop.verified === false && (
             <Badge
               variant="outline"
-              className="text-xs font-bold px-3 py-1 rounded-full border backdrop-blur-md shadow-md bg-amber-500/85 text-white border-amber-400 flex items-center gap-1.5"
+              className="shrink-0 text-[10px] sm:text-xs font-bold px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full border backdrop-blur-md shadow-md bg-amber-500/85 text-white border-amber-400 flex items-center gap-1 sm:gap-1.5 whitespace-nowrap"
             >
-              <Clock size={12} />
-              <span>Chờ xác minh</span>
+              <Clock size={11} className="shrink-0" />
+              <span className="whitespace-nowrap">Chờ xác minh</span>
             </Badge>
           )}
 
           <Badge
             variant="secondary"
-            className="badge-featured-gradient font-bold text-xs px-4 py-1.5 rounded-full shadow-md tracking-wide"
+            className="shrink-0 badge-featured-gradient font-bold text-[10px] sm:text-xs px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full shadow-md tracking-wide whitespace-nowrap"
           >
-            <Sparkles size={12} className="mr-1 fill-white text-white" /> Lựa chọn nổi bật
+            <Sparkles size={11} className="mr-1 fill-white text-white shrink-0" /> Lựa chọn nổi bật
           </Badge>
 
           {hasOpenInfo && (
             <Badge
               variant="outline"
-              className="text-xs font-bold px-2.5 py-1 rounded-full border border-white/15 bg-black/60 backdrop-blur-md text-white shadow-md tracking-wide flex items-center gap-1.5"
+              className="shrink-0 text-[10px] sm:text-xs font-bold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full border border-white/15 bg-black/60 backdrop-blur-md text-white shadow-md tracking-wide flex items-center gap-1 sm:gap-1.5 whitespace-nowrap"
             >
               <span
                 className={cn(
-                  'w-1.5 h-1.5 rounded-full inline-block',
+                  'w-1.5 h-1.5 rounded-full inline-block shrink-0',
                   isOpen ? 'bg-teal animate-pulse' : 'bg-rose-400'
                 )}
               />
-              <span>{isOpen ? 'Đang mở cửa' : 'Đã đóng cửa'}</span>
+              <span className="whitespace-nowrap">{isOpen ? 'Đang mở cửa' : 'Đã đóng cửa'}</span>
             </Badge>
           )}
         </div>
 
         {/* Floating Favorite Button on Top-Right */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleFav}
-          aria-label={isFavorite ? 'Xóa khỏi danh sách yêu thích' : 'Thêm vào danh sách yêu thích'}
-          className="absolute top-6 right-6 z-10 h-7.5 w-7.5 rounded-full bg-background/80 backdrop-blur-md hover:bg-secondary border border-border/60 text-foreground shadow-md transition-all active:scale-90 focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0"
-        >
-          <Heart
-            size={13}
-            className={cn(
-              isFavorite ? 'fill-rose-500 text-rose-500' : 'text-foreground/80',
-              isHeartAnimating && 'animate-heart-beat'
-            )}
-          />
-        </Button>
+        {/* RESPONSIVE: 44px hit zone wrapper ensures WCAG touch target compliance on mobile */}
+        <div className="absolute top-1 right-1 sm:top-2 sm:right-2 z-10 flex items-center justify-center p-1.5 min-h-[44px] min-w-[44px]">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleFav}
+            aria-label={isFavorite ? 'Xóa khỏi danh sách yêu thích' : 'Thêm vào danh sách yêu thích'}
+            className="h-8 w-8 md:h-7 md:w-7 rounded-full bg-background/80 backdrop-blur-md hover:bg-secondary border border-border/60 text-foreground shadow-md transition-all active:scale-90 focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0"
+          >
+            <Heart
+              size={13}
+              className={cn(
+                isFavorite ? 'fill-rose-500 text-rose-500' : 'text-foreground/80',
+                isHeartAnimating && 'animate-heart-beat'
+              )}
+            />
+          </Button>
+        </div>
       </div>
 
       {/* Structured Editorial Content Card */}
-      <CardContent className="flex-shrink-0 p-3.5 sm:p-4 space-y-2 bg-card/95 backdrop-blur-md overflow-visible min-h-0">
+      {/* RESPONSIVE: CardContent uses flex-1 min-h-0 overflow-hidden so text truncates without expanding card */}
+      <CardContent className="flex-1 min-h-0 overflow-hidden p-2.5 sm:p-3 md:p-3.5 lg:p-4 space-y-2 bg-card/95 backdrop-blur-md flex flex-col justify-between">
         {/* Section 1: Title & Address */}
         <div>
-          <h3 className="font-sans font-bold text-sm sm:text-base text-foreground tracking-tight line-clamp-1 group-hover:text-amber-gold-hover transition-colors">
+          <h3 className="font-sans font-bold text-sm sm:text-base text-foreground tracking-tight line-clamp-1 truncate group-hover:text-amber-gold-hover transition-colors">
             {shop.name}
           </h3>
-          <p className="text-xs text-foreground/80 font-medium flex items-center gap-1.5 mt-0.5 line-clamp-1">
-            <MapPin size={12} className="text-amber-gold flex-shrink-0" />
-            {addressDisplay}
+          <p className="text-xs text-foreground/80 font-medium flex items-start gap-1.5 mt-0.5 min-w-0">
+            <MapPin size={12} className="text-amber-gold flex-shrink-0 mt-0.5" />
+            <span className="line-clamp-2 md:line-clamp-1">{addressDisplay}</span>
           </p>
         </div>
 
@@ -263,10 +267,11 @@ export const ShopCardFeatured = memo(function ShopCardFeatured({
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
           >
+            {/* RESPONSIVE: CTA buttons h-8 md:h-7 */}
             <Button
               variant="outline"
               size="sm"
-              className="h-7 px-2.5 text-xs bg-secondary border-border text-foreground hover:text-amber-gold-hover hover:border-amber-gold/40 hover:bg-accent rounded-lg font-semibold active:scale-95 transition-all shadow-xs"
+              className="h-8 md:h-7 px-2.5 text-[11px] sm:text-xs bg-secondary border-border text-foreground hover:text-amber-gold-hover hover:border-amber-gold/40 hover:bg-accent rounded-lg font-semibold active:scale-95 transition-all shadow-xs"
             >
               <Navigation size={11} className="mr-1.5 text-amber-gold" /> Chỉ đường
             </Button>
@@ -276,7 +281,7 @@ export const ShopCardFeatured = memo(function ShopCardFeatured({
             <Button
               variant="default"
               size="sm"
-              className="h-7 px-3.5 text-xs bg-gradient-to-r from-amber-gold to-amber-gold-hover text-primary-foreground font-bold hover:brightness-105 rounded-lg shadow-sm shadow-amber-gold/25 active:scale-95 transition-all"
+              className="h-8 md:h-7 px-3.5 text-[11px] sm:text-xs bg-gradient-to-r from-amber-gold to-amber-gold-hover text-primary-foreground font-bold hover:brightness-105 rounded-lg shadow-sm shadow-amber-gold/25 active:scale-95 transition-all"
             >
               Xem chi tiết <ExternalLink size={11} className="ml-1.5" />
             </Button>

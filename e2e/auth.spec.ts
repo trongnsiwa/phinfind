@@ -6,7 +6,7 @@ test.describe('Authentication Flow', () => {
 
     await expect(page.locator('#email')).toBeVisible();
     await expect(page.locator('#password')).toBeVisible();
-    await expect(page.getByRole('button', { name: /đăng nhập/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Đăng nhập', exact: true })).toBeVisible();
 
     const googleBtn = page.getByRole('button', { name: /đăng nhập bằng google/i });
     await expect(googleBtn).toBeVisible();
@@ -32,7 +32,7 @@ test.describe('Authentication Flow', () => {
     const passwordInput = page.locator('#password');
     await expect(passwordInput).toHaveAttribute('minlength', '8');
 
-    const loginLink = page.getByRole('link', { name: /đăng nhập ngay/i });
+    const loginLink = page.getByRole('link', { name: 'Đăng nhập', exact: true });
     await expect(loginLink).toBeVisible();
   });
 

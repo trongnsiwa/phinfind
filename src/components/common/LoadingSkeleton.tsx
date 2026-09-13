@@ -3,6 +3,8 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
+import { BENTO_GRID_CLASSES } from '@/components/bento/BentoGrid';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 interface CardSkeletonProps {
   size?: 'small' | 'medium' | 'large' | 'featured';
@@ -14,12 +16,18 @@ export function CardSkeleton({ size = 'small', className }: CardSkeletonProps) {
     return (
       <Card
         className={cn(
-          'col-span-1 sm:col-span-2 lg:col-span-3 row-span-2 p-0 bg-card rounded-2xl border border-border shadow-md flex flex-col justify-start overflow-hidden',
+          // RESPONSIVE: col-span-1 row-span-3 on mobile (< md); md:col-span-2 lg:col-span-3 md:row-span-2 on md+
+          'col-span-1 row-span-3 md:col-span-2 lg:col-span-3 md:row-span-2 p-2.5 xs:p-3 md:p-0 bg-card rounded-2xl border border-border shadow-md flex flex-col justify-between overflow-hidden',
           className
         )}
       >
-        {/* 2-Column Gallery Skeleton Header */}
-        <div className='w-full flex-1 min-h-[200px] p-3.5 flex gap-2.5 bg-secondary/60 border-b border-border/60'>
+        {/* Mobile Header: Single Hero Image */}
+        <div className='block md:hidden relative w-full aspect-[16/10] max-h-36 xs:max-h-40 rounded-2xl overflow-hidden bg-secondary flex-shrink-0 border border-border/40'>
+          <Skeleton className='w-full h-full bg-secondary' />
+        </div>
+
+        {/* Desktop Header: 2-Column Gallery Skeleton Header */}
+        <div className='hidden md:flex w-full aspect-[16/10] md:aspect-[16/9] p-2.5 sm:p-3.5 gap-2.5 bg-secondary/60 border-b border-border/60 flex-shrink-0'>
           <Skeleton className='w-[60%] h-full rounded-xl bg-secondary border border-border/40' />
           <div className='w-[40%] h-full flex flex-col gap-2.5'>
             <Skeleton className='h-1/2 rounded-lg bg-secondary border border-border/40' />
@@ -27,8 +35,27 @@ export function CardSkeleton({ size = 'small', className }: CardSkeletonProps) {
           </div>
         </div>
 
-        {/* Content Skeleton */}
-        <CardContent className='flex-1 flex flex-col justify-start p-3 sm:p-3.5 space-y-1.5'>
+        {/* Mobile Content Skeleton (below image) */}
+        <div className='flex md:hidden flex-1 min-h-0 flex-col justify-between p-3.5 pt-2 pb-0 space-y-2'>
+          <div className='space-y-1'>
+            <Skeleton className='h-3 w-28 bg-amber-gold/20 rounded' />
+            <Skeleton className='h-5 w-3/5 bg-secondary' />
+            <Skeleton className='h-3.5 w-4/5 bg-secondary/60' />
+            <div className='flex items-center gap-1.5 pt-0.5'>
+              <Skeleton className='h-3.5 w-12 rounded bg-secondary' />
+              <Skeleton className='h-3.5 w-16 rounded bg-secondary/60' />
+              <Skeleton className='h-3.5 w-16 rounded bg-secondary/60' />
+            </div>
+          </div>
+          <Skeleton className='h-9 w-full rounded-r-lg bg-secondary/50' />
+          <div className='flex items-center gap-2 pt-1 border-t border-border/40'>
+            <Skeleton className='h-9 flex-1 rounded-xl bg-secondary' />
+            <Skeleton className='h-9 flex-1 rounded-xl bg-amber-gold/20' />
+          </div>
+        </div>
+
+        {/* Desktop Content Skeleton */}
+        <CardContent className='hidden md:flex flex-1 flex-col justify-start p-3 sm:p-3.5 space-y-1.5'>
           <div className='space-y-1'>
             <Skeleton className='h-4.5 w-1/2 bg-secondary' />
             <Skeleton className='h-3 w-3/4 bg-secondary/60' />
@@ -53,12 +80,13 @@ export function CardSkeleton({ size = 'small', className }: CardSkeletonProps) {
     return (
       <Card
         className={cn(
-          'col-span-1 sm:col-span-2 row-span-2 p-0 bg-card rounded-2xl border border-border shadow-md flex flex-col justify-start overflow-hidden',
+          // RESPONSIVE: col-span-1 at base; md:col-span-2 md:row-span-2 on md+
+          'col-span-1 md:col-span-2 md:row-span-2 p-0 bg-card rounded-2xl border border-border shadow-md flex flex-col justify-start overflow-hidden',
           className
         )}
       >
-        {/* 2-Column Gallery Skeleton Header */}
-        <div className='w-full flex-1 min-h-[190px] p-3.5 flex gap-2.5 bg-secondary/60 border-b border-border/60'>
+        {/* 2-Column Gallery Skeleton Header - fixed aspect ratio */}
+        <div className='w-full aspect-[16/10] md:aspect-[16/9] p-2.5 sm:p-3.5 flex gap-2.5 bg-secondary/60 border-b border-border/60 flex-shrink-0'>
           <Skeleton className='w-[60%] h-full rounded-xl bg-secondary border border-border/40' />
           <div className='w-[40%] h-full flex flex-col gap-2.5'>
             <Skeleton className='h-1/2 rounded-lg bg-secondary border border-border/40' />
@@ -92,17 +120,18 @@ export function CardSkeleton({ size = 'small', className }: CardSkeletonProps) {
     return (
       <Card
         className={cn(
-          'col-span-1 sm:col-span-2 row-span-1 p-3 bg-card rounded-2xl border border-border shadow-md flex gap-3 overflow-hidden',
+          // RESPONSIVE: col-span-1 at base; md:col-span-2 row-span-1 on md+
+          'col-span-1 md:col-span-2 row-span-1 p-2.5 sm:p-3 bg-card rounded-2xl border border-border shadow-md flex gap-2.5 sm:gap-3 overflow-hidden',
           className
         )}
       >
-        {/* Left 4:3 Image Skeleton */}
-        <div className='w-[36%] sm:w-[34%] h-full min-h-[130px] rounded-xl overflow-hidden bg-secondary/80 flex-shrink-0'>
+        {/* Left Media Container Skeleton */}
+        <div className='w-[30%] md:w-[34%] h-full rounded-xl overflow-hidden bg-secondary/80 flex-shrink-0'>
           <Skeleton className='w-full h-full rounded-xl bg-secondary border border-border/40' />
         </div>
 
         {/* Right Stacked Content Skeleton */}
-        <div className='flex-1 flex flex-col justify-between py-0'>
+        <div className='flex-1 min-h-0 overflow-hidden flex flex-col justify-between py-0'>
           <div className='space-y-1'>
             <Skeleton className='h-4.5 w-2/3 bg-secondary' />
             <Skeleton className='h-3 w-5/6 bg-secondary/60' />
@@ -123,18 +152,31 @@ export function CardSkeleton({ size = 'small', className }: CardSkeletonProps) {
   return (
     <Card
       className={cn(
-        'col-span-1 row-span-1 p-2.5 sm:p-3 bg-card rounded-2xl border border-border shadow-md flex flex-col justify-between overflow-hidden',
+        // RESPONSIVE: Fixed height h-[112px] self-start on mobile (< md) matching ShopCardSmall, vertical card on md+
+        'col-span-1 row-span-1 h-[112px] md:h-full self-start md:self-auto p-0 md:p-3.5 lg:p-4 bg-card rounded-2xl border border-border shadow-md flex flex-row md:flex-col justify-between overflow-hidden gap-0',
         className
       )}
     >
-      <div className='relative w-full h-24 sm:h-28 rounded-xl overflow-hidden bg-secondary/80 flex-shrink-0'>
-        <Skeleton className='w-full h-full rounded-xl bg-secondary border border-border/40' />
+      <div className='relative h-full w-28 md:w-full md:h-28 md:aspect-auto rounded-none md:rounded-xl overflow-hidden bg-secondary/80 flex-shrink-0 border-r md:border-r-0 border-border/40'>
+        <Skeleton className='w-full h-full bg-secondary' />
       </div>
 
-      <div className='flex-1 flex flex-col justify-between mt-1.5 min-h-0 space-y-0.5'>
-        <Skeleton className='h-3.5 w-3/4 bg-secondary' />
-        <Skeleton className='h-2.5 w-1/2 bg-secondary/60' />
-        <div className='flex items-center justify-between pt-1 border-t border-border/40'>
+      <div className='flex-1 min-w-0 h-full overflow-hidden flex flex-col justify-between pl-2.5 pr-2.5 py-2 md:p-0 md:mt-1.5 space-y-0.5'>
+        <div className='space-y-0.5 min-w-0'>
+          <Skeleton className='h-3.5 w-3/4 bg-secondary' />
+          <Skeleton className='h-2.5 w-1/2 bg-secondary/60' />
+        </div>
+        {/* Mobile meta skeleton */}
+        <div className='flex md:hidden items-center gap-1 text-[11px] pt-0.5'>
+          <Skeleton className='h-3 w-10 rounded bg-secondary' />
+          <Skeleton className='h-3 w-12 rounded bg-secondary/60' />
+        </div>
+        {/* Mobile status pill skeleton */}
+        <div className='flex md:hidden items-center'>
+          <Skeleton className='h-4 w-16 rounded-full bg-secondary/60' />
+        </div>
+        {/* Tablet/Desktop meta skeleton */}
+        <div className='hidden md:flex items-center justify-between pt-1 border-t border-border/40'>
           <Skeleton className='h-3.5 w-10 rounded-md bg-secondary' />
           <Skeleton className='h-4 w-12 rounded-md bg-amber-gold/20' />
         </div>
@@ -144,7 +186,9 @@ export function CardSkeleton({ size = 'small', className }: CardSkeletonProps) {
 }
 
 export function ListSkeleton({ count = 12 }: { count?: number }) {
-  const skeletonSizes: ('small' | 'medium' | 'large' | 'featured')[] = [
+  // RESPONSIVE: Gate skeleton layout based on viewport to match ShopCardSmall / ShopCardFeaturedMobile behavior
+  const isTabletOrLarger = useMediaQuery('(min-width: 768px)');
+  const desktopSkeletonSizes: ('small' | 'medium' | 'large' | 'featured')[] = [
     'featured',
     'small',
     'small',
@@ -158,12 +202,17 @@ export function ListSkeleton({ count = 12 }: { count?: number }) {
     'large',
     'small'
   ];
+  // RESPONSIVE: Repeating pattern of 3 standard + 1 featured skeletons matching real mobile feed
+  const mobileSkeletonSizes: ('small' | 'featured')[] = ['small', 'small', 'small', 'featured'];
 
   return (
-    // RESPONSIVE: Mirror BentoGrid ladder (2-col mobile/sm -> 3-col md -> 4-col lg) to eliminate layout shift upon load
-    <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 auto-rows-[260px] [grid-auto-flow:dense] transition-opacity duration-300 animate-in fade-in'>
+    // RESPONSIVE: Shares exact BENTO_GRID_CLASSES with BentoGrid for zero layout shift
+    <div className={cn(BENTO_GRID_CLASSES, 'transition-opacity duration-300 animate-in fade-in')}>
       {Array.from({ length: count }).map((_, index) => {
-        const size = skeletonSizes[index % skeletonSizes.length];
+        // RESPONSIVE: 3 standard + 1 featured on mobile (< md), full bento variety on tablet/desktop (md+)
+        const size = isTabletOrLarger
+          ? desktopSkeletonSizes[index % desktopSkeletonSizes.length]
+          : mobileSkeletonSizes[index % mobileSkeletonSizes.length];
         return <CardSkeleton key={index} size={size} />;
       })}
     </div>
