@@ -13,8 +13,19 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'),
-  title: 'PhinFind - Khám phá Cà phê Việt',
+  title: {
+    default: 'PhinFind - Khám phá Cà phê Việt',
+    template: '%s | PhinFind',
+  },
   description: 'Khám phá những quán cà phê tuyệt vời nhất gần bạn với bản đồ tương tác và đánh giá chi tiết',
+  keywords: [
+    'quán cà phê',
+    'cà phê Việt',
+    'bản đồ cà phê',
+    'tìm quán cà phê gần đây',
+    'coffee shop Vietnam',
+    'PhinFind',
+  ],
   manifest: '/manifest.json',
   icons: {
     icon: [
@@ -32,14 +43,21 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: false,
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'PhinFind - Khám phá Cà phê Việt',
+    description:
+      'Khám phá những quán cà phê tuyệt vời nhất gần bạn với bản đồ tương tác và đánh giá chi tiết',
+    images: ['/logo-512.png'],
+  },
 };
 
 export const viewport: Viewport = {
   themeColor: '#F9F6F0',
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  maximumScale: 5,
+  userScalable: true,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

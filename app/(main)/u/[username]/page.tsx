@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { JsonLd } from '@/components/seo/JsonLd';
 import { fetchPublicProfileForServer } from '@/lib/supabase/profile-detail';
 import { PublicProfileClient } from './PublicProfileClient';
 
@@ -50,6 +51,28 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default function PublicProfilePage() {
-  return <PublicProfileClient />;
+export default async function PublicProfilePage({ params }: PageProps) {
+  const { username } = await params;
+  const profile = await fetchPublicProfileForServer(username);
+
+  if (!profile) {
+    return <PublicProfileClient />;
+  }
+
+  const profileJsonLd: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: profile.full_name || profile.username,
+    alternateName: `@${profile.username}`,
+    url: `${BASE_URL}/u/${profile.username}`,
+    ...(profile.avatar_url ? { image: profile.avatar_url } : {}),
+    ...(profile.bio ? { description: profile.bio } : {}),
+  };
+
+  return (
+    <>
+      <JsonLd data={profileJsonLd} />
+      <PublicProfileClient />
+    </>
+  );
 }
