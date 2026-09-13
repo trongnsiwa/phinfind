@@ -114,11 +114,15 @@ export function SyncIndicator() {
     return () => clearInterval(timer);
   }, [isOnline, pendingCount, isSyncing, refreshCount, handleFlush]);
 
+  // RESPONSIVE: Bottom offset includes safe-area-inset-bottom so indicator floats above BottomNav on mobile (5rem) and page bottom on desktop (1.5rem)
+  const indicatorPositionClass =
+    'fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] md:bottom-[calc(1.5rem+env(safe-area-inset-bottom))] left-4 z-40 animate-in fade-in slide-in-from-bottom-2 duration-300';
+
   // Render logic
   // 1. Success state
   if (showSyncedSuccess) {
     return (
-      <div className="fixed bottom-20 md:bottom-6 left-4 z-40 animate-in fade-in slide-in-from-bottom-2 duration-300">
+      <div className={indicatorPositionClass}>
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-medium shadow-md backdrop-blur-md">
           <CheckCircle2 size={14} className="text-emerald-500" />
           <span>Đã đồng bộ</span>
@@ -130,7 +134,7 @@ export function SyncIndicator() {
   // 2. Syncing state
   if (isSyncing || (isOnline && pendingCount > 0)) {
     return (
-      <div className="fixed bottom-20 md:bottom-6 left-4 z-40 animate-in fade-in slide-in-from-bottom-2 duration-300">
+      <div className={indicatorPositionClass}>
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-gold/10 border border-amber-gold/30 text-amber-gold text-xs font-medium shadow-md backdrop-blur-md">
           <Loader2 size={14} className="animate-spin text-amber-gold" />
           <span>Đang đồng bộ {pendingCount > 0 ? `${pendingCount} ` : ''}thao tác...</span>
@@ -142,7 +146,7 @@ export function SyncIndicator() {
   // 3. Offline state
   if (!isOnline && !isOfflineDismissed) {
     return (
-      <div className="fixed bottom-20 md:bottom-6 left-4 z-40 animate-in fade-in slide-in-from-bottom-2 duration-300">
+      <div className={indicatorPositionClass}>
         <div
           role="status"
           aria-live="polite"

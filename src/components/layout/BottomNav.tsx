@@ -38,7 +38,8 @@ export function BottomNav() {
   ];
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-lg border-t border-border px-4 py-1.5 shadow-lg text-foreground">
+    // RESPONSIVE: safe-bottom clears physical gesture indicator on notched devices; md:hidden since tablet/desktop relies on Header nav
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-lg border-t border-border px-4 pt-1.5 safe-bottom shadow-lg text-foreground">
       <div className="flex items-center justify-around">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
@@ -54,9 +55,10 @@ export function BottomNav() {
                 isActive ? 'text-foreground font-bold scale-105' : 'text-muted-foreground hover:text-foreground'
               )}
             >
-              <Link href={item.href}>
+              <Link href={item.href} aria-current={isActive ? 'page' : undefined}>
                 <Icon className={cn('h-5 w-5 transition-transform', isActive ? 'stroke-[2.5px] text-primary' : 'text-muted-foreground')} />
-                <span className="text-[10px] tracking-wide">{item.label}</span>
+                {/* RESPONSIVE: Bump label from 10px to 11px/xs for mobile readability */}
+                <span className="text-[11px] xs:text-xs tracking-wide">{item.label}</span>
                 {isActive && (
                   <span className="absolute bottom-0 w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                 )}

@@ -184,6 +184,7 @@ export function Header() {
   }
 
   return (
+    // RESPONSIVE: Header height must stay h-14 across all tiers because MapClient positions fixed overlays at top-14
     <header className='sticky-header sticky top-0 z-40 h-14 w-full bg-card/95 backdrop-blur-md border-b border-border text-foreground shadow-sm px-3 sm:px-4 transition-colors duration-200 flex items-center'>
       <div className='max-w-7xl mx-auto w-full flex items-center justify-between gap-3 sm:gap-4'>
         {/* Left Side: Brand Logo + Desktop Navigation Links */}
@@ -311,11 +312,12 @@ export function Header() {
             </Button>
 
             {/* Open state: Width-based expanding container wrapping input + close button */}
+            {/* RESPONSIVE: Container max-width accommodates search input ladder plus action button */}
             <div
               className={cn(
                 'overflow-hidden transition-all duration-300 ease-out will-change-[max-width,opacity] py-1 -my-1 px-1 -mx-1',
                 isSearchOpen
-                  ? 'max-w-[calc(100vw-180px)] xs:max-w-64 sm:max-w-80 opacity-100'
+                  ? 'max-w-[min(24rem,calc(100vw-5rem))] opacity-100'
                   : 'max-w-0 opacity-0 pointer-events-none'
               )}
             >
@@ -342,7 +344,8 @@ export function Header() {
                     onKeyDown={handleKeyDown}
                     placeholder='Tìm theo tên quán, đường phố, khu vực...'
                     aria-label='Tìm kiếm quán cà phê'
-                    className='w-32 xs:w-48 sm:w-64 min-w-[120px] max-w-[calc(100vw-180px)] sm:max-w-none h-9 pl-9 pr-8 text-xs sm:text-sm bg-secondary text-foreground border-border rounded-xl !outline-none focus:!outline-none focus-visible:!outline-none focus:ring-1 focus:ring-amber-gold/60 focus:ring-offset-0 focus:border-amber-gold/60 focus-visible:ring-1 focus-visible:ring-amber-gold/60 focus-visible:ring-offset-0 focus-visible:border-amber-gold/60 focus:shadow-[0_0_0_1px_rgba(184,134,11,0.25)] focus-visible:shadow-[0_0_0_1px_rgba(184,134,11,0.25)] placeholder:text-muted-foreground transition-all duration-200 ease-out will-change-[transform,opacity]'
+                    // RESPONSIVE: Responsive search field width preventing overflow under 360px
+                    className='w-full max-w-[min(20rem,calc(100vw-8rem))] h-9 pl-9 pr-8 text-xs sm:text-sm bg-secondary text-foreground border-border rounded-xl !outline-none focus:!outline-none focus-visible:!outline-none focus:ring-1 focus:ring-amber-gold/60 focus:ring-offset-0 focus:border-amber-gold/60 focus-visible:ring-1 focus-visible:ring-amber-gold/60 focus-visible:ring-offset-0 focus-visible:border-amber-gold/60 focus:shadow-[0_0_0_1px_rgba(184,134,11,0.25)] focus-visible:shadow-[0_0_0_1px_rgba(184,134,11,0.25)] placeholder:text-muted-foreground transition-all duration-200 ease-out will-change-[transform,opacity]'
                   />
                   {localValue && (
                     <Button
@@ -375,8 +378,9 @@ export function Header() {
             </div>
 
             {/* Autocomplete Suggestions Dropdown Attached Below Right-Aligned Search */}
+            {/* RESPONSIVE: Width ladder fills viewport on mobile while expanding up to 28rem on large screens */}
             {isSearchOpen && localValue.trim().length > 0 && (
-              <div className='absolute right-0 top-full mt-2 w-[calc(100vw-6rem)] xs:w-72 sm:w-80 md:w-96 max-w-[calc(100vw-1.5rem)] bg-popover/98 backdrop-blur-xl border border-border rounded-2xl shadow-2xl p-2 z-[100] max-h-80 overflow-y-auto space-y-1 animate-in fade-in slide-in-from-top-1 duration-150 text-left'>
+              <div className='absolute right-0 top-full mt-2 w-full sm:w-[22rem] md:w-[26rem] lg:w-[28rem] max-w-[calc(100vw-1.5rem)] bg-popover/98 backdrop-blur-xl border border-border rounded-2xl shadow-2xl p-2 z-[100] max-h-80 overflow-y-auto space-y-1 animate-in fade-in slide-in-from-top-1 duration-150 text-left'>
                 {isSearching ? (
                   <div className='py-6 text-center text-xs text-muted-foreground flex items-center justify-center gap-2 font-medium'>
                     <span className='w-3.5 h-3.5 rounded-full border-2 border-amber-gold border-t-transparent animate-spin' />

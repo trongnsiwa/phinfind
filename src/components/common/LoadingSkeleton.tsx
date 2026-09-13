@@ -160,7 +160,8 @@ export function ListSkeleton({ count = 12 }: { count?: number }) {
   ];
 
   return (
-    <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 auto-rows-[260px] [grid-auto-flow:dense] transition-opacity duration-300 animate-in fade-in'>
+    // RESPONSIVE: Mirror BentoGrid ladder (2-col mobile/sm -> 3-col md -> 4-col lg) to eliminate layout shift upon load
+    <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 auto-rows-[260px] [grid-auto-flow:dense] transition-opacity duration-300 animate-in fade-in'>
       {Array.from({ length: count }).map((_, index) => {
         const size = skeletonSizes[index % skeletonSizes.length];
         return <CardSkeleton key={index} size={size} />;
@@ -267,14 +268,17 @@ export function DetailSkeleton() {
         </Card>
       </div>
 
-      {/* 3. Fixed Bottom Action Bar Skeleton with 4 Button Actions */}
-      <div className='fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-xl border-t border-border px-3 sm:px-4 py-2.5 sm:py-3 shadow-2xl select-none pb-[max(0.75rem,env(safe-area-inset-bottom))]'>
-        <div className='max-w-3xl lg:max-w-4xl mx-auto grid grid-cols-4 gap-2 sm:gap-3'>
+      {/* 3. Fixed Bottom Action Bar Skeleton with 5 Button Actions */}
+      {/* RESPONSIVE: Mirrors ShopDetailClient 5-action grid layout and safe-area padding */}
+      <div className='fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-xl border-t border-border px-2.5 sm:px-4 py-2.5 sm:py-3 shadow-2xl select-none pb-[max(0.75rem,env(safe-area-inset-bottom))]'>
+        <div className='max-w-3xl lg:max-w-4xl mx-auto grid grid-cols-5 gap-1.5 sm:gap-2.5'>
           {/* Back Action */}
           <Skeleton className='h-10 sm:h-11 rounded-full bg-secondary border border-border/60' />
           {/* Directions Action (Amber highlight) */}
           <Skeleton className='h-10 sm:h-11 rounded-full bg-amber-gold/30 border border-amber-gold/40' />
           {/* Favorite Action */}
+          <Skeleton className='h-10 sm:h-11 rounded-full bg-secondary border border-border/60' />
+          {/* Visited Action */}
           <Skeleton className='h-10 sm:h-11 rounded-full bg-secondary border border-border/60' />
           {/* Share Action */}
           <Skeleton className='h-10 sm:h-11 rounded-full bg-secondary border border-border/60' />
