@@ -28,7 +28,9 @@ export function MainContent({ children }: { children: React.ReactNode }) {
     <main
       className={cn(
         'flex-1 w-full',
-        isMap ? 'p-0 m-0 h-full overflow-hidden' : 'max-w-7xl mx-auto p-4 sm:p-6 pb-20 md:pb-8'
+        isMap
+          ? 'p-0 m-0 h-full overflow-hidden'
+          : 'max-w-3xl md:max-w-5xl lg:max-w-6xl xl:max-w-7xl mx-auto px-4 sm:px-6 md:px-8 pb-24 md:pb-10'
       )}
     >
       {children}

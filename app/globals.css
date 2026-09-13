@@ -288,6 +288,7 @@
 
 html,
 body {
+  overflow-x: clip;
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-body);
@@ -806,3 +807,47 @@ textarea::placeholder {
   color: #FFFFFF;
   box-shadow: 0 4px 12px rgba(184, 134, 11, 0.35);
 }
+
+/*
+ * Safe Area & Touch-Target Utilities (WCAG 2.5.5 / Mobile Polish)
+ *
+ * Rationale:
+ * .safe-bottom: Ensures bottom-anchored controls and navigation clear the hardware
+ *   home indicator / gesture bar on notched mobile devices (iOS Safari / PWA), with
+ *   a sensible fallback of 0.75rem (12px) for non-notched screens.
+ * .safe-top: Ensures top-anchored headers clear physical hardware notches, dynamic islands,
+ *   or status bars in standalone PWA display mode.
+ * .tap-target: Enforces WCAG 2.5.5 Target Size minimum (44x44px) for comfortable
+ *   touch ergonomics across mobile viewports.
+ */
+.safe-bottom {
+  padding-bottom: max(env(safe-area-inset-bottom), 0.75rem);
+}
+
+.safe-top {
+  padding-top: max(env(safe-area-inset-top), 0);
+}
+
+.tap-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/*
+ * Accessibility: Disable smooth scrolling and animations for users requesting reduced motion
+ */
+@media (prefers-reduced-motion: reduce) {
+  html:focus-within {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
