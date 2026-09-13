@@ -1,55 +1,58 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter } from 'next/font/google';
-import { Toaster } from '@/components/ui/sonner';
-import { ThemeProvider } from '@/components/providers/ThemeProvider';
-import { ReactQueryProvider } from '@/components/providers/ReactQueryProvider';
 import './globals.css';
+
+import { Inter } from 'next/font/google';
+
+import { ReactQueryProvider } from '@/components/providers/ReactQueryProvider';
+import { ThemeProvider } from '@/components/providers/ThemeProvider';
+import { Toaster } from '@/components/ui/sonner';
 
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
-  display: 'swap',
+  display: 'swap'
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'),
   title: {
     default: 'PhinFind - Khám phá Cà phê Việt',
-    template: '%s | PhinFind',
+    template: '%s | PhinFind'
   },
-  description: 'Khám phá những quán cà phê tuyệt vời nhất gần bạn với bản đồ tương tác và đánh giá chi tiết',
+  description:
+    'Khám phá những quán cà phê tuyệt vời nhất gần bạn với bản đồ tương tác và đánh giá chi tiết',
   keywords: [
     'quán cà phê',
     'cà phê Việt',
     'bản đồ cà phê',
     'tìm quán cà phê gần đây',
     'coffee shop Vietnam',
-    'PhinFind',
+    'PhinFind'
   ],
   manifest: '/manifest.json',
   icons: {
     icon: [
       { url: '/favicon.svg', type: 'image/svg+xml' },
-      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/favicon.ico', sizes: 'any' }
     ],
     shortcut: '/logo-192.png',
-    apple: '/logo-192.png',
+    apple: '/logo-192.png'
   },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'PhinFind',
+    title: 'PhinFind'
   },
   formatDetection: {
-    telephone: false,
+    telephone: false
   },
   twitter: {
     card: 'summary_large_image',
     title: 'PhinFind - Khám phá Cà phê Việt',
     description:
       'Khám phá những quán cà phê tuyệt vời nhất gần bạn với bản đồ tương tác và đánh giá chi tiết',
-    images: ['/logo-512.png'],
-  },
+    images: ['/logo-512.png']
+  }
 };
 
 export const viewport: Viewport = {
@@ -57,16 +60,16 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
-  userScalable: true,
+  userScalable: true
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="vi" className={`${inter.variable}`} suppressHydrationWarning>
+    <html lang='vi' className={`${inter.variable}`} suppressHydrationWarning>
       <head>
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel='icon' href='/favicon.svg' type='image/svg+xml' />
+        <link rel='icon' href='/favicon.ico' sizes='any' />
+        <link rel='apple-touch-icon' href='/apple-touch-icon.png' />
         {/* Unregister service workers and clear caches in development to ensure fresh server HTML */}
         {process.env.NODE_ENV === 'development' && (
           <script
@@ -82,16 +85,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     keys.forEach(function(k) { caches.delete(k); });
                   });
                 }
-              `,
+              `
             }}
           />
         )}
       </head>
-      <body className="min-h-screen bg-background text-foreground antialiased selection:bg-phin-200">
+      <body className='min-h-screen bg-background text-foreground antialiased selection:bg-phin-200'>
         <ThemeProvider>
           <ReactQueryProvider>
             {children}
-            <Toaster position="top-right" richColors />
+            <Toaster position='top-right' richColors />
           </ReactQueryProvider>
         </ThemeProvider>
       </body>
