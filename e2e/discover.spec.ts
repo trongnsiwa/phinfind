@@ -82,7 +82,7 @@ test.describe('Discover Page & Bento Grid', () => {
     const headerBox320 = await header.boundingBox();
     expect(headerBox320?.height).toBe(56);
 
-    // Verify theme toggle and hamburger are hidden on mobile (< md) to maintain 4 tap targets
+    // Verify theme toggle and hamburger are hidden on mobile (< md)
     const themeToggle = header.locator('button[aria-label*="giao diện"]');
     await expect(themeToggle).toBeHidden();
     const hamburger = header.locator('button[aria-label="Mở menu"]');
@@ -308,6 +308,7 @@ test.describe('Discover Page & Bento Grid', () => {
     expect(applyBox390!.y + applyBox390!.height).toBeLessThanOrEqual(844);
 
     await applyBtn.click();
+    await expect(page.locator('[role="dialog"]')).toBeHidden();
     await expect(bottomNav).toBeVisible();
     await expect(mobileAddBar).toBeVisible();
     // At 390px (>= 360px xs breakpoint), text "Thêm quán" is visible
@@ -373,11 +374,12 @@ test.describe('Discover Page & Bento Grid', () => {
     const headerBox = await header.boundingBox();
     expect(headerBox?.height).toBe(56);
 
-    // Verify theme toggle and hamburger are visible on tablet (>= md)
+    // Verify theme toggle is visible and hamburger is hidden on tablet (>= md)
     const themeToggle = header.locator('button[aria-label*="giao diện"]');
     await expect(themeToggle).toBeVisible();
     const hamburger = header.locator('button[aria-label="Mở menu"]');
-    await expect(hamburger).toBeVisible();
+    await expect(hamburger).toBeHidden();
+    await expect(page.getByText('Menu PhinFind')).toBeHidden();
 
     // Mobile "Bộ lọc" button should be hidden on tablet
     const mobileFilterBtn = page.locator('button[aria-label="Mở bộ lọc tìm kiếm"]');
@@ -394,6 +396,14 @@ test.describe('Discover Page & Bento Grid', () => {
     const mobileStickyBar = page.locator('.md\\:hidden button[aria-label="Thêm quán cà phê mới"]');
     await expect(mobileStickyBar).toBeHidden();
 
+    // Verify vertical gap below header is ~24px (pt-6)
+    const filterCard768 = page.locator('div.hidden.md\\:block.bg-gradient-to-b');
+    const filterCard768Box = await filterCard768.boundingBox();
+    expect(filterCard768Box).not.toBeNull();
+    const gap768 = filterCard768Box!.y - (headerBox!.y + headerBox!.height);
+    expect(gap768).toBeGreaterThanOrEqual(20);
+    expect(gap768).toBeLessThanOrEqual(36);
+
     const isOverflowing = await page.evaluate(() => {
       return document.documentElement.scrollWidth > document.documentElement.clientWidth;
     });
@@ -409,6 +419,11 @@ test.describe('Discover Page & Bento Grid', () => {
 
     const inlineFilterChip = page.locator('.hidden.md\\:block button[aria-label="Lọc quán đang mở cửa"]');
     await expect(inlineFilterChip).toBeVisible();
+
+    // Verify hamburger is hidden on 1024px tablet landscape
+    const hamburger1024 = page.locator('header.sticky-header button[aria-label="Mở menu"]');
+    await expect(hamburger1024).toBeHidden();
+    await expect(page.getByText('Menu PhinFind')).toBeHidden();
 
     const desktopFab1024 = page.locator('.hidden.md\\:block button[aria-label="Thêm quán cà phê mới"]');
     await expect(desktopFab1024).toBeVisible();
@@ -431,11 +446,20 @@ test.describe('Discover Page & Bento Grid', () => {
     const headerBox = await header.boundingBox();
     expect(headerBox?.height).toBe(56);
 
-    // Verify theme toggle and hamburger are visible on desktop (>= md)
+    // Verify theme toggle is visible and hamburger is hidden on desktop (>= md)
     const themeToggle = header.locator('button[aria-label*="giao diện"]');
     await expect(themeToggle).toBeVisible();
     const hamburger = header.locator('button[aria-label="Mở menu"]');
-    await expect(hamburger).toBeVisible();
+    await expect(hamburger).toBeHidden();
+    await expect(page.getByText('Menu PhinFind')).toBeHidden();
+
+    // Verify vertical gap below header is ~32px (md:pt-8)
+    const filterCard1280 = page.locator('div.hidden.md\\:block.bg-gradient-to-b');
+    const filterCard1280Box = await filterCard1280.boundingBox();
+    expect(filterCard1280Box).not.toBeNull();
+    const gap1280 = filterCard1280Box!.y - (headerBox!.y + headerBox!.height);
+    expect(gap1280).toBeGreaterThanOrEqual(28);
+    expect(gap1280).toBeLessThanOrEqual(36);
 
     const mobileFilterBtn = page.locator('button[aria-label="Mở bộ lọc tìm kiếm"]');
     await expect(mobileFilterBtn).toBeHidden();
@@ -452,6 +476,15 @@ test.describe('Discover Page & Bento Grid', () => {
       return document.documentElement.scrollWidth > document.documentElement.clientWidth;
     });
     expect(isOverflowing).toBe(false);
+  });
+
+  test('map page remains full-bleed with zero padding on main container', async ({ page }) => {
+    await page.goto('/map');
+    const main = page.locator('main');
+    await expect(main).toHaveClass(/p-0/);
+    await expect(main).toHaveClass(/m-0/);
+    await expect(main).toHaveClass(/h-full/);
+    await expect(main).toHaveClass(/overflow-hidden/);
   });
 
   test('mobile featured hero card rendering, constraints, and interaction', async ({ page }) => {
@@ -512,5 +545,21 @@ test.describe('Discover Page & Bento Grid', () => {
         }
       }
     }
+  });
+
+  test('mobile header has no hamburger menu and relies on bottom nav (< md)', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+
+    const hamburger = page.locator('header.sticky-header button[aria-label="Mở menu"]');
+    await expect(hamburger).toBeHidden();
+
+    // Verify all primary mobile destinations exist in BottomNav
+    const bottomNav = page.locator('nav.md\\:hidden');
+    await expect(bottomNav).toBeVisible();
+    await expect(bottomNav.getByRole('link', { name: 'Khám phá' })).toBeVisible();
+    await expect(bottomNav.getByRole('link', { name: 'Bản đồ' })).toBeVisible();
+    await expect(bottomNav.getByRole('link', { name: 'Đã lưu' })).toBeVisible();
+    await expect(bottomNav.getByRole('link', { name: 'Hồ sơ' })).toBeVisible();
   });
 });

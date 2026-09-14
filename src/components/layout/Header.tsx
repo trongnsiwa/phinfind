@@ -6,7 +6,6 @@ import {
   LogIn,
   LogOut,
   MapPin,
-  Menu,
   Moon,
   Search,
   Settings,
@@ -34,15 +33,6 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger
-} from '@/components/ui/sheet';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocation } from '@/hooks/useLocation';
@@ -208,7 +198,7 @@ export function Header() {
               <h1 className='font-sans font-bold text-lg sm:text-xl leading-none text-foreground tracking-tight group-hover:text-primary transition-colors duration-200'>
                 PhinFind
               </h1>
-              <p className='text-[9px] text-muted-foreground tracking-wider font-semibold uppercase mt-0.5 group-hover:text-foreground transition-colors duration-200'>
+              <p className='hidden xs:block text-[9px] text-muted-foreground tracking-wider font-semibold uppercase mt-0.5 group-hover:text-foreground transition-colors duration-200'>
                 Bản đồ cà phê Việt
               </p>
             </div>
@@ -273,7 +263,7 @@ export function Header() {
         </div>
 
 
-        {/* Right Side: Theme Toggle + Right-Anchored Search + Profile Avatar + Mobile Hamburger Menu */}
+        {/* Right Side: Theme Toggle + Right-Anchored Search + Profile Avatar */}
         <div className='flex items-center gap-2 sm:gap-2.5 flex-shrink-0'>
           {/* Theme Toggle Button */}
           {/* RESPONSIVE: Hidden on mobile (< md) to reduce header clutter to 4 tap targets; theme toggle remains accessible via Settings */}
@@ -596,229 +586,16 @@ export function Header() {
           ) : (
             <Button
               asChild
-              className='bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground font-bold text-xs rounded-full px-3.5 h-9 shadow-sm hover:scale-[1.02] active:scale-95 transition-all duration-200 flex items-center gap-1.5 cursor-pointer'
+              className='bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground font-bold text-xs rounded-full px-2.5 xs:px-3.5 h-9 shadow-sm hover:scale-[1.02] active:scale-95 transition-all duration-200 flex items-center gap-1.5 cursor-pointer'
             >
               <Link href={APP_ROUTES.LOGIN}>
                 <LogIn size={15} />
-                <span>Đăng nhập</span>
+                <span className='hidden xs:inline'>Đăng nhập</span>
               </Link>
             </Button>
           )}
 
-          {/* Mobile/Tablet Hamburger Navigation Sheet Button */}
-          {/* RESPONSIVE: Hidden on mobile (< md) as navigation is handled by avatar dropdown and BottomNav; kept on tablet/desktop (md+) */}
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button
-                variant='ghost'
-                size='icon'
-                className='hidden md:flex h-9 w-9 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent/70 border border-border/60 hover:border-amber-gold/40 transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold flex-shrink-0'
-                aria-label='Mở menu'
-              >
-                <Menu size={16} />
-              </Button>
-            </SheetTrigger>
-            <SheetContent
-              side='right'
-              className='bg-card text-foreground border-l border-border p-6 w-72'
-            >
-              <SheetHeader className='text-left space-y-1 mb-6'>
-                <SheetTitle className='font-sans font-bold text-lg text-foreground flex items-center gap-2'>
-                  <Image
-                    src='/logo.svg'
-                    alt='PhinFind'
-                    width={22}
-                    height={22}
-                    className='w-5.5 h-5.5 rounded-lg object-contain'
-                  />
-                  Menu PhinFind
-                </SheetTitle>
-                <SheetDescription className='text-xs text-muted-foreground'>
-                  Khám phá văn hóa cà phê Việt
-                </SheetDescription>
-              </SheetHeader>
-
-              <div className='flex flex-col gap-2'>
-                <SheetClose asChild>
-                  <Link
-                    href={APP_ROUTES.HOME}
-                    className={cn(
-                      'relative group flex items-center gap-2.5 p-2.5 rounded-xl text-xs transition-colors duration-200',
-                      pathname === APP_ROUTES.HOME
-                        ? 'text-foreground bg-primary/20 font-bold'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-muted font-semibold'
-                    )}
-                  >
-                    <Compass
-                      size={16}
-                      strokeWidth={2.2}
-                      className={cn(
-                        'transition-all duration-200 group-hover:scale-110',
-                        pathname === APP_ROUTES.HOME ? 'text-primary' : 'text-muted-foreground'
-                      )}
-                    />
-                    <span>Khám phá</span>
-                    {pathname === APP_ROUTES.HOME && (
-                      <span className='absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-primary rounded-r-full' />
-                    )}
-                  </Link>
-                </SheetClose>
-
-                <SheetClose asChild>
-                  <Link
-                    href={APP_ROUTES.MAP}
-                    className={cn(
-                      'relative group flex items-center gap-2.5 p-2.5 rounded-xl text-xs transition-colors duration-200',
-                      pathname === APP_ROUTES.MAP
-                        ? 'text-foreground bg-primary/20 font-bold'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-muted font-semibold'
-                    )}
-                  >
-                    <MapPin
-                      size={16}
-                      strokeWidth={2.2}
-                      className={cn(
-                        'transition-all duration-200 group-hover:scale-110',
-                        pathname === APP_ROUTES.MAP ? 'text-primary' : 'text-muted-foreground'
-                      )}
-                    />
-                    <span>Xem bản đồ</span>
-                    {pathname === APP_ROUTES.MAP && (
-                      <span className='absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-primary rounded-r-full' />
-                    )}
-                  </Link>
-                </SheetClose>
-
-                <SheetClose asChild>
-                  <Link
-                    href={APP_ROUTES.FAVORITES}
-                    className={cn(
-                      'relative group flex items-center gap-2.5 p-2.5 rounded-xl text-xs transition-colors duration-200',
-                      pathname === APP_ROUTES.FAVORITES
-                        ? 'text-foreground bg-primary/20 font-bold'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-muted font-semibold'
-                    )}
-                  >
-                    <Heart
-                      size={16}
-                      strokeWidth={2.2}
-                      className={cn(
-                        'transition-all duration-200 group-hover:scale-110',
-                        pathname === APP_ROUTES.FAVORITES
-                          ? 'text-rose-500'
-                          : 'text-muted-foreground'
-                      )}
-                    />
-                    <span>Đã lưu yêu thích</span>
-                    {pathname === APP_ROUTES.FAVORITES && (
-                      <span className='absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-primary rounded-r-full' />
-                    )}
-                  </Link>
-                </SheetClose>
-
-                <SheetClose asChild>
-                  <Link
-                    href={APP_ROUTES.PROFILE}
-                    className={cn(
-                      'relative group flex items-center gap-2.5 p-2.5 rounded-xl text-xs transition-colors duration-200',
-                      pathname === APP_ROUTES.PROFILE
-                        ? 'text-foreground bg-primary/20 font-bold'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-muted font-semibold'
-                    )}
-                  >
-                    <User
-                      size={16}
-                      strokeWidth={2.2}
-                      className={cn(
-                        'transition-all duration-200 group-hover:scale-110',
-                        pathname === APP_ROUTES.PROFILE ? 'text-primary' : 'text-muted-foreground'
-                      )}
-                    />
-                    <span>Hồ sơ của tôi</span>
-                    {pathname === APP_ROUTES.PROFILE && (
-                      <span className='absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-primary rounded-r-full' />
-                    )}
-                  </Link>
-                </SheetClose>
-
-                {profile?.role === 'admin' && (
-                  <SheetClose asChild>
-                    <Link
-                      href={APP_ROUTES.ADMIN}
-                      className={cn(
-                        'relative group flex items-center gap-2.5 p-2.5 rounded-xl text-xs transition-colors duration-200',
-                        pathname === APP_ROUTES.ADMIN
-                          ? 'text-foreground bg-primary/20 font-bold'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-muted font-semibold'
-                      )}
-                    >
-                      <Shield
-                        size={16}
-                        strokeWidth={2.2}
-                        className={cn(
-                          'transition-all duration-200 group-hover:scale-110',
-                          pathname === APP_ROUTES.ADMIN ? 'text-primary' : 'text-amber-gold'
-                        )}
-                      />
-                      <span>Quản trị</span>
-                      {pathname === APP_ROUTES.ADMIN && (
-                        <span className='absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-primary rounded-r-full' />
-                      )}
-                    </Link>
-                  </SheetClose>
-                )}
-
-                <div className='my-2 border-t border-border' />
-
-                <button
-                  type='button'
-                  onClick={toggleTheme}
-                  className='flex items-center justify-between p-2.5 rounded-xl text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-colors w-full text-left cursor-pointer'
-                >
-                  <div className='flex items-center gap-2.5'>
-                    {theme === 'dark' ? (
-                      <Sun size={16} className='text-amber-gold' />
-                    ) : (
-                      <Moon size={16} className='text-muted-foreground' />
-                    )}
-                    <span>Giao diện {theme === 'dark' ? 'Tối' : 'Sáng'}</span>
-                  </div>
-                  <Badge
-                    variant='outline'
-                    className='text-[10px] uppercase font-bold text-amber-gold border-border'
-                  >
-                    {theme === 'dark' ? 'Dark' : 'Light'}
-                  </Badge>
-                </button>
-
-                <div className='my-1 border-t border-border' />
-
-                {isAuthenticated ? (
-                  <Button
-                    variant='ghost'
-                    onClick={async () => {
-                      await signOut();
-                      router.push(APP_ROUTES.LOGIN);
-                    }}
-                    className='justify-start p-2.5 h-auto rounded-xl text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent/60 gap-2.5 transition-colors duration-200 w-full'
-                  >
-                    <LogOut size={16} className='text-muted-foreground' />
-                    <span>Đăng xuất</span>
-                  </Button>
-                ) : (
-                  <SheetClose asChild>
-                    <Link
-                      href={APP_ROUTES.LOGIN}
-                      className='flex items-center gap-2.5 p-2.5 rounded-xl text-xs font-semibold text-amber-gold hover:text-amber-gold-hover hover:bg-amber-500/10 transition-colors duration-200'
-                    >
-                      <LogIn size={16} className='text-amber-gold' />
-                      <span>Đăng nhập</span>
-                    </Link>
-                  </SheetClose>
-                )}
-              </div>
-            </SheetContent>
-          </Sheet>
+          {/* RESPONSIVE: mobile nav lives in BottomNav + avatar dropdown; hamburger Sheet was duplicative. */}
         </div>
       </div>
     </header>

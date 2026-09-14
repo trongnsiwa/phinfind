@@ -211,7 +211,7 @@ export function ShopDetailClient({ shop: initialShop }: ShopDetailClientProps) {
   return (
     <div className="relative min-h-screen text-foreground">
       {/* 1. Main Full-Page Scrolling Container with pb-24 */}
-      <div className="max-w-3xl lg:max-w-4xl mx-auto px-3 sm:px-6 pt-2 sm:pt-3 pb-24 sm:pb-28">
+      <div className="max-w-3xl lg:max-w-4xl mx-auto pb-24 sm:pb-28">
         <Card className="bg-card text-card-foreground rounded-3xl border border-border/80 shadow-card p-4 sm:p-5">
           <ShopDetailsContent
             shop={shop}

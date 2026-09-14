@@ -30,7 +30,8 @@ export function MainContent({ children }: { children: React.ReactNode }) {
         'flex-1 w-full',
         isMap
           ? 'p-0 m-0 h-full overflow-hidden'
-          : 'max-w-3xl md:max-w-5xl lg:max-w-6xl xl:max-w-7xl mx-auto px-4 sm:px-6 md:px-8 pb-24 md:pb-10'
+          // RESPONSIVE: uniform vertical rhythm below the sticky header.
+          : 'max-w-3xl md:max-w-5xl lg:max-w-6xl xl:max-w-7xl mx-auto px-4 sm:px-6 md:px-8 pt-4 sm:pt-6 md:pt-8 pb-24 md:pb-10'
       )}
     >
       {children}

@@ -204,7 +204,7 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-3.5rem)] pb-24 sm:pb-16 pt-4 sm:pt-6 px-3 sm:px-6 max-w-5xl mx-auto">
+    <div className="min-h-[calc(100vh-3.5rem)] pb-24 sm:pb-16 max-w-5xl mx-auto">
       {/* Header title block */}
       <div className="mb-4">
         <div className="flex items-center gap-2">
