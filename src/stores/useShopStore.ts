@@ -66,3 +66,11 @@ export const useShopStore = create<ShopState>((set, get) => ({
     }),
   isVisited: (placeId) => get().visits.includes(placeId),
 }));
+
+export {
+  closeActiveShop,
+  clearShopQueryParam,
+  markShopAsDeleted,
+  isShopRecentlyDeleted,
+} from '@/lib/utils/shopNavigation';
+

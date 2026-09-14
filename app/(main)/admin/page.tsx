@@ -371,26 +371,26 @@ export default function AdminPage() {
         open={Boolean(rejectingShop)}
         onOpenChange={(open) => !open && setRejectingShop(null)}
       >
-        <AlertDialogContent className="bg-card border border-border rounded-2xl max-w-md">
+        <AlertDialogContent
+          onPointerDownOutside={(e) => e.preventDefault()}
+          className="bg-card text-card-foreground border-border"
+        >
           <AlertDialogHeader>
             <div className="flex items-center gap-2.5 text-destructive mb-1">
               <AlertTriangle size={20} />
-              <AlertDialogTitle className="font-sans font-bold text-lg text-foreground">
+              <AlertDialogTitle>
                 Từ chối quán cà phê
               </AlertDialogTitle>
             </div>
-            <AlertDialogDescription className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+            <AlertDialogDescription>
               Bạn có chắc chắn từ chối quán này? Quán sẽ bị ẩn khỏi mọi danh sách công khai.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter className="gap-2 sm:gap-0 mt-4">
-            <AlertDialogCancel className="rounded-xl text-xs font-semibold focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0">
-              Hủy bỏ
+          <AlertDialogFooter>
+            <AlertDialogCancel>
+              Hủy
             </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleConfirmRejectShop}
-              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-xl text-xs font-semibold focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0"
-            >
+            <AlertDialogAction onClick={handleConfirmRejectShop}>
               Từ chối quán
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -402,15 +402,18 @@ export default function AdminPage() {
         open={Boolean(rejectingSuggestion)}
         onOpenChange={(open) => !open && setRejectingSuggestion(null)}
       >
-        <AlertDialogContent className="bg-card border border-border rounded-2xl max-w-md">
+        <AlertDialogContent
+          onPointerDownOutside={(e) => e.preventDefault()}
+          className="bg-card text-card-foreground border-border"
+        >
           <AlertDialogHeader>
             <div className="flex items-center gap-2.5 text-destructive mb-1">
               <XCircle size={20} />
-              <AlertDialogTitle className="font-sans font-bold text-lg text-foreground">
+              <AlertDialogTitle>
                 Từ chối đề xuất chỉnh sửa
               </AlertDialogTitle>
             </div>
-            <AlertDialogDescription className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+            <AlertDialogDescription>
               Nhập lý do từ chối đề xuất này (tùy chọn). Người đề xuất sẽ nhận được thông báo kèm lý do.
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -428,14 +431,11 @@ export default function AdminPage() {
             </div>
           </div>
 
-          <AlertDialogFooter className="gap-2 sm:gap-0 mt-2">
-            <AlertDialogCancel className="rounded-xl text-xs font-semibold focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0">
+          <AlertDialogFooter>
+            <AlertDialogCancel>
               Hủy
             </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleConfirmRejectSuggestion}
-              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-xl text-xs font-semibold focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0"
-            >
+            <AlertDialogAction onClick={handleConfirmRejectSuggestion}>
               Từ chối đề xuất
             </AlertDialogAction>
           </AlertDialogFooter>

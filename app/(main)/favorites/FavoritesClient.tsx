@@ -29,7 +29,7 @@ const ShopDrawer = dynamic(
 import { useAuth } from '@/hooks/useAuth';
 import { useLocation } from '@/hooks/useLocation';
 import { useToggleFavorite, useUserFavorites } from '@/hooks/useShops';
-import { useShopStore } from '@/stores/useShopStore';
+import { useShopStore, closeActiveShop } from '@/stores/useShopStore';
 import { API_ENDPOINTS, APP_ROUTES, DEFAULT_LOCATION } from '@/lib/utils/constants';
 import { CoffeeShop } from '@/types/shop';
 
@@ -223,34 +223,34 @@ export function FavoritesClient() {
         open={!!shopToRemove}
         onOpenChange={(open) => !open && setShopToRemove(null)}
       >
-        <AlertDialogContent className="bg-card border-border rounded-2xl">
+        <AlertDialogContent
+          onPointerDownOutside={(e) => e.preventDefault()}
+          className="bg-card text-card-foreground border-border"
+        >
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-sans text-foreground">
+            <AlertDialogTitle>
               Xóa khỏi danh sách yêu thích?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-xs text-muted-foreground">
+            <AlertDialogDescription>
               Bạn có chắc chắn muốn xóa &quot;{shopToRemove?.name}&quot; khỏi danh sách yêu thích không?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel
-              disabled={isDeleting}
-              className="border-border text-xs rounded-xl cursor-pointer"
-            >
+            <AlertDialogCancel disabled={isDeleting}>
               Hủy
             </AlertDialogCancel>
             <AlertDialogAction
               disabled={isDeleting}
               onClick={handleConfirmRemove}
-              className="bg-rose-600 text-white hover:bg-rose-700 text-xs rounded-xl font-semibold cursor-pointer"
+              className="disabled:opacity-50 flex items-center justify-center gap-1.5"
             >
               {isDeleting ? (
                 <>
-                  <Loader2 size={12} className="mr-1 animate-spin" />
+                  <Loader2 size={16} className="animate-spin" />
                   <span>Đang xóa...</span>
                 </>
               ) : (
-                'Xóa'
+                'Xóa yêu thích'
               )}
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -261,7 +261,7 @@ export function FavoritesClient() {
       <ShopDrawer
         shop={selectedShop}
         isOpen={Boolean(selectedShop)}
-        onClose={() => setSelectedShop(null)}
+        onClose={() => closeActiveShop({ clearUrl: true })}
         onToggleFavorite={(placeId) => toggleFavorite(placeId, selectedShop || undefined)}
         isFavorite={selectedShop ? favorites.includes(selectedShop.place_id) : false}
       />

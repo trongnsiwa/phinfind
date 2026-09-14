@@ -41,7 +41,7 @@ import { useNearbyShops, useSearchShops, useToggleFavorite, useUserFavorites } f
 import { useReverseGeocode } from '@/hooks/useReverseGeocode';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useAuth } from '@/hooks/useAuth';
-import { useShopStore } from '@/stores/useShopStore';
+import { useShopStore, closeActiveShop, clearShopQueryParam, isShopRecentlyDeleted } from '@/stores/useShopStore';
 import { useUIStore } from '@/stores/useUIStore';
 import { APP_ROUTES } from '@/lib/utils/constants';
 import { cn } from '@/lib/utils';
@@ -295,22 +295,41 @@ export function MapClient() {
     }
   };
 
-  // Auto-open drawer if ?shop=id query param or /shop/[id] deep link is present on page load
-  useEffect(() => {
-    if (apiShops.length > 0 && typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search);
-      const shopQueryId = urlParams.get('shop');
-      const pathMatch = window.location.pathname.match(/\/shop\/([^/]+)/);
-      const targetId = shopQueryId || (pathMatch ? pathMatch[1] : null);
+  // RESPONSIVE: auto-open from URL only on initial mount; intentionally-closed drawers must not resurrect.
+  const hasRunAutoOpen = useRef(false);
 
-      if (targetId && (!selectedShop || (selectedShop.id !== targetId && selectedShop.place_id !== targetId))) {
-        const found = apiShops.find((s) => s.id === targetId || s.place_id === targetId);
-        if (found) {
-          setSelectedShop(found);
-        }
-      }
+  useEffect(() => {
+    if (hasRunAutoOpen.current || typeof window === 'undefined' || apiShops.length === 0) {
+      return;
     }
-  }, [apiShops, selectedShop, setSelectedShop]);
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const shopQueryId = urlParams.get('shop');
+    const pathMatch = window.location.pathname.match(/\/shop\/([^/]+)/);
+    const targetId = shopQueryId || (pathMatch ? pathMatch[1] : null);
+
+    hasRunAutoOpen.current = true;
+
+    if (!targetId || isShopRecentlyDeleted(targetId)) {
+      if (targetId && isShopRecentlyDeleted(targetId)) {
+        clearShopQueryParam();
+      }
+      return;
+    }
+
+    const found = apiShops.find(
+      (s) =>
+        (s.id === targetId || s.place_id === targetId) &&
+        !isShopRecentlyDeleted(s.id) &&
+        !isShopRecentlyDeleted(s.place_id)
+    );
+
+    if (found) {
+      setSelectedShop(found);
+    } else {
+      clearShopQueryParam();
+    }
+  }, [apiShops, setSelectedShop]);
 
   // Handle popstate on map page to close drawer if ?shop param is removed via back button
   useEffect(() => {
@@ -318,12 +337,12 @@ export function MapClient() {
     const handlePopState = () => {
       const urlParams = new URLSearchParams(window.location.search);
       if (!urlParams.get('shop') && selectedShop) {
-        setSelectedShop(null);
+        closeActiveShop({ clearUrl: false });
       }
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, [selectedShop, setSelectedShop]);
+  }, [selectedShop]);
 
   return (
     <>
@@ -813,7 +832,7 @@ export function MapClient() {
         <ShopSidebar
           shop={selectedShop}
           isOpen={Boolean(selectedShop)}
-          onClose={() => setSelectedShop(null)}
+          onClose={() => closeActiveShop({ clearUrl: true })}
           onToggleFavorite={handleToggleFav}
           isFavorite={selectedShop ? favorites.includes(selectedShop.place_id) : false}
         />
@@ -821,7 +840,7 @@ export function MapClient() {
         <ShopDrawer
           shop={selectedShop}
           isOpen={Boolean(selectedShop)}
-          onClose={() => setSelectedShop(null)}
+          onClose={() => closeActiveShop({ clearUrl: true })}
           onToggleFavorite={handleToggleFav}
           isFavorite={selectedShop ? favorites.includes(selectedShop.place_id) : false}
         />

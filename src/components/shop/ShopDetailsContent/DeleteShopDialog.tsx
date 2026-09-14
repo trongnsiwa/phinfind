@@ -29,22 +29,21 @@ export function DeleteShopDialog({
 }: DeleteShopDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      {/* RESPONSIVE: w-[94vw] sm:w-full and p-4 sm:p-6 prevent overflow on 320px screens */}
-      <AlertDialogContent className='bg-card text-card-foreground border-border w-[94vw] sm:w-full max-w-md rounded-2xl p-4 sm:p-6'>
+      <AlertDialogContent
+        onPointerDownOutside={(e) => e.preventDefault()}
+        className='bg-card text-card-foreground border-border'
+      >
         <AlertDialogHeader>
-          <AlertDialogTitle className='text-foreground text-base sm:text-lg font-bold'>
+          <AlertDialogTitle>
             Xác nhận xóa quán cà phê
           </AlertDialogTitle>
-          <AlertDialogDescription className='text-muted-foreground text-xs sm:text-sm'>
+          <AlertDialogDescription>
             Bạn có chắc chắn muốn xóa quán &ldquo;{shopName}&rdquo; không? Hành động này không thể hoàn tác và sẽ xóa vĩnh viễn thông tin quán cùng tất cả lượt đánh giá liên quan.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter className='flex-row gap-2 justify-end mt-4'>
-          <AlertDialogCancel
-            disabled={isPending}
-            className='rounded-xl text-xs h-9 px-4 cursor-pointer mt-0'
-          >
-            Hủy bỏ
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={isPending}>
+            Hủy
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={(e) => {
@@ -52,16 +51,16 @@ export function DeleteShopDialog({
               onConfirmDelete();
             }}
             disabled={isPending}
-            className='bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl text-xs font-bold h-9 px-4 cursor-pointer disabled:opacity-50 flex items-center gap-1.5'
+            className='disabled:opacity-50 flex items-center justify-center gap-1.5'
           >
             {isPending ? (
               <>
-                <Loader2 size={14} className='animate-spin' />
+                <Loader2 size={16} className='animate-spin' />
                 <span>Đang xóa...</span>
               </>
             ) : (
               <>
-                <Trash2 size={14} />
+                <Trash2 size={16} />
                 <span>Xóa quán</span>
               </>
             )}

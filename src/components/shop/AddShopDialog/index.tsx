@@ -5,9 +5,20 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { FieldErrors } from 'react-hook-form';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocation } from '@/hooks/useLocation';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { API_ENDPOINTS, DEFAULT_LOCATION } from '@/lib/utils/constants';
 import { cn } from '@/lib/utils';
 import { useUIStore } from '@/stores/useUIStore';
@@ -15,7 +26,6 @@ import type { CoffeeShop } from '@/types/shop';
 import dynamic from 'next/dynamic';
 import { AddShopDialogFooter } from './AddShopDialogFooter';
 import { AddShopDialogHeader } from './AddShopDialogHeader';
-import { AddShopStepIndicator } from './AddShopStepIndicator';
 import { AmenitiesStep } from './AmenitiesStep';
 import { BasicInfoStep } from './BasicInfoStep';
 import { ContactStep } from './ContactStep';
@@ -67,7 +77,10 @@ export function AddShopDialog({ open, onOpenChange, onSuccess, shop }: AddShopDi
   const queryClient = useQueryClient();
   const setIsAddShopDialogOpen = useUIStore((state) => state.setIsAddShopDialogOpen);
   const scrollContainerRef = useRef<HTMLFormElement | null>(null);
-  const [currentStep, setCurrentStep] = useState(1);
+
+  // RESPONSIVE: single-page form on mobile mirrors desktop; wizard removed due to implicit-submit regression.
+  const isMobile = useMediaQuery('(max-width: 767px)');
+  const [isCancelConfirmOpen, setIsCancelConfirmOpen] = useState(false);
   const [showBottomFade, setShowBottomFade] = useState(true);
 
   const {
@@ -159,9 +172,10 @@ export function AddShopDialog({ open, onOpenChange, onSuccess, shop }: AddShopDi
     isAuthenticated
   });
 
-  // Initialize or reset form based on open state and shop (create vs edit mode)
+  // Initialize or reset form based on open state and shop
   useEffect(() => {
     if (open) {
+      setIsCancelConfirmOpen(false);
       if (shop) {
         resetToShop(shop);
         populateAmenities(shop);
@@ -183,42 +197,6 @@ export function AddShopDialog({ open, onOpenChange, onSuccess, shop }: AddShopDi
     };
   }, [open, setIsAddShopDialogOpen]);
 
-  // Track active step on scroll via IntersectionObserver
-  useEffect(() => {
-    if (!open) return;
-    const container = scrollContainerRef.current;
-    if (!container) return;
-
-    const stepElements = container.querySelectorAll<HTMLElement>('[data-step]');
-    if (!stepElements.length) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-
-        if (visible.length > 0) {
-          const stepAttr = visible[0].target.getAttribute('data-step');
-          if (stepAttr) {
-            setCurrentStep(Number(stepAttr));
-          }
-        }
-      },
-      {
-        root: container,
-        rootMargin: '-10% 0px -60% 0px',
-        threshold: 0.1
-      }
-    );
-
-    stepElements.forEach((el) => observer.observe(el));
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [open]);
-
   // Scroll listener for bottom fade affordance
   const handleScroll = useCallback(() => {
     const container = scrollContainerRef.current;
@@ -228,13 +206,18 @@ export function AddShopDialog({ open, onOpenChange, onSuccess, shop }: AddShopDi
     setShowBottomFade(!isAtBottom);
   }, []);
 
-  // Jump to step on step indicator dot click
-  const handleStepClick = useCallback((step: number) => {
-    const el = document.getElementById(`step-${step}`);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const handleCancel = () => {
+    if (isMobile) {
+      setIsCancelConfirmOpen(true);
+    } else {
+      onOpenChange(false);
     }
-  }, []);
+  };
+
+  const handleConfirmCancel = () => {
+    setIsCancelConfirmOpen(false);
+    onOpenChange(false);
+  };
 
   // Validation feedback: scroll to first invalid field and shake
   const onInvalid = (fieldErrors: FieldErrors<AddShopFormData>) => {
@@ -368,22 +351,25 @@ export function AddShopDialog({ open, onOpenChange, onSuccess, shop }: AddShopDi
       >
         <AddShopDialogHeader
           isEditMode={Boolean(shop)}
-          onClose={() => onOpenChange(false)}
-        />
-
-        {/* Sticky step indicator strip on mobile */}
-        <AddShopStepIndicator
-          currentStep={currentStep}
-          totalSteps={5}
-          onStepClick={handleStepClick}
+          onClose={handleCancel}
         />
 
         {/* Scrollable Form Body Container with Fade Mask */}
         <div className='relative flex-1 min-h-0 flex flex-col'>
+          {/* RESPONSIVE: single-page form on mobile mirrors desktop; wizard removed due to implicit-submit regression */}
           <form
             id='add-shop-form'
             ref={scrollContainerRef}
             onScroll={handleScroll}
+            // RESPONSIVE: prevent Enter-key form submission in mobile wizard steps
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                const target = e.target as HTMLElement;
+                if (target.tagName?.toLowerCase() === 'input') {
+                  e.preventDefault();
+                }
+              }
+            }}
             onSubmit={handleSubmit(onSubmit, onInvalid)}
             className='flex-1 min-h-0 overflow-y-auto px-5 sm:px-6 py-4 space-y-5'
           >
@@ -415,8 +401,6 @@ export function AddShopDialog({ open, onOpenChange, onSuccess, shop }: AddShopDi
               onChange={(val) => setValue('price_range', val)}
             />
 
-            <ContactStep register={register} errors={errors} />
-
             <HoursStep
               isCustomPerDay={isCustomPerDay}
               setIsCustomPerDay={setIsCustomPerDay}
@@ -438,6 +422,8 @@ export function AddShopDialog({ open, onOpenChange, onSuccess, shop }: AddShopDi
               handlePreset247={handlePreset247}
               hasAnyHoursSet={hasAnyHoursSet}
             />
+
+            <ContactStep register={register} errors={errors} />
 
             <PhotosStep
               photos={watchedPhotos}
@@ -479,9 +465,31 @@ export function AddShopDialog({ open, onOpenChange, onSuccess, shop }: AddShopDi
           isEditMode={Boolean(shop)}
           isSubmitting={isSubmitting}
           isSubmitDisabled={!watchedName?.trim() || !watchedAddress?.trim()}
-          onCancel={() => onOpenChange(false)}
+          onCancel={handleCancel}
         />
       </DialogContent>
+
+      {/* Confirmation dialog for canceling on Step 1 */}
+      <AlertDialog open={isCancelConfirmOpen} onOpenChange={setIsCancelConfirmOpen}>
+        <AlertDialogContent className='bg-card text-card-foreground border-border'>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Hủy bỏ thêm quán?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc muốn hủy? Mọi thông tin đã nhập sẽ bị mất.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>
+              Tiếp tục
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmCancel}>
+              Hủy bỏ
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 }

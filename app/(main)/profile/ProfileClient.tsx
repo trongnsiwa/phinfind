@@ -673,26 +673,26 @@ export function ProfileClient() {
         open={!!visitToRemove}
         onOpenChange={(open) => !open && setVisitToRemove(null)}
       >
-        <AlertDialogContent className="bg-card border-border rounded-2xl">
+        <AlertDialogContent
+          onPointerDownOutside={(e) => e.preventDefault()}
+          className="bg-card text-card-foreground border-border"
+        >
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-sans text-foreground">
+            <AlertDialogTitle>
               Bỏ đánh dấu đã ghé?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-xs text-muted-foreground">
+            <AlertDialogDescription>
               Bạn có chắc chắn muốn bỏ đánh dấu đã ghé quán &quot;{visitToRemove?.shop_name}&quot; khỏi lịch sử ghé thăm không?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel
-              disabled={isRemovingVisit}
-              className="border-border text-xs rounded-xl cursor-pointer"
-            >
+            <AlertDialogCancel disabled={isRemovingVisit}>
               Hủy
             </AlertDialogCancel>
             <AlertDialogAction
               disabled={isRemovingVisit}
               onClick={handleConfirmRemoveVisit}
-              className="bg-rose-600 text-white hover:bg-rose-700 text-xs rounded-xl font-semibold cursor-pointer"
+              className="disabled:opacity-50 flex items-center justify-center gap-1.5"
             >
               {isRemovingVisit ? 'Đang bỏ...' : 'Bỏ đánh dấu'}
             </AlertDialogAction>
@@ -705,28 +705,28 @@ export function ProfileClient() {
         open={!!shopToRemove}
         onOpenChange={(open) => !open && setShopToRemove(null)}
       >
-        <AlertDialogContent className="bg-card border-border rounded-2xl">
+        <AlertDialogContent
+          onPointerDownOutside={(e) => e.preventDefault()}
+          className="bg-card text-card-foreground border-border"
+        >
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-sans text-foreground">
+            <AlertDialogTitle>
               Xóa khỏi danh sách đã lưu?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-xs text-muted-foreground">
+            <AlertDialogDescription>
               Bạn có chắc chắn muốn xóa &quot;{shopToRemove?.name}&quot; khỏi danh sách các quán đã lưu không?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel
-              disabled={isRemovingShop}
-              className="border-border text-xs rounded-xl cursor-pointer"
-            >
+            <AlertDialogCancel disabled={isRemovingShop}>
               Hủy
             </AlertDialogCancel>
             <AlertDialogAction
               disabled={isRemovingShop}
               onClick={handleConfirmRemoveShop}
-              className="bg-rose-600 text-white hover:bg-rose-700 text-xs rounded-xl font-semibold cursor-pointer"
+              className="disabled:opacity-50 flex items-center justify-center gap-1.5"
             >
-              {isRemovingShop ? 'Đang xóa...' : 'Xác nhận xóa'}
+              {isRemovingShop ? 'Đang xóa...' : 'Xóa đã lưu'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -737,28 +737,28 @@ export function ProfileClient() {
         open={!!reviewToDelete}
         onOpenChange={(open) => !open && setReviewToDelete(null)}
       >
-        <AlertDialogContent className="bg-card border-border rounded-2xl">
+        <AlertDialogContent
+          onPointerDownOutside={(e) => e.preventDefault()}
+          className="bg-card text-card-foreground border-border"
+        >
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-sans text-foreground">
+            <AlertDialogTitle>
               Xóa đánh giá này?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-xs text-muted-foreground">
+            <AlertDialogDescription>
               Bạn có chắc chắn muốn xóa bài đánh giá cho &quot;{reviewToDelete?.shop_name}&quot; không? Thao tác này không thể hoàn tác.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel
-              disabled={deleteReviewMutation.isPending}
-              className="border-border text-xs rounded-xl cursor-pointer"
-            >
+            <AlertDialogCancel disabled={deleteReviewMutation.isPending}>
               Hủy
             </AlertDialogCancel>
             <AlertDialogAction
               disabled={deleteReviewMutation.isPending}
               onClick={handleConfirmDeleteReview}
-              className="bg-rose-600 text-white hover:bg-rose-700 text-xs rounded-xl font-semibold cursor-pointer"
+              className="disabled:opacity-50 flex items-center justify-center gap-1.5"
             >
-              {deleteReviewMutation.isPending ? 'Đang xóa...' : 'Xác nhận xóa'}
+              {deleteReviewMutation.isPending ? 'Đang xóa...' : 'Xóa đánh giá'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

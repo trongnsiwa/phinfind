@@ -41,6 +41,7 @@ export function AmenitiesStep({
           <span className='text-[10px] font-bold uppercase tracking-wider text-amber-gold'>Bước 3</span>
           <h3 className='text-sm font-bold text-foreground'>Thể loại &amp; Tiện ích</h3>
         </div>
+        <p className='text-[11px] text-muted-foreground'>Không bắt buộc</p>
       </div>
 
       {/* TABLET / DESKTOP HEADER ( >= md ): Preserved */}
@@ -203,6 +204,13 @@ export function AmenitiesStep({
               <Input
                 value={customAmenityName}
                 onChange={(e) => setCustomAmenityName(e.target.value)}
+                enterKeyHint='done'
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleAddCustomAmenity();
+                  }
+                }}
                 placeholder='Tên tiện ích (VD: Phòng họp riêng, Đỗ xe ô tô, Ghế công thái học...)'
                 className='h-8 text-xs bg-background border-border rounded-xl flex-1'
               />
@@ -221,6 +229,7 @@ export function AmenitiesStep({
             <Input
               value={customAmenityDesc}
               onChange={(e) => setCustomAmenityDesc(e.target.value)}
+              enterKeyHint='done'
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();

@@ -364,17 +364,20 @@ export const ReviewsTab = memo(function ReviewsTab({
       {/* 4. Delete Review Confirmation */}
       {reviewToDelete && (
         <AlertDialog open={Boolean(reviewToDelete)} onOpenChange={(open) => !open && setReviewToDelete(null)}>
-          <AlertDialogContent className='bg-card text-card-foreground border-border max-w-sm rounded-2xl'>
+          <AlertDialogContent
+            onPointerDownOutside={(e) => e.preventDefault()}
+            className='bg-card text-card-foreground border-border'
+          >
             <AlertDialogHeader>
-              <AlertDialogTitle className='text-foreground text-base font-bold'>
+              <AlertDialogTitle>
                 Xóa bài đánh giá?
               </AlertDialogTitle>
-              <AlertDialogDescription className='text-muted-foreground text-xs'>
+              <AlertDialogDescription>
                 Bạn có chắc chắn muốn xóa bài đánh giá này? Hành động này không thể hoàn tác.
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <AlertDialogFooter className='flex-row gap-2 justify-end mt-4'>
-              <AlertDialogCancel className='rounded-xl text-xs h-8'>Hủy</AlertDialogCancel>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Hủy</AlertDialogCancel>
               <AlertDialogAction
                 onClick={() => {
                   if (reviewToDelete.id) {
@@ -382,9 +385,8 @@ export const ReviewsTab = memo(function ReviewsTab({
                   }
                   setReviewToDelete(null);
                 }}
-                className='bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-xl text-xs h-8'
               >
-                Xóa
+                Xóa đánh giá
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

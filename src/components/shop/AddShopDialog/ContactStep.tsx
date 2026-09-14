@@ -18,7 +18,7 @@ export function ContactStep({ register, errors }: ContactStepProps) {
           <span className='text-[10px] font-bold uppercase tracking-wider text-amber-gold'>Bước 5</span>
           <h3 className='text-sm font-bold text-foreground'>Liên hệ &amp; Hình ảnh</h3>
         </div>
-        <p className='text-[11px] text-muted-foreground'>(Tùy chọn)</p>
+        <p className='text-[11px] text-muted-foreground'>Không bắt buộc</p>
       </div>
 
       {/* TABLET / DESKTOP HEADER ( >= md ): Preserved */}
@@ -34,6 +34,9 @@ export function ContactStep({ register, errors }: ContactStepProps) {
           </Label>
           <Input
             id='shop-phone'
+            type='tel'
+            inputMode='tel'
+            enterKeyHint='next'
             {...register('phone')}
             placeholder='VD: 0912 345 678'
             className='h-11 md:h-9 bg-secondary/50 border-border text-sm md:text-xs rounded-xl focus-visible:ring-1 focus-visible:ring-amber-gold transition-all'
@@ -46,6 +49,9 @@ export function ContactStep({ register, errors }: ContactStepProps) {
           </Label>
           <Input
             id='shop-website'
+            type='url'
+            inputMode='url'
+            enterKeyHint='done'
             {...register('website')}
             placeholder='https://facebook.com/...'
             className='h-11 md:h-9 bg-secondary/50 border-border text-sm md:text-xs rounded-xl focus-visible:ring-1 focus-visible:ring-amber-gold transition-all'

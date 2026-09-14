@@ -174,6 +174,8 @@ export function LocationStep({
               id='shop-lat'
               type='number'
               step='any'
+              inputMode='decimal'
+              enterKeyHint='next'
               {...register('lat', { valueAsNumber: true })}
               className='h-8 text-xs font-mono bg-background'
             />
@@ -189,6 +191,8 @@ export function LocationStep({
               id='shop-lon'
               type='number'
               step='any'
+              inputMode='decimal'
+              enterKeyHint='next'
               {...register('lon', { valueAsNumber: true })}
               className='h-8 text-xs font-mono bg-background'
             />

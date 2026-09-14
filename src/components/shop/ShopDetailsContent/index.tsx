@@ -21,6 +21,7 @@ const DeleteShopDialog = dynamic(
   { ssr: false, loading: () => null }
 );
 import { Tabs, TabsContent } from '@/components/ui/tabs';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
 import {
   useDeleteShop,
@@ -30,7 +31,7 @@ import {
   useUserVisits
 } from '@/hooks/useShops';
 import { cn } from '@/lib/utils';
-import { useShopStore } from '@/stores/useShopStore';
+import { useShopStore, closeActiveShop, markShopAsDeleted } from '@/stores/useShopStore';
 import { useUIStore } from '@/stores/useUIStore';
 import type { CoffeeShop } from '@/types/shop';
 import { AmenitiesTab } from './AmenitiesTab';
@@ -115,11 +116,24 @@ export const ShopDetailsContent = memo(function ShopDetailsContent({
     });
   };
 
+  const queryClient = useQueryClient();
+
   const handleDeleteShop = async () => {
     try {
-      await deleteShopMutation.mutateAsync(shop.place_id || shop.id);
+      const targetId = shop.place_id || shop.id;
+      // Record deleted IDs for cooldown against resurrecting from stale caches
+      markShopAsDeleted([shop.id, shop.place_id, targetId]);
+
+      await deleteShopMutation.mutateAsync(targetId);
       setIsDeleteDialogOpen(false);
-      setSelectedShop(null);
+
+      // Clean URL query and reset active shop selection
+      closeActiveShop({ clearUrl: true });
+
+      // Refresh shops cache so rawShops no longer contains the deleted shop
+      await queryClient.invalidateQueries({ queryKey: ['shops'] });
+      await queryClient.refetchQueries({ queryKey: ['shops'] });
+
       if (isStandalone) {
         router.push('/');
       }

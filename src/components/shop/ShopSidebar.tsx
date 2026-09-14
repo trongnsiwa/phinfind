@@ -8,7 +8,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { CoffeeShop } from '@/types/shop';
-import { useShopStore } from '@/stores/useShopStore';
+import { useShopStore, closeActiveShop } from '@/stores/useShopStore';
 import { useToggleVisit, VisitedShopItem } from '@/hooks/useShops';
 import { useAuth } from '@/hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
@@ -87,6 +87,7 @@ export function ShopSidebar({
     const handlePopState = () => {
       const currentUrl = new URL(window.location.href);
       if (!currentUrl.searchParams.get('shop')) {
+        closeActiveShop({ clearUrl: false });
         onClose();
       }
     };
@@ -99,15 +100,7 @@ export function ShopSidebar({
 
   // Clean URL when closing
   const handleClose = () => {
-    if (typeof window !== 'undefined') {
-      const url = new URL(window.location.href);
-      if (url.searchParams.has('shop')) {
-        url.searchParams.delete('shop');
-        const newSearch = url.searchParams.toString();
-        const newUrl = url.pathname + (newSearch ? `?${newSearch}` : '');
-        window.history.pushState(null, '', newUrl);
-      }
-    }
+    closeActiveShop({ clearUrl: true });
     onClose();
   };
 

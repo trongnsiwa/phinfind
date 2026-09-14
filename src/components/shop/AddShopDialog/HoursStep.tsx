@@ -76,7 +76,7 @@ export function HoursStep({
             <span className='text-[10px] font-bold uppercase tracking-wider text-amber-gold'>Bước 4</span>
             <h3 className='text-sm font-bold text-foreground'>Khung giờ hoạt động</h3>
           </div>
-          <p className='text-[11px] text-muted-foreground'>(Tùy chọn)</p>
+          <p className='text-[11px] text-muted-foreground'>Không bắt buộc</p>
         </div>
 
         {hasAnyHoursSet && (

@@ -7,7 +7,7 @@ import { Drawer as DrawerPrimitive } from 'vaul';
 
 import { cn } from '@/lib/utils';
 import { CoffeeShop } from '@/types/shop';
-import { useShopStore } from '@/stores/useShopStore';
+import { useShopStore, closeActiveShop } from '@/stores/useShopStore';
 import { useToggleVisit, VisitedShopItem } from '@/hooks/useShops';
 import { useAuth } from '@/hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
@@ -93,6 +93,7 @@ export function ShopDrawer({
     const handlePopState = () => {
       const currentUrl = new URL(window.location.href);
       if (!currentUrl.searchParams.get('shop')) {
+        closeActiveShop({ clearUrl: false });
         onClose();
       }
     };
@@ -105,15 +106,7 @@ export function ShopDrawer({
 
   // Revert URL query parameter when drawer closes
   const handleDrawerClose = () => {
-    if (typeof window !== 'undefined') {
-      const url = new URL(window.location.href);
-      if (url.searchParams.has('shop')) {
-        url.searchParams.delete('shop');
-        const newSearch = url.searchParams.toString();
-        const newUrl = url.pathname + (newSearch ? `?${newSearch}` : '');
-        window.history.pushState(null, '', newUrl);
-      }
-    }
+    closeActiveShop({ clearUrl: true });
     onClose();
   };
 
@@ -202,7 +195,7 @@ export function ShopDrawer({
         >
           {/* Top Pill Handle Bar */}
           <div
-            onClick={onClose}
+            onClick={handleDrawerClose}
             className='flex items-center justify-center pt-3 pb-1.5 cursor-pointer touch-none select-none flex-shrink-0 group/handle'
             aria-label='Đóng chi tiết quán cà phê'
             role='button'
@@ -210,7 +203,7 @@ export function ShopDrawer({
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                onClose();
+                handleDrawerClose();
               }
             }}
           >

@@ -94,6 +94,9 @@ export function PhotosStep({
             <Input
               value={newPhotoUrl}
               onChange={(e) => setNewPhotoUrl(e.target.value)}
+              type='url'
+              inputMode='url'
+              enterKeyHint='done'
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();

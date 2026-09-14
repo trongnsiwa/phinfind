@@ -41,6 +41,7 @@ export function BasicInfoStep({ register, errors }: BasicInfoStepProps) {
         </Label>
         <Input
           id='shop-name'
+          enterKeyHint='next'
           {...register('name')}
           placeholder='VD: Cà Phê Giảng, All Day Coffee...'
           className={cn(
@@ -66,6 +67,7 @@ export function BasicInfoStep({ register, errors }: BasicInfoStepProps) {
         </Label>
         <Input
           id='shop-address'
+          enterKeyHint='next'
           {...register('address')}
           placeholder='VD: Số 39 Nguyễn Hữu Huân, Hàng Bạc, Hoàn Kiếm, Hà Nội'
           className={cn(

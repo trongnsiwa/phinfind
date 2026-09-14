@@ -50,7 +50,7 @@ import { useLocation } from '@/hooks/useLocation';
 import { useInfiniteShops, useToggleFavorite, useUserFavorites } from '@/hooks/useShops';
 import { useReverseGeocode } from '@/hooks/useReverseGeocode';
 import { useAuth } from '@/hooks/useAuth';
-import { useShopStore } from '@/stores/useShopStore';
+import { useShopStore, closeActiveShop, clearShopQueryParam, isShopRecentlyDeleted } from '@/stores/useShopStore';
 import { useUIStore } from '@/stores/useUIStore';
 import { generateCardSizes, generateMobileCardSizes, type MobileCardSize } from '@/lib/utils/bentoLayout';
 import { applyShopFilters, countActiveFilters } from '@/lib/utils/filters';
@@ -215,22 +215,41 @@ export function DiscoverClient() {
     toggleFavoriteMutation(placeId, shop);
   };
 
-  // Auto-open drawer if ?shop=id query param or /shop/[id] deep link is present on page load
-  useEffect(() => {
-    if (rawShops.length > 0 && typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search);
-      const shopQueryId = urlParams.get('shop');
-      const pathMatch = window.location.pathname.match(/\/shop\/([^/]+)/);
-      const targetId = shopQueryId || (pathMatch ? pathMatch[1] : null);
+  // RESPONSIVE: auto-open from URL only on initial mount; intentionally-closed drawers must not resurrect.
+  const hasRunAutoOpen = useRef(false);
 
-      if (targetId && (!selectedShop || (selectedShop.id !== targetId && selectedShop.place_id !== targetId))) {
-        const found = rawShops.find((s) => s.id === targetId || s.place_id === targetId);
-        if (found) {
-          setSelectedShop(found);
-        }
-      }
+  useEffect(() => {
+    if (hasRunAutoOpen.current || typeof window === 'undefined' || rawShops.length === 0) {
+      return;
     }
-  }, [rawShops, selectedShop, setSelectedShop]);
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const shopQueryId = urlParams.get('shop');
+    const pathMatch = window.location.pathname.match(/\/shop\/([^/]+)/);
+    const targetId = shopQueryId || (pathMatch ? pathMatch[1] : null);
+
+    hasRunAutoOpen.current = true;
+
+    if (!targetId || isShopRecentlyDeleted(targetId)) {
+      if (targetId && isShopRecentlyDeleted(targetId)) {
+        clearShopQueryParam();
+      }
+      return;
+    }
+
+    const found = rawShops.find(
+      (s) =>
+        (s.id === targetId || s.place_id === targetId) &&
+        !isShopRecentlyDeleted(s.id) &&
+        !isShopRecentlyDeleted(s.place_id)
+    );
+
+    if (found) {
+      setSelectedShop(found);
+    } else {
+      clearShopQueryParam();
+    }
+  }, [rawShops, setSelectedShop]);
 
   // Handle popstate on page to close drawer if ?shop param is removed via back button
   useEffect(() => {
@@ -238,12 +257,12 @@ export function DiscoverClient() {
     const handlePopState = () => {
       const urlParams = new URLSearchParams(window.location.search);
       if (!urlParams.get('shop') && selectedShop) {
-        setSelectedShop(null);
+        closeActiveShop({ clearUrl: false });
       }
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, [selectedShop, setSelectedShop]);
+  }, [selectedShop]);
 
   const deferredSearchQuery = useDeferredValue(searchQuery);
   const deferredFilters = useDeferredValue(filters);
@@ -937,7 +956,7 @@ export function DiscoverClient() {
       <ShopDrawer
         shop={selectedShop}
         isOpen={Boolean(selectedShop)}
-        onClose={() => setSelectedShop(null)}
+        onClose={() => closeActiveShop({ clearUrl: true })}
         onToggleFavorite={handleToggleFav}
         isFavorite={selectedShop ? favorites.includes(selectedShop.place_id) : false}
       />

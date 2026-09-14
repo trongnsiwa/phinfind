@@ -61,6 +61,9 @@ test.describe('Shop Detail Flow', () => {
     // Dismiss drawer by pressing Escape
     await page.keyboard.press('Escape');
     await page.waitForTimeout(500);
+
+    // Verify URL no longer contains ?shop=
+    await expect(page).not.toHaveURL(/[?&]shop=/);
   });
 
   test('standalone shop page handles missing or invalid ID gracefully', async ({ page }) => {

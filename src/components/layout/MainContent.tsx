@@ -1,13 +1,24 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { APP_ROUTES } from '@/lib/utils/constants';
 import { cn } from '@/lib/utils';
+import { closeActiveShop } from '@/stores/useShopStore';
 
 export function MainContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isMap = pathname === APP_ROUTES.MAP;
+  const prevPathnameRef = useRef(pathname);
+
+  useEffect(() => {
+    if (prevPathnameRef.current !== pathname) {
+      prevPathnameRef.current = pathname;
+      if (!pathname?.startsWith('/shop/')) {
+        closeActiveShop({ clearUrl: true });
+      }
+    }
+  }, [pathname]);
 
   useEffect(() => {
     if (isMap) {
