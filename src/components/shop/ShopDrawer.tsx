@@ -195,9 +195,10 @@ export function ShopDrawer({
         />
 
         {/* DRAGGABLE BOTTOM SHEET DRAWER CONTAINER */}
+        {/* RESPONSIVE: max-w-2xl on mobile (< md), widened to md:max-w-3xl for tablet drawer experience */}
         <DrawerPrimitive.Content
           aria-describedby='shop-drawer-description'
-          className='fixed inset-x-0 bottom-0 z-50 flex flex-col bg-card border-t border-border shadow-2xl max-w-2xl mx-auto rounded-t-[2rem] outline-none h-full max-h-[92vh] text-foreground overflow-hidden will-change-transform'
+          className='fixed inset-x-0 bottom-0 z-50 flex flex-col bg-card border-t border-border shadow-2xl max-w-2xl md:max-w-3xl mx-auto rounded-t-[2rem] outline-none h-full max-h-[92vh] text-foreground overflow-hidden will-change-transform'
         >
           {/* Top Pill Handle Bar */}
           <div

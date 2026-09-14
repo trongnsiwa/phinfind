@@ -228,10 +228,11 @@ export const ReviewsTab = memo(function ReviewsTab({
                 </p>
               </div>
             </div>
+            {/* RESPONSIVE: h-9 on mobile for comfortable touch target, md:h-8.5 on desktop */}
             <Button
               type='button'
               onClick={() => setIsModalOpen(true)}
-              className='bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground font-bold text-xs rounded-xl px-3.5 py-1.5 h-8.5 shadow-md flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer flex-shrink-0'
+              className='bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground font-bold text-xs rounded-xl px-3.5 py-1.5 h-9 md:h-8.5 shadow-md flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer flex-shrink-0'
             >
               <Edit3 size={13} />
               <span>Viết đánh giá</span>
@@ -278,7 +279,7 @@ export const ReviewsTab = memo(function ReviewsTab({
               <Button
                 type='button'
                 onClick={() => setIsModalOpen(true)}
-                className='bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground font-bold text-xs rounded-xl px-4 py-2 h-8 shadow-xs flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer'
+                className='bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground font-bold text-xs rounded-xl px-4 py-2 h-9 md:h-8.5 shadow-xs flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer'
               >
                 <Edit3 size={13} />
                 <span>Viết đánh giá đầu tiên</span>
@@ -287,7 +288,7 @@ export const ReviewsTab = memo(function ReviewsTab({
               <Link href={`/login?redirect=${encodeURIComponent(`/?shop=${shop.id}`)}`}>
                 <Button
                   type='button'
-                  className='bg-primary hover:bg-primary-hover text-primary-foreground font-bold text-xs rounded-xl px-4 py-2 h-8 shadow-xs flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer'
+                  className='bg-primary hover:bg-primary-hover text-primary-foreground font-bold text-xs rounded-xl px-4 py-2 h-9 md:h-8.5 shadow-xs flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer'
                 >
                   <LogIn size={13} />
                   <span>Đăng nhập để đánh giá</span>

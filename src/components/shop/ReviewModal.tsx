@@ -260,7 +260,8 @@ export function ReviewModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='max-w-md w-full p-5 sm:p-6 bg-card border-border shadow-2xl rounded-2xl sm:rounded-3xl'>
+      {/* RESPONSIVE: w-[94vw] sm:w-full and p-4 sm:p-6 ensure clean margins at 320px */}
+      <DialogContent className='w-[94vw] sm:w-full max-w-md p-4 sm:p-6 bg-card border-border shadow-2xl rounded-2xl sm:rounded-3xl'>
         <DialogHeader className='space-y-1 text-left border-b border-border/50 pb-3 pr-6'>
           <div className='flex items-center gap-2.5'>
             <div className='w-8 h-8 rounded-xl bg-amber-gold/15 border border-amber-gold/30 flex items-center justify-center text-amber-gold shadow-xs flex-shrink-0'>
@@ -319,6 +320,7 @@ export function ReviewModal({
                 {[1, 2, 3, 4, 5].map((star) => {
                   const active = (hoverRating || rating) >= star;
                   return (
+                    // RESPONSIVE: 44px minimum tap target zone with p-1.5 for touch accessibility
                     <button
                       key={star}
                       type='button'
@@ -328,7 +330,7 @@ export function ReviewModal({
                       onClick={() => setRating(star)}
                       onMouseEnter={() => setHoverRating(star)}
                       onMouseLeave={() => setHoverRating(0)}
-                      className='p-1 rounded-lg text-amber-gold hover:scale-125 active:scale-95 transition-transform duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold cursor-pointer touch-manipulation'
+                      className='min-w-[44px] min-h-[44px] flex items-center justify-center p-1.5 rounded-lg text-amber-gold hover:scale-125 active:scale-95 transition-transform duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold cursor-pointer touch-manipulation'
                     >
                       <Star
                         size={24}

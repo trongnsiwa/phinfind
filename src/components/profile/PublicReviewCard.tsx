@@ -77,7 +77,7 @@ export function PublicReviewCard({ review, action }: PublicReviewCardProps) {
                 })}
               </span>
               {review.is_edited && (
-                <span className="text-[10px] text-muted-foreground/70 italic">(đã chỉnh sửa)</span>
+                <span className="text-[11px] text-muted-foreground/70 italic">(đã chỉnh sửa)</span>
               )}
             </span>
           </div>

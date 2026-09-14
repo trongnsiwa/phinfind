@@ -59,10 +59,15 @@ function getShopDistance(shop: CoffeeShop, userLat: number, userLng: number): nu
 }
 
 const PRICE_OPTIONS: Array<'₫' | '₫₫' | '₫₫₫' | '₫₫₫₫'> = ['₫', '₫₫', '₫₫₫', '₫₫₫₫'];
+
+// RESPONSIVE: toggleable desktop filter sheet position (right-side drawer on >= lg, bottom sheet on < lg)
+export const ENABLE_DESKTOP_FILTER_SHEET_SIDE = true;
+
 export function MapClient() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
   const isDesktop = useMediaQuery('(min-width: 1024px)');
+  const filterSheetSide = ENABLE_DESKTOP_FILTER_SHEET_SIDE && isDesktop ? 'right' : 'bottom';
   const { lat, lng, loading: locationLoading, isFallback, refetchLocation } = useLocation();
   const { selectedShop, setSelectedShop, favorites } = useShopStore();
 
@@ -352,7 +357,8 @@ export function MapClient() {
 
         {/* Center: Location Pill (when search closed) OR Centered Search Bar (when search open) */}
         {!isSearchOpen ? (
-          <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 rounded-full bg-secondary/80 border border-border/80 text-xs shadow-xs max-w-[170px] xs:max-w-[220px] sm:max-w-xs truncate animate-in fade-in duration-150">
+          // RESPONSIVE: md:mx-auto centers location pill in header on tablet/desktop when search is closed
+          <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 rounded-full bg-secondary/80 border border-border/80 text-xs shadow-xs max-w-[170px] xs:max-w-[220px] sm:max-w-xs md:mx-auto truncate animate-in fade-in duration-150">
             <MapPin size={13} className="text-amber-gold flex-shrink-0" />
             {isLocationLoading ? (
               <Skeleton className="h-3.5 w-16 sm:w-20 rounded-md bg-muted-foreground/20 animate-pulse flex-shrink-0" />
@@ -571,9 +577,15 @@ export function MapClient() {
                 )}
               </Button>
             </SheetTrigger>
+            {/* RESPONSIVE: conditional side by breakpoint — bottom sheet on mobile/tablet, right-side drawer on desktop (lg) */}
             <SheetContent
-              side="bottom"
-              className="bg-popover/95 backdrop-blur-2xl border-t border-border text-popover-foreground rounded-t-[28px] max-w-lg mx-auto p-5 pb-8 space-y-4 shadow-2xl z-[600] max-h-[85vh] overflow-y-auto no-scrollbar"
+              side={filterSheetSide}
+              className={cn(
+                'bg-popover/95 backdrop-blur-2xl text-popover-foreground p-5 pb-8 space-y-4 shadow-2xl z-[600] overflow-y-auto no-scrollbar',
+                filterSheetSide === 'right'
+                  ? 'border-l border-border w-full sm:max-w-md h-full'
+                  : 'border-t border-border rounded-t-[28px] max-w-lg sm:max-w-2xl md:max-w-3xl mx-auto max-h-[85vh]'
+              )}
             >
               <SheetHeader className="text-left space-y-1">
                 <div className="flex items-center justify-between pr-6">
@@ -780,7 +792,8 @@ export function MapClient() {
       {/* Floating Add Shop FAB Button on Map */}
       <div
         className={cn(
-          'fixed z-[400] bottom-5 right-4 sm:bottom-6 sm:right-6 max-md:bottom-20 animate-in fade-in zoom-in-95 duration-200 pointer-events-auto transition-all',
+          // RESPONSIVE: FAB clears mobile BottomNav + safe area; docks to bottom-6 on tablet/desktop
+          'fixed z-[400] bottom-[calc(5rem+env(safe-area-inset-bottom))] md:bottom-6 right-4 sm:right-6 animate-in fade-in zoom-in-95 duration-200 pointer-events-auto transition-all',
           selectedShop && isDesktop && 'lg:right-[460px] xl:right-[480px] 2xl:right-[500px]'
         )}
       >

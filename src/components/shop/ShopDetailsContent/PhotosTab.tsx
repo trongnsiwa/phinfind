@@ -94,7 +94,8 @@ export const PhotosTab = memo(function PhotosTab({
         </Badge>
       </div>
 
-      <div className='grid grid-cols-3 gap-2.5'>
+      {/* RESPONSIVE: 3-column grid on mobile/tablet portrait, expanding to 4-column on desktop */}
+      <div className='grid grid-cols-3 md:grid-cols-4 gap-2.5'>
         {photoList.map((item, idx) => (
           <div
             key={idx}

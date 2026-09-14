@@ -225,7 +225,8 @@ export function ShopDetailClient({ shop: initialShop }: ShopDetailClientProps) {
 
       {/* 2. Fixed Bottom Action Bar (Footer) with 5 Actions */}
       <div className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-xl border-t border-border px-2.5 sm:px-4 py-2.5 sm:py-3 shadow-2xl select-none pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-        <div className="max-w-3xl lg:max-w-4xl mx-auto grid grid-cols-5 gap-1.5 sm:gap-2.5">
+        {/* RESPONSIVE: grid-cols-3 on mobile to prevent cramped touch targets at 320px, sm:grid-cols-5 on tablet/desktop */}
+        <div className="max-w-3xl lg:max-w-4xl mx-auto grid grid-cols-3 sm:grid-cols-5 gap-1.5 sm:gap-2.5">
           {/* 1. Back Button */}
           <button
             type="button"

@@ -222,6 +222,7 @@ export function AdminSuggestionCard({
       )}
 
       {/* Actions (Only in pending state) */}
+      {/* RESPONSIVE: h-9 on mobile (< md) for comfortable touch targets, md:h-8 on desktop */}
       {isPending && (
         <div className="pt-2 border-t border-border/60 flex items-center justify-end gap-2">
           <Button
@@ -229,7 +230,7 @@ export function AdminSuggestionCard({
             variant="outline"
             size="sm"
             onClick={() => onReject?.(suggestion)}
-            className="text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive h-8 px-3.5 text-xs font-bold rounded-xl transition-colors focus-visible:ring-1 focus-visible:ring-amber-gold"
+            className="text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive h-9 md:h-8 px-3.5 text-xs font-bold rounded-xl transition-colors focus-visible:ring-1 focus-visible:ring-amber-gold"
           >
             <XCircle size={13} className="mr-1" />
             Từ chối
@@ -242,7 +243,7 @@ export function AdminSuggestionCard({
             onClick={() => onApprove?.(suggestion)}
             title={isSelf ? 'Bạn không thể tự duyệt đề xuất của chính mình' : undefined}
             className={cn(
-              'h-8 px-3.5 text-xs font-bold rounded-xl shadow-sm transition-transform active:scale-95 bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground focus-visible:ring-1 focus-visible:ring-amber-gold',
+              'h-9 md:h-8 px-3.5 text-xs font-bold rounded-xl shadow-sm transition-transform active:scale-95 bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground focus-visible:ring-1 focus-visible:ring-amber-gold',
               isSelf && 'opacity-50 cursor-not-allowed'
             )}
           >

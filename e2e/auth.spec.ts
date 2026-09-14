@@ -1,15 +1,33 @@
-import { test, expect, hasSupabaseCredentials, createTestUser, deleteTestUser } from './fixtures/test-helpers';
+import {
+  test,
+  expect,
+  hasSupabaseCredentials,
+  createTestUser,
+  deleteTestUser,
+  assertNoHorizontalScroll,
+  assertTapTarget,
+} from './fixtures/test-helpers';
 
 test.describe('Authentication Flow', () => {
   test('login page renders inputs, buttons, and navigation links', async ({ page }) => {
     await page.goto('/login');
+    await assertNoHorizontalScroll(page);
 
     await expect(page.locator('#email')).toBeVisible();
     await expect(page.locator('#password')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Đăng nhập', exact: true })).toBeVisible();
+    const loginBtn = page.getByRole('button', { name: 'Đăng nhập', exact: true });
+    await expect(loginBtn).toBeVisible();
+
+    const viewport = page.viewportSize();
+    if (viewport && viewport.width < 768) {
+      await assertTapTarget(loginBtn, 44);
+    }
 
     const googleBtn = page.getByRole('button', { name: /đăng nhập bằng google/i });
     await expect(googleBtn).toBeVisible();
+    if (viewport && viewport.width < 768) {
+      await assertTapTarget(googleBtn, 44);
+    }
 
     const forgotLink = page.getByRole('link', { name: /quên mật khẩu/i });
     await expect(forgotLink).toBeVisible();
@@ -21,6 +39,7 @@ test.describe('Authentication Flow', () => {
 
   test('signup page renders required fields and validation', async ({ page }) => {
     await page.goto('/signup');
+    await assertNoHorizontalScroll(page);
 
     await expect(page.locator('#fullname')).toBeVisible();
     await expect(page.locator('#email')).toBeVisible();
@@ -28,6 +47,11 @@ test.describe('Authentication Flow', () => {
 
     const submitBtn = page.getByRole('button', { name: /tạo tài khoản/i });
     await expect(submitBtn).toBeVisible();
+
+    const viewport = page.viewportSize();
+    if (viewport && viewport.width < 768) {
+      await assertTapTarget(submitBtn, 44);
+    }
 
     const passwordInput = page.locator('#password');
     await expect(passwordInput).toHaveAttribute('minlength', '8');
@@ -38,6 +62,7 @@ test.describe('Authentication Flow', () => {
 
   test('forgot password flow presents email input and confirmation view', async ({ page }) => {
     await page.goto('/forgot-password');
+    await assertNoHorizontalScroll(page);
 
     const emailInput = page.locator('#email');
     await expect(emailInput).toBeVisible();

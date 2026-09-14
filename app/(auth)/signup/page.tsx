@@ -206,7 +206,7 @@ function SignupForm() {
 
         <div className="flex items-center gap-3 my-3">
           <div className="h-px bg-border flex-1" />
-          <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider select-none bg-transparent">
+          <span className="text-[11px] text-muted-foreground font-bold uppercase tracking-wider select-none bg-transparent">
             Hoặc
           </span>
           <div className="h-px bg-border flex-1" />

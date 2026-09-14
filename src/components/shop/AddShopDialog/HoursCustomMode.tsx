@@ -99,6 +99,7 @@ export function HoursCustomMode({
                   {/* Mobile actions & status */}
                   <div className='sm:hidden flex items-center gap-1'>
                     {isDayOpen ? (
+                      /* RESPONSIVE: h-8 on mobile for touch accessibility, md:h-7 on desktop */
                       <Button
                         type='button'
                         variant='ghost'
@@ -106,7 +107,7 @@ export function HoursCustomMode({
                         onClick={() => handleCopyToAllDays(d.day)}
                         disabled={!dayState.open || !dayState.close}
                         title='Sao chép giờ sang các ngày khác'
-                        className='h-6 px-1.5 text-[10px] text-muted-foreground hover:text-amber-gold hover:bg-amber-gold/10 rounded-md cursor-pointer disabled:opacity-30'
+                        className='h-8 md:h-7 px-2 text-[10px] text-muted-foreground hover:text-amber-gold hover:bg-amber-gold/10 rounded-md cursor-pointer disabled:opacity-30'
                       >
                         <Copy size={11} className='mr-1' />
                         <span>Sao chép</span>

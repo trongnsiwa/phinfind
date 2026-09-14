@@ -98,9 +98,10 @@ export function BadgeCard({
             <h3 className="text-base sm:text-lg font-bold text-foreground tracking-tight">
               Hạng {label}
             </h3>
+            {/* RESPONSIVE: text-[11px] readable base text for badges */}
             <span
               className={cn(
-                'inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border',
+                'inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold border',
                 visuals.bg
               )}
             >
@@ -164,7 +165,7 @@ export function BadgeCard({
                   </div>
                   <div className="flex items-center justify-between text-[11px] text-muted-foreground mt-0.5">
                     <span>{getCategoryCountLabel(badge.id, badge.count)}</span>
-                    <span className="text-[10px] font-medium opacity-80">{catTierLabel}</span>
+                    <span className="text-[11px] font-medium opacity-80">{catTierLabel}</span>
                   </div>
                 </div>
               </div>

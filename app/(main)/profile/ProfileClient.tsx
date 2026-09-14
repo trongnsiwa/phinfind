@@ -405,7 +405,8 @@ export function ProfileClient() {
       >
         {/* Underline Tabs Header */}
         <div className="relative border-b border-border flex items-center justify-between">
-          <TabsList className="flex items-center justify-start bg-transparent p-0 h-auto rounded-none w-auto gap-6 sm:gap-8 overflow-x-auto">
+          {/* RESPONSIVE: overflow-x-auto no-scrollbar prevents tab label blowout at 320px */}
+          <TabsList className="flex items-center justify-start bg-transparent p-0 h-auto rounded-none w-auto max-w-full gap-4 sm:gap-8 overflow-x-auto no-scrollbar">
             {/* Tab 1: Đánh giá của tôi (Default) */}
             <TabsTrigger
               value="reviews"
@@ -532,7 +533,8 @@ export function ProfileClient() {
               className="py-12"
             />
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {/* RESPONSIVE: grid-cols-1 on mobile, sm:grid-cols-2 on tablet portrait, md:grid-cols-3 on desktop */}
               {displayShops.map(({ shop, isMissingDetails }) => (
                 <FavoriteShopCard
                   key={shop.id || shop.place_id}
@@ -574,7 +576,8 @@ export function ProfileClient() {
               className="py-12"
             />
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {/* RESPONSIVE: grid-cols-1 on mobile, sm:grid-cols-2 on tablet portrait, md:grid-cols-3 on desktop */}
               {userVisits.map((visit) => {
                 const coverPhoto = visit.shop?.photos?.[0];
                 return (

@@ -133,6 +133,7 @@ export function AdminShopCard({
       </div>
 
       {/* Bottom row inside same card */}
+      {/* RESPONSIVE: flex-wrap ensures actions wrap cleanly below details link on 320px viewports */}
       <div className="pt-3 mt-3 border-t border-border/60 flex flex-wrap items-center justify-between gap-2">
         <Link
           href={`/shop/${shop.place_id || shop.id}`}
@@ -150,7 +151,7 @@ export function AdminShopCard({
               <Button
                 size="sm"
                 onClick={() => onApprove?.(shop)}
-                className="h-8 px-3.5 text-xs font-bold rounded-xl shadow-sm transition-transform active:scale-95"
+                className="h-9 md:h-8 px-3.5 text-xs font-bold rounded-xl shadow-sm transition-transform active:scale-95"
               >
                 <CheckCircle2 size={13} className="mr-1" />
                 Xác minh
@@ -159,7 +160,7 @@ export function AdminShopCard({
                 variant="outline"
                 size="sm"
                 onClick={() => onReject?.(shop)}
-                className="text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive h-8 px-3.5 text-xs font-bold rounded-xl transition-colors"
+                className="text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive h-9 md:h-8 px-3.5 text-xs font-bold rounded-xl transition-colors"
               >
                 <XCircle size={13} className="mr-1" />
                 Từ chối
@@ -170,7 +171,7 @@ export function AdminShopCard({
               variant="outline"
               size="sm"
               onClick={() => onUnhide?.(shop)}
-              className="border-border text-foreground hover:bg-muted h-8 px-3.5 text-xs font-bold rounded-xl transition-colors"
+              className="border-border text-foreground hover:bg-muted h-9 md:h-8 px-3.5 text-xs font-bold rounded-xl transition-colors"
             >
               <RotateCcw size={13} className="mr-1 text-primary" />
               Khôi phục

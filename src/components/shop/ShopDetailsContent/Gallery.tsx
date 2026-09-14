@@ -22,8 +22,9 @@ export function Gallery({
 }: GalleryProps) {
   const imageCount = galleryPhotos.length;
 
+  // RESPONSIVE: responsive height ladder h-40 sm:h-48 md:h-56 maintains legible image ratios down to 320px
   return (
-    <div className='relative w-full h-36 sm:h-44 rounded-2xl overflow-hidden bg-card shadow-md border border-border/80 group'>
+    <div className='relative w-full h-40 sm:h-48 md:h-56 rounded-2xl overflow-hidden bg-card shadow-md border border-border/80 group'>
       {isLoading && (!shop.photos || shop.photos.length === 0) ? (
         <div className='w-full h-full flex gap-1.5 p-1.5 bg-card animate-pulse'>
           <div className='flex-[3] h-full rounded-xl bg-muted/60' />

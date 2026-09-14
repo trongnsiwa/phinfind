@@ -78,18 +78,20 @@ export function SettingsClient() {
             </div>
           </div>
 
+          {/* RESPONSIVE: gap-3 and min-w-0 truncate prevent collisions with controls at 320px */}
           <div className='space-y-4'>
             {/* Quick Switch for Dark Mode */}
-            <div className='flex justify-between items-center py-1 border-b border-border/40'>
-              <div className='space-y-0.5 pr-4'>
-                <span className='text-xs sm:text-sm font-medium text-foreground block'>
+            <div className='flex justify-between items-center py-1 border-b border-border/40 gap-3'>
+              <div className='space-y-0.5 pr-2 sm:pr-4 min-w-0'>
+                <span className='text-xs sm:text-sm font-medium text-foreground block truncate'>
                   Chế độ tối (Dark Mode)
                 </span>
-                <span className='text-[11px] text-muted-foreground block'>
+                <span className='text-[11px] text-muted-foreground block truncate'>
                   Chuyển nhanh giữa chế độ sáng và tối
                 </span>
               </div>
               <Switch
+                className='shrink-0'
                 checked={theme === 'dark'}
                 onCheckedChange={toggleTheme}
                 aria-label='Chuyển đổi giao diện tối'
@@ -97,17 +99,17 @@ export function SettingsClient() {
             </div>
 
             {/* Detailed Theme Selector: Light / Dark / System */}
-            <div className='flex justify-between items-center py-1'>
-              <div className='space-y-0.5 pr-4'>
-                <span className='text-xs sm:text-sm font-medium text-foreground block'>
+            <div className='flex justify-between items-center py-1 gap-3'>
+              <div className='space-y-0.5 pr-2 sm:pr-4 min-w-0'>
+                <span className='text-xs sm:text-sm font-medium text-foreground block truncate'>
                   Chủ đề hiển thị
                 </span>
-                <span className='text-[11px] text-muted-foreground block'>
+                <span className='text-[11px] text-muted-foreground block truncate'>
                   Lựa chọn tông màu sáng, tối hoặc đồng bộ thiết bị
                 </span>
               </div>
               <Select value={theme} onValueChange={handleThemeSelect}>
-                <SelectTrigger className='w-36 h-9 text-xs rounded-xl border-border bg-secondary/30'>
+                <SelectTrigger className='w-28 sm:w-36 h-9 text-xs rounded-xl border-border bg-secondary/30 shrink-0'>
                   <SelectValue placeholder='Chọn chủ đề' />
                 </SelectTrigger>
                 <SelectContent className='rounded-xl border-border bg-card'>
@@ -152,21 +154,21 @@ export function SettingsClient() {
           </div>
 
           <div className='space-y-3.5 text-xs sm:text-sm'>
-            <div className='flex justify-between items-center py-1 border-b border-border/40'>
-              <span className='text-muted-foreground'>Vị trí mặc định</span>
-              <span className='font-semibold text-foreground'>{DEFAULT_LOCATION.name}</span>
+            <div className='flex justify-between items-center py-1 border-b border-border/40 gap-3'>
+              <span className='text-muted-foreground min-w-0 truncate'>Vị trí mặc định</span>
+              <span className='font-semibold text-foreground shrink-0'>{DEFAULT_LOCATION.name}</span>
             </div>
 
-            <div className='flex justify-between items-center py-1 border-b border-border/40'>
-              <div className='space-y-0.5'>
-                <span className='text-muted-foreground block'>Định vị GPS</span>
-                <span className='text-[11px] text-muted-foreground/80 block'>
+            <div className='flex justify-between items-center py-1 border-b border-border/40 gap-3'>
+              <div className='space-y-0.5 min-w-0'>
+                <span className='text-muted-foreground block truncate'>Định vị GPS</span>
+                <span className='text-[11px] text-muted-foreground/80 block truncate'>
                   {isFallback
                     ? 'Đang sử dụng vị trí mặc định'
                     : 'Đã xác định vị trí thực tế của bạn'}
                 </span>
               </div>
-              <div className='flex items-center gap-2'>
+              <div className='flex items-center gap-2 shrink-0'>
                 <Badge
                   variant='outline'
                   className={
@@ -191,9 +193,9 @@ export function SettingsClient() {
               </div>
             </div>
 
-            <div className='flex justify-between items-center py-1'>
-              <span className='text-muted-foreground'>Bán kính tìm kiếm</span>
-              <span className='font-semibold text-foreground'>3.0 km (Mặc định)</span>
+            <div className='flex justify-between items-center py-1 gap-3'>
+              <span className='text-muted-foreground min-w-0 truncate'>Bán kính tìm kiếm</span>
+              <span className='font-semibold text-foreground shrink-0'>3.0 km (Mặc định)</span>
             </div>
           </div>
         </Card>
@@ -213,19 +215,19 @@ export function SettingsClient() {
           </div>
 
           <div className='space-y-3.5 text-xs sm:text-sm'>
-            <div className='flex justify-between items-center py-1 border-b border-border/40'>
-              <span className='text-muted-foreground'>Tên ứng dụng</span>
-              <span className='font-semibold text-foreground'>PhinFind</span>
+            <div className='flex justify-between items-center py-1 border-b border-border/40 gap-3'>
+              <span className='text-muted-foreground min-w-0 truncate'>Tên ứng dụng</span>
+              <span className='font-semibold text-foreground shrink-0'>PhinFind</span>
             </div>
-            <div className='flex justify-between items-center py-1 border-b border-border/40'>
-              <span className='text-muted-foreground'>Phiên bản</span>
-              <span className='font-semibold text-foreground'>1.0.0 Bản phát hành</span>
+            <div className='flex justify-between items-center py-1 border-b border-border/40 gap-3'>
+              <span className='text-muted-foreground min-w-0 truncate'>Phiên bản</span>
+              <span className='font-semibold text-foreground shrink-0'>1.0.0 Bản phát hành</span>
             </div>
-            <div className='flex justify-between items-center py-1'>
-              <span className='text-muted-foreground'>Trạng thái PWA</span>
+            <div className='flex justify-between items-center py-1 gap-3'>
+              <span className='text-muted-foreground min-w-0 truncate'>Trạng thái PWA</span>
               <Badge
                 variant='outline'
-                className='bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 font-semibold text-[10px]'
+                className='bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 font-semibold text-[10px] shrink-0'
               >
                 Sẵn sàng / Trực tuyến
               </Badge>
@@ -252,17 +254,17 @@ export function SettingsClient() {
           {isAuthenticated ? (
             <div className='space-y-4'>
               <div className='space-y-3.5 text-xs sm:text-sm'>
-                <div className='flex justify-between items-center py-1 border-b border-border/40'>
-                  <span className='text-muted-foreground'>Tài khoản đăng nhập</span>
-                  <span className='font-semibold text-foreground truncate max-w-[200px] sm:max-w-xs'>
+                <div className='flex justify-between items-center py-1 border-b border-border/40 gap-3'>
+                  <span className='text-muted-foreground min-w-0 truncate'>Tài khoản đăng nhập</span>
+                  <span className='font-semibold text-foreground truncate max-w-[160px] sm:max-w-xs shrink-0'>
                     {user?.email}
                   </span>
                 </div>
-                <div className='flex justify-between items-center py-1'>
-                  <span className='text-muted-foreground'>Trạng thái</span>
+                <div className='flex justify-between items-center py-1 gap-3'>
+                  <span className='text-muted-foreground min-w-0 truncate'>Trạng thái</span>
                   <Badge
                     variant='outline'
-                    className='bg-primary/10 text-primary border-primary/30 font-semibold text-[10px]'
+                    className='bg-primary/10 text-primary border-primary/30 font-semibold text-[10px] shrink-0'
                   >
                     Đã xác thực
                   </Badge>

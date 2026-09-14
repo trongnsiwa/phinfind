@@ -56,7 +56,8 @@ export function VisitNoteDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='w-[94vw] sm:w-full max-w-md bg-card border-border shadow-2xl rounded-2xl sm:rounded-3xl p-5 sm:p-6 space-y-4'>
+      {/* RESPONSIVE: p-4 on mobile (< sm) ensures no overflow at 320px; sm:p-6 on desktop */}
+      <DialogContent className='w-[94vw] sm:w-full max-w-md bg-card border-border shadow-2xl rounded-2xl sm:rounded-3xl p-4 sm:p-6 space-y-4'>
         <DialogHeader className='space-y-1.5 text-left'>
           <DialogTitle className='font-sans font-bold text-base sm:text-lg text-foreground flex items-center gap-2'>
             <div className='w-7 h-7 rounded-lg bg-teal/15 border border-teal/30 flex items-center justify-center text-teal shrink-0'>

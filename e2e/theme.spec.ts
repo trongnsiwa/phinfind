@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures/test-helpers';
+import { test, expect, assertNoHorizontalScroll } from './fixtures/test-helpers';
 
 test.describe('Theme & Dark Mode Persistence', () => {
   test('toggles dark mode in settings and persists on page reload without console errors', async ({ page }) => {
@@ -10,6 +10,7 @@ test.describe('Theme & Dark Mode Persistence', () => {
     });
 
     await page.goto('/settings');
+    await assertNoHorizontalScroll(page);
 
     const themeSwitch = page.locator('button[aria-label="Chuyển đổi giao diện tối"]');
     await expect(themeSwitch).toBeVisible();

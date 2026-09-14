@@ -18,8 +18,28 @@ export default defineConfig({
   },
   projects: [
     {
-      name: 'chromium',
+      name: 'desktop',
       use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'mobile-320',
+      use: { ...devices['iPhone SE'], defaultBrowserType: 'chromium' },
+    },
+    {
+      name: 'mobile-390',
+      use: { ...devices['iPhone 14'], defaultBrowserType: 'chromium' },
+    },
+    {
+      name: 'tablet-768',
+      use: { ...devices['iPad Mini'], defaultBrowserType: 'chromium' },
+    },
+    {
+      name: 'tablet-1024',
+      use: {
+        ...devices['iPad Pro 11'],
+        viewport: { width: 1024, height: 1366 },
+        defaultBrowserType: 'chromium',
+      },
     },
   ],
   webServer: process.env.PLAYWRIGHT_TEST_SKIP_WEBSERVER

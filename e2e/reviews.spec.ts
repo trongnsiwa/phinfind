@@ -1,8 +1,17 @@
-import { test, expect, hasSupabaseCredentials, createTestUser, deleteTestUser } from './fixtures/test-helpers';
+import {
+  test,
+  expect,
+  hasSupabaseCredentials,
+  createTestUser,
+  deleteTestUser,
+  assertNoHorizontalScroll,
+  assertTapTarget,
+} from './fixtures/test-helpers';
 
 test.describe('Shop Reviews Flow', () => {
   test('guest user is prompted to sign in when attempting to review', async ({ page }) => {
     await page.goto('/');
+    await assertNoHorizontalScroll(page);
 
     const firstCard = page.locator('article, [class*="ShopCard"]').first();
     const hasCards = await firstCard.waitFor({ state: 'visible', timeout: 8000 }).then(() => true).catch(() => false);
@@ -20,6 +29,10 @@ test.describe('Shop Reviews Flow', () => {
     // In guest mode, action button prompts login
     const loginReviewBtn = page.getByRole('button', { name: /đăng nhập để đánh giá/i });
     if (await loginReviewBtn.isVisible()) {
+      const viewport = page.viewportSize();
+      if (viewport && viewport.width < 768) {
+        await assertTapTarget(loginReviewBtn, 44);
+      }
       await loginReviewBtn.click();
       // Toast notice or login modal appears
       await expect(page.getByText(/yêu cầu đăng nhập|vui lòng đăng nhập/i)).toBeVisible();

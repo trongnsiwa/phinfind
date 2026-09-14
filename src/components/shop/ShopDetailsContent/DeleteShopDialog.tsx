@@ -29,7 +29,8 @@ export function DeleteShopDialog({
 }: DeleteShopDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className='bg-card text-card-foreground border-border max-w-md rounded-2xl'>
+      {/* RESPONSIVE: w-[94vw] sm:w-full and p-4 sm:p-6 prevent overflow on 320px screens */}
+      <AlertDialogContent className='bg-card text-card-foreground border-border w-[94vw] sm:w-full max-w-md rounded-2xl p-4 sm:p-6'>
         <AlertDialogHeader>
           <AlertDialogTitle className='text-foreground text-base sm:text-lg font-bold'>
             Xác nhận xóa quán cà phê

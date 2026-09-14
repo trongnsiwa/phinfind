@@ -146,6 +146,7 @@ export const FavoriteShopCard = memo(function FavoriteShopCard({
         </div>
 
         {/* Top-right Actions: Heart & Remove */}
+        {/* RESPONSIVE: h-8 w-8 touch targets on mobile (< md), h-7 w-7 on desktop */}
         <div className="absolute top-2 right-2 z-10 flex items-center gap-1.5">
           <Button
             variant="ghost"
@@ -153,7 +154,7 @@ export const FavoriteShopCard = memo(function FavoriteShopCard({
             onClick={handleRemoveClick}
             aria-label="Xóa khỏi danh sách yêu thích"
             title="Xóa khỏi danh sách yêu thích"
-            className="h-7 w-7 rounded-full bg-background/80 backdrop-blur-md hover:bg-rose-500/20 hover:text-rose-500 border border-border/60 text-muted-foreground shadow-xs transition-all active:scale-90"
+            className="h-8 w-8 md:h-7 md:w-7 rounded-full bg-background/80 backdrop-blur-md hover:bg-rose-500/20 hover:text-rose-500 border border-border/60 text-muted-foreground shadow-xs transition-all active:scale-90"
           >
             <Trash2 size={12} />
           </Button>
@@ -162,7 +163,7 @@ export const FavoriteShopCard = memo(function FavoriteShopCard({
             size="icon"
             onClick={handleHeartClick}
             aria-label={isFavorite ? 'Xóa khỏi danh sách yêu thích' : 'Thêm vào danh sách yêu thích'}
-            className="h-7 w-7 rounded-full bg-background/80 backdrop-blur-md hover:bg-secondary border border-border/60 text-foreground shadow-xs transition-all active:scale-90"
+            className="h-8 w-8 md:h-7 md:w-7 rounded-full bg-background/80 backdrop-blur-md hover:bg-secondary border border-border/60 text-foreground shadow-xs transition-all active:scale-90"
           >
             <Heart
               size={13}

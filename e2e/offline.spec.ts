@@ -1,8 +1,9 @@
-import { test, expect } from './fixtures/test-helpers';
+import { test, expect, assertNoHorizontalScroll } from './fixtures/test-helpers';
 
 test.describe('Offline Handling & Queue Synchronization', () => {
   test('queues offline favorite action and displays toast notification', async ({ page, context }) => {
     await page.goto('/');
+    await assertNoHorizontalScroll(page);
 
     const firstCard = page.locator('article, [class*="ShopCard"]').first();
     const hasCards = await firstCard.waitFor({ state: 'visible', timeout: 8000 }).then(() => true).catch(() => false);

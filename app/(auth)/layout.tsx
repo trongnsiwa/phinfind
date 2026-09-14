@@ -31,14 +31,15 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <div className='absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,var(--color-amber-gold),transparent_70%)] opacity-5 pointer-events-none' />
 
       {/* Central Card Wrapper with Warm Ambient Glow */}
-      <div className='relative w-full max-w-4xl'>
+      <div className='relative w-full max-w-md sm:max-w-lg lg:max-w-4xl mx-auto'>
         {/* Soft Warm Glow Behind Card */}
         <div className='absolute -inset-2 sm:-inset-4 bg-gradient-to-r from-amber-gold/20 via-amber-gold/10 to-amber-gold/20 rounded-[2.5rem] blur-2xl opacity-75 -z-10 pointer-events-none' />
 
         {/* Main Auth Card Container */}
-        <div className='w-full grid grid-cols-1 md:grid-cols-2 rounded-3xl overflow-hidden shadow-2xl shadow-black/10 dark:shadow-black/60 border border-border bg-card gap-0'>
-          {/* Mobile Header Branding (Visible only on mobile) */}
-          <div className='md:hidden p-5 bg-gradient-to-b from-muted/50 to-card border-b border-border text-foreground flex items-center justify-between'>
+        {/* RESPONSIVE: single-column centered on mobile and tablet portrait (< lg), 2-col split only at lg+ */}
+        <div className='w-full grid grid-cols-1 lg:grid-cols-2 rounded-3xl overflow-hidden shadow-2xl shadow-black/10 dark:shadow-black/60 border border-border bg-card gap-0'>
+          {/* Mobile/Tablet Header Branding (Visible only on < lg) */}
+          <div className='lg:hidden p-5 bg-gradient-to-b from-muted/50 to-card border-b border-border text-foreground flex items-center justify-between'>
             <Link href='/' className='inline-flex items-center gap-3'>
               <div className='w-10 h-10 rounded-xl bg-amber-gold/15 border border-amber-gold/30 flex items-center justify-center shadow-md overflow-hidden shrink-0'>
                 <Image
@@ -64,8 +65,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             </span>
           </div>
 
-          {/* Left Coffee Branding Hero Panel (Desktop) */}
-          <div className='hidden md:flex flex-col justify-between p-8 lg:p-10 bg-gradient-to-b from-muted/60 to-card text-foreground relative overflow-hidden border-r border-border'>
+          {/* Left Coffee Branding Hero Panel (Desktop lg+) */}
+          <div className='hidden lg:flex flex-col justify-between p-8 lg:p-10 bg-gradient-to-b from-muted/60 to-card text-foreground relative overflow-hidden border-r border-border'>
             {/* Subtle decorative amber warmth overlay */}
             <div className='absolute inset-0 bg-gradient-to-b from-amber-gold/5 via-transparent to-amber-gold/5 pointer-events-none' />
 

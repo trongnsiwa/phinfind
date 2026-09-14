@@ -186,6 +186,7 @@ export function ShopSidebar({
             className='fixed inset-0 z-40 bg-transparent pointer-events-auto'
           />
 
+          {/* RESPONSIVE: mounts only at lg (isDesktop); width scales progressively from 440px to 480px without sm:w-[440px] branch */}
           <motion.aside
             key={`shop-sidebar-${displayedShop.id}`}
             aria-label={`Bảng thông tin chi tiết ${displayedShop.name}`}
@@ -193,7 +194,7 @@ export function ShopSidebar({
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: '100%', opacity: 0.8 }}
             transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-            className='fixed top-14 right-0 bottom-0 w-full sm:w-[440px] lg:w-[440px] xl:w-[460px] 2xl:w-[480px] max-w-[90vw] z-50 bg-card/95 backdrop-blur-xl border-l border-border shadow-2xl flex flex-col select-none text-foreground'
+            className='fixed top-14 right-0 bottom-0 w-full lg:w-[440px] xl:w-[460px] 2xl:w-[480px] max-w-[90vw] z-50 bg-card/95 backdrop-blur-xl border-l border-border shadow-2xl flex flex-col select-none text-foreground'
           >
           {/* Top Header Bar with Close Button */}
           <div className='flex items-center justify-between px-4 py-2.5 border-b border-border/60 bg-card/80 flex-shrink-0'>
@@ -222,10 +223,11 @@ export function ShopSidebar({
           </div>
 
           {/* Fixed Bottom Action Bar */}
+          {/* RESPONSIVE: safe-bottom ensures action bar clears device navigation/home indicators */}
           <div
             onClick={(e) => e.stopPropagation()}
             onPointerDown={(e) => e.stopPropagation()}
-            className='flex-shrink-0 bg-card/95 backdrop-blur-xl border-t border-border px-4 py-3 shadow-2xl select-none'
+            className='flex-shrink-0 bg-card/95 backdrop-blur-xl border-t border-border px-4 py-3 shadow-2xl select-none safe-bottom'
           >
             <div className='grid grid-cols-4 gap-2'>
               {/* 1. Directions Button */}

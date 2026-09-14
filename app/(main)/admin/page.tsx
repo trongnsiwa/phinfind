@@ -222,7 +222,8 @@ export default function AdminPage() {
 
       {/* Underline Tabs */}
       <Tabs defaultValue="pending" className="w-full">
-        <TabsList className="flex items-center justify-start gap-4 sm:gap-6 border-b border-border bg-transparent p-0 h-auto rounded-none w-full overflow-x-auto scrollbar-none">
+        {/* RESPONSIVE: overflow-x-auto no-scrollbar prevents tab labels from overflowing at 320px */}
+        <TabsList className="flex items-center justify-start gap-4 sm:gap-6 border-b border-border bg-transparent p-0 h-auto rounded-none w-full overflow-x-auto no-scrollbar">
           <TabsTrigger
             value="pending"
             className="flex items-center gap-2 pb-3 pt-1.5 px-1 font-semibold text-xs sm:text-sm text-muted-foreground hover:text-foreground border-b-2 border-transparent data-[state=active]:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-none transition-all cursor-pointer relative focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0 flex-shrink-0"

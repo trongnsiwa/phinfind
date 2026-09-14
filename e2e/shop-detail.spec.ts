@@ -1,8 +1,14 @@
-import { test, expect } from './fixtures/test-helpers';
+import {
+  test,
+  expect,
+  assertNoHorizontalScroll,
+  assertTapTarget,
+} from './fixtures/test-helpers';
 
 test.describe('Shop Detail Flow', () => {
   test('opens shop drawer on card click and interacts with tabs', async ({ page }) => {
     await page.goto('/');
+    await assertNoHorizontalScroll(page);
 
     // Check if shop cards are rendered
     const firstCard = page.locator('article, [class*="ShopCard"]').first();
@@ -17,6 +23,7 @@ test.describe('Shop Detail Flow', () => {
 
     // Verify drawer appears and URL updates with ?shop=
     await expect(page).toHaveURL(/[?&]shop=/);
+    await assertNoHorizontalScroll(page);
     
     // Tab switching check
     const tabOverview = page.getByRole('tab', { name: 'Tổng quan' });
@@ -28,6 +35,12 @@ test.describe('Shop Detail Flow', () => {
     await expect(tabPhotos).toBeVisible();
     await expect(tabReviews).toBeVisible();
     await expect(tabAmenities).toBeVisible();
+
+    const viewport = page.viewportSize();
+    if (viewport && viewport.width < 768) {
+      await assertTapTarget(tabOverview, 44);
+      await assertTapTarget(tabPhotos, 44);
+    }
 
     // Switch to Photos
     await tabPhotos.click();
@@ -52,6 +65,7 @@ test.describe('Shop Detail Flow', () => {
 
   test('standalone shop page handles missing or invalid ID gracefully', async ({ page }) => {
     await page.goto('/shop/non-existent-shop-id');
+    await assertNoHorizontalScroll(page);
 
     // Should display skeleton initially and eventually error/empty fallback without crash
     await expect(page.locator('body')).toBeVisible();

@@ -260,8 +260,9 @@ function MapFloatingControls({
     onRecenter?.();
   };
 
+  // RESPONSIVE: MapFloatingControls clears mobile BottomNav + safe area; docks on tablet/desktop
   return (
-    <div className="absolute bottom-20 sm:bottom-20 max-md:bottom-36 right-4 sm:right-6 z-[400] flex flex-col gap-2 pointer-events-auto select-none items-center">
+    <div className="absolute bottom-[calc(5rem+env(safe-area-inset-bottom))] md:bottom-24 lg:bottom-20 right-3 sm:right-5 md:right-6 z-[400] flex flex-col gap-2 pointer-events-auto select-none items-center">
       {/* Recenter Location Button */}
       {onRecenter && (
         <Button
@@ -406,7 +407,8 @@ export default function LeafletMapInner({
         <MapFloatingControls center={center} onRecenter={onRecenter} />
 
         {/* Subtle Map Attribution Notice */}
-        <div className="absolute bottom-1 left-3 z-[400] text-[9px] text-muted-foreground/60 select-none pointer-events-auto flex items-center gap-1 bg-background/50 backdrop-blur-xs px-1.5 py-0.5 rounded shadow-xs">
+        {/* RESPONSIVE: text-[10px] on mobile for readability, scales to md:text-[9px] on desktop */}
+        <div className="absolute bottom-1 left-3 z-[400] text-[10px] md:text-[9px] text-muted-foreground/60 select-none pointer-events-auto flex items-center gap-1 bg-background/50 backdrop-blur-xs px-1.5 py-0.5 rounded shadow-xs">
           <span>&copy;</span>
           <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-foreground">OpenStreetMap</a>
           <span>contributors</span>

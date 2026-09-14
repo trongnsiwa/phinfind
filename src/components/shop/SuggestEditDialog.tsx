@@ -75,7 +75,7 @@ function DiffRow({ label, currentDisplay, children, isChanged }: DiffRowProps) {
         </div>
 
         {/* Right: Proposed value */}
-        <div className="space-y-1">
+        <div className="space-y-1 min-w-0">
           <span className="text-[10px] font-medium text-amber-gold uppercase tracking-wider block sm:hidden">
             Đề xuất
           </span>
@@ -187,9 +187,10 @@ export function SuggestEditDialog({ open, onOpenChange, shop }: SuggestEditDialo
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0 gap-0 border-border bg-card">
+      {/* RESPONSIVE: w-[94vw] sm:w-full ensures 320px screens don't overflow */}
+      <DialogContent className="w-[94vw] sm:w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0 gap-0 border-border bg-card">
         {/* Header */}
-        <DialogHeader className="p-4 sm:p-5 border-b border-border/60 text-left space-y-1.5 flex-shrink-0">
+        <DialogHeader className="p-4 sm:p-6 border-b border-border/60 text-left space-y-1.5 flex-shrink-0">
           <div className="flex items-center justify-between gap-2 pr-6">
             <DialogTitle className="font-sans font-bold text-lg text-foreground tracking-tight">
               Đề xuất chỉnh sửa
@@ -211,7 +212,7 @@ export function SuggestEditDialog({ open, onOpenChange, shop }: SuggestEditDialo
         </DialogHeader>
 
         {/* Scrollable Form Body */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3.5">
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3.5">
           {/* Hint banner */}
           <div className="flex items-start gap-2.5 p-3 rounded-xl bg-secondary/50 border border-border/60 text-xs text-muted-foreground">
             <Info size={15} className="text-amber-gold flex-shrink-0 mt-0.5" />
@@ -346,7 +347,7 @@ export function SuggestEditDialog({ open, onOpenChange, shop }: SuggestEditDialo
         </form>
 
         {/* Footer */}
-        <DialogFooter className="p-4 sm:p-5 border-t border-border/60 bg-muted/20 flex-row justify-end gap-2 flex-shrink-0">
+        <DialogFooter className="p-4 sm:p-6 border-t border-border/60 bg-muted/20 flex-row justify-end gap-2 flex-shrink-0">
           <Button
             type="button"
             variant="outline"

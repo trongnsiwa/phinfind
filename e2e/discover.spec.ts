@@ -1,4 +1,10 @@
-import { test, expect } from './fixtures/test-helpers';
+import {
+  test,
+  expect,
+  assertNoHorizontalScroll,
+  assertTapTarget,
+  assertNoOverlap,
+} from './fixtures/test-helpers';
 
 test.describe('Discover Page & Bento Grid', () => {
   test('renders top search bar and allows text input and clear', async ({ page }) => {
@@ -19,15 +25,38 @@ test.describe('Discover Page & Bento Grid', () => {
   test('interacts with filter chips (open now toggle)', async ({ page }) => {
     await page.goto('/');
 
-    const openNowChip = page.locator('button[aria-label="Lọc quán đang mở cửa"]:visible').first();
-    await expect(openNowChip).toBeVisible();
-    await expect(openNowChip).toHaveAttribute('aria-pressed', 'false');
+    const viewport = page.viewportSize();
+    if (viewport && viewport.width < 768) {
+      // On mobile viewports, the filter chip is inside the filter Sheet
+      const filterBtn = page.locator('button[aria-label="Mở bộ lọc tìm kiếm"]:visible');
+      await expect(filterBtn).toBeVisible();
+      await filterBtn.click();
 
-    await openNowChip.click();
-    await expect(openNowChip).toHaveAttribute('aria-pressed', 'true');
+      const openNowChip = page.locator('[role="dialog"] button[aria-label="Lọc quán đang mở cửa"]:visible');
+      await expect(openNowChip).toBeVisible();
+      await expect(openNowChip).toHaveAttribute('aria-pressed', 'false');
 
-    await openNowChip.click();
-    await expect(openNowChip).toHaveAttribute('aria-pressed', 'false');
+      await openNowChip.click();
+      await expect(openNowChip).toHaveAttribute('aria-pressed', 'true');
+
+      await openNowChip.click();
+      await expect(openNowChip).toHaveAttribute('aria-pressed', 'false');
+
+      const closeBtn = page.locator('button[aria-label="Đóng bộ lọc"]:visible');
+      if (await closeBtn.isVisible()) {
+        await closeBtn.click();
+      }
+    } else {
+      const openNowChip = page.locator('button[aria-label="Lọc quán đang mở cửa"]:visible').first();
+      await expect(openNowChip).toBeVisible();
+      await expect(openNowChip).toHaveAttribute('aria-pressed', 'false');
+
+      await openNowChip.click();
+      await expect(openNowChip).toHaveAttribute('aria-pressed', 'true');
+
+      await openNowChip.click();
+      await expect(openNowChip).toHaveAttribute('aria-pressed', 'false');
+    }
   });
 
   test('sort dropdown selector functions properly', async ({ page }) => {
@@ -107,6 +136,11 @@ test.describe('Discover Page & Bento Grid', () => {
     // Verify mobile Add Shop sticky bar is visible
     const fab = page.locator('button[aria-label="Thêm quán cà phê mới"]:visible');
     await expect(fab).toBeVisible();
+
+    // Assert primary CTAs tap targets >= 44px and no overlap with BottomNav on mobile-320
+    await assertTapTarget(filterBtn, 44);
+    await assertTapTarget(fab, 44);
+    await assertNoOverlap(bottomNav, fab);
 
     // 2. Open Filter Bottom Sheet
     await filterBtn.click();
@@ -261,17 +295,29 @@ test.describe('Discover Page & Bento Grid', () => {
       // Verify status pill and single-line address are rendered
       await expect(cards.first().locator('.md\\:hidden').getByText(/mở cửa|đóng cửa/i)).toBeVisible();
 
-      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-      await page.waitForTimeout(300);
+      // Scroll until reaching the true bottom of the document
+      await page.evaluate(async () => {
+        let prevHeight = 0;
+        let attempts = 0;
+        while (attempts < 8) {
+          window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' });
+          await new Promise((r) => setTimeout(r, 150));
+          if (document.documentElement.scrollHeight === prevHeight) {
+            break;
+          }
+          prevHeight = document.documentElement.scrollHeight;
+          attempts++;
+        }
+      });
+      await page.waitForTimeout(200);
+
       const lastCard = cards.last();
       await expect(lastCard).toBeVisible();
 
       // P0: Verify last card (including status pill) rests fully ABOVE BottomNav with generous clearance
-      const lastCardBox = await lastCard.boundingBox();
-      const bottomNavBox = await bottomNav.boundingBox();
-      expect(lastCardBox).not.toBeNull();
-      expect(bottomNavBox).not.toBeNull();
-      expect(lastCardBox!.y + lastCardBox!.height).toBeLessThanOrEqual(bottomNavBox!.y);
+      const lastCardBottomInViewport = await lastCard.evaluate((el) => el.getBoundingClientRect().bottom);
+      const bottomNavTopInViewport = await bottomNav.evaluate((el) => el.getBoundingClientRect().top);
+      expect(lastCardBottomInViewport).toBeLessThanOrEqual(bottomNavTopInViewport);
 
       // Ensure last card receives click without being blocked
       await lastCard.click();
@@ -281,12 +327,12 @@ test.describe('Discover Page & Bento Grid', () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/');
 
-    isOverflowing = await page.evaluate(() => {
-      return document.documentElement.scrollWidth > document.documentElement.clientWidth;
-    });
-    expect(isOverflowing).toBe(false);
+    await assertNoHorizontalScroll(page);
     await expect(bottomNav).toBeVisible();
     await expect(filterBtn).toBeVisible();
+    await assertTapTarget(filterBtn, 44);
+    await assertTapTarget(mobileAddBar, 44);
+    await assertNoOverlap(bottomNav, mobileAddBar);
 
     // Open sheet at 390px - FAB and BottomNav must be hidden
     await filterBtn.click();
@@ -320,17 +366,28 @@ test.describe('Discover Page & Bento Grid', () => {
       expect(firstCard390Box).not.toBeNull();
       expect(firstCard390Box!.height).toBe(112);
 
-      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-      await page.waitForTimeout(300);
+      // Scroll until reaching the true bottom of the document
+      await page.evaluate(async () => {
+        let prevHeight = 0;
+        let attempts = 0;
+        while (attempts < 8) {
+          window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' });
+          await new Promise((r) => setTimeout(r, 150));
+          if (document.documentElement.scrollHeight === prevHeight) {
+            break;
+          }
+          prevHeight = document.documentElement.scrollHeight;
+          attempts++;
+        }
+      });
+      await page.waitForTimeout(200);
       const lastCard390 = cards.last();
       await expect(lastCard390).toBeVisible();
 
       // P0: Verify last card rests fully ABOVE BottomNav with generous clearance
-      const lastCard390Box = await lastCard390.boundingBox();
-      const bottomNav390Box = await bottomNav.boundingBox();
-      expect(lastCard390Box).not.toBeNull();
-      expect(bottomNav390Box).not.toBeNull();
-      expect(lastCard390Box!.y + lastCard390Box!.height).toBeLessThanOrEqual(bottomNav390Box!.y);
+      const lastCard390BottomInViewport = await lastCard390.evaluate((el) => el.getBoundingClientRect().bottom);
+      const bottomNav390TopInViewport = await bottomNav.evaluate((el) => el.getBoundingClientRect().top);
+      expect(lastCard390BottomInViewport).toBeLessThanOrEqual(bottomNav390TopInViewport);
 
       await lastCard390.click();
     }
@@ -478,13 +535,44 @@ test.describe('Discover Page & Bento Grid', () => {
     expect(isOverflowing).toBe(false);
   });
 
-  test('map page remains full-bleed with zero padding on main container', async ({ page }) => {
+  test('map page remains full-bleed with zero padding and verifies responsive controls', async ({ page }) => {
+    // 1. Mobile (390px)
+    await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/map');
+    await assertNoHorizontalScroll(page);
     const main = page.locator('main');
     await expect(main).toHaveClass(/p-0/);
     await expect(main).toHaveClass(/m-0/);
     await expect(main).toHaveClass(/h-full/);
     await expect(main).toHaveClass(/overflow-hidden/);
+
+    // Verify FAB and filter trigger are visible
+    const fab = page.locator('button[aria-label="Thêm quán cà phê mới"]');
+    await expect(fab).toBeVisible();
+    const filterBtn = page.locator('button:has-text("Bộ lọc")');
+    await expect(filterBtn).toBeVisible();
+
+    const bottomNav = page.locator('nav.md\\:hidden');
+    await expect(bottomNav).toBeVisible();
+    await assertNoOverlap(bottomNav, fab);
+    await assertTapTarget(fab, 44);
+
+    // Verify filter sheet opens as bottom sheet on mobile
+    await filterBtn.click();
+    const filterSheet = page.locator('[role="dialog"]');
+    await expect(filterSheet).toBeVisible();
+    await expect(filterSheet).toHaveClass(/rounded-t-\[28px\]/);
+    await page.keyboard.press('Escape');
+    await expect(filterSheet).toBeHidden();
+
+    // 2. Desktop (1024px)
+    await page.setViewportSize({ width: 1024, height: 768 });
+    await assertNoHorizontalScroll(page);
+    await filterBtn.click();
+    await expect(filterSheet).toBeVisible();
+    await expect(filterSheet).toHaveClass(/border-l/);
+    await page.keyboard.press('Escape');
+    await expect(filterSheet).toBeHidden();
   });
 
   test('mobile featured hero card rendering, constraints, and interaction', async ({ page }) => {

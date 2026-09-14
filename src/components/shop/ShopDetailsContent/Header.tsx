@@ -130,11 +130,12 @@ export function Header({
       </div>
 
       {/* Quick Metrics Bar */}
+      {/* RESPONSIVE: text-[11px] sm:text-xs keeps metric chips compact on mobile and legible on desktop */}
       <div className='flex flex-wrap items-center gap-1.5 pt-0.5'>
         {shop.verified === false && (
           <Badge
             variant='outline'
-            className='bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/40 flex items-center gap-1 font-bold text-[11px] py-0.5 px-2 rounded-xl shadow-xs flex-shrink-0 whitespace-nowrap'
+            className='bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/40 flex items-center gap-1 font-bold text-[11px] sm:text-xs py-0.5 px-2 rounded-xl shadow-xs flex-shrink-0 whitespace-nowrap'
           >
             <Clock size={11} className='text-amber-500 flex-shrink-0' />
             <span className='whitespace-nowrap'>Chờ xác minh</span>
@@ -143,7 +144,7 @@ export function Header({
 
         <Badge
           variant='outline'
-          className='bg-secondary text-amber-gold border-border flex items-center gap-1 font-bold text-[11px] py-0.5 px-2 rounded-xl shadow-xs flex-shrink-0 whitespace-nowrap'
+          className='bg-secondary text-amber-gold border-border flex items-center gap-1 font-bold text-[11px] sm:text-xs py-0.5 px-2 rounded-xl shadow-xs flex-shrink-0 whitespace-nowrap'
         >
           {hasRating ? (
             <>
@@ -165,7 +166,7 @@ export function Header({
 
         <Badge
           variant='outline'
-          className='bg-secondary text-secondary-foreground border-border flex items-center gap-1 font-medium text-[11px] py-0.5 px-2 rounded-xl shadow-xs flex-shrink-0 whitespace-nowrap'
+          className='bg-secondary text-secondary-foreground border-border flex items-center gap-1 font-medium text-[11px] sm:text-xs py-0.5 px-2 rounded-xl shadow-xs flex-shrink-0 whitespace-nowrap'
         >
           <Footprints size={11} className='text-amber-gold/80 flex-shrink-0' />
           <span className='whitespace-nowrap'>{distanceText}</span>
@@ -173,7 +174,7 @@ export function Header({
 
         <Badge
           variant='outline'
-          className='bg-secondary text-secondary-foreground border-border flex items-center gap-1 font-medium text-[11px] py-0.5 px-2 rounded-xl shadow-xs flex-shrink-0 whitespace-nowrap max-w-full'
+          className='bg-secondary text-secondary-foreground border-border flex items-center gap-1 font-medium text-[11px] sm:text-xs py-0.5 px-2 rounded-xl shadow-xs flex-shrink-0 whitespace-nowrap max-w-full'
         >
           <Clock size={11} className='text-amber-gold/80 flex-shrink-0' />
           <span className='whitespace-nowrap truncate'>{isOpenNow ? 'Đang mở cửa' : 'Đã đóng cửa'}</span>

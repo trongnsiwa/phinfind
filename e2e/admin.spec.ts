@@ -1,8 +1,9 @@
-import { test, expect, hasSupabaseCredentials } from './fixtures/test-helpers';
+import { test, expect, hasSupabaseCredentials, assertNoHorizontalScroll } from './fixtures/test-helpers';
 
 test.describe('Admin Route Access & Moderation', () => {
   test('unauthorized guest user is redirected away from /admin', async ({ page }) => {
     await page.goto('/admin');
+    await assertNoHorizontalScroll(page);
 
     // Guest has no session, so either client redirects to home or toast appears
     await page.waitForURL('/', { timeout: 10000 });
@@ -18,6 +19,7 @@ test.describe('Admin Route Access & Moderation', () => {
     await page.getByRole('button', { name: /đăng nhập/i }).click();
 
     await page.goto('/admin');
+    await assertNoHorizontalScroll(page);
     await expect(page.getByText('Quản Trị Hệ Thống')).toBeVisible();
     await expect(page.getByRole('tab', { name: /chờ duyệt/i })).toBeVisible();
   });

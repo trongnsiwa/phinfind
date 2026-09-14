@@ -206,7 +206,8 @@ export function EditProfileDialog({
         else onOpenChange(true);
       }}
     >
-      <DialogContent className="sm:max-w-md bg-card border-border rounded-2xl sm:rounded-3xl p-5 sm:p-6 max-h-[90vh] overflow-y-auto">
+      {/* RESPONSIVE: w-[94vw] sm:w-full and p-4 sm:p-6 prevent overflow on 320px screens */}
+      <DialogContent className="w-[94vw] sm:w-full sm:max-w-md bg-card border-border rounded-2xl sm:rounded-3xl p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
         <DialogHeader className="text-left">
           <DialogTitle className="text-lg font-bold text-foreground">
             Chỉnh sửa thông tin cá nhân
@@ -259,7 +260,7 @@ export function EditProfileDialog({
                   ) : (
                     <>
                       <Camera size={20} className="mb-0.5" />
-                      <span className="text-[10px] font-semibold">Đổi ảnh</span>
+                      <span className="text-[11px] font-semibold">Đổi ảnh</span>
                     </>
                   )}
                 </div>
@@ -330,7 +331,7 @@ export function EditProfileDialog({
                     </FormLabel>
                     <span
                       className={cn(
-                        'text-[10px] text-muted-foreground',
+                        'text-[11px] text-muted-foreground',
                         watchedBio.length >= 200 && 'text-destructive font-semibold'
                       )}
                     >
