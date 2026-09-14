@@ -10,8 +10,8 @@ interface PriceStepProps {
 
 export function PriceStep({ value, onChange }: PriceStepProps) {
   return (
-    <div className='space-y-2'>
-      <Label className='text-xs font-semibold text-foreground'>Mức giá tham khảo</Label>
+    <div className='space-y-2 pt-1'>
+      <Label className='text-xs font-semibold text-foreground mb-1.5 block'>Mức giá tham khảo</Label>
       <div className='grid grid-cols-4 gap-2'>
         {PRICE_OPTIONS.map((price) => {
           const isSelected = value === price;
@@ -21,14 +21,14 @@ export function PriceStep({ value, onChange }: PriceStepProps) {
               type='button'
               onClick={() => onChange(isSelected ? undefined : price)}
               className={cn(
-                'py-2 px-3 rounded-xl text-xs font-bold border text-center transition-all cursor-pointer select-none',
+                'h-11 md:h-auto py-1.5 md:py-2 px-2.5 sm:px-3 rounded-xl text-xs font-bold border text-center transition-all cursor-pointer select-none active:scale-95 flex flex-col items-center justify-center min-h-[44px]',
                 isSelected
-                  ? 'bg-primary/20 text-foreground border-primary/50 ring-1 ring-primary'
+                  ? 'bg-amber-gold/15 text-foreground border-amber-gold ring-1 ring-amber-gold font-bold shadow-xs'
                   : 'bg-secondary/40 text-muted-foreground border-border hover:bg-secondary hover:text-foreground'
               )}
             >
-              {price}
-              <span className='block text-[9px] font-normal text-muted-foreground mt-0.5'>
+              <span className='leading-tight'>{price}</span>
+              <span className='block text-[9px] font-normal text-muted-foreground leading-tight'>
                 {price === '₫'
                   ? '< 30k'
                   : price === '₫₫'

@@ -68,8 +68,32 @@ export function HoursStep({
   };
 
   return (
-    <div className='space-y-3 pt-1'>
-      <div className='flex items-center justify-between flex-wrap gap-2'>
+    <div id='step-4' data-step='4' className='space-y-3 pt-5 border-t border-border/40'>
+      {/* MOBILE HEADER ( < md ): Two-line hierarchy */}
+      <div className='md:hidden flex items-center justify-between'>
+        <div className='space-y-0.5'>
+          <div className='flex items-center gap-2'>
+            <span className='text-[10px] font-bold uppercase tracking-wider text-amber-gold'>Bước 4</span>
+            <h3 className='text-sm font-bold text-foreground'>Khung giờ hoạt động</h3>
+          </div>
+          <p className='text-[11px] text-muted-foreground'>(Tùy chọn)</p>
+        </div>
+
+        {hasAnyHoursSet && (
+          <button
+            type='button'
+            onClick={clearAllHours}
+            className='text-[11px] text-muted-foreground hover:text-rose-500 transition-colors cursor-pointer flex items-center gap-1 px-2 py-1'
+            title='Xóa toàn bộ giờ đã chọn'
+          >
+            <Trash2 size={11} />
+            <span>Xóa giờ</span>
+          </button>
+        )}
+      </div>
+
+      {/* TABLET / DESKTOP HEADER ( >= md ): Preserved */}
+      <div className='hidden md:flex items-center justify-between'>
         <div className='flex items-center gap-1.5'>
           <Clock size={14} className='text-amber-gold' />
           <span className='text-xs font-bold text-foreground uppercase tracking-wider'>
@@ -78,33 +102,47 @@ export function HoursStep({
           <span className='text-[10px] text-muted-foreground font-normal'>(Tùy chọn)</span>
         </div>
 
-        <div className='flex items-center gap-2'>
+        {hasAnyHoursSet && (
           <button
             type='button'
-            onClick={toggleScheduleMode}
-            className={cn(
-              'inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-xl border transition-all cursor-pointer select-none',
-              isCustomPerDay
-                ? 'bg-amber-gold/15 text-amber-gold border-amber-gold/40'
-                : 'bg-secondary/60 text-secondary-foreground border-border hover:bg-secondary hover:text-foreground'
-            )}
+            onClick={clearAllHours}
+            className='text-[11px] text-muted-foreground hover:text-rose-500 transition-colors cursor-pointer flex items-center gap-1 px-1.5 py-1'
+            title='Xóa toàn bộ giờ đã chọn'
           >
-            <CalendarDays size={12} />
-            <span>{isCustomPerDay ? 'Đặt theo từng ngày' : 'Cùng giờ cả tuần'}</span>
+            <Trash2 size={11} />
+            <span>Xóa giờ</span>
           </button>
+        )}
+      </div>
 
-          {hasAnyHoursSet && (
-            <button
-              type='button'
-              onClick={clearAllHours}
-              className='text-[11px] text-muted-foreground hover:text-rose-500 transition-colors cursor-pointer flex items-center gap-1 px-1.5 py-1'
-              title='Xóa toàn bộ giờ đã chọn'
-            >
-              <Trash2 size={11} />
-              <span>Xóa giờ</span>
-            </button>
+      {/* Segmented Control for Schedule Mode at top of section */}
+      <div className='w-full bg-secondary/50 p-1 rounded-xl border border-border/60 grid grid-cols-2 gap-1 select-none'>
+        <button
+          type='button'
+          onClick={() => isCustomPerDay && toggleScheduleMode()}
+          className={cn(
+            'h-9 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer',
+            !isCustomPerDay
+              ? 'bg-card text-foreground shadow-xs border border-border/40 font-bold'
+              : 'text-muted-foreground hover:text-foreground'
           )}
-        </div>
+        >
+          <Clock size={13} className={cn(!isCustomPerDay ? 'text-amber-gold' : 'text-muted-foreground')} />
+          <span>Cùng giờ cả tuần</span>
+        </button>
+        <button
+          type='button'
+          onClick={() => !isCustomPerDay && toggleScheduleMode()}
+          className={cn(
+            'h-9 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer',
+            isCustomPerDay
+              ? 'bg-card text-foreground shadow-xs border border-border/40 font-bold'
+              : 'text-muted-foreground hover:text-foreground'
+          )}
+        >
+          <CalendarDays size={13} className={cn(isCustomPerDay ? 'text-amber-gold' : 'text-muted-foreground')} />
+          <span>Tùy chỉnh từng ngày</span>
+        </button>
       </div>
 
       {!isCustomPerDay ? (

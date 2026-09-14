@@ -1,18 +1,41 @@
-import { Coffee } from 'lucide-react';
+import { Coffee, X } from 'lucide-react';
 import {
+  DialogClose,
   DialogDescription,
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 
 interface AddShopDialogHeaderProps {
   isEditMode: boolean;
+  onClose?: () => void;
 }
 
-export function AddShopDialogHeader({ isEditMode }: AddShopDialogHeaderProps) {
+export function AddShopDialogHeader({ isEditMode, onClose }: AddShopDialogHeaderProps) {
   return (
-    <DialogHeader className='px-5 sm:px-6 pt-5 pb-3 border-b border-border/80 flex-shrink-0'>
-      <div className='flex items-center gap-2.5'>
+    <DialogHeader className='p-0 md:px-5 md:sm:px-6 md:pt-5 md:pb-3 border-b border-border/80 flex-shrink-0 h-14 md:h-auto flex items-center justify-between md:block bg-card'>
+      {/* MOBILE ( < md ): Single compact row <= 56px with left title & 44x44 close button */}
+      <div className='md:hidden flex items-center justify-between w-full h-14 px-4'>
+        <DialogTitle className='font-sans font-bold text-base text-foreground'>
+          {isEditMode ? 'Chỉnh sửa quán' : 'Thêm Quán'}
+        </DialogTitle>
+        <DialogClose asChild>
+          <Button
+            type='button'
+            variant='ghost'
+            size='icon'
+            onClick={onClose}
+            aria-label='Đóng biểu mẫu'
+            className='w-11 h-11 min-h-[44px] min-w-[44px] p-0 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted active:scale-95 transition-all'
+          >
+            <X size={18} />
+          </Button>
+        </DialogClose>
+      </div>
+
+      {/* TABLET / DESKTOP ( >= md ): Preserved layout with decorative icon, title & subtitle */}
+      <div className='hidden md:flex items-center gap-2.5'>
         <div className='w-9 h-9 rounded-2xl bg-amber-gold/15 border border-amber-gold/30 flex items-center justify-center text-amber-gold flex-shrink-0'>
           <Coffee size={20} />
         </div>

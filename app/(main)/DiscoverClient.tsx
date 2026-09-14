@@ -79,6 +79,7 @@ export function DiscoverClient() {
     resetFilters,
     mobileFilterSheetOpen,
     setMobileFilterSheetOpen,
+    isAddShopDialogOpen,
   } = useUIStore();
   const { selectedShop, setSelectedShop, favorites } = useShopStore();
 
@@ -946,7 +947,7 @@ export function DiscoverClient() {
           (68px = BottomNav ~60px + ~8px gap) visually clusters the FAB with the bottom navigation without physical collision.
           Hidden when mobile filter sheet is open to prevent overlap with sheet/footer.
           Z-index hierarchy: Filter sheet (z-50) > FAB (z-40) > BottomNav (z-40) > scroll content (z-0..20). */}
-      {!mobileFilterSheetOpen && (
+      {!mobileFilterSheetOpen && !isAddShopDialogOpen && (
         <div className="md:hidden fixed right-4 bottom-[calc(4.25rem+env(safe-area-inset-bottom))] z-40 m-0">
           <Button
             type="button"

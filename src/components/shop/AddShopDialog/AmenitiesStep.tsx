@@ -1,4 +1,5 @@
-import { Check, Plus, Sparkles, Tag, Trash2 } from 'lucide-react';
+import { Check, ChevronDown, ChevronUp, Plus, Sparkles, Tag, Trash2 } from 'lucide-react';
+import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,44 +31,88 @@ export function AmenitiesStep({
   setCustomAmenityDesc,
   handleAddCustomAmenity
 }: AmenitiesStepProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   return (
-    <div className='space-y-3.5'>
-      <h3 className='text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5'>
+    <div id='step-3' data-step='3' className='space-y-3.5 pt-5 border-t border-border/40'>
+      {/* MOBILE HEADER ( < md ): Two-line hierarchy */}
+      <div className='md:hidden space-y-0.5'>
+        <div className='flex items-center gap-2'>
+          <span className='text-[10px] font-bold uppercase tracking-wider text-amber-gold'>Bước 3</span>
+          <h3 className='text-sm font-bold text-foreground'>Thể loại &amp; Tiện ích</h3>
+        </div>
+      </div>
+
+      {/* TABLET / DESKTOP HEADER ( >= md ): Preserved */}
+      <h3 className='hidden md:flex text-xs font-bold text-foreground uppercase tracking-wider items-center gap-1.5'>
         <Tag size={14} className='text-amber-gold' />
         <span>3. Thể loại &amp; Tiện ích</span>
       </h3>
 
       {/* Category Chips */}
-      <div className='space-y-3'>
+      <div className='space-y-2.5'>
         <div className='space-y-2'>
-          <Label className='text-xs font-semibold text-foreground'>
-            Đặc điểm &amp; Tiện ích nổi bật
+          <Label className='text-xs font-semibold text-foreground flex items-center justify-between'>
+            <span>
+              Đặc điểm &amp; Tiện ích nổi bật
+              {amenities.length > 0 && (
+                <span className='ml-1.5 font-bold text-amber-gold'>
+                  ({amenities.length} đã chọn)
+                </span>
+              )}
+            </span>
           </Label>
+
+          {/* Chips Grid: On mobile toggles between first 6 and full list; desktop always shows all */}
           <div className='flex flex-wrap gap-2'>
-            {POPULAR_CATEGORIES.map((cat) => {
+            {POPULAR_CATEGORIES.map((cat, index) => {
               const isSelected = amenities.some((a) => a.id === cat.id);
               const CatIcon = cat.icon;
+              const isHiddenOnMobile = !isExpanded && index >= 6;
+
               return (
                 <button
                   key={cat.id}
                   type='button'
                   onClick={() => togglePredefinedCategory(cat)}
                   className={cn(
-                    'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border whitespace-nowrap transition-all duration-150 cursor-pointer select-none',
+                    'inline-flex items-center gap-1.5 px-3 h-9 rounded-full text-xs font-medium border whitespace-nowrap transition-all duration-150 cursor-pointer select-none active:scale-95',
+                    isHiddenOnMobile ? 'hidden md:inline-flex' : 'inline-flex',
                     isSelected
-                      ? 'bg-amber-gold text-primary-foreground border-amber-gold font-bold shadow-xs'
-                      : 'bg-secondary/60 text-secondary-foreground border-border hover:bg-secondary hover:text-foreground'
+                      ? 'bg-amber-gold text-primary-foreground border-amber-gold font-semibold shadow-sm'
+                      : 'bg-secondary/60 text-foreground border-border hover:bg-secondary hover:text-foreground'
                   )}
                 >
                   {isSelected ? (
-                    <Check size={12} className='stroke-[3] flex-shrink-0' />
+                    <Check size={13} className='stroke-[3] flex-shrink-0' />
                   ) : (
-                    <CatIcon size={12} className='flex-shrink-0 text-muted-foreground' />
+                    <CatIcon size={13} className='flex-shrink-0 text-muted-foreground' />
                   )}
                   <span>{cat.label}</span>
                 </button>
               );
             })}
+          </div>
+
+          {/* Mobile "Xem thêm" / "Thu gọn" Expand Toggle */}
+          <div className='md:hidden pt-0.5'>
+            <button
+              type='button'
+              onClick={() => setIsExpanded(!isExpanded)}
+              className='inline-flex items-center gap-1 text-xs font-semibold text-amber-gold hover:underline cursor-pointer py-1'
+            >
+              {isExpanded ? (
+                <>
+                  <ChevronUp size={14} />
+                  <span>Thu gọn</span>
+                </>
+              ) : (
+                <>
+                  <ChevronDown size={14} />
+                  <span>Xem thêm ({POPULAR_CATEGORIES.length - 6} tiện ích)</span>
+                </>
+              )}
+            </button>
           </div>
         </div>
 

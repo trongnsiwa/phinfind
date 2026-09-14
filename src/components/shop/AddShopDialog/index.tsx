@@ -1,17 +1,21 @@
 'use client';
 
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { FieldErrors } from 'react-hook-form';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocation } from '@/hooks/useLocation';
 import { API_ENDPOINTS, DEFAULT_LOCATION } from '@/lib/utils/constants';
+import { cn } from '@/lib/utils';
+import { useUIStore } from '@/stores/useUIStore';
 import type { CoffeeShop } from '@/types/shop';
 import dynamic from 'next/dynamic';
 import { AddShopDialogFooter } from './AddShopDialogFooter';
 import { AddShopDialogHeader } from './AddShopDialogHeader';
+import { AddShopStepIndicator } from './AddShopStepIndicator';
 import { AmenitiesStep } from './AmenitiesStep';
 import { BasicInfoStep } from './BasicInfoStep';
 import { ContactStep } from './ContactStep';
@@ -61,6 +65,11 @@ export type {
 
 export function AddShopDialog({ open, onOpenChange, onSuccess, shop }: AddShopDialogProps) {
   const queryClient = useQueryClient();
+  const setIsAddShopDialogOpen = useUIStore((state) => state.setIsAddShopDialogOpen);
+  const scrollContainerRef = useRef<HTMLFormElement | null>(null);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [showBottomFade, setShowBottomFade] = useState(true);
+
   const {
     lat: userLat,
     lng: userLng,
@@ -165,6 +174,87 @@ export function AddShopDialog({ open, onOpenChange, onSuccess, shop }: AddShopDi
       }
     }
   }, [open, shop, initialLat, initialLon]);
+
+  // Sync open state with global UI store so BottomNav is hidden on mobile
+  useEffect(() => {
+    setIsAddShopDialogOpen(open);
+    return () => {
+      setIsAddShopDialogOpen(false);
+    };
+  }, [open, setIsAddShopDialogOpen]);
+
+  // Track active step on scroll via IntersectionObserver
+  useEffect(() => {
+    if (!open) return;
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const stepElements = container.querySelectorAll<HTMLElement>('[data-step]');
+    if (!stepElements.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (visible.length > 0) {
+          const stepAttr = visible[0].target.getAttribute('data-step');
+          if (stepAttr) {
+            setCurrentStep(Number(stepAttr));
+          }
+        }
+      },
+      {
+        root: container,
+        rootMargin: '-10% 0px -60% 0px',
+        threshold: 0.1
+      }
+    );
+
+    stepElements.forEach((el) => observer.observe(el));
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [open]);
+
+  // Scroll listener for bottom fade affordance
+  const handleScroll = useCallback(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    const isAtBottom =
+      container.scrollHeight - container.scrollTop - container.clientHeight <= 10;
+    setShowBottomFade(!isAtBottom);
+  }, []);
+
+  // Jump to step on step indicator dot click
+  const handleStepClick = useCallback((step: number) => {
+    const el = document.getElementById(`step-${step}`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, []);
+
+  // Validation feedback: scroll to first invalid field and shake
+  const onInvalid = (fieldErrors: FieldErrors<AddShopFormData>) => {
+    const errorKeys = Object.keys(fieldErrors);
+    if (errorKeys.length === 0) return;
+
+    const firstKey = errorKeys[0];
+    const target =
+      document.querySelector<HTMLElement>(`[name="${firstKey}"]`) ||
+      document.getElementById(firstKey);
+
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      target.focus({ preventScroll: true });
+      target.classList.add('animate-shake');
+      setTimeout(() => {
+        target.classList.remove('animate-shake');
+      }, 600);
+    }
+  };
 
   const onSubmit = async (data: AddShopFormData) => {
     if (!isAuthenticated) {
@@ -271,95 +361,119 @@ export function AddShopDialog({ open, onOpenChange, onSuccess, shop }: AddShopDi
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
+      {/* RESPONSIVE: multi-step forms use full-screen dialog on mobile per platform conventions. */}
       <DialogContent
-        className='w-[94vw] sm:w-full max-w-2xl max-h-[90vh] sm:max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden bg-card border-border shadow-2xl rounded-3xl'
+        className='fixed inset-0 left-0 top-0 translate-x-0 translate-y-0 w-full max-w-none h-[100dvh] max-h-[100dvh] rounded-none border-none p-0 flex flex-col overflow-hidden bg-card md:fixed md:left-[50%] md:top-[50%] md:translate-x-[-50%] md:translate-y-[-50%] md:inset-auto md:w-full md:max-w-2xl md:h-auto md:max-h-[92vh] md:rounded-3xl md:border md:border-border shadow-2xl [&>button:last-of-type]:hidden md:[&>button:last-of-type]:flex'
         aria-describedby='add-shop-dialog-desc'
       >
-        <AddShopDialogHeader isEditMode={Boolean(shop)} />
+        <AddShopDialogHeader
+          isEditMode={Boolean(shop)}
+          onClose={() => onOpenChange(false)}
+        />
 
-        {/* Scrollable Form Body */}
-        <form
-          id='add-shop-form'
-          onSubmit={handleSubmit(onSubmit)}
-          className='flex-1 min-h-0 overflow-y-auto px-5 sm:px-6 py-4 space-y-5'
-        >
-          <BasicInfoStep register={register} errors={errors} />
+        {/* Sticky step indicator strip on mobile */}
+        <AddShopStepIndicator
+          currentStep={currentStep}
+          totalSteps={5}
+          onStepClick={handleStepClick}
+        />
 
-          <LocationStep
-            control={control}
-            register={register}
-            setValue={setValue}
-            errors={errors}
-            locationLoading={locationLoading}
-            isLocationFallback={isLocationFallback}
+        {/* Scrollable Form Body Container with Fade Mask */}
+        <div className='relative flex-1 min-h-0 flex flex-col'>
+          <form
+            id='add-shop-form'
+            ref={scrollContainerRef}
+            onScroll={handleScroll}
+            onSubmit={handleSubmit(onSubmit, onInvalid)}
+            className='flex-1 min-h-0 overflow-y-auto px-5 sm:px-6 py-4 space-y-5'
+          >
+            <BasicInfoStep register={register} errors={errors} />
+
+            <LocationStep
+              control={control}
+              register={register}
+              setValue={setValue}
+              errors={errors}
+              locationLoading={locationLoading}
+              isLocationFallback={isLocationFallback}
+            />
+
+            <AmenitiesStep
+              amenities={amenities}
+              togglePredefinedCategory={togglePredefinedCategory}
+              handleUpdateAmenityDescription={handleUpdateAmenityDescription}
+              handleRemoveAmenity={handleRemoveAmenity}
+              customAmenityName={customAmenityName}
+              setCustomAmenityName={setCustomAmenityName}
+              customAmenityDesc={customAmenityDesc}
+              setCustomAmenityDesc={setCustomAmenityDesc}
+              handleAddCustomAmenity={handleAddCustomAmenity}
+            />
+
+            <PriceStep
+              value={watchedPrice}
+              onChange={(val) => setValue('price_range', val)}
+            />
+
+            <ContactStep register={register} errors={errors} />
+
+            <HoursStep
+              isCustomPerDay={isCustomPerDay}
+              setIsCustomPerDay={setIsCustomPerDay}
+              sameOpenTime={sameOpenTime}
+              setSameOpenTime={setSameOpenTime}
+              sameCloseTime={sameCloseTime}
+              setSameCloseTime={setSameCloseTime}
+              weekSchedule={weekSchedule}
+              setWeekSchedule={setWeekSchedule}
+              handleToggleDay={handleToggleDay}
+              handleDayTimeChange={handleDayTimeChange}
+              handleCopyToAllDays={handleCopyToAllDays}
+              applyTimePreset={applyTimePreset}
+              clearAllHours={clearAllHours}
+              enableAllDays={enableAllDays}
+              closeWeekendDays={closeWeekendDays}
+              handlePresetAllDays={handlePresetAllDays}
+              handlePresetWeekdays={handlePresetWeekdays}
+              handlePreset247={handlePreset247}
+              hasAnyHoursSet={hasAnyHoursSet}
+            />
+
+            <PhotosStep
+              photos={watchedPhotos}
+              fileInputRef={fileInputRef}
+              isUploadingPhoto={isUploadingPhoto}
+              showUrlInput={showUrlInput}
+              setShowUrlInput={setShowUrlInput}
+              newPhotoUrl={newPhotoUrl}
+              setNewPhotoUrl={setNewPhotoUrl}
+              handleFileUpload={handleFileUpload}
+              handleAddPhoto={handleAddPhoto}
+              handleRemovePhoto={handleRemovePhoto}
+            />
+
+            <LivePreviewCard
+              name={watchedName}
+              address={watchedAddress}
+              photo={watchedPhotos[0]}
+              price={watchedPrice}
+              openNow={watchedOpenNow}
+              computedPeriods={computedPeriods}
+              isCustomPerDay={isCustomPerDay}
+              sameOpenTime={sameOpenTime}
+              sameCloseTime={sameCloseTime}
+            />
+          </form>
+
+          {/* Bottom Scroll Fade Indicator (mobile only) */}
+          <div
+            aria-hidden='true'
+            className={cn(
+              'pointer-events-none absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-card to-transparent md:hidden transition-opacity duration-200',
+              showBottomFade ? 'opacity-100' : 'opacity-0'
+            )}
           />
-
-          <AmenitiesStep
-            amenities={amenities}
-            togglePredefinedCategory={togglePredefinedCategory}
-            handleUpdateAmenityDescription={handleUpdateAmenityDescription}
-            handleRemoveAmenity={handleRemoveAmenity}
-            customAmenityName={customAmenityName}
-            setCustomAmenityName={setCustomAmenityName}
-            customAmenityDesc={customAmenityDesc}
-            setCustomAmenityDesc={setCustomAmenityDesc}
-            handleAddCustomAmenity={handleAddCustomAmenity}
-          />
-
-          <PriceStep
-            value={watchedPrice}
-            onChange={(val) => setValue('price_range', val)}
-          />
-
-          <ContactStep register={register} errors={errors} />
-
-          <HoursStep
-            isCustomPerDay={isCustomPerDay}
-            setIsCustomPerDay={setIsCustomPerDay}
-            sameOpenTime={sameOpenTime}
-            setSameOpenTime={setSameOpenTime}
-            sameCloseTime={sameCloseTime}
-            setSameCloseTime={setSameCloseTime}
-            weekSchedule={weekSchedule}
-            setWeekSchedule={setWeekSchedule}
-            handleToggleDay={handleToggleDay}
-            handleDayTimeChange={handleDayTimeChange}
-            handleCopyToAllDays={handleCopyToAllDays}
-            applyTimePreset={applyTimePreset}
-            clearAllHours={clearAllHours}
-            enableAllDays={enableAllDays}
-            closeWeekendDays={closeWeekendDays}
-            handlePresetAllDays={handlePresetAllDays}
-            handlePresetWeekdays={handlePresetWeekdays}
-            handlePreset247={handlePreset247}
-            hasAnyHoursSet={hasAnyHoursSet}
-          />
-
-          <PhotosStep
-            photos={watchedPhotos}
-            fileInputRef={fileInputRef}
-            isUploadingPhoto={isUploadingPhoto}
-            showUrlInput={showUrlInput}
-            setShowUrlInput={setShowUrlInput}
-            newPhotoUrl={newPhotoUrl}
-            setNewPhotoUrl={setNewPhotoUrl}
-            handleFileUpload={handleFileUpload}
-            handleAddPhoto={handleAddPhoto}
-            handleRemovePhoto={handleRemovePhoto}
-          />
-
-          <LivePreviewCard
-            name={watchedName}
-            address={watchedAddress}
-            photo={watchedPhotos[0]}
-            price={watchedPrice}
-            openNow={watchedOpenNow}
-            computedPeriods={computedPeriods}
-            isCustomPerDay={isCustomPerDay}
-            sameOpenTime={sameOpenTime}
-            sameCloseTime={sameCloseTime}
-          />
-        </form>
+        </div>
 
         <AddShopDialogFooter
           isEditMode={Boolean(shop)}

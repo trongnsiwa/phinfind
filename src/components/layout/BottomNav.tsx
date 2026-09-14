@@ -11,9 +11,10 @@ import { useUIStore } from '@/stores/useUIStore';
 export function BottomNav() {
   const pathname = usePathname();
   const mobileFilterSheetOpen = useUIStore((state) => state.mobileFilterSheetOpen);
+  const isAddShopDialogOpen = useUIStore((state) => state.isAddShopDialogOpen);
 
-  // RESPONSIVE: Hide BottomNav when mobile filter sheet is open to prevent collision with sheet/footer
-  if (mobileFilterSheetOpen) {
+  // RESPONSIVE: Hide BottomNav when mobile filter sheet or add shop dialog is open
+  if (mobileFilterSheetOpen || isAddShopDialogOpen) {
     return null;
   }
 

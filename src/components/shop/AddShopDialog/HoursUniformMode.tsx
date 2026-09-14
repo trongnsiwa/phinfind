@@ -75,7 +75,7 @@ export function HoursUniformMode({
               <SelectTrigger
                 id='same-open-time'
                 className={cn(
-                  'h-10 bg-background/80 border-border text-xs rounded-xl focus:ring-1 focus:ring-amber-gold focus:border-amber-gold/60 text-foreground transition-all',
+                  'h-11 md:h-10 bg-background/80 border-border text-sm md:text-xs rounded-xl focus:ring-1 focus:ring-amber-gold focus:border-amber-gold/60 text-foreground transition-all',
                   !sameOpenTime && 'text-muted-foreground'
                 )}
               >
@@ -153,7 +153,7 @@ export function HoursUniformMode({
               <SelectTrigger
                 id='same-close-time'
                 className={cn(
-                  'h-10 bg-background/80 border-border text-xs rounded-xl focus:ring-1 focus:ring-amber-gold focus:border-amber-gold/60 text-foreground transition-all',
+                  'h-11 md:h-10 bg-background/80 border-border text-sm md:text-xs rounded-xl focus:ring-1 focus:ring-amber-gold focus:border-amber-gold/60 text-foreground transition-all',
                   !sameCloseTime && 'text-muted-foreground'
                 )}
               >
@@ -204,30 +204,32 @@ export function HoursUniformMode({
         </div>
       </div>
 
-      {/* Popular Presets */}
-      <div className='flex items-center flex-wrap gap-1.5 pt-0.5'>
-        <span className='text-[11px] text-muted-foreground font-medium mr-1'>
+      {/* Popular Presets: single horizontal scroll row of chips (h-9) */}
+      <div className='flex items-center gap-1.5 pt-0.5'>
+        <span className='text-[11px] text-muted-foreground font-medium shrink-0'>
           Gợi ý nhanh:
         </span>
-        {POPULAR_TIME_PRESETS.map((preset) => {
-          const isMatch =
-            sameOpenTime === preset.open && sameCloseTime === preset.close;
-          return (
-            <button
-              key={preset.label}
-              type='button'
-              onClick={() => applyTimePreset(preset.open, preset.close)}
-              className={cn(
-                'text-[11px] px-2.5 py-1 rounded-lg border font-medium transition-all duration-150 cursor-pointer select-none',
-                isMatch
-                  ? 'bg-amber-gold/15 text-amber-gold border-amber-gold/40 font-semibold shadow-xs'
-                  : 'bg-secondary/40 text-muted-foreground border-border hover:bg-secondary hover:text-foreground'
-              )}
-            >
-              {preset.label}
-            </button>
-          );
-        })}
+        <div className='flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 -mx-1 px-1'>
+          {POPULAR_TIME_PRESETS.map((preset) => {
+            const isMatch =
+              sameOpenTime === preset.open && sameCloseTime === preset.close;
+            return (
+              <button
+                key={preset.label}
+                type='button'
+                onClick={() => applyTimePreset(preset.open, preset.close)}
+                className={cn(
+                  'h-9 px-3 rounded-xl border text-xs font-medium transition-all duration-150 cursor-pointer select-none shrink-0 inline-flex items-center justify-center whitespace-nowrap active:scale-95',
+                  isMatch
+                    ? 'bg-amber-gold/15 text-foreground border-amber-gold/50 font-bold shadow-xs'
+                    : 'bg-secondary/50 text-muted-foreground border-border hover:bg-secondary hover:text-foreground'
+                )}
+              >
+                {preset.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

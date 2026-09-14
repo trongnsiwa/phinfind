@@ -101,7 +101,7 @@ export function PhotosStep({
                 }
               }}
               placeholder='https://images.unsplash.com/...'
-              className='h-8 text-xs bg-background border-border rounded-lg'
+              className='h-11 md:h-8 text-sm md:text-xs bg-background border-border rounded-xl'
             />
             <Button
               type='button'
@@ -109,7 +109,7 @@ export function PhotosStep({
               size='sm'
               onClick={handleAddPhoto}
               disabled={!newPhotoUrl.trim()}
-              className='h-8 px-3 text-xs rounded-lg flex-shrink-0 cursor-pointer'
+              className='h-11 md:h-8 min-h-[44px] px-3.5 text-xs rounded-xl cursor-pointer'
             >
               <Plus size={13} className='mr-1' />
               <span>Thêm</span>

@@ -132,8 +132,8 @@ export default function LocationPickerMapInner({
           title="Kéo thả hoặc nhấp bản đồ để chọn vị trí"
         />
 
-        {/* Subtle Map Attribution Notice */}
-        <div className="absolute bottom-1 left-2 z-[400] text-[8px] text-muted-foreground/60 select-none pointer-events-auto flex items-center gap-1 bg-background/50 backdrop-blur-xs px-1.5 py-0.5 rounded shadow-xs">
+        {/* Subtle Map Attribution Notice (desktop only, mobile moved outside) */}
+        <div className="hidden md:flex absolute bottom-1 left-2 z-[400] text-[8px] text-muted-foreground/60 select-none pointer-events-auto items-center gap-1 bg-background/50 backdrop-blur-xs px-1.5 py-0.5 rounded shadow-xs">
           <span>&copy;</span>
           <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-foreground">OpenStreetMap</a>
           <span>contributors</span>
@@ -162,8 +162,8 @@ export default function LocationPickerMapInner({
         </Button>
       </div>
 
-      {/* Bottom Coordinates Bar */}
-      <div className="absolute bottom-2 left-2 right-2 z-[400] bg-background/90 backdrop-blur-md px-2.5 py-1 rounded-lg border border-border/80 text-[10px] text-muted-foreground flex items-center justify-between shadow-xs">
+      {/* Bottom Coordinates Bar (desktop only, mobile moved outside) */}
+      <div className="hidden md:flex absolute bottom-2 left-2 right-2 z-[400] bg-background/90 backdrop-blur-md px-2.5 py-1 rounded-lg border border-border/80 text-[10px] text-muted-foreground items-center justify-between shadow-xs">
         <span>Tọa độ: <strong className="text-foreground font-mono">{centerLat.toFixed(5)}, {centerLon.toFixed(5)}</strong></span>
         <span className="text-[9px] text-muted-foreground">Kéo ghim để tinh chỉnh</span>
       </div>
