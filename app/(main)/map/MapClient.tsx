@@ -600,7 +600,7 @@ export function MapClient() {
             <SheetContent
               side={filterSheetSide}
               className={cn(
-                'bg-popover/95 backdrop-blur-2xl text-popover-foreground p-5 pb-8 space-y-4 shadow-2xl z-[600] overflow-y-auto no-scrollbar',
+                'bg-popover/95 backdrop-blur-2xl text-popover-foreground p-5 pb-8 space-y-4 shadow-2xl z-[600] overflow-y-auto no-scrollbar ease-out data-[state=open]:duration-250 data-[state=closed]:duration-200',
                 filterSheetSide === 'right'
                   ? 'border-l border-border w-full sm:max-w-md h-full'
                   : 'border-t border-border rounded-t-[28px] max-w-lg sm:max-w-2xl md:max-w-3xl mx-auto max-h-[85vh]'

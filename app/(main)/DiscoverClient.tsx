@@ -480,8 +480,8 @@ export function DiscoverClient() {
           side="bottom"
           // RESPONSIVE: pb-[env(safe-area-inset-bottom)] clears physical home indicator;
           // flex flex-col isolates drag handle, title row, scrollable body, and sticky footer;
-          // fast 200ms open and 150ms close duration to prevent animation jank.
-          className="max-h-[85vh] flex flex-col rounded-t-3xl border-t border-border bg-background p-0 pb-[env(safe-area-inset-bottom)] duration-200 data-[state=open]:duration-200 data-[state=closed]:duration-150 [&>button:last-child]:hidden"
+          // ~250ms open and 200ms close duration with ease-out slide-up/slide-down transitions.
+          className="max-h-[85vh] flex flex-col rounded-t-3xl border-t border-border bg-background p-0 pb-[env(safe-area-inset-bottom)] ease-out data-[state=open]:duration-250 data-[state=closed]:duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom [&>button:last-child]:hidden"
         >
           {/* Drag Handle: centered pill at top (═══ style) */}
           <div className="flex justify-center pt-3 pb-1 shrink-0">

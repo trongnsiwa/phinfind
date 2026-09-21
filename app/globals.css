@@ -235,6 +235,8 @@
   --shadow-card: var(--shadow-card);
   --shadow-card-hover: var(--shadow-card-hover);
 
+  --duration-250: 250ms;
+
   --animate-float: float 3s ease-in-out infinite;
   --animate-pulse-ring: pulse-ring 2s ease-out infinite;
   --animate-slide-up: slide-up 0.4s ease-out;
@@ -849,4 +851,237 @@ nextjs-portal,
 #next-logo {
   display: none !important;
 }
+
+/*
+ * Radix UI Sheet & Dialog Entrance/Exit Keyframe Animations
+ * Ensures smooth slide-up / slide-down transitions (~250ms open / 200ms close)
+ * and prevents sudden pop-in / unmount jank under Tailwind CSS v4.
+ */
+@keyframes enter {
+  from {
+    opacity: var(--tw-enter-opacity, 1);
+    transform: translate3d(var(--tw-enter-translate-x, 0), var(--tw-enter-translate-y, 0), 0) scale3d(var(--tw-enter-scale, 1), var(--tw-enter-scale, 1), var(--tw-enter-scale, 1)) rotate(var(--tw-enter-rotate, 0));
+  }
+}
+
+@keyframes exit {
+  to {
+    opacity: var(--tw-exit-opacity, 1);
+    transform: translate3d(var(--tw-exit-translate-x, 0), var(--tw-exit-translate-y, 0), 0) scale3d(var(--tw-exit-scale, 1), var(--tw-exit-scale, 1), var(--tw-exit-scale, 1)) rotate(var(--tw-exit-rotate, 0));
+  }
+}
+
+@keyframes sheet-slide-in-bottom {
+  from {
+    transform: translate3d(0, 100%, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes sheet-slide-out-bottom {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 100%, 0);
+  }
+}
+
+@keyframes sheet-slide-in-top {
+  from {
+    transform: translate3d(0, -100%, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes sheet-slide-out-top {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, -100%, 0);
+  }
+}
+
+@keyframes sheet-slide-in-right {
+  from {
+    transform: translate3d(100%, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes sheet-slide-out-right {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(100%, 0, 0);
+  }
+}
+
+@keyframes sheet-slide-in-left {
+  from {
+    transform: translate3d(-100%, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes sheet-slide-out-left {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-100%, 0, 0);
+  }
+}
+
+@keyframes sheet-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sheet-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@utility animate-in {
+  animation-name: enter;
+  animation-duration: var(--tw-duration, 250ms);
+  --tw-enter-opacity: initial;
+  --tw-enter-scale: initial;
+  --tw-enter-rotate: initial;
+  --tw-enter-translate-x: initial;
+  --tw-enter-translate-y: initial;
+}
+
+@utility animate-out {
+  animation-name: exit;
+  animation-duration: var(--tw-duration, 200ms);
+  --tw-exit-opacity: initial;
+  --tw-exit-scale: initial;
+  --tw-exit-rotate: initial;
+  --tw-exit-translate-x: initial;
+  --tw-exit-translate-y: initial;
+}
+
+@utility fade-in-0 {
+  --tw-enter-opacity: 0;
+}
+
+@utility fade-out-0 {
+  --tw-exit-opacity: 0;
+}
+
+@utility slide-in-from-bottom {
+  --tw-enter-translate-y: 100%;
+}
+
+@utility slide-out-to-bottom {
+  --tw-exit-translate-y: 100%;
+}
+
+@utility slide-in-from-top {
+  --tw-enter-translate-y: -100%;
+}
+
+@utility slide-out-to-top {
+  --tw-exit-translate-y: -100%;
+}
+
+@utility slide-in-from-left {
+  --tw-enter-translate-x: -100%;
+}
+
+@utility slide-out-to-left {
+  --tw-exit-translate-x: -100%;
+}
+
+@utility slide-in-from-right {
+  --tw-enter-translate-x: 100%;
+}
+
+@utility slide-out-to-right {
+  --tw-exit-translate-x: 100%;
+}
+
+@utility zoom-in-95 {
+  --tw-enter-scale: 0.95;
+}
+
+@utility zoom-out-95 {
+  --tw-exit-scale: 0.95;
+}
+
+@utility duration-250 {
+  animation-duration: 250ms;
+  transition-duration: 250ms;
+}
+
+/* Explicit Radix Dialog / Sheet Overlay Transitions */
+[data-radix-dialog-overlay][data-state='open'] {
+  animation: sheet-fade-in 250ms ease-out forwards;
+}
+
+[data-radix-dialog-overlay][data-state='closed'] {
+  animation: sheet-fade-out 200ms ease-out forwards;
+}
+
+/* Explicit Radix Sheet Transitions by side */
+[data-radix-dialog-content][data-side='bottom'][data-state='open'],
+[data-radix-dialog-content][data-state='open'].data-\[state\=open\]\:slide-in-from-bottom {
+  animation: sheet-slide-in-bottom 250ms ease-out forwards;
+}
+
+[data-radix-dialog-content][data-side='bottom'][data-state='closed'],
+[data-radix-dialog-content][data-state='closed'].data-\[state\=closed\]\:slide-out-to-bottom {
+  animation: sheet-slide-out-bottom 200ms ease-out forwards;
+}
+
+[data-radix-dialog-content][data-side='right'][data-state='open'],
+[data-radix-dialog-content][data-state='open'].data-\[state\=open\]\:slide-in-from-right {
+  animation: sheet-slide-in-right 250ms ease-out forwards;
+}
+
+[data-radix-dialog-content][data-side='right'][data-state='closed'],
+[data-radix-dialog-content][data-state='closed'].data-\[state\=closed\]\:slide-out-to-right {
+  animation: sheet-slide-out-right 200ms ease-out forwards;
+}
+
+[data-radix-dialog-content][data-side='left'][data-state='open'],
+[data-radix-dialog-content][data-state='open'].data-\[state\=open\]\:slide-in-from-left {
+  animation: sheet-slide-in-left 250ms ease-out forwards;
+}
+
+[data-radix-dialog-content][data-side='left'][data-state='closed'],
+[data-radix-dialog-content][data-state='closed'].data-\[state\=closed\]\:slide-out-to-left {
+  animation: sheet-slide-out-left 200ms ease-out forwards;
+}
+
+[data-radix-dialog-content][data-side='top'][data-state='open'],
+[data-radix-dialog-content][data-state='open'].data-\[state\=open\]\:slide-in-from-top {
+  animation: sheet-slide-in-top 250ms ease-out forwards;
+}
+
+[data-radix-dialog-content][data-side='top'][data-state='closed'],
+[data-radix-dialog-content][data-state='closed'].data-\[state\=closed\]\:slide-out-to-top {
+  animation: sheet-slide-out-top 200ms ease-out forwards;
+}
+
 
