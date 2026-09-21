@@ -224,19 +224,19 @@ export function ShopDetailClient({ shop: initialShop }: ShopDetailClientProps) {
       </div>
 
       {/* 2. Fixed Bottom Action Bar (Footer) with 5 Actions */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-xl border-t border-border px-2.5 sm:px-4 py-2.5 sm:py-3 shadow-2xl select-none pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-        {/* RESPONSIVE: grid-cols-3 on mobile to prevent cramped touch targets at 320px, sm:grid-cols-5 on tablet/desktop */}
-        <div className="max-w-3xl lg:max-w-4xl mx-auto grid grid-cols-3 sm:grid-cols-5 gap-1.5 sm:gap-2.5">
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-xl border-t border-border px-2 sm:px-4 py-2.5 sm:py-3 shadow-2xl select-none pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+        {/* RESPONSIVE: grid-cols-5 single row at all breakpoints; icon-only on mobile (< sm) */}
+        <div className="max-w-3xl lg:max-w-4xl mx-auto grid grid-cols-5 gap-1 sm:gap-2.5">
           {/* 1. Back Button */}
           <button
             type="button"
             onClick={handleBack}
             aria-label="Quay lại"
             title="Quay lại"
-            className="flex items-center justify-center gap-1 sm:gap-1.5 py-2.5 px-1.5 sm:px-3 rounded-full bg-secondary border border-border text-secondary-foreground hover:text-foreground hover:bg-accent hover:border-amber-gold/40 transition-all text-xs font-bold shadow-sm active:scale-95 min-h-[44px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            className="flex items-center justify-center gap-1 sm:gap-1.5 py-2.5 px-1 sm:px-3 rounded-full bg-secondary border border-border text-secondary-foreground hover:text-foreground hover:bg-accent hover:border-amber-gold/40 transition-all text-xs font-bold shadow-sm active:scale-95 min-h-[44px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             <ChevronLeft size={16} className="text-amber-gold flex-shrink-0" />
-            <span className="hidden sm:inline truncate">Quay lại</span>
+            <span className="hidden sm:inline">Quay lại</span>
           </button>
 
           {/* 2. Directions Button */}
@@ -246,13 +246,13 @@ export function ShopDetailClient({ shop: initialShop }: ShopDetailClientProps) {
             rel="noopener noreferrer"
             aria-label="Chỉ đường"
             title="Chỉ đường"
-            className="flex items-center justify-center gap-1 sm:gap-1.5 py-2.5 px-1.5 sm:px-3 rounded-full bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground text-xs font-bold shadow-md group active:scale-95 min-h-[44px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            className="flex items-center justify-center gap-1 sm:gap-1.5 py-2.5 px-1 sm:px-3 rounded-full bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground text-xs font-bold shadow-md group active:scale-95 min-h-[44px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             <Navigation
               size={15}
               className="fill-primary-foreground group-hover:scale-110 transition-transform flex-shrink-0"
             />
-            <span className="hidden sm:inline truncate">Chỉ đường</span>
+            <span className="hidden sm:inline">Chỉ đường</span>
           </a>
 
           {/* 3. Favorite Toggle Button */}
@@ -263,7 +263,7 @@ export function ShopDetailClient({ shop: initialShop }: ShopDetailClientProps) {
             aria-label={isFav ? 'Đã lưu' : 'Lưu lại'}
             title={isFav ? 'Đã lưu' : 'Lưu lại'}
             className={cn(
-              'flex items-center justify-center gap-1 sm:gap-1.5 py-2.5 px-1.5 sm:px-3 rounded-full border text-xs font-bold shadow-sm transition-all active:scale-95 min-h-[44px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+              'flex items-center justify-center gap-1 sm:gap-1.5 py-2.5 px-1 sm:px-3 rounded-full border text-xs font-bold shadow-sm transition-all active:scale-95 min-h-[44px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background',
               isFav
                 ? 'bg-rose-500/15 border-rose-500/40 text-rose-500 hover:bg-rose-500/25 hover:border-rose-500/60'
                 : 'bg-secondary border-border text-secondary-foreground hover:text-foreground hover:bg-accent hover:border-amber-gold/40'
@@ -277,7 +277,7 @@ export function ShopDetailClient({ shop: initialShop }: ShopDetailClientProps) {
                 isHeartAnimating && 'scale-125 animate-heart-beat'
               )}
             />
-            <span className="hidden sm:inline truncate">{isFav ? 'Đã lưu' : 'Lưu lại'}</span>
+            <span className="hidden sm:inline">{isFav ? 'Đã lưu' : 'Lưu lại'}</span>
           </button>
 
           {/* 4. Visited / Check-in Button */}
@@ -288,7 +288,7 @@ export function ShopDetailClient({ shop: initialShop }: ShopDetailClientProps) {
             aria-label={isVisited ? 'Đã ghé' : 'Ghé thăm'}
             title={isVisited ? 'Đã ghé quán này' : 'Đánh dấu đã ghé quán'}
             className={cn(
-              'flex items-center justify-center gap-1 sm:gap-1.5 py-2.5 px-1.5 sm:px-3 rounded-full border text-xs font-bold shadow-sm transition-all active:scale-95 min-h-[44px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+              'flex items-center justify-center gap-1 sm:gap-1.5 py-2.5 px-1 sm:px-3 rounded-full border text-xs font-bold shadow-sm transition-all active:scale-95 min-h-[44px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background',
               isVisited
                 ? 'bg-teal/15 border-teal/40 text-teal hover:bg-teal/25 hover:border-teal/60'
                 : 'bg-secondary border-border text-secondary-foreground hover:text-foreground hover:bg-accent hover:border-amber-gold/40'
@@ -301,7 +301,7 @@ export function ShopDetailClient({ shop: initialShop }: ShopDetailClientProps) {
                 isVisited ? 'text-teal fill-teal/20' : 'text-muted-foreground'
               )}
             />
-            <span className="hidden sm:inline truncate">{isVisited ? 'Đã ghé' : 'Ghé thăm'}</span>
+            <span className="hidden sm:inline">{isVisited ? 'Đã ghé' : 'Ghé thăm'}</span>
           </button>
 
           {/* 5. Share Button */}
@@ -310,10 +310,10 @@ export function ShopDetailClient({ shop: initialShop }: ShopDetailClientProps) {
             onClick={handleShare}
             aria-label="Chia sẻ"
             title="Chia sẻ"
-            className="flex items-center justify-center gap-1 sm:gap-1.5 py-2.5 px-1.5 sm:px-3 rounded-full bg-secondary border border-border text-secondary-foreground hover:text-foreground hover:bg-accent hover:border-amber-gold/40 transition-all text-xs font-bold shadow-sm active:scale-95 min-h-[44px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            className="flex items-center justify-center gap-1 sm:gap-1.5 py-2.5 px-1 sm:px-3 rounded-full bg-secondary border border-border text-secondary-foreground hover:text-foreground hover:bg-accent hover:border-amber-gold/40 transition-all text-xs font-bold shadow-sm active:scale-95 min-h-[44px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             <Share2 size={15} className="text-amber-gold flex-shrink-0" />
-            <span className="hidden sm:inline truncate">Chia sẻ</span>
+            <span className="hidden sm:inline">Chia sẻ</span>
           </button>
         </div>
       </div>

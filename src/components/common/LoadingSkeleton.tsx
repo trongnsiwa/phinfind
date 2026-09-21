@@ -319,8 +319,8 @@ export function DetailSkeleton() {
 
       {/* 3. Fixed Bottom Action Bar Skeleton with 5 Button Actions */}
       {/* RESPONSIVE: Mirrors ShopDetailClient 5-action grid layout and safe-area padding */}
-      <div className='fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-xl border-t border-border px-2.5 sm:px-4 py-2.5 sm:py-3 shadow-2xl select-none pb-[max(0.75rem,env(safe-area-inset-bottom))]'>
-        <div className='max-w-3xl lg:max-w-4xl mx-auto grid grid-cols-5 gap-1.5 sm:gap-2.5'>
+      <div className='fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-xl border-t border-border px-2 sm:px-4 py-2.5 sm:py-3 shadow-2xl select-none pb-[max(0.75rem,env(safe-area-inset-bottom))]'>
+        <div className='max-w-3xl lg:max-w-4xl mx-auto grid grid-cols-5 gap-1 sm:gap-2.5'>
           {/* Back Action */}
           <Skeleton className='h-10 sm:h-11 rounded-full bg-secondary border border-border/60' />
           {/* Directions Action (Amber highlight) */}
