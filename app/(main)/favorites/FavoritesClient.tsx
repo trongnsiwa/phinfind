@@ -3,10 +3,12 @@
 import { useMemo, useState } from 'react';
 import axios from 'axios';
 import { useQueries, useQueryClient } from '@tanstack/react-query';
-import { Heart, Loader2 } from 'lucide-react';
+import { Compass, Heart, Loader2 } from 'lucide-react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/common/EmptyState';
 import {
@@ -31,6 +33,7 @@ import { useLocation } from '@/hooks/useLocation';
 import { useToggleFavorite, useUserFavorites } from '@/hooks/useShops';
 import { useShopStore, closeActiveShop } from '@/stores/useShopStore';
 import { API_ENDPOINTS, APP_ROUTES, DEFAULT_LOCATION } from '@/lib/utils/constants';
+import { cn } from '@/lib/utils';
 import { CoffeeShop } from '@/types/shop';
 
 export function FavoritesClient() {
@@ -128,37 +131,60 @@ export function FavoritesClient() {
     }
   };
 
+  const isFewItems = displayShops.length >= 1 && displayShops.length < 4;
+
   return (
-    <div className="space-y-6 max-w-6xl mx-auto pb-12">
+    <div className="space-y-4 md:space-y-6 max-w-6xl mx-auto pb-2 md:pb-12 flex-1 flex flex-col w-full">
       {/* Header Banner */}
-      <div className="flex items-center justify-between pb-3 border-b border-border">
-        <div>
-          <h2 className="font-sans font-bold text-2xl sm:text-3xl text-foreground flex items-center gap-2.5 tracking-tight">
-            <Heart size={24} className="text-rose-500 fill-rose-500 animate-pulse" />
+      <div className="pb-2 md:pb-3 border-b border-border">
+        {/* MOBILE ( < md ): Compact header <= 80px vertical space, badge below title, short subtitle */}
+        <div className="md:hidden space-y-0.5">
+          <h2 className="font-sans font-bold text-xl text-foreground flex items-center gap-2 tracking-tight leading-tight">
+            <Heart size={20} className="text-rose-500 fill-rose-500 animate-pulse shrink-0" />
             Quán Cà Phê Đã Lưu
           </h2>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-            Lưu lại các địa điểm cà phê yêu thích để dễ dàng xem lại mọi lúc mọi nơi
-          </p>
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-500 border border-rose-500/30 font-bold whitespace-nowrap leading-none">
+              {isLoading ? '...' : `${savedFavorites.length} quán`}
+            </span>
+            <p className="text-xs text-muted-foreground line-clamp-1 leading-normal">
+              Quán yêu thích của bạn
+            </p>
+          </div>
         </div>
-        <Badge
-          variant="outline"
-          className="bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30 font-bold text-xs px-3 py-1"
-        >
-          {isLoading ? '...' : `${savedFavorites.length} đã lưu`}
-        </Badge>
+
+        {/* TABLET / DESKTOP ( >= md ): Preserved side-by-side title, subtitle & right-aligned badge */}
+        <div className="hidden md:flex items-center justify-between">
+          <div>
+            <h2 className="font-sans font-bold text-2xl sm:text-3xl text-foreground flex items-center gap-2.5 tracking-tight">
+              <Heart size={24} className="text-rose-500 fill-rose-500 animate-pulse" />
+              Quán Cà Phê Đã Lưu
+            </h2>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+              Lưu lại các địa điểm cà phê yêu thích để dễ dàng xem lại mọi lúc mọi nơi
+            </p>
+          </div>
+          <Badge
+            variant="outline"
+            className="bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30 font-bold text-xs px-3 py-1"
+          >
+            {isLoading ? '...' : `${savedFavorites.length} đã lưu`}
+          </Badge>
+        </div>
       </div>
 
       {/* Unauthenticated State */}
       {!isAuthLoading && !isAuthenticated ? (
-        <EmptyState
-          icon={Heart}
-          title="Đăng Nhập Để Xem Quán Đã Lưu"
-          description="Vui lòng đăng nhập tài khoản để đồng bộ và quản lý danh sách các quán cà phê yêu thích của bạn."
-          actionLabel="Đăng nhập ngay"
-          onAction={() => router.push(APP_ROUTES.LOGIN)}
-          className="py-16"
-        />
+        <div className="flex-1 flex items-center justify-center min-h-[calc(100dvh-13rem)] md:min-h-0">
+          <EmptyState
+            icon={Heart}
+            title="Đăng Nhập Để Xem Quán Đã Lưu"
+            description="Vui lòng đăng nhập tài khoản để đồng bộ và quản lý danh sách các quán cà phê yêu thích của bạn."
+            actionLabel="Đăng nhập ngay"
+            onAction={() => router.push(APP_ROUTES.LOGIN)}
+            className="py-12 md:py-16"
+          />
+        </div>
       ) : isLoading ? (
         /* Loading Skeletons Grid */
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -184,37 +210,62 @@ export function FavoritesClient() {
           ))}
         </div>
       ) : isFavoritesError ? (
-        <EmptyState
-          icon={Heart}
-          title="Không thể tải danh sách yêu thích"
-          description="Đã xảy ra lỗi khi tải dữ liệu từ máy chủ. Vui lòng thử lại sau."
-          actionLabel="Tải lại"
-          onAction={() => queryClient.invalidateQueries({ queryKey: ['user', 'favorites'] })}
-          className="py-16"
-        />
+        <div className="flex-1 flex items-center justify-center min-h-[calc(100dvh-13rem)] md:min-h-0">
+          <EmptyState
+            icon={Heart}
+            title="Không thể tải danh sách yêu thích"
+            description="Đã xảy ra lỗi khi tải dữ liệu từ máy chủ. Vui lòng thử lại sau."
+            actionLabel="Tải lại"
+            onAction={() => queryClient.invalidateQueries({ queryKey: ['user', 'favorites'] })}
+            className="py-12 md:py-16"
+          />
+        </div>
       ) : displayShops.length === 0 ? (
-        <EmptyState
-          icon={Heart}
-          title="Chưa Có Quán Yêu Thích Nào"
-          description="Nhấn vào biểu tượng trái tim trên bất kỳ thẻ quán cà phê nào để lưu lại danh sách riêng của bạn."
-          actionLabel="Khám phá quán cà phê"
-          onAction={() => router.push(APP_ROUTES.HOME)}
-          className="py-16"
-        />
+        <div className="flex-1 flex items-center justify-center min-h-[calc(100dvh-13rem)] md:min-h-0">
+          <EmptyState
+            icon={Heart}
+            title="Chưa Có Quán Yêu Thích Nào"
+            description="Nhấn vào biểu tượng trái tim trên bất kỳ thẻ quán cà phê nào để lưu lại danh sách riêng của bạn."
+            actionLabel="Khám phá quán cà phê"
+            onAction={() => router.push(APP_ROUTES.HOME)}
+            className="py-12 md:py-16"
+          />
+        </div>
       ) : (
         /* Favorite Shops Grid */
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {displayShops.map(({ shop, isMissingDetails }) => (
-            <FavoriteShopCard
-              key={shop.id || shop.place_id}
-              shop={shop}
-              isFavorite={favorites.includes(shop.place_id)}
-              isMissingDetails={isMissingDetails}
-              onToggleFavorite={(placeId) => toggleFavorite(placeId, shop)}
-              onRequestRemove={(shopToRemove) => setShopToRemove(shopToRemove)}
-              onSelect={(selected) => setSelectedShop(selected)}
-            />
-          ))}
+        /* RESPONSIVE: Anchored near top under header without forced vertical centering for small item counts */
+        <div className="flex-1 flex flex-col space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {displayShops.map(({ shop, isMissingDetails }) => (
+              <FavoriteShopCard
+                key={shop.id || shop.place_id}
+                shop={shop}
+                compactHero={isFewItems}
+                isFavorite={favorites.includes(shop.place_id)}
+                isMissingDetails={isMissingDetails}
+                onToggleFavorite={(placeId) => toggleFavorite(placeId, shop)}
+                onRequestRemove={(shopToRemove) => setShopToRemove(shopToRemove)}
+                onSelect={(selected) => setSelectedShop(selected)}
+              />
+            ))}
+          </div>
+
+          {/* Secondary CTA when only 1 favorite exists on mobile */}
+          {displayShops.length === 1 && (
+            <div className="md:hidden pt-1 flex flex-col items-center">
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full max-w-sm h-11 min-h-[44px] text-xs font-semibold text-muted-foreground hover:text-foreground border-dashed border-border/80 hover:border-amber-gold/50 bg-secondary/30 hover:bg-secondary/60 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
+                asChild
+              >
+                <Link href={APP_ROUTES.HOME}>
+                  <Compass size={16} className="text-amber-gold shrink-0" />
+                  <span>Khám phá thêm quán</span>
+                </Link>
+              </Button>
+            </div>
+          )}
         </div>
       )}
 

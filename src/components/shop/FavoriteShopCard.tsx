@@ -27,6 +27,7 @@ interface FavoriteShopCardProps {
   shop: CoffeeShop;
   isFavorite?: boolean;
   isMissingDetails?: boolean;
+  compactHero?: boolean;
   onToggleFavorite?: (placeId: string, shop: CoffeeShop) => void;
   onRequestRemove?: (shop: CoffeeShop) => void;
   onSelect?: (shop: CoffeeShop) => void;
@@ -36,6 +37,7 @@ export const FavoriteShopCard = memo(function FavoriteShopCard({
   shop,
   isFavorite = true,
   isMissingDetails = false,
+  compactHero = false,
   onToggleFavorite,
   onRequestRemove,
   onSelect,
@@ -86,6 +88,7 @@ export const FavoriteShopCard = memo(function FavoriteShopCard({
     }
   };
 
+  // RESPONSIVE: favorites mobile uses hero cards but caps image height to keep the list scannable.
   return (
     <Card
       role="button"
@@ -95,7 +98,14 @@ export const FavoriteShopCard = memo(function FavoriteShopCard({
       className="w-full card-glow-border bg-gradient-to-b from-card via-card to-secondary/30 rounded-2xl border border-border/80 shadow-card hover:shadow-card-hover hover:border-amber-gold/50 transition-all duration-300 p-3 sm:p-3.5 flex flex-col justify-between group relative overflow-hidden"
     >
       {/* Image Container */}
-      <div className="relative w-full h-32 sm:h-36 flex-shrink-0 rounded-xl overflow-hidden bg-muted border border-border/60">
+      <div
+        className={cn(
+          'relative w-full flex-shrink-0 rounded-xl overflow-hidden bg-muted border border-border/60',
+          compactHero
+            ? 'aspect-[16/10] max-h-[140px] sm:aspect-auto sm:max-h-none sm:h-36'
+            : 'aspect-[16/10] max-h-[200px] sm:aspect-auto sm:max-h-none sm:h-36'
+        )}
+      >
         <ShopImage
           src={coverImage}
           alt={shop.name}
@@ -146,49 +156,53 @@ export const FavoriteShopCard = memo(function FavoriteShopCard({
         </div>
 
         {/* Top-right Actions: Heart & Remove */}
-        {/* RESPONSIVE: h-8 w-8 touch targets on mobile (< md), h-7 w-7 on desktop */}
-        <div className="absolute top-2 right-2 z-10 flex items-center gap-1.5">
+        {/* RESPONSIVE: >= 44x44px tap targets on mobile (< md) via hit area wrapper, h-7 w-7 on desktop */}
+        <div className="absolute top-1 right-1 sm:top-2 sm:right-2 z-10 flex items-center gap-0.5 sm:gap-1.5">
           <Button
             variant="ghost"
             size="icon"
             onClick={handleRemoveClick}
             aria-label="Xóa khỏi danh sách yêu thích"
             title="Xóa khỏi danh sách yêu thích"
-            className="h-8 w-8 md:h-7 md:w-7 rounded-full bg-background/80 backdrop-blur-md hover:bg-rose-500/20 hover:text-rose-500 border border-border/60 text-muted-foreground shadow-xs transition-all active:scale-90"
+            className="w-11 h-11 min-h-[44px] min-w-[44px] md:w-7 md:h-7 md:min-h-0 md:min-w-0 p-0 rounded-full hover:bg-transparent focus-visible:ring-1 focus-visible:ring-rose-500 flex items-center justify-center transition-transform active:scale-95 cursor-pointer"
           >
-            <Trash2 size={12} />
+            <span className="h-8 w-8 md:h-7 md:w-7 rounded-full bg-background/80 backdrop-blur-md hover:bg-rose-500/20 hover:text-rose-500 border border-border/60 text-muted-foreground shadow-xs transition-all flex items-center justify-center">
+              <Trash2 size={12} />
+            </span>
           </Button>
           <Button
             variant="ghost"
             size="icon"
             onClick={handleHeartClick}
             aria-label={isFavorite ? 'Xóa khỏi danh sách yêu thích' : 'Thêm vào danh sách yêu thích'}
-            className="h-8 w-8 md:h-7 md:w-7 rounded-full bg-background/80 backdrop-blur-md hover:bg-secondary border border-border/60 text-foreground shadow-xs transition-all active:scale-90"
+            className="w-11 h-11 min-h-[44px] min-w-[44px] md:w-7 md:h-7 md:min-h-0 md:min-w-0 p-0 rounded-full hover:bg-transparent focus-visible:ring-1 focus-visible:ring-rose-500 flex items-center justify-center transition-transform active:scale-95 cursor-pointer"
           >
-            <Heart
-              size={13}
-              className={cn(
-                isFavorite ? 'fill-rose-500 text-rose-500' : 'text-foreground/80',
-                isHeartAnimating && 'animate-heart-beat'
-              )}
-            />
+            <span className="h-8 w-8 md:h-7 md:w-7 rounded-full bg-background/80 backdrop-blur-md hover:bg-secondary border border-border/60 text-foreground shadow-xs transition-all flex items-center justify-center">
+              <Heart
+                size={13}
+                className={cn(
+                  isFavorite ? 'fill-rose-500 text-rose-500' : 'text-foreground/80',
+                  isHeartAnimating && 'animate-heart-beat'
+                )}
+              />
+            </span>
           </Button>
         </div>
       </div>
 
       {/* Content Body */}
-      <div className="flex-1 flex flex-col justify-between mt-2.5 space-y-1.5 min-h-0">
+      <div className="flex-1 flex flex-col justify-between mt-2 sm:mt-2.5 space-y-1.5 min-h-0">
         <div>
-          <h4 className="font-sans font-bold text-sm sm:text-base text-foreground line-clamp-1 group-hover:text-amber-gold-hover transition-colors tracking-tight">
+          <h4 className="font-sans font-bold text-base text-foreground line-clamp-1 group-hover:text-amber-gold-hover transition-colors tracking-tight">
             {shop.name}
           </h4>
-          <p className="text-[11px] text-foreground/80 font-medium line-clamp-1 flex items-center gap-1 mt-0.5">
+          <p className="text-xs text-foreground/80 font-medium line-clamp-1 flex items-center gap-1 mt-0.5">
             <MapPin size={11} className="text-amber-gold flex-shrink-0" />
             {addressDisplay}
           </p>
         </div>
 
-        <div className="flex items-center gap-1.5 text-[10px] text-foreground/80 font-semibold">
+        <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] text-foreground/80 font-semibold">
           <Clock size={10} className="text-amber-gold flex-shrink-0" />
           <span className="truncate">
             {hasOpenInfo ? (isOpen ? 'Đang mở cửa' : 'Đã đóng cửa') : 'Giờ linh hoạt'}
@@ -224,30 +238,30 @@ export const FavoriteShopCard = memo(function FavoriteShopCard({
           </span>
         </div>
 
-        {/* Action Buttons Row */}
-        <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/50 mt-1">
+        {/* Action Buttons Row - Equal width grid with matching heights >= 44px on mobile */}
+        <div className="grid grid-cols-2 gap-2 pt-1.5 sm:pt-2 border-t border-border/50 mt-1">
           <Button
             variant="outline"
             size="sm"
-            className="flex-1 h-8 text-[11px] border-border rounded-xl cursor-pointer hover:bg-secondary"
+            className="w-full h-11 min-h-[44px] sm:h-8 sm:min-h-0 text-xs sm:text-[11px] font-semibold border-border rounded-xl cursor-pointer hover:bg-secondary flex items-center justify-center gap-1.5"
             asChild
             onClick={(e) => e.stopPropagation()}
           >
             <a href={directionsUrl} target="_blank" rel="noopener noreferrer">
-              <Navigation size={12} className="mr-1 text-primary" />
-              Chỉ đường
+              <Navigation size={12} className="text-amber-gold shrink-0" />
+              <span>Chỉ đường</span>
             </a>
           </Button>
           <Button
             variant="default"
             size="sm"
-            className="flex-1 h-8 text-[11px] bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground font-bold rounded-xl cursor-pointer"
+            className="w-full h-11 min-h-[44px] sm:h-8 sm:min-h-0 text-xs sm:text-[11px] bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground font-bold rounded-xl cursor-pointer flex items-center justify-center gap-1.5 shadow-xs active:scale-[0.98] transition-all"
             asChild
             onClick={(e) => e.stopPropagation()}
           >
             <Link href={APP_ROUTES.SHOP_DETAIL(shop.place_id || shop.id)}>
-              Xem chi tiết
-              <ExternalLink size={11} className="ml-1 opacity-80" />
+              <span>Xem chi tiết</span>
+              <ExternalLink size={11} className="opacity-80 shrink-0" />
             </Link>
           </Button>
         </div>
