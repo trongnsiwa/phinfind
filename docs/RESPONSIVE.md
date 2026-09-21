@@ -87,7 +87,6 @@ export const viewport: Viewport = {
        overflow-x: clip;
      }
      ```
-  4. Disable `scroll-behavior: smooth` on `prefers-reduced-motion` (accessibility).
 
 ### 3.3 Touch-Target Normalization
 
@@ -607,7 +606,6 @@ Add assertions to key specs:
 - WCAG 2.5.5 (Target Size) — 44×44px.
 - WCAG 2.5.8 (Target Size Minimum) — 24×24px absolute floor.
 - Contrast on `text-[10px]` elements under all themes.
-- `prefers-reduced-motion` disables animations.
 
 ---
 

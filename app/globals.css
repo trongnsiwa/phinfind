@@ -843,24 +843,6 @@ textarea::placeholder {
   animation: shake 0.4s ease-in-out;
 }
 
-/*
- * Accessibility: Disable smooth scrolling and animations for users requesting reduced motion
- */
-@media (prefers-reduced-motion: reduce) {
-  html:focus-within {
-    scroll-behavior: auto;
-  }
-
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-
 /* Suppress Next.js dev indicators and overlays that collide with mobile bottom navigation */
 [data-nextjs-dev-tools-button],
 nextjs-portal,
