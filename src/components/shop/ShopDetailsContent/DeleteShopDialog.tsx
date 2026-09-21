@@ -1,5 +1,7 @@
 'use client';
 
+// UX: discard-changes uses outline (recoverable); delete uses solid destructive fill (irreversible).
+
 import { Loader2, Trash2 } from 'lucide-react';
 import {
   AlertDialog,

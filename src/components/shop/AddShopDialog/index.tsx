@@ -5,20 +5,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { FieldErrors } from 'react-hook-form';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle
-} from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocation } from '@/hooks/useLocation';
-import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { API_ENDPOINTS, DEFAULT_LOCATION } from '@/lib/utils/constants';
 import { cn } from '@/lib/utils';
 import { useUIStore } from '@/stores/useUIStore';
@@ -26,6 +15,7 @@ import type { CoffeeShop } from '@/types/shop';
 import dynamic from 'next/dynamic';
 import { AddShopDialogFooter } from './AddShopDialogFooter';
 import { AddShopDialogHeader } from './AddShopDialogHeader';
+import { CancelConfirmDialog } from './CancelConfirmDialog';
 import { AmenitiesStep } from './AmenitiesStep';
 import { BasicInfoStep } from './BasicInfoStep';
 import { ContactStep } from './ContactStep';
@@ -74,12 +64,11 @@ export type {
 } from './types';
 
 export function AddShopDialog({ open, onOpenChange, onSuccess, shop }: AddShopDialogProps) {
+  const isEditMode = Boolean(shop);
   const queryClient = useQueryClient();
   const setIsAddShopDialogOpen = useUIStore((state) => state.setIsAddShopDialogOpen);
   const scrollContainerRef = useRef<HTMLFormElement | null>(null);
 
-  // RESPONSIVE: single-page form on mobile mirrors desktop; wizard removed due to implicit-submit regression.
-  const isMobile = useMediaQuery('(max-width: 767px)');
   const [isCancelConfirmOpen, setIsCancelConfirmOpen] = useState(false);
   const [showBottomFade, setShowBottomFade] = useState(true);
 
@@ -207,11 +196,7 @@ export function AddShopDialog({ open, onOpenChange, onSuccess, shop }: AddShopDi
   }, []);
 
   const handleCancel = () => {
-    if (isMobile) {
-      setIsCancelConfirmOpen(true);
-    } else {
-      onOpenChange(false);
-    }
+    setIsCancelConfirmOpen(true);
   };
 
   const handleConfirmCancel = () => {
@@ -350,7 +335,7 @@ export function AddShopDialog({ open, onOpenChange, onSuccess, shop }: AddShopDi
         aria-describedby='add-shop-dialog-desc'
       >
         <AddShopDialogHeader
-          isEditMode={Boolean(shop)}
+          isEditMode={isEditMode}
           onClose={handleCancel}
         />
 
@@ -462,34 +447,20 @@ export function AddShopDialog({ open, onOpenChange, onSuccess, shop }: AddShopDi
         </div>
 
         <AddShopDialogFooter
-          isEditMode={Boolean(shop)}
+          isEditMode={isEditMode}
           isSubmitting={isSubmitting}
           isSubmitDisabled={!watchedName?.trim() || !watchedAddress?.trim()}
           onCancel={handleCancel}
         />
       </DialogContent>
 
-      {/* Confirmation dialog for canceling on Step 1 */}
-      <AlertDialog open={isCancelConfirmOpen} onOpenChange={setIsCancelConfirmOpen}>
-        <AlertDialogContent className='bg-card text-card-foreground border-border'>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              Hủy bỏ thêm quán?
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              Bạn có chắc muốn hủy? Mọi thông tin đã nhập sẽ bị mất.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>
-              Tiếp tục
-            </AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmCancel}>
-              Hủy bỏ
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Confirmation dialog for canceling unsaved changes */}
+      <CancelConfirmDialog
+        open={isCancelConfirmOpen}
+        onOpenChange={setIsCancelConfirmOpen}
+        isEditMode={isEditMode}
+        onConfirm={handleConfirmCancel}
+      />
     </Dialog>
   );
 }

@@ -1,8 +1,10 @@
 import { test as base, expect } from '@playwright/test';
 import { createClient } from '@supabase/supabase-js';
 
-export const SUPABASE_TEST_URL = process.env.SUPABASE_TEST_URL;
-export const SUPABASE_TEST_SECRET = process.env.SUPABASE_TEST_SECRET;
+export const SUPABASE_TEST_URL =
+  process.env.SUPABASE_TEST_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+export const SUPABASE_TEST_SECRET =
+  process.env.SUPABASE_TEST_SECRET || process.env.SUPABASE_SECRET_KEY;
 
 export const hasSupabaseCredentials = Boolean(
   SUPABASE_TEST_URL &&
@@ -30,25 +32,32 @@ export async function createTestUser(emailPrefix = 'test'): Promise<TestUser | n
   const admin = getTestSupabaseAdmin();
   if (!admin) return null;
 
-  const email = `${emailPrefix}+${Date.now()}@phinfind.test`;
-  const password = `PhinFind!Pass${Math.random().toString(36).slice(2)}123`;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const email = `${emailPrefix}+${Date.now()}_${Math.random().toString(36).slice(2, 7)}@phinfind.test`;
+    const password = `PhinFind!Pass${Math.random().toString(36).slice(2)}123`;
 
-  const { data, error } = await admin.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true,
-  });
+    const { data, error } = await admin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+    });
 
-  if (error || !data.user) {
-    console.warn('[test-helpers] Failed to create test user:', error);
-    return null;
+    if (!error && data?.user) {
+      return {
+        id: data.user.id,
+        email,
+        password,
+      };
+    }
+
+    if (attempt < 2) {
+      await new Promise((r) => setTimeout(r, 500 * (attempt + 1)));
+    } else {
+      console.warn('[test-helpers] Failed to create test user:', error);
+    }
   }
 
-  return {
-    id: data.user.id,
-    email,
-    password,
-  };
+  return null;
 }
 
 export async function deleteTestUser(userId: string): Promise<void> {
