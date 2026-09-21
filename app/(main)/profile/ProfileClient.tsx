@@ -18,12 +18,19 @@ import {
   CheckCircle2,
   Compass,
   Loader2,
+  MoreVertical,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -252,7 +259,7 @@ export function ProfileClient() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-5 pb-16">
+    <div className="max-w-4xl mx-auto space-y-3.5 sm:space-y-5 pb-2 md:pb-12">
       {/* 1. HEADER SECTION (Unified Card) */}
       <Card className="bg-card rounded-2xl border border-border shadow-card p-4 sm:p-5 relative">
         {/* Top-Right: Edit Profile Icon Button */}
@@ -262,7 +269,7 @@ export function ProfileClient() {
               variant="outline"
               size="sm"
               onClick={() => setIsEditOpen(true)}
-              className="rounded-xl border-border hover:bg-secondary/60 text-xs font-medium gap-1.5 h-8 sm:h-9 px-2.5 sm:px-3 cursor-pointer shadow-xs"
+              className="rounded-xl border-border hover:bg-secondary/60 text-xs font-medium gap-1.5 h-11 min-h-[44px] sm:h-9 sm:min-h-0 px-2.5 sm:px-3 cursor-pointer shadow-xs"
               title="Chỉnh sửa hồ sơ"
             >
               <Pencil size={14} className="text-primary" />
@@ -273,7 +280,7 @@ export function ProfileClient() {
             <Button
               size="sm"
               asChild
-              className="rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground text-xs font-semibold h-8 sm:h-9 px-3 cursor-pointer shadow-xs"
+              className="rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground text-xs font-semibold h-11 min-h-[44px] sm:h-9 sm:min-h-0 px-3 cursor-pointer shadow-xs"
             >
               <Link href={APP_ROUTES.LOGIN}>
                 <LogIn size={13} className="mr-1" /> Đăng nhập
@@ -367,22 +374,22 @@ export function ProfileClient() {
       {/* 2.5 Badge & Achievement System Card */}
       {isAuthenticated &&
         (badgeData.isLoading ? (
-          <Card className="bg-card border-border rounded-2xl p-4 sm:p-5 space-y-4">
-            <div className="flex items-center gap-3.5">
-              <Skeleton className="w-14 h-14 rounded-2xl" />
-              <div className="space-y-2 flex-1">
-                <Skeleton className="h-5 w-32" />
-                <Skeleton className="h-3 w-48" />
+          <Card className="bg-card border-border rounded-2xl p-3 sm:p-5 space-y-2.5 sm:space-y-4">
+            <div className="flex items-center gap-2.5 sm:gap-3.5">
+              <Skeleton className="w-11 h-11 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl" />
+              <div className="space-y-1.5 flex-1">
+                <Skeleton className="h-4 sm:h-5 w-28 sm:w-32" />
+                <Skeleton className="h-3 w-40 sm:w-48" />
               </div>
             </div>
-            <div className="space-y-2">
-              <Skeleton className="h-2 w-full rounded-full" />
-              <Skeleton className="h-3 w-40" />
+            <div className="space-y-1.5">
+              <Skeleton className="h-1.5 sm:h-2 w-full rounded-full" />
+              <Skeleton className="h-3 w-36 sm:w-40" />
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2">
-              <Skeleton className="h-14 rounded-xl" />
-              <Skeleton className="h-14 rounded-xl" />
-              <Skeleton className="h-14 rounded-xl" />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 sm:gap-2 pt-1.5 sm:pt-2">
+              <Skeleton className="h-11 sm:h-14 rounded-xl" />
+              <Skeleton className="h-11 sm:h-14 rounded-xl" />
+              <Skeleton className="h-11 sm:h-14 rounded-xl" />
             </div>
           </Card>
         ) : (
@@ -406,11 +413,11 @@ export function ProfileClient() {
         {/* Underline Tabs Header */}
         <div className="relative border-b border-border flex items-center justify-between">
           {/* RESPONSIVE: overflow-x-auto no-scrollbar prevents tab label blowout at 320px */}
-          <TabsList className="flex items-center justify-start bg-transparent p-0 h-auto rounded-none w-auto max-w-full gap-4 sm:gap-8 overflow-x-auto no-scrollbar">
+          <TabsList className="flex items-center justify-start bg-transparent p-0 h-auto rounded-none w-auto max-w-full gap-2 xs:gap-4 sm:gap-8 overflow-x-auto no-scrollbar">
             {/* Tab 1: Đánh giá của tôi (Default) */}
             <TabsTrigger
               value="reviews"
-              className="pb-3 pt-1.5 px-1 font-semibold text-sm sm:text-base text-muted-foreground hover:text-foreground data-[state=active]:text-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none transition-all cursor-pointer relative z-10 flex items-center gap-1.5 shrink-0"
+              className="h-11 min-h-[44px] pb-3 pt-1.5 px-2 font-semibold text-xs xs:text-sm sm:text-base text-muted-foreground hover:text-foreground data-[state=active]:text-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none transition-all cursor-pointer relative z-10 flex items-center gap-1.5 shrink-0 whitespace-nowrap"
             >
               <Star size={15} />
               <span>Đánh giá của tôi</span>
@@ -419,7 +426,7 @@ export function ProfileClient() {
             {/* Tab 2: Đã lưu */}
             <TabsTrigger
               value="saved"
-              className="pb-3 pt-1.5 px-1 font-semibold text-sm sm:text-base text-muted-foreground hover:text-foreground data-[state=active]:text-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none transition-all cursor-pointer relative z-10 flex items-center gap-1.5 shrink-0"
+              className="h-11 min-h-[44px] pb-3 pt-1.5 px-2 font-semibold text-xs xs:text-sm sm:text-base text-muted-foreground hover:text-foreground data-[state=active]:text-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none transition-all cursor-pointer relative z-10 flex items-center gap-1.5 shrink-0 whitespace-nowrap"
             >
               <Heart size={15} />
               <span>Đã lưu</span>
@@ -428,7 +435,7 @@ export function ProfileClient() {
             {/* Tab 3: Đã ghé */}
             <TabsTrigger
               value="visited"
-              className="pb-3 pt-1.5 px-1 font-semibold text-sm sm:text-base text-muted-foreground hover:text-foreground data-[state=active]:text-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none transition-all cursor-pointer relative z-10 flex items-center gap-1.5 shrink-0"
+              className="h-11 min-h-[44px] pb-3 pt-1.5 px-2 font-semibold text-xs xs:text-sm sm:text-base text-muted-foreground hover:text-foreground data-[state=active]:text-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none transition-all cursor-pointer relative z-10 flex items-center gap-1.5 shrink-0 whitespace-nowrap"
             >
               <MapPin size={15} />
               <span>Đã ghé</span>
@@ -475,31 +482,69 @@ export function ProfileClient() {
                   key={review.id}
                   review={review}
                   action={
-                    <div className="flex items-center gap-1.5 self-end sm:self-start">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setReviewToEdit(review);
-                          setIsReviewModalOpen(true);
-                        }}
-                        className="text-muted-foreground hover:text-primary hover:bg-primary/10 h-8 px-2.5 rounded-xl text-xs gap-1.5 cursor-pointer transition-colors"
-                        title="Chỉnh sửa đánh giá này"
-                      >
-                        <Pencil size={13} />
-                        <span>Sửa</span>
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setReviewToDelete(review)}
-                        className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 h-8 px-2.5 rounded-xl text-xs gap-1.5 cursor-pointer transition-colors"
-                        title="Xóa đánh giá này"
-                      >
-                        <Trash2 size={13} />
-                        <span>Xóa</span>
-                      </Button>
-                    </div>
+                    <>
+                      {/* Mobile (< md): Kebab dropdown menu */}
+                      <div className="md:hidden">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              aria-label="Tùy chọn đánh giá"
+                              className="w-11 h-11 min-h-[44px] min-w-[44px] p-0 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary/60 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold active:scale-95 flex items-center justify-center cursor-pointer"
+                            >
+                              <MoreVertical size={18} />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-48 bg-popover text-popover-foreground border-border">
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setReviewToEdit(review);
+                                setIsReviewModalOpen(true);
+                              }}
+                              className="cursor-pointer gap-2"
+                            >
+                              <Pencil size={14} className="text-muted-foreground" />
+                              <span>Chỉnh sửa đánh giá</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => setReviewToDelete(review)}
+                              className="cursor-pointer gap-2 text-destructive focus:bg-destructive/10 focus:text-destructive"
+                            >
+                              <Trash2 size={14} />
+                              <span>Xóa đánh giá</span>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+
+                      {/* Tablet/Desktop (>= md): Inline Sửa / Xóa buttons */}
+                      <div className="hidden md:flex items-center gap-1.5">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setReviewToEdit(review);
+                            setIsReviewModalOpen(true);
+                          }}
+                          className="text-muted-foreground hover:text-primary hover:bg-primary/10 h-8 px-2.5 rounded-xl text-xs gap-1.5 cursor-pointer transition-colors"
+                          title="Chỉnh sửa đánh giá này"
+                        >
+                          <Pencil size={13} />
+                          <span>Sửa</span>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setReviewToDelete(review)}
+                          className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 h-8 px-2.5 rounded-xl text-xs gap-1.5 cursor-pointer transition-colors"
+                          title="Xóa đánh giá này"
+                        >
+                          <Trash2 size={13} />
+                          <span>Xóa</span>
+                        </Button>
+                      </div>
+                    </>
                   }
                 />
               ))}

@@ -63,6 +63,7 @@ const analyzeWrapper = withBundleAnalyzer({
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  devIndicators: false,
   turbopack: {},
   images: {
     remotePatterns: [

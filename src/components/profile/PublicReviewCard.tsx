@@ -22,16 +22,16 @@ export function PublicReviewCard({ review, action }: PublicReviewCardProps) {
     : '#';
 
   return (
-    <Card className="p-4 sm:p-5 bg-card border border-border shadow-card rounded-2xl transition-all hover:border-border/80">
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+    <Card className="p-3.5 sm:p-5 bg-card border border-border shadow-card rounded-2xl transition-all hover:border-border/80">
+      <div className="flex items-start justify-between gap-2 sm:gap-3">
         {/* Left: Shop info, rating, and date */}
-        <div className="space-y-1 flex-1 min-w-0">
+        <div className="space-y-1 sm:space-y-1.5 flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <Link
               href={shopHref}
-              className="font-sans font-bold text-base sm:text-lg text-foreground hover:text-primary transition-colors flex items-center gap-1.5 group focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold rounded-xs"
+              className="font-sans font-bold text-base sm:text-lg text-foreground hover:text-primary transition-colors flex items-center gap-1.5 group focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold rounded-xs max-w-full"
             >
-              <span className="truncate">{review.shop_name || 'Quán Cà Phê'}</span>
+              <span className="line-clamp-1">{review.shop_name || 'Quán Cà Phê'}</span>
               <ExternalLink
                 size={14}
                 className="text-muted-foreground group-hover:text-primary shrink-0"
@@ -40,15 +40,15 @@ export function PublicReviewCard({ review, action }: PublicReviewCardProps) {
           </div>
 
           {review.shop_address && (
-            <p className="text-xs text-muted-foreground flex items-center gap-1 truncate">
-              <MapPin size={12} className="shrink-0 text-primary" />
+            <p className="text-xs text-muted-foreground flex items-start gap-1 line-clamp-2 break-words max-w-full">
+              <MapPin size={12} className="shrink-0 text-primary mt-0.5" />
               <span>{review.shop_address}</span>
             </p>
           )}
 
           {/* Star Rating & Date */}
-          <div className="flex items-center gap-2.5 pt-0.5">
-            <div className="flex items-center gap-0.5">
+          <div className="flex items-center gap-x-2.5 gap-y-1 flex-wrap pt-0.5">
+            <div className="flex items-center gap-0.5 shrink-0">
               {[1, 2, 3, 4, 5].map((star) => (
                 <Star
                   key={star}
@@ -65,9 +65,9 @@ export function PublicReviewCard({ review, action }: PublicReviewCardProps) {
               </span>
             </div>
 
-            <span className="text-muted-foreground/40 text-xs">•</span>
+            <span className="text-muted-foreground/40 text-xs hidden xs:inline">•</span>
 
-            <span className="text-xs text-muted-foreground flex items-center gap-1">
+            <span className="text-xs text-muted-foreground flex items-center gap-1 shrink-0">
               <Calendar size={12} />
               <span>
                 {new Date(review.created_at).toLocaleDateString('vi-VN', {
@@ -83,12 +83,16 @@ export function PublicReviewCard({ review, action }: PublicReviewCardProps) {
           </div>
         </div>
 
-        {/* Optional Action (e.g. Delete button on private profile) */}
-        {action && <div className="self-end sm:self-start">{action}</div>}
+        {/* Optional Action (e.g. kebab on mobile, inline buttons on desktop) */}
+        {action && (
+          <div className="shrink-0 -mr-1 -mt-1 md:mr-0 md:mt-0">
+            {action}
+          </div>
+        )}
       </div>
 
-      {/* Review Comment */}
-      <div className="mt-2.5 pt-2.5 border-t border-border/40">
+      {/* Review Comment - Divider only on tablet/desktop, cleanly flow on mobile */}
+      <div className="mt-2 md:mt-2.5 md:pt-2.5 md:border-t md:border-border/40">
         <p className="text-xs sm:text-sm text-foreground/90 whitespace-pre-line leading-relaxed">
           {review.comment}
         </p>

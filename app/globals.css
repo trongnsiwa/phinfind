@@ -861,3 +861,10 @@ textarea::placeholder {
   }
 }
 
+/* Suppress Next.js dev indicators and overlays that collide with mobile bottom navigation */
+[data-nextjs-dev-tools-button],
+nextjs-portal,
+#next-logo {
+  display: none !important;
+}
+

@@ -82,50 +82,50 @@ export function BadgeCard({
   const isMaxTier = tier === 'kim-cuong';
 
   return (
-    <Card className="bg-card border-border rounded-2xl shadow-card p-4 sm:p-5 space-y-4">
+    <Card className="bg-card border-border rounded-2xl shadow-card p-3 sm:p-5 space-y-2.5 sm:space-y-4">
       {/* 1. Top Row: Badge Emblem, Tier Heading & Contributions Description */}
-      <div className="flex items-center gap-3.5">
+      <div className="flex items-center gap-2.5 sm:gap-3.5">
         <div
           className={cn(
-            'w-14 h-14 rounded-2xl flex items-center justify-center border shadow-sm shrink-0 transition-transform duration-300 hover:scale-105',
+            'w-11 h-11 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center border shadow-sm shrink-0 transition-transform duration-300 hover:scale-105',
             visuals.bg
           )}
         >
-          {isMaxTier ? <Sparkles size={28} /> : <Award size={28} />}
+          {isMaxTier ? <Sparkles className="size-5 sm:size-7" /> : <Award className="size-5 sm:size-7" />}
         </div>
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <h3 className="text-base sm:text-lg font-bold text-foreground tracking-tight">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <h3 className="text-sm sm:text-lg font-bold text-foreground tracking-tight">
               Hạng {label}
             </h3>
-            {/* RESPONSIVE: text-[11px] readable base text for badges */}
+            {/* RESPONSIVE: text-[10px] on mobile, text-[11px] on tablet/desktop */}
             <span
               className={cn(
-                'inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold border',
+                'inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-semibold border',
                 visuals.bg
               )}
             >
               {totalContributions} điểm
             </span>
           </div>
-          <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+          <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 line-clamp-1">
             Bạn đã tích lũy {totalContributions} điểm cống hiến cho cộng đồng
           </p>
         </div>
       </div>
 
       {/* 2. Progress Bar toward Next Tier */}
-      <div className="space-y-1.5 pt-0.5">
-        <div className="flex justify-between text-xs">
+      <div className="space-y-1 sm:space-y-1.5 pt-0 sm:pt-0.5">
+        <div className="flex justify-between text-[11px] sm:text-xs">
           <span className="text-muted-foreground font-medium">Tiến trình nâng hạng</span>
           <span className="text-foreground font-bold">{progressPercent}%</span>
         </div>
         <Progress
           value={progressPercent}
-          className="h-2 bg-secondary"
+          className="h-1.5 sm:h-2 bg-secondary"
           indicatorClassName={visuals.progress}
         />
-        <p className="text-[11px] text-muted-foreground/90 pt-0.5">
+        <p className="text-[10px] sm:text-[11px] text-muted-foreground/90 pt-0.5">
           {isMaxTier
             ? 'Bạn đã đạt cấp độ cao nhất. Cảm ơn sự cống hiến nhiệt huyết của bạn!'
             : `Còn ${remaining} điểm để lên hạng ${nextTierLabel || 'tiếp theo'}`}
@@ -133,11 +133,11 @@ export function BadgeCard({
       </div>
 
       {/* 3. Category Badges Grid */}
-      <div className="pt-2 border-t border-border/50">
-        <h4 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2.5">
+      <div className="pt-1.5 sm:pt-2 border-t border-border/50">
+        <h4 className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5 sm:mb-2.5">
           Danh hiệu theo hoạt động
         </h4>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 sm:gap-2">
           {categoryBadges.map((badge) => {
             const catVisuals = getTierVisuals(badge.tier);
             const catTierLabel = TIER_THRESHOLDS[badge.tier].label;
@@ -145,9 +145,9 @@ export function BadgeCard({
             return (
               <div
                 key={badge.id}
-                className="flex items-center gap-2.5 p-2.5 rounded-xl border border-border/60 bg-secondary/30 hover:bg-secondary/50 transition-colors"
+                className="flex items-center gap-2 p-2 sm:p-2.5 rounded-xl border border-border/60 bg-secondary/30 hover:bg-secondary/50 transition-colors"
               >
-                <div className="p-1.5 rounded-lg bg-background border border-border/60 shrink-0">
+                <div className="p-1 sm:p-1.5 rounded-lg bg-background border border-border/60 shrink-0">
                   {getCategoryIcon(badge.id)}
                 </div>
                 <div className="min-w-0 flex-1">
@@ -157,15 +157,15 @@ export function BadgeCard({
                     </span>
                     <span
                       className={cn(
-                        'w-2 h-2 rounded-full shrink-0',
+                        'w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full shrink-0',
                         catVisuals.dot
                       )}
                       title={`Hạng ${catTierLabel}`}
                     />
                   </div>
-                  <div className="flex items-center justify-between text-[11px] text-muted-foreground mt-0.5">
+                  <div className="flex items-center justify-between text-[10px] sm:text-[11px] text-muted-foreground mt-0.5">
                     <span>{getCategoryCountLabel(badge.id, badge.count)}</span>
-                    <span className="text-[11px] font-medium opacity-80">{catTierLabel}</span>
+                    <span className="font-medium opacity-80">{catTierLabel}</span>
                   </div>
                 </div>
               </div>
