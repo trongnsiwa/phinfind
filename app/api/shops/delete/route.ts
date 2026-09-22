@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { deleteStorageFilesFromUrls } from '@/lib/supabase/storage';
 
 export async function DELETE(request: NextRequest) {
   try {
@@ -29,7 +30,7 @@ export async function DELETE(request: NextRequest) {
     // Verify shop existence and ownership
     const { data: existingShop, error: fetchError } = await supabase
       .from('shops')
-      .select('place_id, created_by')
+      .select('place_id, created_by, photos')
       .eq('place_id', placeId)
       .single();
 
@@ -45,6 +46,39 @@ export async function DELETE(request: NextRequest) {
         { error: 'Bạn không có quyền xóa quán cà phê này.' },
         { status: 403 }
       );
+    }
+
+    // Clean up review photos from storage before deleting reviews
+    const { data: reviewRows } = await supabase
+      .from('reviews')
+      .select('images')
+      .eq('shop_place_id', placeId);
+
+    const reviewImageUrls: string[] = [];
+    if (reviewRows) {
+      for (const row of reviewRows) {
+        if (Array.isArray(row.images)) {
+          for (const img of row.images) {
+            if (typeof img === 'string') {
+              reviewImageUrls.push(img);
+            }
+          }
+        }
+      }
+    }
+
+    const uniqueReviewImageUrls = Array.from(new Set(reviewImageUrls));
+    try {
+      if (uniqueReviewImageUrls.length > 0) {
+        await deleteStorageFilesFromUrls(supabase, uniqueReviewImageUrls, 'reviews/');
+      }
+
+      // Also clean up shop photos if present
+      if (Array.isArray(existingShop.photos) && existingShop.photos.length > 0) {
+        await deleteStorageFilesFromUrls(supabase, existingShop.photos, 'shops/');
+      }
+    } catch (storageErr) {
+      console.error('[shops DELETE] Storage cleanup error:', storageErr);
     }
 
     // Clean up associated rows in saved_shops and visits since they lack FK cascades

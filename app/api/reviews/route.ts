@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createPublicClient } from '@/lib/supabase/server';
+import { deleteStorageFilesFromUrls } from '@/lib/supabase/storage';
 
 export async function GET(request: NextRequest) {
   try {
@@ -319,6 +320,14 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Thiếu mã đánh giá (id).' }, { status: 400 });
     }
 
+    // Fetch existing review images before deletion
+    const { data: existingReview } = await supabase
+      .from('reviews')
+      .select('images')
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .maybeSingle();
+
     const { error } = await supabase
       .from('reviews')
       .delete()
@@ -327,6 +336,15 @@ export async function DELETE(request: NextRequest) {
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    // Best-effort storage cleanup after successful DB deletion
+    if (existingReview?.images && Array.isArray(existingReview.images) && existingReview.images.length > 0) {
+      try {
+        await deleteStorageFilesFromUrls(supabase, existingReview.images, `reviews/${user.id}/`);
+      } catch (storageErr) {
+        console.error('[reviews DELETE] Storage cleanup error:', storageErr);
+      }
     }
 
     return NextResponse.json({ success: true });
@@ -352,17 +370,16 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
-    const { id, rating, comment, images } = body;
+    const { id, rating, comment, images } = await request.json();
 
     if (!id) {
-      return NextResponse.json({ error: 'Thiếu mã đánh giá.' }, { status: 400 });
+      return NextResponse.json({ error: 'Thiếu mã đánh giá (id).' }, { status: 400 });
     }
 
     const numericRating = Number(rating);
     if (!numericRating || numericRating < 1 || numericRating > 5) {
       return NextResponse.json(
-        { error: 'Vui lòng chọn số sao đánh giá từ 1 đến 5 sao.' },
+        { error: 'Đánh giá phải từ 1 đến 5 sao.' },
         { status: 400 }
       );
     }
@@ -371,6 +388,21 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json(
         { error: 'Nội dung cảm nhận phải có ít nhất 3 ký tự.' },
         { status: 400 }
+      );
+    }
+
+    // Fetch existing review to inspect current images before update
+    const { data: existingReview } = await supabase
+      .from('reviews')
+      .select('images')
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (!existingReview) {
+      return NextResponse.json(
+        { error: 'Không tìm thấy bài đánh giá hoặc bạn không có quyền chỉnh sửa.' },
+        { status: 403 }
       );
     }
 
@@ -400,6 +432,10 @@ export async function PUT(request: NextRequest) {
       validatedImages = images.map((u: string) => u.trim());
     }
 
+    // Compute set difference: images in oldImages that are NOT in validatedImages
+    const oldImages: string[] = Array.isArray(existingReview.images) ? existingReview.images : [];
+    const removedImages = oldImages.filter((img) => !validatedImages.includes(img));
+
     const { data, error } = await supabase
       .from('reviews')
       .update({
@@ -420,6 +456,15 @@ export async function PUT(request: NextRequest) {
         { error: 'Không tìm thấy bài đánh giá hoặc bạn không có quyền chỉnh sửa.' },
         { status: 403 }
       );
+    }
+
+    // Best-effort storage cleanup of removed images
+    if (removedImages.length > 0) {
+      try {
+        await deleteStorageFilesFromUrls(supabase, removedImages, `reviews/${user.id}/`);
+      } catch (storageErr) {
+        console.error('[reviews PUT] Storage cleanup error:', storageErr);
+      }
     }
 
     // Query like count and user like status
