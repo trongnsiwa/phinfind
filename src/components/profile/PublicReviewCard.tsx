@@ -8,6 +8,7 @@ import { ReviewData } from '@/hooks/useShops';
 import { useUIStore } from '@/stores/useUIStore';
 import { APP_ROUTES } from '@/lib/utils/constants';
 import { ShopImage } from '@/components/common/ShopImage';
+import { ReviewerName } from '@/components/common/ReviewerName';
 
 interface PublicReviewCardProps {
   review: ReviewData;
@@ -44,6 +45,13 @@ export function PublicReviewCard({ review, action }: PublicReviewCardProps) {
               <MapPin size={12} className="shrink-0 text-primary mt-0.5" />
               <span>{review.shop_address}</span>
             </p>
+          )}
+
+          {/* Reviewer author */}
+          {review.author && (
+            <div className="flex items-center gap-1.5 min-w-0">
+              <ReviewerName author={review.author} username={review.username} />
+            </div>
           )}
 
           {/* Star Rating & Date */}

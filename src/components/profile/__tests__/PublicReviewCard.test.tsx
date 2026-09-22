@@ -95,4 +95,49 @@ describe('PublicReviewCard', () => {
     const editBtn = screen.getByRole('button', { name: /sửa/i });
     expect(editBtn.parentElement?.className).toContain('hidden md:flex');
   });
+
+  it('renders reviewer name as link to /u/[username] with >= 44px tap target when username exists', () => {
+    const reviewWithUsername: ReviewData = {
+      ...mockReview,
+      username: 'trongnsi',
+    };
+
+    render(<PublicReviewCard review={reviewWithUsername} />);
+
+    const reviewerLink = screen.getByRole('link', { name: 'Trong Nguyen' });
+    expect(reviewerLink).toBeInTheDocument();
+    expect(reviewerLink).toHaveAttribute('href', '/u/trongnsi');
+    expect(reviewerLink.className).toContain('min-h-[44px]');
+    expect(reviewerLink.className).toContain('cursor-pointer');
+    expect(reviewerLink.className).toContain('hover:text-primary');
+  });
+
+  it('renders reviewer name with subtle hint "(chưa có hồ sơ)" and aria-disabled without link when username is missing', () => {
+    const { container } = render(<PublicReviewCard review={mockReview} />);
+
+    // Should not render reviewer as link
+    expect(screen.queryByRole('link', { name: /trong nguyen/i })).toBeNull();
+    expect(screen.getByText('Trong Nguyen')).toBeInTheDocument();
+    expect(screen.getByText('(chưa có hồ sơ)')).toBeInTheDocument();
+
+    const disabledAuthor = container.querySelector('[aria-disabled="true"]');
+    expect(disabledAuthor).toBeInTheDocument();
+    expect(disabledAuthor?.className).toContain('text-muted-foreground');
+  });
+
+  it('safely handles edge case usernames like "null", "undefined", and empty string', () => {
+    const { rerender } = render(
+      <PublicReviewCard review={{ ...mockReview, username: 'null' }} />
+    );
+    expect(screen.queryByRole('link', { name: /trong nguyen/i })).toBeNull();
+    expect(screen.getByText('(chưa có hồ sơ)')).toBeInTheDocument();
+
+    rerender(<PublicReviewCard review={{ ...mockReview, username: 'undefined' }} />);
+    expect(screen.queryByRole('link', { name: /trong nguyen/i })).toBeNull();
+    expect(screen.getByText('(chưa có hồ sơ)')).toBeInTheDocument();
+
+    rerender(<PublicReviewCard review={{ ...mockReview, username: '' }} />);
+    expect(screen.queryByRole('link', { name: /trong nguyen/i })).toBeNull();
+    expect(screen.getByText('(chưa có hồ sơ)')).toBeInTheDocument();
+  });
 });

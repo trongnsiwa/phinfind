@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { ShopImage } from '@/components/common/ShopImage';
+import { ReviewerName, isValidUsername } from '@/components/common/ReviewerName';
 import { cn } from '@/lib/utils';
 import type { ReviewItem } from '../ReviewModal';
 
@@ -43,30 +44,43 @@ export function ReviewCard({
       {/* Header Row: Avatar, Author, Verified, Rating, and Date */}
       <div className='flex items-start justify-between gap-2 min-w-0'>
         <div className='flex items-center gap-2.5 min-w-0'>
-          <ShopImage
-            src={review.avatar}
-            alt={review.author}
-            fallback={
-              <div className='w-full h-full bg-amber-gold/20 flex items-center justify-center text-amber-gold text-[10px] font-bold'>
-                {review.author[0]?.toUpperCase() || 'U'}
-              </div>
-            }
-            sizes="28px"
-            className="w-7 h-7 rounded-full overflow-hidden border border-amber-gold/30 bg-muted flex-shrink-0"
-            imageClassName="object-cover"
-          />
+          {isValidUsername(review.username) ? (
+            <Link
+              href={`/u/${encodeURIComponent(review.username.trim())}`}
+              onClick={(e) => e.stopPropagation()}
+              className="focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold rounded-full flex-shrink-0 cursor-pointer"
+              aria-label={`Hồ sơ của ${review.author}`}
+            >
+              <ShopImage
+                src={review.avatar}
+                alt={review.author}
+                fallback={
+                  <div className='w-full h-full bg-amber-gold/20 flex items-center justify-center text-amber-gold text-[10px] font-bold'>
+                    {review.author[0]?.toUpperCase() || 'U'}
+                  </div>
+                }
+                sizes="28px"
+                className="w-7 h-7 rounded-full overflow-hidden border border-amber-gold/30 bg-muted flex-shrink-0"
+                imageClassName="object-cover"
+              />
+            </Link>
+          ) : (
+            <ShopImage
+              src={review.avatar}
+              alt={review.author}
+              fallback={
+                <div className='w-full h-full bg-amber-gold/20 flex items-center justify-center text-amber-gold text-[10px] font-bold'>
+                  {review.author[0]?.toUpperCase() || 'U'}
+                </div>
+              }
+              sizes="28px"
+              className="w-7 h-7 rounded-full overflow-hidden border border-amber-gold/30 bg-muted flex-shrink-0"
+              imageClassName="object-cover"
+            />
+          )}
           <div className='min-w-0 flex flex-col'>
             <div className='flex items-center gap-1.5 min-w-0'>
-              {review.username ? (
-                <Link
-                  href={`/u/${encodeURIComponent(review.username)}`}
-                  className='font-bold text-foreground text-xs truncate hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold rounded-xs'
-                >
-                  {review.author}
-                </Link>
-              ) : (
-                <span className='font-bold text-foreground text-xs truncate'>{review.author}</span>
-              )}
+              <ReviewerName author={review.author} username={review.username} />
               <CheckCircle2 size={12} className='text-teal flex-shrink-0' />
               {review.isUserSubmission && (
                 <span className='text-[9px] bg-amber-gold text-primary-foreground font-extrabold px-1.5 py-0.2 rounded uppercase tracking-wider flex-shrink-0'>
