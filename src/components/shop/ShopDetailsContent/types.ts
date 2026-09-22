@@ -25,6 +25,15 @@ export interface GalleryPhoto {
   title: string;
   category: string;
   isCommunity?: boolean;
+  reviewId?: string;
+  authorName?: string;
+  authorAvatar?: string | null;
+}
+
+export interface PhotosTabProps {
+  shop: CoffeeShop;
+  photos?: GalleryPhoto[];
+  reviewCount?: number;
 }
 
 export interface AmenitiesTabProps {

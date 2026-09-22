@@ -244,7 +244,7 @@ export const ShopDetailsContent = memo(function ShopDetailsContent({
         </TabsContent>
 
         <TabsContent value='photos' className='mt-0 focus-visible:outline-none'>
-          <PhotosTab shop={shop} photos={galleryPhotos} />
+          <PhotosTab shop={shop} photos={galleryPhotos} reviewCount={reviews.length} />
         </TabsContent>
 
         <TabsContent value='reviews' className='mt-0 focus-visible:outline-none'>

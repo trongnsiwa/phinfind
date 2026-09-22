@@ -126,9 +126,11 @@ export function getShopSchedule(openingHours?: CoffeeShop['opening_hours']): Com
 }
 
 export interface ReviewPhotoSource {
+  id?: string;
   images?: string[] | null;
   author?: string | null;
-  profiles?: { full_name?: string | null } | null;
+  avatar?: string | null;
+  profiles?: { full_name?: string | null; avatar_url?: string | null } | null;
 }
 
 export function buildGalleryPhotos(
@@ -157,14 +159,19 @@ export function buildGalleryPhotos(
   if (reviews && reviews.length > 0) {
     reviews.forEach((rev) => {
       if (rev.images && Array.isArray(rev.images)) {
+        const authorName = rev.author || rev.profiles?.full_name || 'cộng đồng';
+        const authorAvatar = rev.avatar || rev.profiles?.avatar_url || null;
         rev.images.forEach((imgUrl) => {
           if (imgUrl && !seenUrls.has(imgUrl)) {
             seenUrls.add(imgUrl);
             list.push({
               url: imgUrl,
-              title: `${shop.name} - Ảnh từ đánh giá của ${rev.author || rev.profiles?.full_name || 'cộng đồng'}`,
+              title: `${shop.name} - Ảnh từ đánh giá của ${authorName}`,
               category: 'Từ đánh giá cộng đồng',
-              isCommunity: true
+              isCommunity: true,
+              reviewId: rev.id,
+              authorName,
+              authorAvatar
             });
           }
         });
