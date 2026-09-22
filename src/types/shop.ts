@@ -36,6 +36,11 @@ export interface CoffeeShop {
   photos?: string[];
   website?: string;
   phone?: string;
+  facebook_url?: string | null;
+  instagram_url?: string | null;
+  tiktok_url?: string | null;
+  youtube_url?: string | null;
+  zalo_url?: string | null;
   categories: string[];
   custom_amenities?: CustomAmenity[];
   amenities?: ShopAmenity[];

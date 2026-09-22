@@ -100,6 +100,11 @@ export function SuggestEditDialog({ open, onOpenChange, shop }: SuggestEditDialo
   const [address, setAddress] = useState('');
   const [phone, setPhone] = useState('');
   const [website, setWebsite] = useState('');
+  const [facebook, setFacebook] = useState('');
+  const [instagram, setInstagram] = useState('');
+  const [tiktok, setTiktok] = useState('');
+  const [youtube, setYoutube] = useState('');
+  const [zalo, setZalo] = useState('');
   const [priceRange, setPriceRange] = useState<string>('');
   const [openNow, setOpenNow] = useState<boolean>(true);
   const [reason, setReason] = useState('');
@@ -111,6 +116,11 @@ export function SuggestEditDialog({ open, onOpenChange, shop }: SuggestEditDialo
       setAddress(shop.address || '');
       setPhone(shop.phone || '');
       setWebsite(shop.website || '');
+      setFacebook(shop.facebook_url || '');
+      setInstagram(shop.instagram_url || '');
+      setTiktok(shop.tiktok_url || '');
+      setYoutube(shop.youtube_url || '');
+      setZalo(shop.zalo_url || '');
       setPriceRange(shop.price_range || '');
       setOpenNow(shop.opening_hours?.open_now ?? true);
       setReason('');
@@ -141,6 +151,31 @@ export function SuggestEditDialog({ open, onOpenChange, shop }: SuggestEditDialo
       changes.website = { from: shop.website || null, to: trimmedWebsite || null };
     }
 
+    const trimmedFacebook = facebook.trim();
+    if (trimmedFacebook !== (shop.facebook_url || '').trim()) {
+      changes.facebook_url = { from: shop.facebook_url || null, to: trimmedFacebook || null };
+    }
+
+    const trimmedInstagram = instagram.trim();
+    if (trimmedInstagram !== (shop.instagram_url || '').trim()) {
+      changes.instagram_url = { from: shop.instagram_url || null, to: trimmedInstagram || null };
+    }
+
+    const trimmedTiktok = tiktok.trim();
+    if (trimmedTiktok !== (shop.tiktok_url || '').trim()) {
+      changes.tiktok_url = { from: shop.tiktok_url || null, to: trimmedTiktok || null };
+    }
+
+    const trimmedYoutube = youtube.trim();
+    if (trimmedYoutube !== (shop.youtube_url || '').trim()) {
+      changes.youtube_url = { from: shop.youtube_url || null, to: trimmedYoutube || null };
+    }
+
+    const trimmedZalo = zalo.trim();
+    if (trimmedZalo !== (shop.zalo_url || '').trim()) {
+      changes.zalo_url = { from: shop.zalo_url || null, to: trimmedZalo || null };
+    }
+
     if (priceRange !== (shop.price_range || '')) {
       changes.price_range = {
         from: shop.price_range || null,
@@ -157,14 +192,14 @@ export function SuggestEditDialog({ open, onOpenChange, shop }: SuggestEditDialo
     }
 
     return changes;
-  }, [name, address, phone, website, priceRange, openNow, shop]);
+  }, [name, address, phone, website, facebook, instagram, tiktok, youtube, zalo, priceRange, openNow, shop]);
 
   const changedKeys = Object.keys(diffs);
   const changedCount = changedKeys.length;
 
   // Validation
   const hasChanges = changedCount > 0;
-  const isOverLimit = changedCount > 3;
+  const isOverLimit = changedCount > 5;
   const requiresReason = changedCount > 1;
   const isReasonMissing = requiresReason && !reason.trim();
   const canSubmit = hasChanges && !isOverLimit && !isReasonMissing && !suggestEditMutation.isPending;
@@ -218,7 +253,7 @@ export function SuggestEditDialog({ open, onOpenChange, shop }: SuggestEditDialo
             <Info size={15} className="text-amber-gold flex-shrink-0 mt-0.5" />
             <span className="leading-relaxed">
               Chỉ những thông tin được thay đổi mới được gửi đến quản trị viên để duyệt (tối đa{' '}
-              <strong className="text-foreground">3 thông tin</strong> mỗi lần).
+              <strong className="text-foreground">5 thông tin</strong> mỗi lần).
             </span>
           </div>
 
@@ -263,7 +298,7 @@ export function SuggestEditDialog({ open, onOpenChange, shop }: SuggestEditDialo
           </DiffRow>
 
           <DiffRow
-            label="Website / Mạng xã hội"
+            label="Website"
             currentDisplay={shop.website || '(Chưa có)'}
             isChanged={Boolean(diffs.website)}
           >
@@ -271,6 +306,71 @@ export function SuggestEditDialog({ open, onOpenChange, shop }: SuggestEditDialo
               value={website}
               onChange={(e) => setWebsite(e.target.value)}
               placeholder="https://..."
+              className="h-9 text-xs rounded-lg bg-background border-border/70 focus-visible:ring-1 focus-visible:ring-amber-gold"
+            />
+          </DiffRow>
+
+          <DiffRow
+            label="Facebook"
+            currentDisplay={shop.facebook_url || '(Chưa có)'}
+            isChanged={Boolean(diffs.facebook_url)}
+          >
+            <Input
+              value={facebook}
+              onChange={(e) => setFacebook(e.target.value)}
+              placeholder="https://facebook.com/..."
+              className="h-9 text-xs rounded-lg bg-background border-border/70 focus-visible:ring-1 focus-visible:ring-amber-gold"
+            />
+          </DiffRow>
+
+          <DiffRow
+            label="Instagram"
+            currentDisplay={shop.instagram_url || '(Chưa có)'}
+            isChanged={Boolean(diffs.instagram_url)}
+          >
+            <Input
+              value={instagram}
+              onChange={(e) => setInstagram(e.target.value)}
+              placeholder="https://instagram.com/..."
+              className="h-9 text-xs rounded-lg bg-background border-border/70 focus-visible:ring-1 focus-visible:ring-amber-gold"
+            />
+          </DiffRow>
+
+          <DiffRow
+            label="TikTok"
+            currentDisplay={shop.tiktok_url || '(Chưa có)'}
+            isChanged={Boolean(diffs.tiktok_url)}
+          >
+            <Input
+              value={tiktok}
+              onChange={(e) => setTiktok(e.target.value)}
+              placeholder="https://tiktok.com/@..."
+              className="h-9 text-xs rounded-lg bg-background border-border/70 focus-visible:ring-1 focus-visible:ring-amber-gold"
+            />
+          </DiffRow>
+
+          <DiffRow
+            label="YouTube"
+            currentDisplay={shop.youtube_url || '(Chưa có)'}
+            isChanged={Boolean(diffs.youtube_url)}
+          >
+            <Input
+              value={youtube}
+              onChange={(e) => setYoutube(e.target.value)}
+              placeholder="https://youtube.com/@..."
+              className="h-9 text-xs rounded-lg bg-background border-border/70 focus-visible:ring-1 focus-visible:ring-amber-gold"
+            />
+          </DiffRow>
+
+          <DiffRow
+            label="Zalo"
+            currentDisplay={shop.zalo_url || '(Chưa có)'}
+            isChanged={Boolean(diffs.zalo_url)}
+          >
+            <Input
+              value={zalo}
+              onChange={(e) => setZalo(e.target.value)}
+              placeholder="https://zalo.me/..."
               className="h-9 text-xs rounded-lg bg-background border-border/70 focus-visible:ring-1 focus-visible:ring-amber-gold"
             />
           </DiffRow>
@@ -335,7 +435,7 @@ export function SuggestEditDialog({ open, onOpenChange, shop }: SuggestEditDialo
           {/* Inline Validation Alerts */}
           {isOverLimit && (
             <p className="text-xs font-medium text-destructive bg-destructive/10 p-2.5 rounded-xl border border-destructive/20">
-              Chỉ có thể đề xuất tối đa 3 thay đổi mỗi lần. Hiện đang chọn {changedCount} thay đổi.
+              Chỉ có thể đề xuất tối đa 5 thay đổi mỗi lần. Hiện đang chọn {changedCount} thay đổi.
             </p>
           )}
 

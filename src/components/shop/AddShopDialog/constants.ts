@@ -10,6 +10,13 @@ import {
   Wind
 } from 'lucide-react';
 import { z } from 'zod';
+import {
+  facebookUrl,
+  instagramUrl,
+  tiktokUrl,
+  youtubeUrl,
+  zaloUrl
+} from '@/lib/validations/shop';
 import type { DayConfig, PredefinedCategoryConfig, PriceOption } from './types';
 
 export const POPULAR_CATEGORIES: PredefinedCategoryConfig[] = [
@@ -203,6 +210,11 @@ export const addShopFormSchema = z.object({
   lon: z.number().min(-180, 'Kinh độ không hợp lệ').max(180, 'Kinh độ không hợp lệ'),
   phone: z.string().optional(),
   website: z.string().optional(),
+  facebook_url: facebookUrl,
+  instagram_url: instagramUrl,
+  tiktok_url: tiktokUrl,
+  youtube_url: youtubeUrl,
+  zalo_url: zaloUrl,
   price_range: z.enum(['₫', '₫₫', '₫₫₫', '₫₫₫₫']).optional(),
   photos: z.array(z.string()),
   opening_hours: openingHoursFormSchema

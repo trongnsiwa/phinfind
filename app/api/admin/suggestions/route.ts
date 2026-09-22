@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { requireAdmin } from '@/lib/supabase/auth-helpers';
 
-const ALLOWED_FIELDS = new Set([
+export const ALLOWED_FIELDS = new Set([
   'name',
   'address',
   'lat',
@@ -15,9 +15,14 @@ const ALLOWED_FIELDS = new Set([
   'custom_amenities',
   'opening_hours',
   'photos',
+  'facebook_url',
+  'instagram_url',
+  'tiktok_url',
+  'youtube_url',
+  'zalo_url',
 ]);
 
-const DISALLOWED_FIELDS = new Set([
+export const DISALLOWED_FIELDS = new Set([
   'place_id',
   'created_by',
   'verified',

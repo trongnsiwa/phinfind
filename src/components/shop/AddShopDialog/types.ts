@@ -47,6 +47,11 @@ export interface AddShopFormData {
   lon: number;
   phone?: string;
   website?: string;
+  facebook_url?: string | null;
+  instagram_url?: string | null;
+  tiktok_url?: string | null;
+  youtube_url?: string | null;
+  zalo_url?: string | null;
   price_range?: PriceOption;
   photos: string[];
   opening_hours: {

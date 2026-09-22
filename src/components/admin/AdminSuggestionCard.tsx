@@ -39,6 +39,11 @@ const FIELD_LABELS: Record<string, string> = {
   photos: 'Hình ảnh',
   lat: 'Vĩ độ',
   lon: 'Kinh độ',
+  facebook_url: 'Facebook',
+  instagram_url: 'Instagram',
+  tiktok_url: 'TikTok',
+  youtube_url: 'YouTube',
+  zalo_url: 'Zalo',
 };
 
 function formatFieldValue(key: string, val: any): string {

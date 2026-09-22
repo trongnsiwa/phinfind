@@ -1,7 +1,18 @@
-import { Phone } from 'lucide-react';
+'use client';
+
+import React, { useState } from 'react';
+import { ChevronDown, Phone, Share2 } from 'lucide-react';
+import {
+  Facebook,
+  Instagram,
+  MessageCircle,
+  Music2,
+  Youtube
+} from '@/components/common/SocialIcons';
 import type { FieldErrors, UseFormRegister } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 import type { AddShopFormData } from './types';
 
 interface ContactStepProps {
@@ -9,7 +20,38 @@ interface ContactStepProps {
   errors: FieldErrors<AddShopFormData>;
 }
 
+function SocialInput({
+  icon,
+  error,
+  ...props
+}: React.ComponentProps<typeof Input> & { icon: React.ReactNode; error?: string }) {
+  return (
+    <div className='space-y-1'>
+      <div className='relative flex items-center'>
+        <span className='absolute left-3 pointer-events-none'>{icon}</span>
+        <Input
+          {...props}
+          className='h-11 md:h-9 pl-9 text-sm md:text-xs bg-secondary/50 border-border rounded-xl focus-visible:ring-1 focus-visible:ring-amber-gold transition-all'
+        />
+      </div>
+      {error && <p className='text-[11px] text-rose-500 mt-1'>{error}</p>}
+    </div>
+  );
+}
+
 export function ContactStep({ register, errors }: ContactStepProps) {
+  const [isSocialOpen, setIsSocialOpen] = useState(false);
+
+  const hasSocialError = Boolean(
+    errors.facebook_url ||
+    errors.instagram_url ||
+    errors.tiktok_url ||
+    errors.youtube_url ||
+    errors.zalo_url
+  );
+
+  const isOpen = isSocialOpen || hasSocialError;
+
   return (
     <div id='step-5' data-step='5' className='space-y-3.5 pt-5 border-t border-border/40'>
       {/* MOBILE HEADER ( < md ): Two-line hierarchy */}
@@ -60,6 +102,68 @@ export function ContactStep({ register, errors }: ContactStepProps) {
             <p className='text-[11px] text-rose-500 mt-1'>{errors.website.message}</p>
           )}
         </div>
+      </div>
+
+      {/* Collapsible Social Links Section */}
+      <div className='space-y-2 pt-2 border-t border-border/30'>
+        <button
+          type='button'
+          onClick={() => setIsSocialOpen(!isOpen)}
+          className='flex items-center justify-between w-full text-xs font-semibold text-foreground py-1.5 cursor-pointer select-none group min-h-[44px]'
+          aria-expanded={isOpen}
+        >
+          <span className='flex items-center gap-1.5'>
+            <Share2 size={13} className='text-amber-gold flex-shrink-0' />
+            <span>Mạng xã hội (tùy chọn)</span>
+          </span>
+          <ChevronDown
+            size={14}
+            className={cn(
+              'text-muted-foreground transition-transform duration-200',
+              isOpen && 'rotate-180'
+            )}
+          />
+        </button>
+
+        {isOpen && (
+          <div className='grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1 animate-in fade-in duration-150'>
+            <SocialInput
+              id='shop-facebook'
+              icon={<Facebook size={14} className='text-[#1877F2]' />}
+              placeholder='https://facebook.com/quancafe'
+              {...register('facebook_url')}
+              error={errors.facebook_url?.message}
+            />
+            <SocialInput
+              id='shop-instagram'
+              icon={<Instagram size={14} className='text-[#E4405F]' />}
+              placeholder='https://instagram.com/quancafe'
+              {...register('instagram_url')}
+              error={errors.instagram_url?.message}
+            />
+            <SocialInput
+              id='shop-tiktok'
+              icon={<Music2 size={14} />}
+              placeholder='https://tiktok.com/@quancafe'
+              {...register('tiktok_url')}
+              error={errors.tiktok_url?.message}
+            />
+            <SocialInput
+              id='shop-youtube'
+              icon={<Youtube size={14} className='text-[#FF0000]' />}
+              placeholder='https://youtube.com/@quancafe'
+              {...register('youtube_url')}
+              error={errors.youtube_url?.message}
+            />
+            <SocialInput
+              id='shop-zalo'
+              icon={<MessageCircle size={14} className='text-[#0068FF]' />}
+              placeholder='https://zalo.me/0901234567'
+              {...register('zalo_url')}
+              error={errors.zalo_url?.message}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

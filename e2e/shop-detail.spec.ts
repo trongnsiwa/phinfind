@@ -1,6 +1,8 @@
 import {
   test,
   expect,
+  hasSupabaseCredentials,
+  getTestSupabaseAdmin,
   assertNoHorizontalScroll,
   assertTapTarget,
 } from './fixtures/test-helpers';
@@ -79,5 +81,81 @@ test.describe('Shop Detail Flow', () => {
       notFoundText.waitFor({ state: 'visible', timeout: 5000 }).catch(() => null),
       homeBtn.first().waitFor({ state: 'visible', timeout: 5000 }).catch(() => null),
     ]);
+  });
+
+  test('renders populated social media links with correct attributes', async ({ page }) => {
+    test.skip(!hasSupabaseCredentials, 'Skipping live shop seed test: Supabase test credentials not configured');
+
+    const admin = getTestSupabaseAdmin();
+    test.skip(!admin, 'Supabase admin client unavailable');
+
+    const testPlaceId = `test_social_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+    const shopName = 'Quán Cà Phê Social Test';
+    const fbUrl = 'https://facebook.com/quancafesocialtest';
+    const igUrl = 'https://instagram.com/quancafesocialtest';
+    const ttUrl = 'https://tiktok.com/@quancafesocialtest';
+
+    const { error: insertError } = await admin!.from('shops').insert({
+      place_id: testPlaceId,
+      name: shopName,
+      address: '123 Đường Test Social, Quận 1, TP.HCM',
+      lat: 10.7769,
+      lon: 106.7009,
+      rating: 4.5,
+      total_ratings: 10,
+      facebook_url: fbUrl,
+      instagram_url: igUrl,
+      tiktok_url: ttUrl,
+      hidden: false,
+      categories: ['catering.cafe']
+    });
+
+    if (insertError) {
+      console.warn('Failed to seed test shop with social links:', insertError);
+      test.skip(true, 'Failed to seed shop in database');
+      return;
+    }
+
+    try {
+      await page.goto(`/shop/${testPlaceId}`);
+      await assertNoHorizontalScroll(page);
+
+      // Verify header title is displayed
+      await expect(page.getByText('Kết nối với quán')).toBeVisible({ timeout: 10000 });
+
+      // Find the three social links
+      const fbLink = page.getByRole('link', { name: `Mở Facebook của ${shopName}` });
+      const igLink = page.getByRole('link', { name: `Mở Instagram của ${shopName}` });
+      const ttLink = page.getByRole('link', { name: `Mở TikTok của ${shopName}` });
+
+      await expect(fbLink).toBeVisible();
+      await expect(fbLink).toHaveAttribute('href', fbUrl);
+      await expect(fbLink).toHaveAttribute('target', '_blank');
+      await expect(fbLink).toHaveAttribute('rel', 'noopener noreferrer');
+
+      await expect(igLink).toBeVisible();
+      await expect(igLink).toHaveAttribute('href', igUrl);
+      await expect(igLink).toHaveAttribute('target', '_blank');
+      await expect(igLink).toHaveAttribute('rel', 'noopener noreferrer');
+
+      await expect(ttLink).toBeVisible();
+      await expect(ttLink).toHaveAttribute('href', ttUrl);
+      await expect(ttLink).toHaveAttribute('target', '_blank');
+      await expect(ttLink).toHaveAttribute('rel', 'noopener noreferrer');
+
+      // Unseeded social links should not render
+      await expect(page.getByRole('link', { name: /Mở YouTube của/i })).not.toBeVisible();
+      await expect(page.getByRole('link', { name: /Mở Zalo của/i })).not.toBeVisible();
+
+      // Check tap targets on mobile viewports
+      const viewport = page.viewportSize();
+      if (viewport && viewport.width < 768) {
+        await assertTapTarget(fbLink, 44);
+        await assertTapTarget(igLink, 44);
+        await assertTapTarget(ttLink, 44);
+      }
+    } finally {
+      await admin!.from('shops').delete().eq('place_id', testPlaceId);
+    }
   });
 });

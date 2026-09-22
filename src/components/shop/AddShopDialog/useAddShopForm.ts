@@ -14,6 +14,11 @@ export function useAddShopForm(defaultLat: number, defaultLon: number) {
       lon: defaultLon,
       phone: '',
       website: '',
+      facebook_url: '',
+      instagram_url: '',
+      tiktok_url: '',
+      youtube_url: '',
+      zalo_url: '',
       price_range: undefined,
       photos: [],
       opening_hours: {
@@ -48,6 +53,11 @@ export function useAddShopForm(defaultLat: number, defaultLon: number) {
       lon,
       phone: '',
       website: '',
+      facebook_url: '',
+      instagram_url: '',
+      tiktok_url: '',
+      youtube_url: '',
+      zalo_url: '',
       price_range: undefined,
       photos: [],
       opening_hours: {
@@ -65,6 +75,11 @@ export function useAddShopForm(defaultLat: number, defaultLon: number) {
       lon: shop.lon,
       phone: shop.phone || '',
       website: shop.website || '',
+      facebook_url: shop.facebook_url || '',
+      instagram_url: shop.instagram_url || '',
+      tiktok_url: shop.tiktok_url || '',
+      youtube_url: shop.youtube_url || '',
+      zalo_url: shop.zalo_url || '',
       price_range: (['₫', '₫₫', '₫₫₫', '₫₫₫₫'].includes(shop.price_range as any)
         ? (shop.price_range as PriceOption)
         : undefined),

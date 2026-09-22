@@ -32,6 +32,39 @@ export const amenitySchema = z.object({
   description: z.string().trim().max(500).default('')
 });
 
+/** Optional URL restricted to a specific domain (rejects typos & phishing). */
+export function socialUrl(domain: RegExp, label: string) {
+  return z
+    .string()
+    .trim()
+    .optional()
+    .nullable()
+    .refine(
+      (u) => !u || u.startsWith('http://') || u.startsWith('https://'),
+      `Link ${label} không hợp lệ`
+    )
+    .refine(
+      (u) => {
+        if (!u) return true;
+        try {
+          new URL(u);
+          return true;
+        } catch {
+          return false;
+        }
+      },
+      `Link ${label} không hợp lệ`
+    )
+    .refine((u) => !u || domain.test(u), `Link ${label} phải thuộc ${domain.source}`)
+    .transform((val) => (val && val.trim() ? val.trim() : null));
+}
+
+export const facebookUrl = socialUrl(/^https?:\/\/(www\.|m\.|web\.)?(facebook|fb)\.com\//i, 'Facebook');
+export const instagramUrl = socialUrl(/^https?:\/\/(www\.)?instagram\.com\//i, 'Instagram');
+export const tiktokUrl = socialUrl(/^https?:\/\/(www\.|m\.)?tiktok\.com\//i, 'TikTok');
+export const youtubeUrl = socialUrl(/^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\//i, 'YouTube');
+export const zaloUrl = socialUrl(/^https?:\/\/(www\.)?(zalo\.me|zalo\.com)\//i, 'Zalo');
+
 export const createShopSchema = z.object({
   name: z
     .string()
@@ -63,6 +96,11 @@ export const createShopSchema = z.object({
     .nullable()
     .or(z.literal(''))
     .transform((val) => (val && val.trim() ? val.trim() : null)),
+  facebook_url: facebookUrl,
+  instagram_url: instagramUrl,
+  tiktok_url: tiktokUrl,
+  youtube_url: youtubeUrl,
+  zalo_url: zaloUrl,
   price_range: z
     .enum(['₫', '₫₫', '₫₫₫', '₫₫₫₫'])
     .optional()

@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { checkRateLimit } from '@/lib/utils/rateLimit';
 
-const ALLOWED_FIELDS = new Set([
+export const ALLOWED_FIELDS = new Set([
   'name',
   'address',
   'lat',
@@ -16,9 +16,14 @@ const ALLOWED_FIELDS = new Set([
   'custom_amenities',
   'opening_hours',
   'photos',
+  'facebook_url',
+  'instagram_url',
+  'tiktok_url',
+  'youtube_url',
+  'zalo_url',
 ]);
 
-const DISALLOWED_FIELDS = new Set([
+export const DISALLOWED_FIELDS = new Set([
   'place_id',
   'created_by',
   'verified',
@@ -29,7 +34,7 @@ const DISALLOWED_FIELDS = new Set([
   'updated_at',
 ]);
 
-const suggestEditSchema = z.object({
+export const suggestEditSchema = z.object({
   shop_place_id: z.string().trim().min(1, 'Mã định danh quán không được để trống'),
   changes: z
     .record(
@@ -42,8 +47,8 @@ const suggestEditSchema = z.object({
     .refine((val) => Object.keys(val).length > 0, {
       message: 'Vui lòng đề xuất ít nhất một thay đổi',
     })
-    .refine((val) => Object.keys(val).length <= 3, {
-      message: 'Chỉ có thể đề xuất tối đa 3 thay đổi mỗi lần.',
+    .refine((val) => Object.keys(val).length <= 5, {
+      message: 'Chỉ có thể đề xuất tối đa 5 thay đổi mỗi lần.',
     })
     .refine(
       (val) => {

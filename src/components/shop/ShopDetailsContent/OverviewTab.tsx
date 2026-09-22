@@ -24,6 +24,7 @@ import { cn } from '@/lib/utils';
 import { cleanCategoryLabel } from '@/lib/utils/placeholders';
 import type { CoffeeShop } from '@/types/shop';
 import { SchedulePanel } from './SchedulePanel';
+import { SocialLinksRow } from './SocialLinksRow';
 import type { ComputedSchedule } from './types';
 
 export const OverviewTab = memo(function OverviewTab({
@@ -158,6 +159,9 @@ export const OverviewTab = memo(function OverviewTab({
           <span className='text-muted-foreground text-[11px]'>Chưa có đánh giá nào</span>
         </div>
       )}
+
+      {/* Social Media Links */}
+      <SocialLinksRow shop={shop} />
 
       {/* 3. Opening Hours & Contact Card */}
       <div className='bg-secondary/40 p-3.5 rounded-2xl border border-border/50 space-y-2.5 text-xs transition-all'>
