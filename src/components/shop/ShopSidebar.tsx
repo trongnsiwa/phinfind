@@ -1,12 +1,12 @@
 'use client';
 
-import { CheckCircle2, Heart, Navigation, Share2, X } from 'lucide-react';
+import { CheckCircle2, Heart, Navigation, X } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
-import { toast } from 'sonner';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { APP_ROUTES } from '@/lib/utils/constants';
 import { CoffeeShop } from '@/types/shop';
 import { useShopStore, closeActiveShop } from '@/stores/useShopStore';
 import { useToggleVisit, useShopDetails, VisitedShopItem } from '@/hooks/useShops';
@@ -14,6 +14,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
 import { VisitNoteDialog } from './VisitNoteDialog';
 import { ShopDetailsContent } from './ShopDetailsContent';
+import { ShareMenu } from './ShareMenu';
 
 export interface ShopSidebarProps {
   shop: CoffeeShop | null;
@@ -145,24 +146,10 @@ export function ShopSidebar({
     });
   };
 
-  const handleShare = (e?: React.MouseEvent) => {
-    e?.stopPropagation();
-    if (!activeShop || typeof window === 'undefined') return;
-    const url = `${window.location.origin}/?shop=${activeShop.id}`;
-
-    if (navigator.share) {
-      navigator
-        .share({
-          title: activeShop.name,
-          text: `Khám phá quán cà phê ${activeShop.name} trên PhinFind!`,
-          url
-        })
-        .catch(() => {});
-    } else {
-      navigator.clipboard.writeText(url);
-      toast.success('Đã sao chép liên kết vào bộ nhớ tạm!');
-    }
-  };
+  const canonicalShareUrl =
+    activeShop && typeof window !== 'undefined'
+      ? `${window.location.origin}${APP_ROUTES.SHOP_DETAIL(activeShop.place_id || activeShop.id)}`
+      : '';
 
   const getDirectionsUrl = () => {
     if (!activeShop) return '#';
@@ -297,17 +284,12 @@ export function ShopSidebar({
               </button>
 
               {/* 4. Share Button */}
-              <button
-                type='button'
-                onClick={handleShare}
-                onPointerDown={(e) => e.stopPropagation()}
-                aria-label='Chia sẻ'
-                title='Chia sẻ'
-                className='flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-full bg-secondary border border-border text-secondary-foreground hover:text-foreground hover:bg-accent hover:border-amber-gold/40 transition-all text-xs font-bold shadow-sm active:scale-95 min-h-[44px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background'
-              >
-                <Share2 size={15} className='text-amber-gold flex-shrink-0' />
-                <span className='truncate'>Chia sẻ</span>
-              </button>
+              <ShareMenu
+                url={canonicalShareUrl}
+                title={activeShop.name}
+                side='top'
+                align='end'
+              />
             </div>
           </div>
         </motion.aside>

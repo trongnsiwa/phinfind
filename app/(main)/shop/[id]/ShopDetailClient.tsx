@@ -10,10 +10,8 @@ import {
   Loader2,
   Navigation,
   RotateCcw,
-  Share2,
   CheckCircle2,
 } from 'lucide-react';
-import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardTitle } from '@/components/ui/card';
@@ -36,8 +34,9 @@ const VisitNoteDialog = dynamic(
 import { useAuth } from '@/hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
 import { useShopStore } from '@/stores/useShopStore';
-import { DEFAULT_LOCATION } from '@/lib/utils/constants';
+import { APP_ROUTES, DEFAULT_LOCATION } from '@/lib/utils/constants';
 import { cn } from '@/lib/utils';
+import { ShareMenu } from '@/components/shop/ShareMenu';
 import type { CoffeeShop } from '@/types/shop';
 
 interface ShopDetailClientProps {
@@ -118,31 +117,10 @@ export function ShopDetailClient({ shop: initialShop }: ShopDetailClientProps) {
     [shop, toggleVisit]
   );
 
-  // Native share or clipboard copy
-  const handleShare = useCallback(async () => {
-    if (!shop || typeof window === 'undefined') return;
-    const url = window.location.href;
-
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: shop.name,
-          text: `Khám phá quán cà phê ${shop.name} trên PhinFind`,
-          url,
-        });
-        return;
-      } catch (err: any) {
-        if (err?.name === 'AbortError') return;
-      }
-    }
-
-    try {
-      await navigator.clipboard.writeText(url);
-      toast.success('Đã sao chép liên kết vào bộ nhớ tạm!');
-    } catch {
-      toast.error('Không thể sao chép liên kết.');
-    }
-  }, [shop]);
+  const canonicalShareUrl =
+    shop && typeof window !== 'undefined'
+      ? `${window.location.origin}${APP_ROUTES.SHOP_DETAIL(shop.place_id || shop.id)}`
+      : '';
 
   if (error || !shop) {
     return (
@@ -305,16 +283,14 @@ export function ShopDetailClient({ shop: initialShop }: ShopDetailClientProps) {
           </button>
 
           {/* 5. Share Button */}
-          <button
-            type="button"
-            onClick={handleShare}
-            aria-label="Chia sẻ"
-            title="Chia sẻ"
-            className="flex items-center justify-center gap-1 sm:gap-1.5 py-2.5 px-1 sm:px-3 rounded-full bg-secondary border border-border text-secondary-foreground hover:text-foreground hover:bg-accent hover:border-amber-gold/40 transition-all text-xs font-bold shadow-sm active:scale-95 min-h-[44px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-          >
-            <Share2 size={15} className="text-amber-gold flex-shrink-0" />
-            <span className="hidden sm:inline">Chia sẻ</span>
-          </button>
+          <ShareMenu
+            url={canonicalShareUrl}
+            title={shop.name}
+            triggerClassName="gap-1 sm:gap-1.5 px-1 sm:px-3"
+            labelClassName="hidden sm:inline"
+            side="top"
+            align="end"
+          />
         </div>
       </div>
 

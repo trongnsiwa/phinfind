@@ -158,4 +158,87 @@ test.describe('Shop Detail Flow', () => {
       await admin!.from('shops').delete().eq('place_id', testPlaceId);
     }
   });
+
+  test('share menu opens dropdown with five items on desktop viewport', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/');
+    await assertNoHorizontalScroll(page);
+
+    const firstCard = page.locator('article, [class*="ShopCard"]').first();
+    const hasCards = await firstCard.waitFor({ state: 'visible', timeout: 8000 }).then(() => true).catch(() => false);
+
+    if (!hasCards) {
+      test.skip(true, 'No coffee shops available in database to open detail drawer');
+      return;
+    }
+
+    await firstCard.click();
+    await expect(page).toHaveURL(/[?&]shop=/);
+
+    const shareBtn = page.getByRole('button', { name: 'Chia sẻ' }).first();
+    await expect(shareBtn).toBeVisible({ timeout: 5000 });
+    await shareBtn.click();
+
+    // Verify 5 share options in dropdown
+    const fbItem = page.getByRole('menuitem', { name: /Chia sẻ qua Facebook|Facebook/i });
+    const xItem = page.getByRole('menuitem', { name: /Chia sẻ qua X|X \(Twitter\)/i });
+    const zaloItem = page.getByRole('menuitem', { name: /Chia sẻ qua Zalo|Zalo/i });
+    const tgItem = page.getByRole('menuitem', { name: /Chia sẻ qua Telegram|Telegram/i });
+    const copyItem = page.getByRole('menuitem', { name: 'Sao chép liên kết' });
+
+    await expect(fbItem).toBeVisible();
+    await expect(xItem).toBeVisible();
+    await expect(zaloItem).toBeVisible();
+    await expect(tgItem).toBeVisible();
+    await expect(copyItem).toBeVisible();
+
+    // Verify Facebook share link attributes without actually navigating
+    await expect(fbItem).toHaveAttribute('href', /facebook\.com\/sharer\/sharer\.php\?u=/);
+    await expect(fbItem).toHaveAttribute('target', '_blank');
+    await expect(fbItem).toHaveAttribute('rel', 'noopener noreferrer');
+  });
+
+  test('share button invokes native navigator.share on mobile viewport without showing dropdown', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+
+    // Mock native navigator.share before navigation
+    await page.addInitScript(() => {
+      (window as any).__sharedCalls = [];
+      Object.defineProperty(window.navigator, 'share', {
+        writable: true,
+        configurable: true,
+        value: async (data: any) => {
+          (window as any).__sharedCalls.push(data);
+          return Promise.resolve();
+        }
+      });
+    });
+
+    await page.goto('/');
+    await assertNoHorizontalScroll(page);
+
+    const firstCard = page.locator('article, [class*="ShopCard"]').first();
+    const hasCards = await firstCard.waitFor({ state: 'visible', timeout: 8000 }).then(() => true).catch(() => false);
+
+    if (!hasCards) {
+      test.skip(true, 'No coffee shops available in database to open detail drawer');
+      return;
+    }
+
+    await firstCard.click();
+    await expect(page).toHaveURL(/[?&]shop=/);
+
+    const shareBtn = page.getByRole('button', { name: 'Chia sẻ' }).first();
+    await expect(shareBtn).toBeVisible({ timeout: 5000 });
+    await shareBtn.click();
+
+    // Check that native navigator.share was invoked
+    const shareCalls = await page.evaluate(() => (window as any).__sharedCalls || []);
+    expect(shareCalls.length).toBeGreaterThan(0);
+    expect(shareCalls[0]).toHaveProperty('url');
+
+    // Check that dropdown menu is NOT visible
+    const fbItem = page.getByRole('menuitem', { name: /Facebook/i });
+    await expect(fbItem).not.toBeVisible();
+  });
 });
