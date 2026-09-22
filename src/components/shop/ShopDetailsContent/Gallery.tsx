@@ -47,6 +47,7 @@ export function Gallery({
             <ShopImage
               src={galleryPhotos[0]?.url}
               alt={galleryPhotos[0]?.title || shop.name}
+              priority
               fallback={<ShopCardPlaceholder shopId={shop.place_id || shop.id} shopName={shop.name} />}
               imageClassName='object-cover group-hover:scale-105 transition-transform duration-500 select-none pointer-events-auto [user-drag:none] [-webkit-user-drag:none]'
               sizes='(max-width: 640px) 100vw, (max-width: 1024px) 60vw, 40vw'
@@ -77,6 +78,7 @@ export function Gallery({
             <ShopImage
               src={galleryPhotos[0]?.url}
               alt={galleryPhotos[0]?.title || shop.name}
+              priority
               fallback={<ShopCardPlaceholder shopId={shop.place_id || shop.id} shopName={shop.name} />}
               imageClassName='object-cover group-hover:scale-105 transition-transform duration-500 select-none pointer-events-auto [user-drag:none] [-webkit-user-drag:none]'
               sizes='(max-width: 640px) 100vw, (max-width: 1024px) 60vw, 40vw'
@@ -128,6 +130,7 @@ export function Gallery({
             <ShopImage
               src={galleryPhotos[0]?.url}
               alt={galleryPhotos[0]?.title || shop.name}
+              priority
               fallback={<ShopCardPlaceholder shopId={shop.place_id || shop.id} shopName={shop.name} />}
               imageClassName='object-cover group-hover:scale-105 transition-transform duration-500 select-none pointer-events-auto [user-drag:none] [-webkit-user-drag:none]'
               sizes='(max-width: 640px) 100vw, (max-width: 1024px) 60vw, 40vw'

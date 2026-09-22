@@ -855,6 +855,7 @@ export function DiscoverClient() {
                     key={shop.id}
                     shop={shop}
                     isFavorite={isFav}
+                    priority={index === 0}
                     onToggleFavorite={handleToggleFav}
                     onSelect={setSelectedShop}
                   />
@@ -867,6 +868,7 @@ export function DiscoverClient() {
                   shop={shop}
                   size="small"
                   isFavorite={isFav}
+                  priority={index === 0}
                   onToggleFavorite={handleToggleFav}
                   onSelect={setSelectedShop}
                 />
@@ -883,6 +885,7 @@ export function DiscoverClient() {
                   shop={shop}
                   size={size}
                   isFavorite={isFav}
+                  priority={index === 0}
                   onToggleFavorite={handleToggleFav}
                   onSelect={setSelectedShop}
                 />
@@ -896,6 +899,7 @@ export function DiscoverClient() {
                   shop={shop}
                   size={size}
                   isFavorite={isFav}
+                  priority={index === 0}
                   onToggleFavorite={handleToggleFav}
                   onSelect={setSelectedShop}
                 />
@@ -909,6 +913,7 @@ export function DiscoverClient() {
                   shop={shop}
                   size={size}
                   isFavorite={isFav}
+                  priority={index === 0}
                   onToggleFavorite={handleToggleFav}
                   onSelect={setSelectedShop}
                 />
@@ -921,6 +926,7 @@ export function DiscoverClient() {
                 shop={shop}
                 size={size}
                 isFavorite={isFav}
+                priority={index === 0}
                 onToggleFavorite={handleToggleFav}
                 onSelect={setSelectedShop}
               />

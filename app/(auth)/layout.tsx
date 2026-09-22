@@ -48,7 +48,6 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                   width={40}
                   height={40}
                   className='w-7.5 h-7.5 object-contain'
-                  priority
                 />
               </div>
               <div>
@@ -113,7 +112,6 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                     width={48}
                     height={48}
                     className='w-9 h-9 object-contain'
-                    priority
                   />
                 </div>
                 <div>

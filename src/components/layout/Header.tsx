@@ -205,7 +205,6 @@ export function Header() {
                 width={36}
                 height={36}
                 className='w-8.5 h-8.5 sm:w-9 sm:h-9 rounded-2xl object-contain'
-                priority
               />
             </div>
             <div>

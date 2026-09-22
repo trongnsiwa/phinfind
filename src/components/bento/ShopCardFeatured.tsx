@@ -35,13 +35,15 @@ interface ShopCardFeaturedProps {
   isFavorite?: boolean;
   onToggleFavorite?: (placeId: string) => void;
   onSelect?: (shop: CoffeeShop) => void;
+  priority?: boolean;
 }
 
 export const ShopCardFeatured = memo(function ShopCardFeatured({
   shop,
   isFavorite = false,
   onToggleFavorite,
-  onSelect
+  onSelect,
+  priority = true
 }: ShopCardFeaturedProps) {
   const hasOpenInfo = shop.opening_hours?.open_now !== undefined;
   const isOpen = shop.opening_hours?.open_now ?? true;
@@ -96,6 +98,7 @@ export const ShopCardFeatured = memo(function ShopCardFeatured({
               <ShopImage
                 src={photo1}
                 alt={`${shop.name} - Ảnh chính`}
+                priority={priority}
                 fallback={<ShopCardPlaceholder shopId={shop.place_id || shop.id} shopName={shop.name} />}
                 imageClassName="object-cover group-hover:scale-106 transition-transform duration-700 ease-out"
                 sizes="(max-width: 640px) 60vw, 40vw"

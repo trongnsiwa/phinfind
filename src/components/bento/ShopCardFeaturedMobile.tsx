@@ -17,6 +17,7 @@ interface ShopCardFeaturedMobileProps {
   isFavorite?: boolean;
   onToggleFavorite?: (placeId: string) => void;
   onSelect?: (shop: CoffeeShop) => void;
+  priority?: boolean;
 }
 
 /**
@@ -40,6 +41,7 @@ export const ShopCardFeaturedMobile = memo(function ShopCardFeaturedMobile({
   isFavorite = false,
   onToggleFavorite,
   onSelect,
+  priority = true,
 }: ShopCardFeaturedMobileProps) {
   const [isHeartAnimating, setIsHeartAnimating] = useState(false);
 
@@ -91,6 +93,7 @@ export const ShopCardFeaturedMobile = memo(function ShopCardFeaturedMobile({
         <ShopImage
           src={coverImage}
           alt={shop.name}
+          priority={priority}
           fallback={<ShopCardPlaceholder shopId={shop.place_id || shop.id} shopName={shop.name} />}
           imageClassName="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500 ease-out"
           sizes="(max-width: 768px) 100vw, 33vw"

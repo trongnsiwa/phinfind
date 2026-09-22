@@ -66,6 +66,7 @@ const nextConfig: NextConfig = {
   devIndicators: false,
   turbopack: {},
   images: {
+    qualities: [75, 85],
     remotePatterns: [
       {
         protocol: 'https',

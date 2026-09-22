@@ -19,13 +19,15 @@ interface ShopCardMediumProps {
   isFavorite?: boolean;
   onToggleFavorite?: (placeId: string) => void;
   onSelect?: (shop: CoffeeShop) => void;
+  priority?: boolean;
 }
 
 export const ShopCardMedium = memo(function ShopCardMedium({
   shop,
   isFavorite = false,
   onToggleFavorite,
-  onSelect
+  onSelect,
+  priority = false
 }: ShopCardMediumProps) {
   const hasOpenInfo = shop.opening_hours?.open_now !== undefined;
   const isOpen = shop.opening_hours?.open_now ?? true;
@@ -70,6 +72,7 @@ export const ShopCardMedium = memo(function ShopCardMedium({
         <ShopImage
           src={coverImage}
           alt={shop.name}
+          priority={priority}
           fallback={<ShopCardPlaceholder shopId={shop.place_id || shop.id} shopName={shop.name} />}
           imageClassName='object-cover group-hover:scale-108 transition-transform duration-500 ease-out'
           sizes='(max-width: 640px) 40vw, 20vw'

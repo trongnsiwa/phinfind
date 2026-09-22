@@ -71,6 +71,7 @@ export function ShopImage({
         height={!fill ? height : undefined}
         sizes={fill ? sizes : undefined}
         priority={priority}
+        loading={priority ? 'eager' : 'lazy'}
         draggable={draggable}
         quality={85}
         unoptimized={unoptimized || src.startsWith('blob:') || src.startsWith('data:')}

@@ -10,7 +10,7 @@ import { JsonLd } from '@/components/seo/JsonLd';
 import { buildWebSiteJsonLd, buildOrganizationJsonLd } from '@/lib/seo/jsonLd';
 
 const inter = Inter({
-  subsets: ['latin'],
+  subsets: ['latin', 'vietnamese'],
   variable: '--font-inter',
   display: 'swap'
 });
@@ -127,7 +127,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           />
         )}
       </head>
-      <body className='min-h-screen bg-background text-foreground antialiased selection:bg-phin-200'>
+      <body className='min-h-screen bg-background text-foreground antialiased selection:bg-phin-200 font-sans'>
         <ThemeProvider>
           <ReactQueryProvider>
             {children}
