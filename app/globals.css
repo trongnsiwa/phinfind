@@ -566,6 +566,31 @@ body::-webkit-scrollbar-thumb:hover {
   border-bottom-color: var(--card) !important;
 }
 
+.leaflet-tooltip.custom-user-location-tooltip {
+  background: color-mix(in srgb, var(--card) 95%, transparent) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 9999px !important;
+  color: var(--foreground) !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  padding: 3px 10px !important;
+  font-family: inherit !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  line-height: 1.25 !important;
+  pointer-events: none !important;
+  user-select: none !important;
+}
+
+.leaflet-tooltip-top.custom-user-location-tooltip::before {
+  border-top-color: var(--card) !important;
+}
+
+.leaflet-tooltip-bottom.custom-user-location-tooltip::before {
+  border-bottom-color: var(--card) !important;
+}
+
 /* Selected Marker Subtle Pulse Ring Animation */
 /* Selected Marker Subtle Pulse Ring Animation */
 @keyframes pulse-ring-halo {

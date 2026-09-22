@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Tooltip, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
@@ -115,7 +115,7 @@ const userIcon = L.divIcon({
   `,
   iconSize: [32, 32],
   iconAnchor: [16, 16],
-  popupAnchor: [0, -16],
+  tooltipAnchor: [0, 0],
 });
 
 // Custom theme-adaptive cluster badge with bold text
@@ -342,13 +342,17 @@ export default function LeafletMapInner({
         <MapFocusController selectedShop={selectedShop} searchQuery={searchQuery} shops={shops} />
 
         {/* User Location Marker */}
-        <Marker position={center} icon={userIcon} title="Vị trí của bạn" zIndexOffset={800}>
-          <Popup className="custom-user-location-popup" closeButton={false} offset={[0, -10]}>
-            <div className="flex items-center gap-2 py-0.5 px-1 select-none">
-              <div className="w-2.5 h-2.5 rounded-full bg-sky-500 ring-4 ring-sky-500/20 flex-shrink-0 animate-pulse" />
-              <span className="font-bold text-xs text-foreground whitespace-nowrap">Vị trí của bạn</span>
+        <Marker position={center} icon={userIcon} title="Vị trí của bạn" alt="Vị trí của bạn" zIndexOffset={800}>
+          <Tooltip
+            direction="top"
+            offset={[0, -14]}
+            className="custom-user-location-tooltip"
+          >
+            <div className="flex items-center gap-1.5 select-none pointer-events-none">
+              <div className="w-2 h-2 rounded-full bg-sky-500 ring-2 ring-sky-500/25 flex-shrink-0 animate-pulse" />
+              <span className="font-semibold text-xs text-foreground whitespace-nowrap">Vị trí của bạn</span>
             </div>
-          </Popup>
+          </Tooltip>
         </Marker>
 
         {/* Clustered Shop Markers (Unselected spots) */}
