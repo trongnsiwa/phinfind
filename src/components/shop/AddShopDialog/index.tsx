@@ -331,7 +331,7 @@ export function AddShopDialog({ open, onOpenChange, onSuccess, shop }: AddShopDi
     <Dialog open={open} onOpenChange={onOpenChange}>
       {/* RESPONSIVE: multi-step forms use full-screen dialog on mobile per platform conventions. */}
       <DialogContent
-        className='fixed inset-0 left-0 top-0 translate-x-0 translate-y-0 w-full max-w-none h-[100dvh] max-h-[100dvh] rounded-none border-none p-0 flex flex-col overflow-hidden bg-card md:fixed md:left-[50%] md:top-[50%] md:translate-x-[-50%] md:translate-y-[-50%] md:inset-auto md:w-full md:max-w-2xl md:h-auto md:max-h-[92vh] md:rounded-3xl md:border md:border-border shadow-2xl [&>button:last-of-type]:hidden md:[&>button:last-of-type]:flex'
+        className='flex flex-col p-0 overflow-hidden bg-card w-full max-w-2xl h-auto max-h-[92vh] rounded-3xl sm:rounded-3xl border border-border shadow-2xl md:[&>button:last-of-type]:flex max-md:fixed max-md:inset-0 max-md:translate-x-0 max-md:translate-y-0 max-md:w-full max-md:max-w-none max-md:h-[100dvh] max-md:max-h-[100dvh] max-md:rounded-none max-md:border-none max-md:[&>button:last-of-type]:hidden'
         aria-describedby='add-shop-dialog-desc'
       >
         <AddShopDialogHeader
