@@ -69,10 +69,10 @@ export const ShopCardLarge = memo(function ShopCardLarge({
       onClick={() => onSelect?.(shop)}
       onKeyDown={handleKeyDown}
       // RESPONSIVE: col-span-1 at base; spans md:col-span-2 md:row-span-2 only on md+
-      className="col-span-1 md:col-span-2 md:row-span-2 w-full h-full card-glow-border bg-gradient-to-b from-card via-card to-secondary/30 rounded-2xl border border-border/80 shadow-card hover:shadow-card-hover hover:border-amber-gold/50 hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold transition-all duration-300 p-0 flex flex-col justify-between cursor-pointer group relative overflow-hidden"
+      className="col-span-1 md:col-span-2 md:row-span-2 w-full h-full card-glow-border bg-gradient-to-b from-card via-card to-secondary/30 rounded-2xl border border-border/80 shadow-card hover:shadow-card-hover hover:border-amber-gold/50 hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold transition-all duration-300 p-0 flex flex-col cursor-pointer group relative overflow-hidden"
     >
-      {/* 2-Column Magazine-Style Gallery - RESPONSIVE: aspect-[16/10] md:aspect-[16/9] fixed wrapper without flex-1 */}
-      <div className="relative w-full aspect-[16/10] md:aspect-[16/9] p-2.5 sm:p-3.5 flex gap-2.5 bg-muted/60 border-b border-border/60 overflow-hidden flex-shrink-0">
+      {/* 2-Column Magazine-Style Gallery - RESPONSIVE: aspect-[16/10] on mobile, fills remaining card height with flex-1 min-h-0 on md+ */}
+      <div className="relative w-full aspect-[16/10] md:aspect-auto md:flex-1 md:min-h-0 p-2.5 sm:p-3.5 flex gap-2.5 bg-muted/60 border-b border-border/60 overflow-hidden">
         {photo1 ? (
           <>
             {/* Left Column (60% Width) - Primary Image */}
@@ -172,8 +172,8 @@ export const ShopCardLarge = memo(function ShopCardLarge({
       </div>
 
       {/* Structured Content Area */}
-      {/* RESPONSIVE: CardContent uses flex-1 min-h-0 overflow-hidden so text truncates without expanding card */}
-      <CardContent className="flex-1 min-h-0 overflow-hidden p-2.5 sm:p-3 md:p-3.5 lg:p-4 space-y-2 flex flex-col justify-between">
+      {/* RESPONSIVE: CardContent uses flex-shrink-0 so content stays natural height without clipping and image fills remaining space */}
+      <CardContent className="flex-shrink-0 p-2.5 sm:p-3 md:p-3.5 lg:p-4 space-y-2 flex flex-col justify-between">
         {/* Section 1: Shop Name & Address */}
         <div>
           <h3 className="font-sans font-bold text-sm sm:text-base text-foreground tracking-tight line-clamp-1 truncate group-hover:text-amber-gold-hover transition-colors">
