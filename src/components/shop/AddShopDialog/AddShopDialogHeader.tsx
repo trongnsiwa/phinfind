@@ -10,9 +10,10 @@ import { Button } from '@/components/ui/button';
 interface AddShopDialogHeaderProps {
   isEditMode: boolean;
   onClose?: () => void;
+  disabled?: boolean;
 }
 
-export function AddShopDialogHeader({ isEditMode, onClose }: AddShopDialogHeaderProps) {
+export function AddShopDialogHeader({ isEditMode, onClose, disabled }: AddShopDialogHeaderProps) {
   return (
     <DialogHeader className='p-0 md:px-5 md:sm:px-6 md:pt-5 md:pb-3 border-b border-border/80 flex-shrink-0 h-14 md:h-auto flex items-center justify-between md:block bg-card'>
       {/* MOBILE ( < md ): Single compact row <= 56px with left title & 44x44 close button */}
@@ -25,9 +26,10 @@ export function AddShopDialogHeader({ isEditMode, onClose }: AddShopDialogHeader
             type='button'
             variant='ghost'
             size='icon'
+            disabled={disabled}
             onClick={onClose}
             aria-label='Đóng biểu mẫu'
-            className='w-11 h-11 min-h-[44px] min-w-[44px] p-0 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted active:scale-95 transition-all'
+            className='w-11 h-11 min-h-[44px] min-w-[44px] p-0 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted active:scale-95 transition-all disabled:pointer-events-none disabled:opacity-50'
           >
             <X size={18} />
           </Button>

@@ -80,6 +80,7 @@ export function AddShopDialog({ open, onOpenChange, onSuccess, shop }: AddShopDi
   } = useLocation();
   const { user, isAuthenticated } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploadingPhotos, setIsUploadingPhotos] = useState(false);
 
   const initialLat =
     typeof userLat === 'number' && !isNaN(userLat) && !isLocationFallback
@@ -153,6 +154,8 @@ export function AddShopDialog({ open, onOpenChange, onSuccess, shop }: AddShopDi
     handleFileUpload,
     handleAddPhoto,
     handleRemovePhoto,
+    handleSetCover,
+    uploadStagedPhotos,
     resetPhotos
   } = useShopPhotos({
     photos: watchedPhotos,
@@ -175,6 +178,8 @@ export function AddShopDialog({ open, onOpenChange, onSuccess, shop }: AddShopDi
         clearAllHours();
         setIsCustomPerDay(false);
       }
+    } else {
+      resetPhotos();
     }
   }, [open, shop, initialLat, initialLon]);
 
@@ -196,10 +201,12 @@ export function AddShopDialog({ open, onOpenChange, onSuccess, shop }: AddShopDi
   }, []);
 
   const handleCancel = () => {
+    if (isSubmitting || isUploadingPhotos) return;
     setIsCancelConfirmOpen(true);
   };
 
   const handleConfirmCancel = () => {
+    resetPhotos();
     setIsCancelConfirmOpen(false);
     onOpenChange(false);
   };
@@ -234,7 +241,24 @@ export function AddShopDialog({ open, onOpenChange, onSuccess, shop }: AddShopDi
       return;
     }
 
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      toast.error('Không có kết nối mạng. Vui lòng kiểm tra lại kết nối.');
+      return;
+    }
+
     setIsSubmitting(true);
+    setIsUploadingPhotos(true);
+
+    let finalPhotos: string[];
+    try {
+      finalPhotos = await uploadStagedPhotos();
+    } catch {
+      setIsSubmitting(false);
+      setIsUploadingPhotos(false);
+      return;
+    } finally {
+      setIsUploadingPhotos(false);
+    }
 
     try {
       const openingHoursPayload = {
@@ -260,7 +284,7 @@ export function AddShopDialog({ open, onOpenChange, onSuccess, shop }: AddShopDi
         custom_amenities: amenities
           .filter((a) => a.type === 'custom')
           .map((a) => ({ name: a.name, description: a.description })),
-        photos: data.photos,
+        photos: finalPhotos,
         opening_hours: openingHoursPayload
       };
 
@@ -288,6 +312,7 @@ export function AddShopDialog({ open, onOpenChange, onSuccess, shop }: AddShopDi
             onSuccess(response.data.shop);
           }
 
+          resetPhotos();
           onOpenChange(false);
         }
       } else {
@@ -333,7 +358,17 @@ export function AddShopDialog({ open, onOpenChange, onSuccess, shop }: AddShopDi
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen) {
+          if (isSubmitting || isUploadingPhotos) return;
+          handleCancel();
+        } else {
+          onOpenChange(true);
+        }
+      }}
+    >
       {/* RESPONSIVE: multi-step forms use full-screen dialog on mobile per platform conventions. */}
       <DialogContent
         className='flex flex-col p-0 overflow-hidden bg-card w-full max-w-2xl h-auto max-h-[92vh] rounded-3xl sm:rounded-3xl border border-border shadow-2xl md:[&>button:last-of-type]:flex max-md:fixed max-md:inset-0 max-md:translate-x-0 max-md:translate-y-0 max-md:w-full max-md:max-w-none max-md:h-[100dvh] max-md:max-h-[100dvh] max-md:rounded-none max-md:border-none max-md:[&>button:last-of-type]:hidden'
@@ -342,6 +377,7 @@ export function AddShopDialog({ open, onOpenChange, onSuccess, shop }: AddShopDi
         <AddShopDialogHeader
           isEditMode={isEditMode}
           onClose={handleCancel}
+          disabled={isSubmitting || isUploadingPhotos}
         />
 
         {/* Scrollable Form Body Container with Fade Mask */}
@@ -426,6 +462,8 @@ export function AddShopDialog({ open, onOpenChange, onSuccess, shop }: AddShopDi
               handleFileUpload={handleFileUpload}
               handleAddPhoto={handleAddPhoto}
               handleRemovePhoto={handleRemovePhoto}
+              handleSetCover={handleSetCover}
+              onPhotosChange={(photos) => setValue('photos', photos, { shouldValidate: true })}
             />
 
             <LivePreviewCard
@@ -454,6 +492,7 @@ export function AddShopDialog({ open, onOpenChange, onSuccess, shop }: AddShopDi
         <AddShopDialogFooter
           isEditMode={isEditMode}
           isSubmitting={isSubmitting}
+          isUploadingPhotos={isUploadingPhotos}
           isSubmitDisabled={!watchedName?.trim() || !watchedAddress?.trim()}
           onCancel={handleCancel}
         />

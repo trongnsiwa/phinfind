@@ -1,4 +1,4 @@
-import { Image, Link, Loader2, Plus, Trash2, Upload } from 'lucide-react';
+import { Image, Link, Loader2, Plus, Star, Trash2, Upload } from 'lucide-react';
 import type React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { ShopImage } from '@/components/common/ShopImage';
 import { cn } from '@/lib/utils';
 
-interface PhotosStepProps {
+export interface PhotosStepProps {
   photos: string[];
   fileInputRef: React.RefObject<HTMLInputElement | null>;
   isUploadingPhoto: boolean;
@@ -17,6 +17,8 @@ interface PhotosStepProps {
   handleFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
   handleAddPhoto: () => void;
   handleRemovePhoto: (index: number) => void;
+  handleSetCover?: (index: number) => void;
+  onPhotosChange?: (photos: string[]) => void;
 }
 
 export function PhotosStep({
@@ -29,8 +31,22 @@ export function PhotosStep({
   setNewPhotoUrl,
   handleFileUpload,
   handleAddPhoto,
-  handleRemovePhoto
+  handleRemovePhoto,
+  handleSetCover,
+  onPhotosChange
 }: PhotosStepProps) {
+  const onSetCover = (index: number) => {
+    if (handleSetCover) {
+      handleSetCover(index);
+      return;
+    }
+    if (index <= 0 || index >= photos.length) return;
+    const newPhotos = [...photos];
+    const temp = newPhotos[0];
+    newPhotos[0] = newPhotos[index];
+    newPhotos[index] = temp;
+    onPhotosChange?.(newPhotos);
+  };
   return (
     <div className='space-y-2.5 pt-1'>
       <div className='flex items-center justify-between'>
@@ -133,7 +149,7 @@ export function PhotosStep({
           <div className='grid grid-cols-3 sm:grid-cols-4 gap-2'>
             {photos.map((url, index) => (
               <div
-                key={index}
+                key={url}
                 className='relative aspect-video rounded-xl overflow-hidden bg-muted border border-border/80 group shadow-2xs'
               >
                 <ShopImage
@@ -142,10 +158,24 @@ export function PhotosStep({
                   imageClassName='object-cover group-hover:scale-105 transition-transform duration-200'
                   sizes='(max-width: 640px) 33vw, 25vw'
                 />
-                {index === 0 && (
+                {index === 0 ? (
                   <div className='absolute bottom-1 left-1 bg-black/75 text-amber-gold text-[9px] font-bold px-1.5 py-0.5 rounded-md backdrop-blur-xs z-10'>
                     Ảnh đại diện
                   </div>
+                ) : (
+                  <button
+                    type='button'
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSetCover(index);
+                    }}
+                    aria-label='Chọn làm ảnh đại diện'
+                    title='Chọn làm ảnh đại diện'
+                    className='absolute bottom-1 left-1 flex items-center gap-1 bg-black/75 hover:bg-black/90 text-amber-gold text-[9px] font-bold px-2 py-1 md:px-1.5 md:py-0.5 rounded-md backdrop-blur-xs z-10 transition-all cursor-pointer opacity-100 md:opacity-0 md:group-hover:opacity-100 shadow-sm min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 max-w-[calc(100%-8px)]'
+                  >
+                    <Star size={11} className='text-amber-gold shrink-0' />
+                    <span className='truncate'>Chọn làm ảnh đại diện</span>
+                  </button>
                 )}
                 <button
                   type='button'

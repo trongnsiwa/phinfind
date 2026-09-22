@@ -7,13 +7,15 @@ interface AddShopDialogFooterProps {
   isSubmitting: boolean;
   isSubmitDisabled: boolean;
   onCancel: () => void;
+  isUploadingPhotos?: boolean;
 }
 
 export function AddShopDialogFooter({
   isEditMode,
   isSubmitting,
   isSubmitDisabled,
-  onCancel
+  onCancel,
+  isUploadingPhotos
 }: AddShopDialogFooterProps) {
   return (
     <DialogFooter className='p-0 md:px-5 md:sm:px-6 md:py-3.5 md:border-t md:border-border/80 bg-card flex-shrink-0'>
@@ -23,7 +25,7 @@ export function AddShopDialogFooter({
           type='button'
           variant='outline'
           onClick={onCancel}
-          disabled={isSubmitting}
+          disabled={isSubmitting || isUploadingPhotos}
           className='flex-1 h-11 min-h-[44px] rounded-xl text-xs font-semibold border-input bg-secondary/50 text-foreground hover:bg-secondary cursor-pointer'
         >
           Hủy
@@ -31,10 +33,15 @@ export function AddShopDialogFooter({
         <Button
           type='submit'
           form='add-shop-form'
-          disabled={isSubmitting || isSubmitDisabled}
+          disabled={isSubmitting || isSubmitDisabled || isUploadingPhotos}
           className='flex-[2] h-11 min-h-[44px] rounded-xl text-xs font-bold bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground shadow-sm active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50'
         >
-          {isSubmitting ? (
+          {isUploadingPhotos ? (
+            <>
+              <Loader2 size={15} className='animate-spin' />
+              <span>Đang tải ảnh lên...</span>
+            </>
+          ) : isSubmitting ? (
             <>
               <Loader2 size={15} className='animate-spin' />
               <span>{isEditMode ? 'Đang lưu...' : 'Đang gửi...'}</span>
@@ -58,7 +65,7 @@ export function AddShopDialogFooter({
           type='button'
           variant='ghost'
           onClick={onCancel}
-          disabled={isSubmitting}
+          disabled={isSubmitting || isUploadingPhotos}
           className='rounded-xl text-xs h-9 px-4 cursor-pointer'
         >
           Hủy bỏ
@@ -66,10 +73,15 @@ export function AddShopDialogFooter({
         <Button
           type='submit'
           form='add-shop-form'
-          disabled={isSubmitting || isSubmitDisabled}
+          disabled={isSubmitting || isSubmitDisabled || isUploadingPhotos}
           className='bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground font-bold text-xs rounded-xl h-9 px-5 shadow-sm active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50'
         >
-          {isSubmitting ? (
+          {isUploadingPhotos ? (
+            <>
+              <Loader2 size={14} className='animate-spin' />
+              <span>Đang tải ảnh lên...</span>
+            </>
+          ) : isSubmitting ? (
             <>
               <Loader2 size={14} className='animate-spin' />
               <span>{isEditMode ? 'Đang lưu thay đổi...' : 'Đang gửi thông tin...'}</span>
