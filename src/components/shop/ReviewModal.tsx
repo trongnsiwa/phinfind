@@ -1,9 +1,19 @@
 'use client';
 
 import React, { useState, useRef, useMemo, useEffect } from 'react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Star, Camera, ImagePlus, Loader2, Send, X, Edit3 } from 'lucide-react';
+import { Star, Camera, ImagePlus, Loader2, PenLine, X, Edit3 } from 'lucide-react';
 import { ShopImage } from '@/components/common/ShopImage';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -14,6 +24,25 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { APP_ROUTES } from '@/lib/utils/constants';
 import { CoffeeShop } from '@/types/shop';
+
+export const RATING_DESCRIPTORS: Record<number, string> = {
+  1: 'Rất tệ',
+  2: 'Tệ',
+  3: 'Bình thường',
+  4: 'Ngon',
+  5: 'Xuất sắc',
+};
+
+export const PRESET_QUICK_TAGS = [
+  'Wi-Fi mạnh',
+  'Yên tĩnh',
+  'View đẹp',
+  'Mở khuya',
+  'Có chỗ đỗ xe',
+  'Thú cưng',
+  'Làm việc',
+  'Hẹn hò',
+] as const;
 
 export interface ReviewItem {
   id?: string;
@@ -26,6 +55,7 @@ export interface ReviewItem {
   highlight?: string;
   comment: string;
   images?: string[];
+  tags?: string[];
   isUserSubmission?: boolean;
   like_count?: number;
   liked_by_me?: boolean;
@@ -57,27 +87,98 @@ export function ReviewModal({
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState('');
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
   const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Sync state when modal opens or closes
+  // Sync state when modal opens or closes, and reset guard state
   useEffect(() => {
+    setShowCancelConfirm(false);
     if (open) {
       if (existingReview) {
         setRating(existingReview.rating || 5);
         setComment(existingReview.comment || '');
         setUploadedImages(existingReview.images || []);
+        setSelectedTags(existingReview.tags || []);
       } else {
         setRating(5);
         setComment('');
         setUploadedImages([]);
+        setSelectedTags([]);
       }
     }
     setFormError('');
     setIsSubmitting(false);
   }, [open, existingReview]);
+
+  const hasUnsavedChanges = useMemo(() => {
+    if (existingReview) {
+      const origComment = (existingReview.comment || '').trim();
+      const origRating = existingReview.rating || 5;
+      const origImages = existingReview.images || [];
+      const origTags = existingReview.tags || [];
+      const imagesChanged =
+        uploadedImages.length !== origImages.length ||
+        uploadedImages.some((img, i) => img !== origImages[i]);
+      const tagsChanged =
+        selectedTags.length !== origTags.length ||
+        selectedTags.some((t, i) => t !== origTags[i]);
+      return (
+        comment.trim() !== origComment ||
+        rating !== origRating ||
+        imagesChanged ||
+        tagsChanged
+      );
+    }
+    return (
+      comment.trim().length > 0 ||
+      rating !== 5 ||
+      uploadedImages.length > 0 ||
+      selectedTags.length > 0
+    );
+  }, [existingReview, comment, rating, uploadedImages, selectedTags]);
+
+  const handleRequestClose = () => {
+    if (isSubmitting) return;
+    if (hasUnsavedChanges) {
+      setShowCancelConfirm(true);
+    } else {
+      handleConfirmCancel();
+    }
+  };
+
+  const handleConfirmCancel = () => {
+    setShowCancelConfirm(false);
+    if (existingReview) {
+      setRating(existingReview.rating || 5);
+      setComment(existingReview.comment || '');
+      setUploadedImages(existingReview.images || []);
+      setSelectedTags(existingReview.tags || []);
+    } else {
+      setRating(5);
+      setComment('');
+      setUploadedImages([]);
+      setSelectedTags([]);
+    }
+    setFormError('');
+    setIsSubmitting(false);
+    onOpenChange(false);
+  };
+
+  const handleToggleTag = (tag: string) => {
+    if (selectedTags.includes(tag)) {
+      setSelectedTags((prev) => prev.filter((t) => t !== tag));
+    } else {
+      if (selectedTags.length >= 3) {
+        toast.info('Chỉ chọn tối đa 3 thẻ');
+        return;
+      }
+      setSelectedTags((prev) => [...prev, tag]);
+    }
+  };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -186,7 +287,10 @@ export function ReviewModal({
           comment: comment.trim(),
           images: uploadedImages,
           shop_place_id: placeId,
-        });
+          tags: selectedTags,
+        } as any);
+        setSelectedTags([]);
+        setShowCancelConfirm(false);
         onOpenChange(false);
       } catch {
         // Handled by mutation toast
@@ -205,6 +309,7 @@ export function ReviewModal({
           rating,
           comment: comment.trim(),
           images: uploadedImages,
+          tags: selectedTags,
         }),
       });
 
@@ -236,13 +341,16 @@ export function ReviewModal({
         highlight: 'Đánh giá của bạn',
         comment: comment.trim(),
         images: returned?.images || uploadedImages,
+        tags: selectedTags,
         isUserSubmission: true,
       };
 
       setComment('');
       setRating(5);
       setUploadedImages([]);
+      setSelectedTags([]);
       setFormError('');
+      setShowCancelConfirm(false);
       onOpenChange(false);
 
       queryClient.invalidateQueries({ queryKey: ['shops', 'reviews', placeId] });
@@ -259,9 +367,32 @@ export function ReviewModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen) {
+          handleRequestClose();
+        } else {
+          onOpenChange(true);
+        }
+      }}
+    >
       {/* RESPONSIVE: w-[94vw] sm:w-full and p-4 sm:p-6 ensure clean margins at 320px */}
-      <DialogContent className='w-[94vw] sm:w-full max-w-md p-4 sm:p-6 bg-card border-border shadow-2xl rounded-2xl sm:rounded-3xl'>
+      <DialogContent
+        onPointerDownOutside={(e) => {
+          if (hasUnsavedChanges) {
+            e.preventDefault();
+            handleRequestClose();
+          }
+        }}
+        onEscapeKeyDown={(e) => {
+          if (hasUnsavedChanges) {
+            e.preventDefault();
+            handleRequestClose();
+          }
+        }}
+        className='w-[94vw] sm:w-full max-w-md p-4 sm:p-6 bg-card border-border shadow-2xl rounded-2xl sm:rounded-3xl'
+      >
         <DialogHeader className='space-y-1 text-left border-b border-border/50 pb-3 pr-6'>
           <div className='flex items-center gap-2.5'>
             <div className='w-8 h-8 rounded-xl bg-amber-gold/15 border border-amber-gold/30 flex items-center justify-center text-amber-gold shadow-xs flex-shrink-0'>
@@ -306,48 +437,51 @@ export function ReviewModal({
           )}
 
           {/* Star Rating Picker */}
-          <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-secondary/40 p-3 rounded-xl border border-border/50'>
-            <span className='text-xs font-semibold text-foreground flex items-center gap-1'>
-              <span>Đánh giá tổng quan</span>
-              <span className='text-rose-500'>*</span>
-            </span>
-            <div className='flex items-center gap-1 sm:gap-1.5'>
-              <div
-                role='radiogroup'
-                aria-label='Chọn số sao đánh giá'
-                className='flex items-center gap-0.5 sm:gap-1'
-              >
-                {[1, 2, 3, 4, 5].map((star) => {
-                  const active = (hoverRating || rating) >= star;
-                  return (
-                    // RESPONSIVE: 44px minimum tap target zone with p-1.5 for touch accessibility
-                    <button
-                      key={star}
-                      type='button'
-                      role='radio'
-                      aria-checked={rating === star}
-                      aria-label={`Đánh giá ${star} sao`}
-                      onClick={() => setRating(star)}
-                      onMouseEnter={() => setHoverRating(star)}
-                      onMouseLeave={() => setHoverRating(0)}
-                      className='min-w-[44px] min-h-[44px] flex items-center justify-center p-1.5 rounded-lg text-amber-gold hover:scale-125 active:scale-95 transition-transform duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold cursor-pointer touch-manipulation'
-                    >
-                      <Star
-                        size={24}
-                        className={cn(
-                          'transition-colors duration-150',
-                          active
-                            ? 'fill-amber-gold text-amber-gold drop-shadow-[0_1px_2px_rgba(184,134,11,0.25)]'
-                            : 'text-muted-foreground/30 hover:text-amber-gold/50'
-                        )}
-                      />
-                    </button>
-                  );
-                })}
-              </div>
-              <span className='text-xs font-bold text-foreground ml-1.5 min-w-[38px] text-right bg-background/80 px-2 py-0.5 rounded-md border border-border/60'>
-                {hoverRating || rating} / 5
+          <div className='bg-secondary/40 p-3 rounded-xl border border-border/50 space-y-2'>
+            {/* Row 1: Header row with label on the left and fixed-width descriptor pill on the right */}
+            <div className='flex items-center justify-between'>
+              <span className='text-xs font-semibold text-foreground flex items-center gap-1 whitespace-nowrap shrink-0'>
+                <span>Đánh giá</span>
+                <span className='text-rose-500'>*</span>
               </span>
+              <span className='text-xs font-semibold text-amber-gold w-24 min-w-[96px] text-center bg-amber-gold/10 px-2.5 py-1 rounded-full border border-amber-gold/30 whitespace-nowrap shrink-0 transition-colors'>
+                {RATING_DESCRIPTORS[hoverRating || rating] || 'Xuất sắc'}
+              </span>
+            </div>
+
+            {/* Row 2: Five-star picker taking full width, justified to start */}
+            <div
+              role='radiogroup'
+              aria-label='Chọn số sao đánh giá'
+              className='flex items-center justify-start gap-1 w-full'
+            >
+              {[1, 2, 3, 4, 5].map((star) => {
+                const active = (hoverRating || rating) >= star;
+                return (
+                  // RESPONSIVE: 44px minimum tap target zone with p-1.5 for touch accessibility
+                  <button
+                    key={star}
+                    type='button'
+                    role='radio'
+                    aria-checked={rating === star}
+                    aria-label={`Đánh giá ${star} sao`}
+                    onClick={() => setRating(star)}
+                    onMouseEnter={() => setHoverRating(star)}
+                    onMouseLeave={() => setHoverRating(0)}
+                    className='min-w-[44px] min-h-[44px] flex items-center justify-center p-1.5 rounded-lg text-amber-gold hover:scale-125 active:scale-95 transition-transform duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-gold cursor-pointer touch-manipulation'
+                  >
+                    <Star
+                      size={24}
+                      className={cn(
+                        'transition-colors duration-150',
+                        active
+                          ? 'fill-amber-gold text-amber-gold drop-shadow-[0_1px_2px_rgba(184,134,11,0.25)]'
+                          : 'text-muted-foreground/30 hover:text-amber-gold/50'
+                      )}
+                    />
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -369,9 +503,11 @@ export function ReviewModal({
                     : 'text-muted-foreground'
                 )}
               >
-                {comment.trim().length < 3
-                  ? `Tối thiểu 3 ký tự (${comment.trim().length}/3)`
-                  : `${comment.trim().length} ký tự`}
+                {comment.trim().length === 0
+                  ? 'Chia sẻ cảm nhận của bạn'
+                  : comment.trim().length < 3
+                    ? `Cần thêm ${3 - comment.trim().length} ký tự`
+                    : `${comment.trim().length} ký tự`}
               </span>
             </div>
             <textarea
@@ -395,6 +531,38 @@ export function ReviewModal({
                 <span>{formError}</span>
               </p>
             )}
+          </div>
+
+          {/* Quick-tag Chips */}
+          <div className='space-y-1.5'>
+            <div className='flex items-center justify-between'>
+              <span className='text-xs font-semibold text-foreground'>
+                Thẻ nhanh (tùy chọn)
+              </span>
+              <span className='text-[10px] text-muted-foreground font-medium'>
+                {selectedTags.length}/3
+              </span>
+            </div>
+            <div className='flex flex-wrap items-center gap-1.5'>
+              {PRESET_QUICK_TAGS.map((tag) => {
+                const isSelected = selectedTags.includes(tag);
+                return (
+                  <button
+                    key={tag}
+                    type='button'
+                    onClick={() => handleToggleTag(tag)}
+                    className={cn(
+                      'inline-flex items-center justify-center px-3 py-1.5 min-h-[44px] sm:min-h-[32px] rounded-full border text-xs font-medium transition-colors cursor-pointer select-none',
+                      isSelected
+                        ? 'bg-amber-gold text-primary-foreground border-amber-gold'
+                        : 'bg-secondary text-muted-foreground border-border hover:text-foreground hover:bg-secondary/80'
+                    )}
+                  >
+                    {tag}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Image Upload Section */}
@@ -444,8 +612,8 @@ export function ReviewModal({
                     <Loader2 size={16} className='animate-spin text-amber-gold' />
                   ) : (
                     <>
-                      <ImagePlus size={16} className='text-amber-gold' />
-                      <span className='text-[9px] font-semibold'>Thêm ảnh</span>
+                  <ImagePlus size={16} className='text-amber-gold' />
+                  <span className='text-[9px] font-semibold'>Thêm ảnh</span>
                     </>
                   )}
                 </button>
@@ -468,7 +636,7 @@ export function ReviewModal({
               type='button'
               variant='ghost'
               size='sm'
-              onClick={() => onOpenChange(false)}
+              onClick={handleRequestClose}
               disabled={isSubmitting}
               className='text-xs text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl px-4 h-9 font-medium cursor-pointer transition-colors'
             >
@@ -486,7 +654,7 @@ export function ReviewModal({
                 </>
               ) : (
                 <>
-                  <Send size={13} />
+                  <PenLine size={13} />
                   <span>{existingReview ? 'Lưu thay đổi' : 'Gửi đánh giá'}</span>
                 </>
               )}
@@ -494,6 +662,36 @@ export function ReviewModal({
           </div>
         </form>
       </DialogContent>
+
+      {/* Unsaved Changes Confirmation Dialog */}
+      <AlertDialog open={showCancelConfirm} onOpenChange={setShowCancelConfirm}>
+        <AlertDialogContent className='bg-card text-card-foreground border-border w-[calc(100vw-2rem)] max-w-sm sm:max-w-md mx-auto p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:p-6'>
+          <AlertDialogHeader className='space-y-2 text-center'>
+            <AlertDialogTitle className='text-base font-bold text-foreground text-center'>
+              Hủy bỏ đánh giá?
+            </AlertDialogTitle>
+            <AlertDialogDescription className='text-sm text-muted-foreground leading-relaxed text-center'>
+              Bạn có chắc muốn hủy? Nội dung đã nhập sẽ bị mất.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className='flex-col gap-2 sm:flex-row sm:justify-end sm:gap-2.5 mt-2 sm:mt-0'>
+            {/* Safe action: continue editing, primary visually prominent (amber-gold) */}
+            <AlertDialogCancel
+              autoFocus
+              className='order-1 sm:order-2 w-full sm:w-auto h-11 min-h-[44px] px-4 rounded-xl text-sm font-bold bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground border-transparent shadow-sm'
+            >
+              Tiếp tục
+            </AlertDialogCancel>
+            {/* Destructive action: discard changes, subtle outline styling */}
+            <AlertDialogAction
+              onClick={handleConfirmCancel}
+              className='order-2 sm:order-1 w-full sm:w-auto h-11 min-h-[44px] px-4 rounded-xl text-sm font-semibold bg-transparent border border-border text-foreground hover:bg-destructive/10 hover:text-destructive hover:border-destructive/40 shadow-none'
+            >
+              Hủy bỏ
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 }
