@@ -6,6 +6,8 @@ import { Inter } from 'next/font/google';
 import { ReactQueryProvider } from '@/components/providers/ReactQueryProvider';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { Toaster } from '@/components/ui/sonner';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { buildWebSiteJsonLd, buildOrganizationJsonLd } from '@/lib/seo/jsonLd';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -13,8 +15,11 @@ const inter = Inter({
   display: 'swap'
 });
 
+const PRODUCTION_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://phinfind.vercel.app';
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'),
+  metadataBase: new URL(PRODUCTION_URL),
+  applicationName: 'PhinFind',
   title: {
     default: 'PhinFind - Khám phá Cà phê Việt',
     template: '%s | PhinFind'
@@ -32,11 +37,42 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   icons: {
     icon: [
+      { url: '/favicon-48x48.png', sizes: '48x48', type: 'image/png' },
+      { url: '/logo-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/logo-512.png', sizes: '512x512', type: 'image/png' },
       { url: '/favicon.svg', type: 'image/svg+xml' },
       { url: '/favicon.ico', sizes: 'any' }
     ],
-    shortcut: '/logo-192.png',
-    apple: '/logo-192.png'
+    shortcut: '/favicon-48x48.png',
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+      { url: '/logo-192.png', sizes: '192x192', type: 'image/png' }
+    ]
+  },
+  openGraph: {
+    title: 'PhinFind - Khám phá Cà phê Việt',
+    description:
+      'Khám phá những quán cà phê tuyệt vời nhất gần bạn với bản đồ tương tác và đánh giá chi tiết',
+    url: PRODUCTION_URL,
+    siteName: 'PhinFind',
+    locale: 'vi_VN',
+    type: 'website',
+    images: [
+      {
+        url: '/logo-512.png',
+        width: 512,
+        height: 512,
+        alt: 'PhinFind - Bản đồ Cà phê Việt'
+      }
+    ]
+  },
+  twitter: {
+    card: 'summary_large_image',
+    site: '@phinfind',
+    title: 'PhinFind - Khám phá Cà phê Việt',
+    description:
+      'Khám phá những quán cà phê tuyệt vời nhất gần bạn với bản đồ tương tác và đánh giá chi tiết',
+    images: ['/logo-512.png']
   },
   appleWebApp: {
     capable: true,
@@ -45,13 +81,6 @@ export const metadata: Metadata = {
   },
   formatDetection: {
     telephone: false
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'PhinFind - Khám phá Cà phê Việt',
-    description:
-      'Khám phá những quán cà phê tuyệt vời nhất gần bạn với bản đồ tương tác và đánh giá chi tiết',
-    images: ['/logo-512.png']
   }
 };
 
@@ -65,11 +94,18 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const websiteJsonLd = buildWebSiteJsonLd(PRODUCTION_URL);
+  const organizationJsonLd = buildOrganizationJsonLd(PRODUCTION_URL);
+
   return (
     <html lang='vi' className={`${inter.variable}`} suppressHydrationWarning>
       <head>
+        <JsonLd data={[websiteJsonLd, organizationJsonLd]} />
+        <link rel='icon' type='image/png' sizes='48x48' href='/favicon-48x48.png' />
+        <link rel='icon' type='image/png' sizes='192x192' href='/logo-192.png' />
+        <link rel='icon' type='image/png' sizes='512x512' href='/logo-512.png' />
         <link rel='icon' href='/favicon.svg' type='image/svg+xml' />
-        <link rel='icon' href='/favicon.ico' sizes='any' />
+        <link rel='shortcut icon' href='/favicon.ico' />
         <link rel='apple-touch-icon' href='/apple-touch-icon.png' />
         {/* Unregister service workers and clear caches in development to ensure fresh server HTML */}
         {process.env.NODE_ENV === 'development' && (

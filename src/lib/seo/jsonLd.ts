@@ -78,3 +78,43 @@ export function buildBreadcrumbJsonLd(
     })),
   };
 }
+
+export function buildWebSiteJsonLd(baseUrl: string): Record<string, unknown> {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${baseUrl}/#website`,
+    name: 'PhinFind',
+    alternateName: 'PhinFind - Bản đồ Cà phê Việt',
+    url: baseUrl,
+    inLanguage: 'vi-VN',
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${baseUrl}/?q={search_term_string}`,
+      },
+      'query-input': 'required name=search_term_string',
+    },
+  };
+}
+
+export function buildOrganizationJsonLd(baseUrl: string): Record<string, unknown> {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    '@id': `${baseUrl}/#organization`,
+    name: 'PhinFind',
+    url: baseUrl,
+    logo: {
+      '@type': 'ImageObject',
+      url: `${baseUrl}/logo-512.png`,
+      width: 512,
+      height: 512,
+    },
+    description:
+      'Nền tảng bản đồ cà phê Việt, giúp khám phá các quán cà phê chuẩn gu, xem đánh giá thực tế và chia sẻ trải nghiệm.',
+    areaServed: 'VN',
+  };
+}
+

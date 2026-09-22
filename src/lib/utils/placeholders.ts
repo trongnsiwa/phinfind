@@ -52,6 +52,10 @@ export function cleanCategoryLabel(raw: string): string {
     .replace(/^catering\./i, '')
     .replace(/^catering/i, '')
     .replace(/^cafe\./i, '')
+    .replace(/^building\./i, '')
+    .replace(/^building/i, '')
+    .replace(/^commercial\./i, '')
+    .replace(/^amenity\./i, '')
     .replace(/_/g, ' ')
     .replace(/\./g, ' ')
     .trim();
@@ -60,7 +64,26 @@ export function cleanCategoryLabel(raw: string): string {
   if (CATEGORY_TRANSLATIONS[lower]) {
     return CATEGORY_TRANSLATIONS[lower];
   }
-  if (['cafe', 'coffee', 'catering', 'coffee shop', 'internet access', 'cafe coffee'].includes(lower)) {
+  if (
+    [
+      'cafe',
+      'coffee',
+      'catering',
+      'coffee shop',
+      'internet access',
+      'cafe coffee',
+      'building',
+      'building catering',
+      'building commercial',
+      'commercial',
+      'amenity',
+      'restaurant',
+      'catering restaurant',
+      'fast food',
+      'food',
+    ].includes(lower) ||
+    !stripped
+  ) {
     return '';
   }
   return stripped.charAt(0).toUpperCase() + stripped.slice(1);

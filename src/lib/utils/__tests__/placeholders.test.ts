@@ -26,6 +26,10 @@ describe('Placeholders Utility', () => {
       expect(cleanCategoryLabel('coffee')).toBe('');
       expect(cleanCategoryLabel('catering')).toBe('');
       expect(cleanCategoryLabel('coffee shop')).toBe('');
+      expect(cleanCategoryLabel('building')).toBe('');
+      expect(cleanCategoryLabel('building.catering')).toBe('');
+      expect(cleanCategoryLabel('commercial')).toBe('');
+      expect(cleanCategoryLabel('amenity')).toBe('');
     });
   });
 
