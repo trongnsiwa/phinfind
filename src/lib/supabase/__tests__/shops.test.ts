@@ -285,5 +285,63 @@ describe('Supabase Shops Helpers', () => {
       expect(result.shops).toEqual([]);
       expect(result.total).toBe(0);
     });
+
+    it('enriches social links from shops table when RPC returns rows lacking social columns', async () => {
+      const mockRpc = vi.fn().mockImplementation((fnName: string) => {
+        if (fnName === 'nearby_shops') {
+          return Promise.resolve({
+            data: [
+              {
+                place_id: 'shop-no-social-in-rpc',
+                name: 'Quán Cà Phê Mới',
+                lat: 21.03,
+                lon: 105.85,
+                photos: ['https://example.com/p.jpg'],
+                distance_meters: 100,
+                hidden: false,
+              },
+            ],
+            error: null,
+          });
+        }
+        if (fnName === 'nearby_shops_count') {
+          return Promise.resolve({ data: 1, error: null });
+        }
+        return Promise.resolve({ data: null, error: null });
+      });
+
+      const mockFrom = vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          in: vi.fn().mockResolvedValue({
+            data: [
+              {
+                place_id: 'shop-no-social-in-rpc',
+                facebook_url: 'https://facebook.com/cafemoi',
+                instagram_url: 'https://instagram.com/cafemoi',
+                tiktok_url: null,
+                youtube_url: null,
+                zalo_url: null,
+              },
+            ],
+            error: null,
+          }),
+        }),
+      });
+
+      const mockSupabase = { rpc: mockRpc, from: mockFrom } as any;
+
+      const result = await fetchNearbyShopsRpc(mockSupabase, {
+        lat: 21.0285,
+        lng: 105.8542,
+        radiusKm: null,
+        limit: 10,
+        offset: 0,
+      });
+
+      expect(mockFrom).toHaveBeenCalledWith('shops');
+      expect(result.shops[0].facebook_url).toBe('https://facebook.com/cafemoi');
+      expect(result.shops[0].instagram_url).toBe('https://instagram.com/cafemoi');
+      expect(result.shops[0].tiktok_url).toBeNull();
+    });
   });
 });

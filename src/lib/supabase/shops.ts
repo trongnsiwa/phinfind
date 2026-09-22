@@ -193,6 +193,39 @@ export async function fetchNearbyShopsRpc(
     return { shops: [], total };
   }
 
+  // Gracefully enrich social media links if the SQL RPC does not return them
+  if (
+    rows.length > 0 &&
+    !('facebook_url' in rows[0]) &&
+    typeof (supabase as any).from === 'function'
+  ) {
+    try {
+      const { data: socialData } = await supabase
+        .from('shops')
+        .select('place_id, facebook_url, instagram_url, tiktok_url, youtube_url, zalo_url')
+        .in(
+          'place_id',
+          rows.map((r: any) => r.place_id)
+        );
+
+      if (socialData) {
+        const socialMap = new Map(socialData.map((s: any) => [s.place_id, s]));
+        for (const row of rows) {
+          const social = socialMap.get(row.place_id);
+          if (social) {
+            row.facebook_url = social.facebook_url;
+            row.instagram_url = social.instagram_url;
+            row.tiktok_url = social.tiktok_url;
+            row.youtube_url = social.youtube_url;
+            row.zalo_url = social.zalo_url;
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('[fetchNearbyShopsRpc] Failed to enrich social links:', err);
+    }
+  }
+
   const needsCover = rows
     .filter((r) => !Array.isArray(r.photos) || r.photos.length === 0)
     .map((r) => r.place_id);

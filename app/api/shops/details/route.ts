@@ -38,6 +38,24 @@ export async function GET(request: NextRequest) {
     }
 
     const shop = mapDbShopToCoffeeShop(data, userLat, userLng, communityCover);
+
+    console.log('[API /api/shops/details] Raw Supabase row social fields:', {
+      place_id: data.place_id,
+      facebook_url: data.facebook_url,
+      instagram_url: data.instagram_url,
+      tiktok_url: data.tiktok_url,
+      youtube_url: data.youtube_url,
+      zalo_url: data.zalo_url,
+    });
+    console.log('[API /api/shops/details] Mapped CoffeeShop social fields:', {
+      place_id: shop.place_id,
+      facebook_url: shop.facebook_url,
+      instagram_url: shop.instagram_url,
+      tiktok_url: shop.tiktok_url,
+      youtube_url: shop.youtube_url,
+      zalo_url: shop.zalo_url,
+    });
+
     return NextResponse.json({ shop });
   } catch (error) {
     console.error('API Error in /api/shops/details:', error);

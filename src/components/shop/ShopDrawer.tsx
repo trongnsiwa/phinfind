@@ -8,7 +8,7 @@ import { Drawer as DrawerPrimitive } from 'vaul';
 import { cn } from '@/lib/utils';
 import { CoffeeShop } from '@/types/shop';
 import { useShopStore, closeActiveShop } from '@/stores/useShopStore';
-import { useToggleVisit, VisitedShopItem } from '@/hooks/useShops';
+import { useToggleVisit, useShopDetails, VisitedShopItem } from '@/hooks/useShops';
 import { useAuth } from '@/hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
 import { VisitNoteDialog } from './VisitNoteDialog';
@@ -34,17 +34,24 @@ export function ShopDrawer({
   isVisited
 }: ShopDrawerProps) {
   const [displayedShop, setDisplayedShop] = useState<CoffeeShop | null>(shop);
+  const targetPlaceId =
+    isOpen && (displayedShop?.place_id || displayedShop?.id)
+      ? displayedShop.place_id || displayedShop.id
+      : '';
+  const { data: detailShop } = useShopDetails(targetPlaceId);
+  const activeShop = detailShop ?? displayedShop;
+
   const [isHeartAnimating, setIsHeartAnimating] = useState(false);
   const [isVisitAnimating, setIsVisitAnimating] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const storeIsFavorite = useShopStore((state) =>
-    displayedShop ? state.favorites.includes(displayedShop.place_id) : false
+    activeShop ? state.favorites.includes(activeShop.place_id) : false
   );
   const currentIsFavorite = isFavorite !== undefined ? isFavorite : storeIsFavorite;
 
   const storeIsVisited = useShopStore((state) =>
-    displayedShop ? state.visits.includes(displayedShop.place_id) : false
+    activeShop ? state.visits.includes(activeShop.place_id) : false
   );
   const currentIsVisited = isVisited !== undefined ? isVisited : storeIsVisited;
 
@@ -54,7 +61,7 @@ export function ShopDrawer({
 
   const visitsData = queryClient.getQueryData<VisitedShopItem[]>(['user', 'visits', user?.id]);
   const existingVisit = visitsData?.find(
-    (v) => v.shop_place_id === (displayedShop?.place_id || displayedShop?.id)
+    (v) => v.shop_place_id === (activeShop?.place_id || activeShop?.id)
   );
   const existingNote = existingVisit?.note || null;
 
@@ -112,23 +119,23 @@ export function ShopDrawer({
 
   const handleFavoriteClick = (e?: React.MouseEvent) => {
     e?.stopPropagation();
-    if (!displayedShop) return;
+    if (!activeShop) return;
     setIsHeartAnimating(true);
     setTimeout(() => setIsHeartAnimating(false), 300);
-    onToggleFavorite?.(displayedShop.place_id);
+    onToggleFavorite?.(activeShop.place_id);
   };
 
   const handleVisitClick = (e?: React.MouseEvent) => {
     e?.stopPropagation();
-    if (!displayedShop) return;
+    if (!activeShop) return;
     setIsVisitAnimating(true);
     setTimeout(() => setIsVisitAnimating(false), 300);
 
     if (currentIsVisited) {
       if (onToggleVisit) {
-        onToggleVisit(displayedShop.place_id || displayedShop.id);
+        onToggleVisit(activeShop.place_id || activeShop.id);
       } else {
-        toggleVisitMutation(displayedShop.place_id || displayedShop.id);
+        toggleVisitMutation(activeShop.place_id || activeShop.id);
       }
     } else {
       setIsNoteDialogOpen(true);
@@ -136,24 +143,24 @@ export function ShopDrawer({
   };
 
   const handleConfirmVisitNote = (note: string | null) => {
-    if (!displayedShop) return;
-    toggleVisitMutation(displayedShop.place_id || displayedShop.id, {
-      name: displayedShop.name,
-      address: displayedShop.address,
+    if (!activeShop) return;
+    toggleVisitMutation(activeShop.place_id || activeShop.id, {
+      name: activeShop.name,
+      address: activeShop.address,
       note,
     });
   };
 
   const handleShare = (e?: React.MouseEvent) => {
     e?.stopPropagation();
-    if (!displayedShop || typeof window === 'undefined') return;
-    const url = `${window.location.origin}/?shop=${displayedShop.id}`;
+    if (!activeShop || typeof window === 'undefined') return;
+    const url = `${window.location.origin}/?shop=${activeShop.id}`;
 
     if (navigator.share) {
       navigator
         .share({
-          title: displayedShop.name,
-          text: `Khám phá quán cà phê ${displayedShop.name} trên PhinFind!`,
+          title: activeShop.name,
+          text: `Khám phá quán cà phê ${activeShop.name} trên PhinFind!`,
           url
         })
         .catch(() => {});
@@ -164,11 +171,11 @@ export function ShopDrawer({
   };
 
   const getDirectionsUrl = () => {
-    if (!displayedShop) return '#';
-    return `https://www.google.com/maps/dir/?api=1&destination=${displayedShop.lat},${displayedShop.lon}`;
+    if (!activeShop) return '#';
+    return `https://www.google.com/maps/dir/?api=1&destination=${activeShop.lat},${activeShop.lon}`;
   };
 
-  if (!displayedShop) return null;
+  if (!displayedShop || !activeShop) return null;
 
   return (
     <DrawerPrimitive.Root
@@ -212,7 +219,7 @@ export function ShopDrawer({
 
           <div className='flex-1 min-h-0 flex flex-col overflow-hidden relative'>
             <ShopDetailsContent
-              shop={displayedShop}
+              shop={activeShop}
               isSidebar={false}
               scrollRef={scrollContainerRef}
               hideInlineActions={true}
@@ -313,11 +320,11 @@ export function ShopDrawer({
         </DrawerPrimitive.Content>
       </DrawerPrimitive.Portal>
 
-      {displayedShop && (
+      {activeShop && (
         <VisitNoteDialog
           open={isNoteDialogOpen}
           onOpenChange={setIsNoteDialogOpen}
-          shop={displayedShop}
+          shop={activeShop}
           existingNote={existingNote}
           onConfirm={handleConfirmVisitNote}
         />

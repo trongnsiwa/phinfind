@@ -246,7 +246,8 @@ export async function PATCH(request: NextRequest) {
 
       for (const [key, diff] of Object.entries(changes)) {
         if (ALLOWED_FIELDS.has(key) && !DISALLOWED_FIELDS.has(key)) {
-          shopUpdates[key] = (diff as any)?.to;
+          const val = (diff as any)?.to;
+          shopUpdates[key] = typeof val === 'string' && !val.trim() ? null : val;
         }
       }
 
