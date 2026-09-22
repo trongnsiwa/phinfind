@@ -74,26 +74,3 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 ## Verification
 
 - Run `rtk pnpm lint` and `rtk pnpm typecheck` before finishing any implementation tasks.
-
----
-
-## Codebase Exploration & Discovery Protocol
-
-- **Primary Action:** ALWAYS execute granular Graphify query tools (`query_graph`, `shortest_path`, or `get_node`) before invoking any other search tools.
-- **Context Window Protection:** You are strictly PROHIBITED from reading `graphify-out/GRAPH_REPORT.md` or raw `graph.json` files during initial discovery. Massive file reads that flood the context window must be avoided.
-- **Tool Fallback Cascade:**
-  1. **Graphify Primitives:** Run focused semantic queries, path relations, or node explanations first.
-  2. **CodeGraph Index:** If Graphify returns zero nodes or insufficient context, query the CodeGraph repository index next to resolve symbols and dependencies.
-  3. **Native Search:** You may fall back to native search (`grep_search`) ONLY if both Graphify and CodeGraph return no matches, or to confirm isolated line numbers.
-- **Penalty:** Skipping this specific execution chain or using raw text-grepping before checking structural indices is heavily penalized.
-- **Static File Exception:** The graph-first execution chain applies strictly to codebase architecture, source code files, and symbol resolutions. Looking up localized text, translation arrays (`*.json`), or static configurations bypasses this chain directly to native search.
-
-<!-- BEGIN:nextjs-agent-rules -->
-
-## This is NOT the Next.js you know
-
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
-
-This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
-
-<!-- END:nextjs-agent-rules -->
