@@ -20,6 +20,7 @@ export const ALLOWED_FIELDS = new Set([
   'tiktok_url',
   'youtube_url',
   'zalo_url',
+  'videos',
 ]);
 
 export const DISALLOWED_FIELDS = new Set([

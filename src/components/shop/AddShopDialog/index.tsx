@@ -21,6 +21,7 @@ import { BasicInfoStep } from './BasicInfoStep';
 import { ContactStep } from './ContactStep';
 import { LivePreviewCard } from './LivePreviewCard';
 import { PriceStep } from './PriceStep';
+import { VideosStep } from './VideosStep';
 
 const LocationStep = dynamic(
   () => import('./LocationStep').then((mod) => mod.LocationStep),
@@ -102,6 +103,7 @@ export function AddShopDialog({ open, onOpenChange, onSuccess, shop }: AddShopDi
     watchedName,
     watchedAddress,
     watchedPhotos,
+    watchedVideos,
     watchedPrice,
     watchedOpenNow
   } = useAddShopForm(initialLat, initialLon);
@@ -285,6 +287,7 @@ export function AddShopDialog({ open, onOpenChange, onSuccess, shop }: AddShopDi
           .filter((a) => a.type === 'custom')
           .map((a) => ({ name: a.name, description: a.description })),
         photos: finalPhotos,
+        videos: data.videos ?? [],
         opening_hours: openingHoursPayload
       };
 
@@ -464,6 +467,11 @@ export function AddShopDialog({ open, onOpenChange, onSuccess, shop }: AddShopDi
               handleRemovePhoto={handleRemovePhoto}
               handleSetCover={handleSetCover}
               onPhotosChange={(photos) => setValue('photos', photos, { shouldValidate: true })}
+            />
+
+            <VideosStep
+              videos={watchedVideos}
+              onVideosChange={(videos) => setValue('videos', videos, { shouldValidate: true })}
             />
 
             <LivePreviewCard

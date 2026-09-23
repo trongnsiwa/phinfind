@@ -44,6 +44,7 @@ const ReviewsTab = dynamic(
   { ssr: false, loading: () => null }
 );
 import { TabBar } from './TabBar';
+import { VideosTab } from './VideosTab';
 import type {
   AmenitiesTabProps,
   ComputedSchedule,
@@ -91,7 +92,7 @@ export const ShopDetailsContent = memo(function ShopDetailsContent({
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isNoteDialogOpen, setIsNoteDialogOpen] = useState(false);
   const [isSuggestDialogOpen, setIsSuggestDialogOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'photos' | 'reviews' | 'amenities'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'photos' | 'reviews' | 'amenities' | 'videos'>('overview');
   const isFirstRender = useRef(true);
 
   const isOwner = Boolean(user && shop.created_by && user.id === shop.created_by);
@@ -255,6 +256,10 @@ export const ShopDetailsContent = memo(function ShopDetailsContent({
 
         <TabsContent value='amenities' className='mt-0 focus-visible:outline-none'>
           <AmenitiesTab shop={shop} />
+        </TabsContent>
+
+        <TabsContent value='videos' className='mt-0 focus-visible:outline-none'>
+          <VideosTab shop={shop} />
         </TabsContent>
       </div>
 

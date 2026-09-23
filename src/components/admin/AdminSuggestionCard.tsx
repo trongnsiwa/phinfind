@@ -44,6 +44,7 @@ const FIELD_LABELS: Record<string, string> = {
   tiktok_url: 'TikTok',
   youtube_url: 'YouTube',
   zalo_url: 'Zalo',
+  videos: 'Video',
 };
 
 function formatFieldValue(key: string, val: any): string {
@@ -55,8 +56,13 @@ function formatFieldValue(key: string, val: any): string {
       return val.open_now ? 'Đang mở cửa' : 'Đã đóng cửa';
     }
   }
+  if (key === 'videos' && Array.isArray(val)) {
+    return val.length > 0 ? `${val.length} video` : '(Trống)';
+  }
   if (Array.isArray(val)) {
-    return val.length > 0 ? val.join(', ') : '(Trống)';
+    if (val.length === 0) return '(Trống)';
+    if (typeof val[0] === 'object') return `${val.length} mục`;
+    return val.join(', ');
   }
   return String(val);
 }

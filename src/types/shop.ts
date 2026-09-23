@@ -20,6 +20,17 @@ export interface ShopAmenity {
   description: string; // user-editable description
 }
 
+export type VideoPlatform = 'tiktok' | 'youtube' | 'instagram' | 'facebook';
+
+export interface ShopVideo {
+  url: string;
+  platform: VideoPlatform;
+  video_id: string;
+  title?: string;
+  thumbnail_url?: string;
+  added_at?: string;
+}
+
 export interface CoffeeShop {
   id: string;
   place_id: string;
@@ -34,6 +45,7 @@ export interface CoffeeShop {
   opening_hours?: OpeningHours;
   price_range?: '₫' | '₫₫' | '₫₫₫' | '₫₫₫₫';
   photos?: string[];
+  videos?: ShopVideo[];
   website?: string;
   phone?: string;
   facebook_url?: string | null;

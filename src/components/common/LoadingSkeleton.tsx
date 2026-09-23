@@ -247,13 +247,14 @@ export function DetailSkeleton() {
             </div>
           </div>
 
-          {/* 4 Skeleton Navigation Tabs (Tổng quan, Hình ảnh, Đánh giá, Tiện ích) */}
+          {/* 5 Skeleton Navigation Tabs (Tổng quan, Hình ảnh, Đánh giá, Tiện ích, Video) */}
           <div className='pt-2 border-b border-border/60'>
-            <div className='flex items-center justify-between gap-3 pb-2'>
-              <Skeleton className='h-6 w-20 rounded-lg bg-amber-gold/25' />
-              <Skeleton className='h-6 w-20 rounded-lg bg-secondary/60' />
-              <Skeleton className='h-6 w-20 rounded-lg bg-secondary/60' />
-              <Skeleton className='h-6 w-20 rounded-lg bg-secondary/60' />
+            <div className='flex items-center justify-between gap-1.5 sm:gap-2 pb-2'>
+              <Skeleton className='h-6 flex-1 rounded-lg bg-amber-gold/25' />
+              <Skeleton className='h-6 flex-1 rounded-lg bg-secondary/60' />
+              <Skeleton className='h-6 flex-1 rounded-lg bg-secondary/60' />
+              <Skeleton className='h-6 flex-1 rounded-lg bg-secondary/60' />
+              <Skeleton className='h-6 flex-1 rounded-lg bg-secondary/60' />
             </div>
           </div>
 

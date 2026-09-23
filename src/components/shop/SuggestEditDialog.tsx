@@ -1,8 +1,11 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { ArrowRight, Info, Loader2, Sparkles } from 'lucide-react';
-import { CoffeeShop } from '@/types/shop';
+import axios from 'axios';
+import { ArrowRight, Info, Loader2, Plus, Sparkles, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
+import type { CoffeeShop, ShopVideo } from '@/types/shop';
+import { parseVideoUrl } from '@/lib/utils/video';
 import { useSuggestEdit, useUserVisits } from '@/hooks/useShops';
 import {
   Dialog,
@@ -107,6 +110,9 @@ export function SuggestEditDialog({ open, onOpenChange, shop }: SuggestEditDialo
   const [zalo, setZalo] = useState('');
   const [priceRange, setPriceRange] = useState<string>('');
   const [openNow, setOpenNow] = useState<boolean>(true);
+  const [videos, setVideos] = useState<ShopVideo[]>([]);
+  const [newVideoUrl, setNewVideoUrl] = useState('');
+  const [isVideoLoading, setIsVideoLoading] = useState(false);
   const [reason, setReason] = useState('');
 
   // Initialize/reset form with current shop values
@@ -123,9 +129,53 @@ export function SuggestEditDialog({ open, onOpenChange, shop }: SuggestEditDialo
       setZalo(shop.zalo_url || '');
       setPriceRange(shop.price_range || '');
       setOpenNow(shop.opening_hours?.open_now ?? true);
+      setVideos(shop.videos || []);
+      setNewVideoUrl('');
+      setIsVideoLoading(false);
       setReason('');
     }
   }, [open, shop]);
+
+  const handleAddVideo = async () => {
+    const trimmed = newVideoUrl.trim();
+    if (!trimmed) return;
+    if (videos.length >= 6) {
+      toast.error('Tối đa 6 video cho mỗi quán');
+      return;
+    }
+    const parsed = parseVideoUrl(trimmed);
+    if (!parsed) {
+      toast.error('Đường dẫn video không hợp lệ', {
+        description: 'Vui lòng dán link từ TikTok, YouTube, Instagram hoặc Facebook.'
+      });
+      return;
+    }
+    if (
+      videos.some(
+        (v) =>
+          v.url === trimmed ||
+          (v.platform === parsed.platform && v.video_id === parsed.video_id)
+      )
+    ) {
+      toast.error('Video này đã có trong danh sách');
+      return;
+    }
+
+    setIsVideoLoading(true);
+    try {
+      const response = await axios.post<ShopVideo>('/api/videos/resolve', { url: trimmed });
+      setVideos([...videos, response.data]);
+      setNewVideoUrl('');
+    } catch {
+      toast.error('Không thể xử lý link video');
+    } finally {
+      setIsVideoLoading(false);
+    }
+  };
+
+  const handleRemoveVideo = (index: number) => {
+    setVideos(videos.filter((_, i) => i !== index));
+  };
 
   // Compute diffs against current values
   const diffs = useMemo(() => {
@@ -191,8 +241,42 @@ export function SuggestEditDialog({ open, onOpenChange, shop }: SuggestEditDialo
       };
     }
 
+    const currentVideos = shop.videos || [];
+    const isVideosDifferent =
+      videos.length !== currentVideos.length ||
+      videos.some((v, idx) => {
+        const cur = currentVideos[idx];
+        return (
+          !cur ||
+          v.url !== cur.url ||
+          v.platform !== cur.platform ||
+          v.video_id !== cur.video_id
+        );
+      });
+
+    if (isVideosDifferent) {
+      changes.videos = {
+        from: currentVideos,
+        to: videos,
+      };
+    }
+
     return changes;
-  }, [name, address, phone, website, facebook, instagram, tiktok, youtube, zalo, priceRange, openNow, shop]);
+  }, [
+    name,
+    address,
+    phone,
+    website,
+    facebook,
+    instagram,
+    tiktok,
+    youtube,
+    zalo,
+    priceRange,
+    openNow,
+    videos,
+    shop
+  ]);
 
   const changedKeys = Object.keys(diffs);
   const changedCount = changedKeys.length;
@@ -406,6 +490,69 @@ export function SuggestEditDialog({ open, onOpenChange, shop }: SuggestEditDialo
                 {openNow ? 'Đang mở cửa' : 'Đã đóng cửa'}
               </span>
               <Switch checked={openNow} onCheckedChange={setOpenNow} />
+            </div>
+          </DiffRow>
+
+          <DiffRow
+            label="Video"
+            currentDisplay={`${(shop.videos || []).length} video`}
+            isChanged={Boolean(diffs.videos)}
+          >
+            <div className="space-y-2">
+              <div className="text-xs font-semibold text-foreground flex items-center justify-between">
+                <span>Đề xuất ({videos.length}/6 video)</span>
+              </div>
+              {videos.length > 0 && (
+                <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
+                  {videos.map((v, i) => (
+                    <div
+                      key={`${v.platform}-${v.video_id}-${i}`}
+                      className="flex items-center justify-between gap-1.5 p-1.5 rounded-lg bg-background border border-border/50 text-xs"
+                    >
+                      <span className="truncate flex-1 font-medium">{v.title || v.url}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveVideo(i)}
+                        className="text-muted-foreground hover:text-destructive p-1 rounded transition-colors"
+                        aria-label={`Xóa video ${i + 1}`}
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {videos.length < 6 && (
+                <div className="flex items-center gap-1.5">
+                  <Input
+                    value={newVideoUrl}
+                    onChange={(e) => setNewVideoUrl(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleAddVideo();
+                      }
+                    }}
+                    placeholder="Dán link video..."
+                    className="h-8 text-xs bg-background"
+                    disabled={isVideoLoading}
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={handleAddVideo}
+                    disabled={isVideoLoading || !newVideoUrl.trim()}
+                    className="h-8 px-2.5 text-xs bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground shrink-0"
+                  >
+                    {isVideoLoading ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Plus size={13} />
+                    )}
+                  </Button>
+                </div>
+              )}
             </div>
           </DiffRow>
 

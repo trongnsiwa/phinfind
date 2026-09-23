@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%" fill="none">
+  <defs>
+    <!-- Soft Elevation Shadow -->
+    <filter id="soft-shadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#5A4A3A" flood-opacity="0.10" />
+    </filter>
+
+    <!-- Gradients -->
+    <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4A328" />
+      <stop offset="100%" stop-color="#B8860B" />
+    </linearGradient>
+    <linearGradient id="cream-card" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#F8F5F0" />
+    </linearGradient>
+  </defs>
+
+  <!-- Sharp Diamond Sparkles -->
+  <path d="M 154 36 L 156 42 L 162 44 L 156 46 L 154 52 L 152 46 L 146 44 L 152 42 Z" fill="url(#gold-grad)" />
+  <circle cx="42" cy="56" r="3" fill="#B8860B" opacity="0.5" />
+  <circle cx="162" cy="152" r="2.5" fill="#B8860B" opacity="0.4" />
+
+  <!-- Back Card (Tilted 9:16 Video Canvas) -->
+  <g transform="rotate(-8 100 102)">
+    <rect x="66" y="44" width="68" height="114" rx="8" fill="#EFE8DC" stroke="#5A4A3A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.7" />
+  </g>
+
+  <!-- Main 9:16 Vertical Video Frame -->
+  <g filter="url(#soft-shadow)">
+    <!-- Phone / Video Card Body -->
+    <rect x="64" y="40" width="72" height="120" rx="10" fill="url(#cream-card)" stroke="#5A4A3A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+
+    <!-- Video Inner Screen -->
+    <rect x="72" y="52" width="56" height="88" rx="4" fill="#F4EFE6" stroke="#DCD2C3" stroke-width="1.5" />
+
+    <!-- Camera notch / speaker bar -->
+    <rect x="92" y="45" width="16" height="3" rx="1.5" fill="#5A4A3A" />
+
+    <!-- Play Icon Circle & Triangle -->
+    <circle cx="100" cy="92" r="16" fill="#FAF6EE" stroke="url(#gold-grad)" stroke-width="2.5" />
+    <polygon points="96,84 108,92 96,100" fill="url(#gold-grad)" />
+
+    <!-- Progress / Subtitle Lines -->
+    <line x1="78" y1="126" x2="98" y2="126" stroke="#D8CDBC" stroke-width="2.5" stroke-linecap="round" />
+    <line x1="104" y1="126" x2="122" y2="126" stroke="#D8CDBC" stroke-width="2.5" stroke-linecap="round" />
+  </g>
+
+  <!-- Empty Indicator Badge (Sharp Square with Slash) -->
+  <g filter="url(#soft-shadow)">
+    <rect x="122" y="116" width="32" height="32" rx="4" fill="url(#cream-card)" stroke="#5A4A3A" stroke-width="3" stroke-linejoin="round" />
+    <rect x="128" y="122" width="20" height="20" stroke="url(#gold-grad)" stroke-width="2" stroke-dasharray="3 3" fill="none" />
+    <line x1="126" y1="144" x2="150" y2="120" stroke="#B8860B" stroke-width="3" stroke-linecap="round" />
+  </g>
+</svg>

@@ -4,11 +4,24 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 
-export type IllustrationType = 'no-photos' | 'no-reviews' | 'add-photo' | 'no-hours';
+export type IllustrationType = 'no-photos' | 'no-reviews' | 'add-photo' | 'no-hours' | 'no-videos';
 
 interface IllustrationProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   size?: number | string;
   className?: string;
+}
+
+export function NoVideosIllustration({ size = 160, className, ...props }: IllustrationProps) {
+  return (
+    <img
+      src="/illustrations/no-videos.svg"
+      alt="Chưa có video"
+      width={size}
+      height={size}
+      className={cn('select-none pointer-events-none object-contain drop-shadow-md', className)}
+      {...props}
+    />
+  );
 }
 
 export function NoPhotosIllustration({ size = 160, className, ...props }: IllustrationProps) {
@@ -75,6 +88,8 @@ export function EmptyIllustration({
   className?: string;
 } & React.ImgHTMLAttributes<HTMLImageElement>) {
   switch (type) {
+    case 'no-videos':
+      return <NoVideosIllustration size={size} className={className} {...props} />;
     case 'no-photos':
       return <NoPhotosIllustration size={size} className={className} {...props} />;
     case 'no-reviews':

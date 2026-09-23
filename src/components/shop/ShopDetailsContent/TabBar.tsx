@@ -41,6 +41,12 @@ export function TabBar({ onTabChange, isStandalone }: TabBarProps) {
           >
             Tiện ích
           </TabsTrigger>
+          <TabsTrigger
+            value='videos'
+            className='flex-1 min-h-[44px] md:min-h-[40px] pb-2 pt-1 px-1 font-semibold text-xs text-muted-foreground hover:text-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none transition-all cursor-pointer relative z-10 flex items-center justify-center'
+          >
+            Video
+          </TabsTrigger>
         </TabsList>
         {/* Separator line flush with the bottom of the tabs */}
         <div className='absolute bottom-0 left-0 right-0 border-b border-border/50 pointer-events-none' />

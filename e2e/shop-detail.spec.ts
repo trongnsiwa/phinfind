@@ -159,6 +159,86 @@ test.describe('Shop Detail Flow', () => {
     }
   });
 
+  test('renders populated videos on the Video tab with correct attributes', async ({ page }) => {
+    test.skip(!hasSupabaseCredentials, 'Skipping live shop seed test: Supabase test credentials not configured');
+
+    const admin = getTestSupabaseAdmin();
+    test.skip(!admin, 'Supabase admin client unavailable');
+
+    const testPlaceId = `test_videos_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+    const shopName = 'Quán Cà Phê Video Test';
+    const ytVideo = {
+      url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+      platform: 'youtube',
+      video_id: 'dQw4w9WgXcQ',
+      title: 'Giới thiệu quán YouTube',
+      thumbnail_url: 'https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg'
+    };
+    const ttVideo = {
+      url: 'https://www.tiktok.com/@cafesaigon/video/7123456789012345678',
+      platform: 'tiktok',
+      video_id: '7123456789012345678',
+      title: 'Review TikTok quán cà phê',
+      thumbnail_url: 'https://p16-sign-va.tiktokcdn.com/tos-maliva-p-0068/thumb.jpeg'
+    };
+
+    const { error: insertError } = await admin!.from('shops').insert({
+      place_id: testPlaceId,
+      name: shopName,
+      address: '456 Đường Test Video, Quận 1, TP.HCM',
+      lat: 10.7769,
+      lon: 106.7009,
+      rating: 4.8,
+      total_ratings: 15,
+      videos: [ytVideo, ttVideo],
+      hidden: false,
+      categories: ['catering.cafe']
+    });
+
+    if (insertError) {
+      console.warn('Failed to seed test shop with videos:', insertError);
+      test.skip(true, 'Failed to seed shop in database');
+      return;
+    }
+
+    try {
+      await page.goto(`/shop/${testPlaceId}`);
+      await assertNoHorizontalScroll(page);
+
+      // Switch to Video tab
+      const videoTabTrigger = page.getByRole('tab', { name: 'Video' });
+      await expect(videoTabTrigger).toBeVisible({ timeout: 10000 });
+      await videoTabTrigger.click();
+
+      // Find the two video card links
+      const ytLink = page.getByRole('link', { name: new RegExp(ytVideo.title, 'i') });
+      const ttLink = page.getByRole('link', { name: new RegExp(ttVideo.title, 'i') });
+
+      await expect(ytLink).toBeVisible();
+      await expect(ytLink).toHaveAttribute('href', ytVideo.url);
+      await expect(ytLink).toHaveAttribute('target', '_blank');
+      await expect(ytLink).toHaveAttribute('rel', 'noopener noreferrer');
+
+      await expect(ttLink).toBeVisible();
+      await expect(ttLink).toHaveAttribute('href', ttVideo.url);
+      await expect(ttLink).toHaveAttribute('target', '_blank');
+      await expect(ttLink).toHaveAttribute('rel', 'noopener noreferrer');
+
+      // Assert platform badges inside cards
+      await expect(ytLink.getByText('YouTube')).toBeVisible();
+      await expect(ttLink.getByText('TikTok')).toBeVisible();
+
+      // Check tap targets on mobile viewports
+      const viewport = page.viewportSize();
+      if (viewport && viewport.width < 768) {
+        await assertTapTarget(ytLink, 44);
+        await assertTapTarget(ttLink, 44);
+      }
+    } finally {
+      await admin!.from('shops').delete().eq('place_id', testPlaceId);
+    }
+  });
+
   test('share menu opens dropdown with five items on desktop viewport', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');

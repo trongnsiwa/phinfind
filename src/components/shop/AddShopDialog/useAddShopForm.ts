@@ -21,6 +21,7 @@ export function useAddShopForm(defaultLat: number, defaultLon: number) {
       zalo_url: '',
       price_range: undefined,
       photos: [],
+      videos: [],
       opening_hours: {
         open_now: true,
         periods: []
@@ -42,6 +43,7 @@ export function useAddShopForm(defaultLat: number, defaultLon: number) {
   const watchedLat = form.watch('lat');
   const watchedLon = form.watch('lon');
   const watchedPhotos = form.watch('photos') || [];
+  const watchedVideos = form.watch('videos') || [];
   const watchedPrice = form.watch('price_range');
   const watchedOpenNow = form.watch('opening_hours.open_now') ?? true;
 
@@ -60,6 +62,7 @@ export function useAddShopForm(defaultLat: number, defaultLon: number) {
       zalo_url: '',
       price_range: undefined,
       photos: [],
+      videos: [],
       opening_hours: {
         open_now: true,
         periods: []
@@ -84,6 +87,7 @@ export function useAddShopForm(defaultLat: number, defaultLon: number) {
         ? (shop.price_range as PriceOption)
         : undefined),
       photos: shop.photos || [],
+      videos: shop.videos || [],
       opening_hours: {
         open_now: shop.opening_hours?.open_now ?? true,
         periods: shop.opening_hours?.periods || []
@@ -106,6 +110,7 @@ export function useAddShopForm(defaultLat: number, defaultLon: number) {
     watchedLat,
     watchedLon,
     watchedPhotos,
+    watchedVideos,
     watchedPrice,
     watchedOpenNow
   };

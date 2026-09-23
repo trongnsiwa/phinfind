@@ -15,7 +15,8 @@ import {
   instagramUrl,
   tiktokUrl,
   youtubeUrl,
-  zaloUrl
+  zaloUrl,
+  shopVideoSchema
 } from '@/lib/validations/shop';
 import type { DayConfig, PredefinedCategoryConfig, PriceOption } from './types';
 
@@ -217,5 +218,6 @@ export const addShopFormSchema = z.object({
   zalo_url: zaloUrl,
   price_range: z.enum(['₫', '₫₫', '₫₫₫', '₫₫₫₫']).optional(),
   photos: z.array(z.string()),
+  videos: z.array(shopVideoSchema).optional().default([]),
   opening_hours: openingHoursFormSchema
 });

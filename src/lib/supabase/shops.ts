@@ -63,6 +63,7 @@ export function mapDbShopToCoffeeShop(
     opening_hours: row.opening_hours || undefined,
     price_range: row.price_range || undefined,
     photos,
+    videos: Array.isArray(row.videos) ? row.videos : [],
     cover_source: coverSource,
     cover_from_review_id: coverFromReviewId,
     website: row.website || undefined,
@@ -202,7 +203,7 @@ export async function fetchNearbyShopsRpc(
     try {
       const { data: socialData } = await supabase
         .from('shops')
-        .select('place_id, facebook_url, instagram_url, tiktok_url, youtube_url, zalo_url')
+        .select('place_id, facebook_url, instagram_url, tiktok_url, youtube_url, zalo_url, videos')
         .in(
           'place_id',
           rows.map((r: any) => r.place_id)
@@ -218,6 +219,7 @@ export async function fetchNearbyShopsRpc(
             row.tiktok_url = social.tiktok_url;
             row.youtube_url = social.youtube_url;
             row.zalo_url = social.zalo_url;
+            row.videos = social.videos;
           }
         }
       }

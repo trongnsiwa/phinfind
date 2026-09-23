@@ -116,6 +116,7 @@ export async function PUT(request: NextRequest) {
       custom_amenities: finalCustomAmenities,
       amenities: finalAmenities,
       photos: data.photos,
+      videos: data.videos ?? [],
       opening_hours: data.opening_hours,
       verified: false,
       updated_at: new Date().toISOString()

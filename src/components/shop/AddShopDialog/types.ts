@@ -1,5 +1,5 @@
 import type React from 'react';
-import type { CoffeeShop } from '@/types/shop';
+import type { CoffeeShop, ShopVideo } from '@/types/shop';
 
 export interface PredefinedCategoryConfig {
   id: string;
@@ -54,6 +54,7 @@ export interface AddShopFormData {
   zalo_url?: string | null;
   price_range?: PriceOption;
   photos: string[];
+  videos?: ShopVideo[];
   opening_hours: {
     open_now: boolean;
     periods?: OpeningPeriod[];

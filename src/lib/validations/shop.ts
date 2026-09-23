@@ -65,6 +65,19 @@ export const tiktokUrl = socialUrl(/^https?:\/\/(www\.|m\.)?tiktok\.com\//i, 'Ti
 export const youtubeUrl = socialUrl(/^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\//i, 'YouTube');
 export const zaloUrl = socialUrl(/^https?:\/\/(www\.)?(zalo\.me|zalo\.com)\//i, 'Zalo');
 
+export const videoPlatformSchema = z.enum(['tiktok', 'youtube', 'instagram', 'facebook']);
+
+export const shopVideoSchema = z.object({
+  url: z.string().trim().url('Đường dẫn video không hợp lệ'),
+  platform: videoPlatformSchema,
+  video_id: z.string().trim().min(1, 'Mã video không được để trống'),
+  title: z.string().trim().optional(),
+  thumbnail_url: z.string().trim().url('Đường dẫn ảnh thu nhỏ không hợp lệ').optional().or(z.literal('')),
+  added_at: z.string().optional()
+});
+
+export type ShopVideoInput = z.infer<typeof shopVideoSchema>;
+
 export const createShopSchema = z.object({
   name: z
     .string()
@@ -110,6 +123,7 @@ export const createShopSchema = z.object({
   custom_amenities: z.array(customAmenitySchema).optional().default([]),
   amenities: z.array(amenitySchema).optional().default([]),
   photos: z.array(z.string().trim().url('Đường dẫn ảnh không hợp lệ')).optional().default([]),
+  videos: z.array(shopVideoSchema).optional().default([]),
   opening_hours: openingHoursSchema.optional().default({ open_now: true })
 });
 
