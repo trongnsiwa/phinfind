@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import * as z from 'zod';
+import {
+  facebookUrl,
+  instagramUrl,
+  tiktokUrl,
+  websiteUrl,
+} from '@/lib/validations/social';
 
 const updateProfileSchema = z.object({
   username: z
@@ -31,6 +37,10 @@ const updateProfileSchema = z.object({
     .nullable()
     .optional()
     .or(z.literal('')),
+  facebook_url: facebookUrl,
+  instagram_url: instagramUrl,
+  tiktok_url: tiktokUrl,
+  website_url: websiteUrl,
 });
 
 export async function GET() {
@@ -79,7 +89,16 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ error: firstError }, { status: 400 });
   }
 
-  const { username, full_name, avatar_url, bio } = parseResult.data;
+  const {
+    username,
+    full_name,
+    avatar_url,
+    bio,
+    facebook_url,
+    instagram_url,
+    tiktok_url,
+    website_url,
+  } = parseResult.data;
 
   const updatePayload: Record<string, any> = {
     updated_at: new Date().toISOString(),
@@ -89,6 +108,10 @@ export async function PUT(request: NextRequest) {
   if (full_name !== undefined) updatePayload.full_name = full_name || null;
   if (avatar_url !== undefined) updatePayload.avatar_url = avatar_url || null;
   if (bio !== undefined) updatePayload.bio = bio || null;
+  if (facebook_url !== undefined) updatePayload.facebook_url = facebook_url ?? null;
+  if (instagram_url !== undefined) updatePayload.instagram_url = instagram_url ?? null;
+  if (tiktok_url !== undefined) updatePayload.tiktok_url = tiktok_url ?? null;
+  if (website_url !== undefined) updatePayload.website_url = website_url ?? null;
 
   let { data, error } = await supabase
     .from('profiles')

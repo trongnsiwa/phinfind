@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { User as UserIcon, Calendar, Star } from 'lucide-react';
 import { PublicProfileData } from '@/hooks/useShops';
+import { ProfileSocialLinks } from './ProfileSocialLinks';
 
 interface PublicProfileHeaderProps {
   profile: PublicProfileData;
@@ -63,6 +64,11 @@ export function PublicProfileHeader({ profile, reviewCount }: PublicProfileHeade
               {profile.bio}
             </p>
           )}
+
+          <ProfileSocialLinks
+            profile={profile}
+            className="pt-2 justify-center sm:justify-start"
+          />
         </div>
       </div>
 

@@ -4,6 +4,10 @@ export interface UserProfile {
   full_name: string | null;
   avatar_url: string | null;
   bio?: string | null;
+  facebook_url?: string | null;
+  instagram_url?: string | null;
+  tiktok_url?: string | null;
+  website_url?: string | null;
   email: string | null;
   role?: 'user' | 'admin';
   created_at: string;

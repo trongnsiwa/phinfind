@@ -104,4 +104,49 @@ test.describe('Authentication Flow', () => {
       }
     }
   });
+
+  test('public profile page renders updated social links with correct attributes', async ({ page }) => {
+    const mockUsername = 'testuser_social';
+    await page.route(`**/api/user/public-profile?username=${mockUsername}`, async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          profile: {
+            id: 'mock-user-123',
+            username: mockUsername,
+            full_name: 'Test Coffee Enthusiast',
+            avatar_url: null,
+            bio: 'Lover of Vietnamese Phin coffee.',
+            facebook_url: 'https://facebook.com/testcoffee',
+            instagram_url: null,
+            tiktok_url: null,
+            website_url: 'https://testcoffee.dev',
+            created_at: new Date().toISOString(),
+          },
+          reviews: [],
+        }),
+      });
+    });
+
+    await page.goto(`/u/${mockUsername}`);
+    await assertNoHorizontalScroll(page);
+
+    const facebookLink = page.getByRole('link', { name: /mở facebook của test coffee enthusiast/i });
+    await expect(facebookLink).toBeVisible();
+    await expect(facebookLink).toHaveAttribute('href', 'https://facebook.com/testcoffee');
+    await expect(facebookLink).toHaveAttribute('target', '_blank');
+    await expect(facebookLink).toHaveAttribute('rel', 'noopener noreferrer');
+
+    const websiteLink = page.getByRole('link', { name: /mở website của test coffee enthusiast/i });
+    await expect(websiteLink).toBeVisible();
+    await expect(websiteLink).toHaveAttribute('href', 'https://testcoffee.dev');
+    await expect(websiteLink).toHaveAttribute('target', '_blank');
+    await expect(websiteLink).toHaveAttribute('rel', 'noopener noreferrer');
+
+    const socialLinks = page.locator(
+      'a[aria-label*="Mở Facebook"], a[aria-label*="Mở Instagram"], a[aria-label*="Mở TikTok"], a[aria-label*="Mở Website"]'
+    );
+    await expect(socialLinks).toHaveCount(2);
+  });
 });

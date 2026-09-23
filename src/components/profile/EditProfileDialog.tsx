@@ -5,7 +5,18 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { toast } from 'sonner';
-import { Camera, Loader2, Save, User as UserIcon } from 'lucide-react';
+import { Camera, ChevronDown, Globe, Loader2, Save, Share2, User as UserIcon } from 'lucide-react';
+import {
+  Facebook,
+  Instagram,
+  Music2,
+} from '@/components/common/SocialIcons';
+import {
+  facebookUrl,
+  instagramUrl,
+  tiktokUrl,
+  websiteUrl,
+} from '@/lib/validations/social';
 
 import {
   Dialog,
@@ -49,9 +60,14 @@ const profileSchema = z.object({
     .max(200, 'Giới thiệu bản thân tối đa 200 ký tự')
     .optional(),
   avatarUrl: z.string().optional(),
+  facebook_url: facebookUrl,
+  instagram_url: instagramUrl,
+  tiktok_url: tiktokUrl,
+  website_url: websiteUrl,
 });
 
-type ProfileFormValues = z.infer<typeof profileSchema>;
+type ProfileFormInput = z.input<typeof profileSchema>;
+type ProfileFormOutput = z.output<typeof profileSchema>;
 
 interface EditProfileDialogProps {
   open: boolean;
@@ -70,15 +86,20 @@ export function EditProfileDialog({
 }: EditProfileDialogProps) {
   const updateProfileMutation = useUpdateProfile();
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [isSocialOpen, setIsSocialOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const form = useForm<ProfileFormValues>({
+  const form = useForm<ProfileFormInput, any, ProfileFormOutput>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
       fullName: profile?.full_name || '',
       username: profile?.username || '',
       bio: profile?.bio || '',
       avatarUrl: profile?.avatar_url || '',
+      facebook_url: profile?.facebook_url || '',
+      instagram_url: profile?.instagram_url || '',
+      tiktok_url: profile?.tiktok_url || '',
+      website_url: profile?.website_url || '',
     },
   });
 
@@ -89,12 +110,25 @@ export function EditProfileDialog({
         username: profile.username || '',
         bio: profile.bio || '',
         avatarUrl: profile.avatar_url || '',
+        facebook_url: profile.facebook_url || '',
+        instagram_url: profile.instagram_url || '',
+        tiktok_url: profile.tiktok_url || '',
+        website_url: profile.website_url || '',
       });
     }
   }, [profile, form, open]);
 
   const watchedAvatarUrl = form.watch('avatarUrl');
   const watchedBio = form.watch('bio') || '';
+
+  const formErrors = form.formState.errors;
+  const hasSocialError = Boolean(
+    formErrors.facebook_url ||
+    formErrors.instagram_url ||
+    formErrors.tiktok_url ||
+    formErrors.website_url
+  );
+  const isSectionOpen = isSocialOpen || hasSocialError;
 
   const handleAvatarSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -164,13 +198,17 @@ export function EditProfileDialog({
     }
   };
 
-  const onSubmit = async (data: ProfileFormValues) => {
+  const onSubmit = async (data: ProfileFormOutput) => {
     try {
       const updated = await updateProfileMutation.mutateAsync({
         full_name: data.fullName.trim(),
         username: data.username.trim(),
         bio: data.bio?.trim() || null,
         avatar_url: data.avatarUrl || null,
+        facebook_url: data.facebook_url || null,
+        instagram_url: data.instagram_url || null,
+        tiktok_url: data.tiktok_url || null,
+        website_url: data.website_url || null,
       });
 
       toast.success('Cập nhật hồ sơ thành công!');
@@ -191,7 +229,12 @@ export function EditProfileDialog({
       username: profile?.username || '',
       bio: profile?.bio || '',
       avatarUrl: profile?.avatar_url || '',
+      facebook_url: profile?.facebook_url || '',
+      instagram_url: profile?.instagram_url || '',
+      tiktok_url: profile?.tiktok_url || '',
+      website_url: profile?.website_url || '',
     });
+    setIsSocialOpen(false);
     onOpenChange(false);
   };
 
@@ -352,6 +395,132 @@ export function EditProfileDialog({
                 </FormItem>
               )}
             />
+
+            {/* Collapsible Social Links Section */}
+            <div className="space-y-2 pt-2 border-t border-border/40">
+              <button
+                type="button"
+                onClick={() => setIsSocialOpen(!isSectionOpen)}
+                className="flex items-center justify-between w-full text-xs font-semibold text-foreground py-1.5 cursor-pointer select-none group min-h-[44px]"
+                aria-expanded={isSectionOpen}
+              >
+                <span className="flex items-center gap-1.5">
+                  <Share2 size={13} className="text-primary flex-shrink-0" />
+                  <span>Mạng xã hội (tùy chọn)</span>
+                </span>
+                <ChevronDown
+                  size={14}
+                  className={cn(
+                    'text-muted-foreground transition-transform duration-200',
+                    isSectionOpen && 'rotate-180'
+                  )}
+                />
+              </button>
+
+              {isSectionOpen && (
+                <div className="space-y-3 pt-1 animate-in fade-in duration-150">
+                  {/* Facebook */}
+                  <FormField
+                    control={form.control}
+                    name="facebook_url"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <div className="relative flex items-center">
+                            <span className="absolute left-3 pointer-events-none">
+                              <Facebook size={14} className="text-[#1877F2]" />
+                            </span>
+                            <Input
+                              placeholder="https://facebook.com/username"
+                              className="h-10 text-xs border-border bg-secondary/30 rounded-xl pl-9 focus-visible:ring-primary"
+                              disabled={updateProfileMutation.isPending}
+                              {...field}
+                              value={field.value || ''}
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage className="text-[11px]" />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Instagram */}
+                  <FormField
+                    control={form.control}
+                    name="instagram_url"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <div className="relative flex items-center">
+                            <span className="absolute left-3 pointer-events-none">
+                              <Instagram size={14} className="text-[#E4405F]" />
+                            </span>
+                            <Input
+                              placeholder="https://instagram.com/username"
+                              className="h-10 text-xs border-border bg-secondary/30 rounded-xl pl-9 focus-visible:ring-primary"
+                              disabled={updateProfileMutation.isPending}
+                              {...field}
+                              value={field.value || ''}
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage className="text-[11px]" />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* TikTok */}
+                  <FormField
+                    control={form.control}
+                    name="tiktok_url"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <div className="relative flex items-center">
+                            <span className="absolute left-3 pointer-events-none text-foreground">
+                              <Music2 size={14} />
+                            </span>
+                            <Input
+                              placeholder="https://tiktok.com/@username"
+                              className="h-10 text-xs border-border bg-secondary/30 rounded-xl pl-9 focus-visible:ring-primary"
+                              disabled={updateProfileMutation.isPending}
+                              {...field}
+                              value={field.value || ''}
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage className="text-[11px]" />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Website */}
+                  <FormField
+                    control={form.control}
+                    name="website_url"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <div className="relative flex items-center">
+                            <span className="absolute left-3 pointer-events-none text-muted-foreground">
+                              <Globe size={14} className="text-primary" />
+                            </span>
+                            <Input
+                              placeholder="https://yourwebsite.com"
+                              className="h-10 text-xs border-border bg-secondary/30 rounded-xl pl-9 focus-visible:ring-primary"
+                              disabled={updateProfileMutation.isPending}
+                              {...field}
+                              value={field.value || ''}
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage className="text-[11px]" />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              )}
+            </div>
 
             <DialogFooter className="flex-row gap-2 pt-2 sm:justify-end">
               <Button

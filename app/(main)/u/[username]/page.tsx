@@ -59,6 +59,13 @@ export default async function PublicProfilePage({ params }: PageProps) {
     return <PublicProfileClient />;
   }
 
+  const sameAs = [
+    profile.facebook_url,
+    profile.instagram_url,
+    profile.tiktok_url,
+    profile.website_url,
+  ].filter((u): u is string => Boolean(u));
+
   const profileJsonLd: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'Person',
@@ -67,6 +74,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
     url: `${BASE_URL}/u/${profile.username}`,
     ...(profile.avatar_url ? { image: profile.avatar_url } : {}),
     ...(profile.bio ? { description: profile.bio } : {}),
+    ...(sameAs.length > 0 ? { sameAs } : {}),
   };
 
   return (

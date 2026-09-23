@@ -723,6 +723,10 @@ export function useUpdateProfile() {
       full_name?: string | null;
       avatar_url?: string | null;
       bio?: string | null;
+      facebook_url?: string | null;
+      instagram_url?: string | null;
+      tiktok_url?: string | null;
+      website_url?: string | null;
     }) => {
       const res = await axios.put<{ profile: UserProfile }>(
         API_ENDPOINTS.USER_PROFILE,
@@ -799,6 +803,10 @@ export interface PublicProfileData {
   full_name: string | null;
   avatar_url: string | null;
   bio?: string | null;
+  facebook_url?: string | null;
+  instagram_url?: string | null;
+  tiktok_url?: string | null;
+  website_url?: string | null;
   created_at: string;
 }
 

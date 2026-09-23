@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     // a non-null, unique username is required for public profile resolution.
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('id, username, full_name, avatar_url, bio, created_at')
+      .select('id, username, full_name, avatar_url, bio, facebook_url, instagram_url, tiktok_url, website_url, created_at')
       .ilike('username', username)
       .maybeSingle();
 
@@ -38,6 +38,10 @@ export async function GET(request: NextRequest) {
       full_name: profile.full_name,
       avatar_url: profile.avatar_url,
       bio: profile.bio,
+      facebook_url: profile.facebook_url ?? null,
+      instagram_url: profile.instagram_url ?? null,
+      tiktok_url: profile.tiktok_url ?? null,
+      website_url: profile.website_url ?? null,
       created_at: profile.created_at,
     };
 
