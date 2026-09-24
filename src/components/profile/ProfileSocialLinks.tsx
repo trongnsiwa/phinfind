@@ -8,13 +8,17 @@ import {
   Music2,
 } from '@/components/common/SocialIcons';
 import { cn } from '@/lib/utils';
-import type { PublicProfileData } from '@/hooks/useShops';
+export interface SocialLinksProfile {
+  facebook_url?: string | null;
+  instagram_url?: string | null;
+  tiktok_url?: string | null;
+  website_url?: string | null;
+  full_name?: string | null;
+  username?: string | null;
+}
 
 interface ProfileSocialLinksProps {
-  profile: Pick<
-    PublicProfileData,
-    'facebook_url' | 'instagram_url' | 'tiktok_url' | 'website_url' | 'full_name' | 'username'
-  >;
+  profile: SocialLinksProfile;
   className?: string;
 }
 

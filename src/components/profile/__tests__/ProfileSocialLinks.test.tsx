@@ -72,4 +72,30 @@ describe('ProfileSocialLinks', () => {
     expect(screen.getByRole('link', { name: /mở tiktok của coffee_lover/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /mở website của coffee_lover/i })).toBeInTheDocument();
   });
+
+  it('accepts UserProfile object from private profile page', () => {
+    const userProfile = {
+      id: 'usr_1',
+      user_id: 'usr_1',
+      email: 'trongnsi.dev@gmail.com',
+      full_name: 'Nguyễn Sĩ Trọng',
+      username: 'trongnsi',
+      bio: 'Thích đi cà phê một mình',
+      avatar_url: 'https://example.com/avatar.jpg',
+      role: 'user' as const,
+      created_at: '2026-01-01',
+      updated_at: '2026-01-01',
+      facebook_url: 'https://facebook.com/quancafe',
+      instagram_url: null,
+      tiktok_url: null,
+      website_url: 'https://phinfind.vn',
+    };
+
+    render(<ProfileSocialLinks profile={userProfile} className="pt-1.5" />);
+
+    const links = screen.getAllByRole('link');
+    expect(links).toHaveLength(2);
+    expect(screen.getByRole('link', { name: /mở facebook của nguyễn sĩ trọng/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /mở website của nguyễn sĩ trọng/i })).toBeInTheDocument();
+  });
 });

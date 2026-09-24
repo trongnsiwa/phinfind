@@ -57,6 +57,7 @@ const EditProfileDialog = dynamic(
 import { ShopImage } from '@/components/common/ShopImage';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BadgeCard } from '@/components/profile/BadgeCard';
+import { ProfileSocialLinks } from '@/components/profile/ProfileSocialLinks';
 import { useUserBadges } from '@/hooks/useUserBadges';
 import { PublicReviewCard } from '@/components/profile/PublicReviewCard';
 import { useAuth } from '@/hooks/useAuth';
@@ -322,6 +323,9 @@ export function ProfileClient() {
               <p className="text-xs text-foreground/80 pt-0.5 line-clamp-2 max-w-lg leading-relaxed">
                 {profile.bio}
               </p>
+            )}
+            {isAuthenticated && profile && (
+              <ProfileSocialLinks profile={profile} className="pt-1.5" />
             )}
           </div>
         </div>
