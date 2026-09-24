@@ -140,9 +140,9 @@ export const PhotosTab = memo(function PhotosTab({
                 </span>
                 <Badge
                   variant='outline'
-                  className='bg-black/60 backdrop-blur-xs border border-white/10 px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-medium text-amber-gold flex items-center gap-1 shadow-xs'
+                  className='bg-amber-gold/10 text-amber-800 dark:text-amber-gold border-amber-gold/25 dark:border-amber-gold/30 px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-medium flex items-center gap-1 shadow-none'
                 >
-                  <Camera size={10} />
+                  <Camera size={10} className='shrink-0' />
                   <span>Từ đánh giá cộng đồng</span>
                 </Badge>
               </div>
