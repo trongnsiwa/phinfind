@@ -87,6 +87,7 @@ export function EditProfileDialog({
   const updateProfileMutation = useUpdateProfile();
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [isSocialOpen, setIsSocialOpen] = useState(false);
+  const [focusedField, setFocusedField] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<ProfileFormInput, any, ProfileFormOutput>({
@@ -115,11 +116,20 @@ export function EditProfileDialog({
         tiktok_url: profile.tiktok_url || '',
         website_url: profile.website_url || '',
       });
+      setFocusedField(null);
     }
   }, [profile, form, open]);
 
   const watchedAvatarUrl = form.watch('avatarUrl');
   const watchedBio = form.watch('bio') || '';
+  const watchedFacebook = form.watch('facebook_url');
+  const watchedInstagram = form.watch('instagram_url');
+  const watchedTiktok = form.watch('tiktok_url');
+  const watchedWebsite = form.watch('website_url');
+
+  const socialCount = [watchedFacebook, watchedInstagram, watchedTiktok, watchedWebsite].filter(
+    (url) => Boolean(url && typeof url === 'string' && url.trim().length > 0)
+  ).length;
 
   const formErrors = form.formState.errors;
   const hasSocialError = Boolean(
@@ -235,6 +245,7 @@ export function EditProfileDialog({
       website_url: profile?.website_url || '',
     });
     setIsSocialOpen(false);
+    setFocusedField(null);
     onOpenChange(false);
   };
 
@@ -249,9 +260,9 @@ export function EditProfileDialog({
         else onOpenChange(true);
       }}
     >
-      {/* RESPONSIVE: w-[94vw] sm:w-full and p-4 sm:p-6 prevent overflow on 320px screens */}
-      <DialogContent className="w-[94vw] sm:w-full sm:max-w-md bg-card border-border rounded-2xl sm:rounded-3xl p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="text-left">
+      {/* RESPONSIVE: w-[94vw] sm:w-full max-w-lg and p-0 prevent overflow on 320px screens */}
+      <DialogContent className="w-[94vw] sm:w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden p-0 gap-0 border-border bg-card rounded-2xl sm:rounded-3xl shadow-xl">
+        <DialogHeader className="p-4 sm:p-6 pb-3 sm:pb-3 border-b border-border/40 text-left flex-shrink-0 pr-12">
           <DialogTitle className="text-lg font-bold text-foreground">
             Chỉnh sửa thông tin cá nhân
           </DialogTitle>
@@ -261,275 +272,371 @@ export function EditProfileDialog({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-2">
-            {/* Avatar Upload Clickable Section */}
-            <div className="flex flex-col items-center justify-center gap-2 pb-1">
-              <input
-                type="file"
-                ref={fileInputRef}
-                accept="image/png,image/jpeg,image/webp,image/gif"
-                className="hidden"
-                onChange={handleAvatarSelect}
-                disabled={isUploadingAvatar || updateProfileMutation.isPending}
-              />
-              <div
-                role="button"
-                tabIndex={0}
-                onClick={() => fileInputRef.current?.click()}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    fileInputRef.current?.click();
-                  }
-                }}
-                className="group relative w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-2 border-border/80 hover:border-primary cursor-pointer transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-                title="Nhấn để đổi ảnh đại diện"
-              >
-                <Avatar className="w-full h-full">
-                  <AvatarImage
-                    src={watchedAvatarUrl || profile?.avatar_url || ''}
-                    alt={displayName}
-                    className="object-cover"
-                  />
-                  <AvatarFallback className="bg-secondary text-primary font-bold text-2xl">
-                    <UserIcon size={32} />
-                  </AvatarFallback>
-                </Avatar>
-
-                {/* Camera overlay */}
-                <div className="absolute inset-0 bg-black/45 flex flex-col items-center justify-center text-white opacity-80 group-hover:opacity-100 transition-opacity">
-                  {isUploadingAvatar ? (
-                    <Loader2 size={22} className="animate-spin text-white" />
-                  ) : (
-                    <>
-                      <Camera size={20} className="mb-0.5" />
-                      <span className="text-[11px] font-semibold">Đổi ảnh</span>
-                    </>
-                  )}
-                </div>
-              </div>
-              <p className="text-[11px] text-muted-foreground text-center">
-                Nhấn vào ảnh để tải lên avatar mới (tối đa 5MB)
-              </p>
-            </div>
-
-            {/* Full Name */}
-            <FormField
-              control={form.control}
-              name="fullName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-xs text-foreground font-medium">
-                    Họ và tên <span className="text-destructive">*</span>
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Họ và tên của bạn"
-                      className="h-10 text-xs border-border bg-secondary/30 rounded-xl focus-visible:ring-primary"
-                      disabled={updateProfileMutation.isPending}
-                      {...field}
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col flex-1 min-h-0 overflow-hidden"
+          >
+            {/* Scrollable Form Body */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 min-h-0 overscroll-contain">
+              {/* Avatar Upload Clickable Section */}
+              <div className="flex flex-col items-center justify-center gap-2 pb-1">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  accept="image/png,image/jpeg,image/webp,image/gif"
+                  className="hidden"
+                  onChange={handleAvatarSelect}
+                  disabled={isUploadingAvatar || updateProfileMutation.isPending}
+                />
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => fileInputRef.current?.click()}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      fileInputRef.current?.click();
+                    }
+                  }}
+                  className="group relative w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-2 border-border/80 hover:border-primary cursor-pointer transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                  title="Nhấn để đổi ảnh đại diện"
+                >
+                  <Avatar className="w-full h-full">
+                    <AvatarImage
+                      src={watchedAvatarUrl || profile?.avatar_url || ''}
+                      alt={displayName}
+                      className="object-cover"
                     />
-                  </FormControl>
-                  <FormMessage className="text-[11px]" />
-                </FormItem>
-              )}
-            />
+                    <AvatarFallback className="bg-secondary text-primary font-bold text-2xl">
+                      <UserIcon size={32} />
+                    </AvatarFallback>
+                  </Avatar>
 
-            {/* Username */}
-            <FormField
-              control={form.control}
-              name="username"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-xs text-foreground font-medium">
-                    Tên người dùng <span className="text-destructive">*</span>
-                  </FormLabel>
-                  <FormControl>
-                    <div className="relative flex items-center">
-                      <span className="absolute left-3 text-xs text-muted-foreground font-medium select-none">
-                        @
-                      </span>
+                  {/* Camera overlay */}
+                  <div className="absolute inset-0 bg-black/45 flex flex-col items-center justify-center text-white opacity-80 group-hover:opacity-100 transition-opacity">
+                    {isUploadingAvatar ? (
+                      <Loader2 size={22} className="animate-spin text-white" />
+                    ) : (
+                      <>
+                        <Camera size={20} className="mb-0.5" />
+                        <span className="text-[11px] font-semibold">Đổi ảnh</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+                <p className="text-[11px] text-muted-foreground text-center">
+                  Nhấn vào ảnh để tải lên avatar mới (tối đa 5MB)
+                </p>
+              </div>
+
+              {/* Full Name */}
+              <FormField
+                control={form.control}
+                name="fullName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs text-foreground font-medium">
+                      Họ và tên <span className="text-destructive">*</span>
+                    </FormLabel>
+                    <FormControl>
                       <Input
-                        placeholder="username"
-                        className="h-10 text-xs border-border bg-secondary/30 rounded-xl pl-7 focus-visible:ring-primary font-mono"
+                        placeholder="Họ và tên của bạn"
+                        className="h-10 text-sm border-border bg-secondary/30 rounded-xl focus-visible:ring-primary"
                         disabled={updateProfileMutation.isPending}
                         {...field}
                       />
-                    </div>
-                  </FormControl>
-                  <FormMessage className="text-[11px]" />
-                </FormItem>
-              )}
-            />
+                    </FormControl>
+                    <FormMessage className="text-[11px]" />
+                  </FormItem>
+                )}
+              />
 
-            {/* Bio / Description */}
-            <FormField
-              control={form.control}
-              name="bio"
-              render={({ field }) => (
-                <FormItem>
-                  <div className="flex items-center justify-between">
+              {/* Username */}
+              <FormField
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
                     <FormLabel className="text-xs text-foreground font-medium">
-                      Giới thiệu bản thân
+                      Tên người dùng <span className="text-destructive">*</span>
                     </FormLabel>
-                    <span
-                      className={cn(
-                        'text-[11px] text-muted-foreground',
-                        watchedBio.length >= 200 && 'text-destructive font-semibold'
-                      )}
-                    >
-                      {watchedBio.length}/200 ký tự
+                    <FormControl>
+                      <div className="relative flex items-center">
+                        <span className="absolute left-3 text-xs text-muted-foreground font-medium select-none">
+                          @
+                        </span>
+                        <Input
+                          placeholder="username"
+                          className="h-10 text-sm border-border bg-secondary/30 rounded-xl pl-7 focus-visible:ring-primary font-mono"
+                          disabled={updateProfileMutation.isPending}
+                          {...field}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage className="text-[11px]" />
+                  </FormItem>
+                )}
+              />
+
+              {/* Bio / Description */}
+              <FormField
+                control={form.control}
+                name="bio"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex items-center justify-between">
+                      <FormLabel className="text-xs text-foreground font-medium">
+                        Giới thiệu bản thân
+                      </FormLabel>
+                      <span
+                        className={cn(
+                          'text-[11px] text-muted-foreground',
+                          watchedBio.length >= 200 && 'text-destructive font-semibold'
+                        )}
+                      >
+                        {watchedBio.length}/200 ký tự
+                      </span>
+                    </div>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Chia sẻ gu cà phê, sở thích hoặc một đôi dòng về bạn..."
+                        className="min-h-[80px] max-h-[140px] text-xs border-border bg-secondary/30 rounded-xl focus-visible:ring-primary resize-y"
+                        maxLength={200}
+                        disabled={updateProfileMutation.isPending}
+                        {...field}
+                        value={field.value || ''}
+                      />
+                    </FormControl>
+                    <FormMessage className="text-[11px]" />
+                  </FormItem>
+                )}
+              />
+
+              {/* Collapsible Social Links Section */}
+              <div className="space-y-2 pt-3 border-t border-border/40">
+                <button
+                  type="button"
+                  onClick={() => setIsSocialOpen(!isSectionOpen)}
+                  className="flex items-center justify-between w-full py-1.5 cursor-pointer select-none group min-h-[44px] text-left transition-colors"
+                  aria-expanded={isSectionOpen}
+                >
+                  <div className="flex flex-col items-start gap-0.5 min-w-0">
+                    <span className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                      <Share2 size={13} className="text-primary flex-shrink-0" />
+                      <span>Mạng xã hội (tùy chọn)</span>
                     </span>
+                    {!isSectionOpen && (
+                      <span className="text-[11px] text-muted-foreground pl-[19px]">
+                        {socialCount > 0 ? `${socialCount} liên kết đã thêm` : 'Chưa có liên kết'}
+                      </span>
+                    )}
                   </div>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Chia sẻ gu cà phê, sở thích hoặc một đôi dòng về bạn..."
-                      className="min-h-[80px] max-h-[140px] text-xs border-border bg-secondary/30 rounded-xl focus-visible:ring-primary resize-y"
-                      maxLength={200}
-                      disabled={updateProfileMutation.isPending}
-                      {...field}
-                      value={field.value || ''}
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full group-hover:bg-secondary/60 transition-colors flex-shrink-0">
+                    <ChevronDown
+                      size={14}
+                      className={cn(
+                        'text-muted-foreground transition-transform duration-200',
+                        isSectionOpen && 'rotate-180'
+                      )}
                     />
-                  </FormControl>
-                  <FormMessage className="text-[11px]" />
-                </FormItem>
-              )}
-            />
+                  </div>
+                </button>
 
-            {/* Collapsible Social Links Section */}
-            <div className="space-y-2 pt-2 border-t border-border/40">
-              <button
-                type="button"
-                onClick={() => setIsSocialOpen(!isSectionOpen)}
-                className="flex items-center justify-between w-full text-xs font-semibold text-foreground py-1.5 cursor-pointer select-none group min-h-[44px]"
-                aria-expanded={isSectionOpen}
-              >
-                <span className="flex items-center gap-1.5">
-                  <Share2 size={13} className="text-primary flex-shrink-0" />
-                  <span>Mạng xã hội (tùy chọn)</span>
-                </span>
-                <ChevronDown
-                  size={14}
-                  className={cn(
-                    'text-muted-foreground transition-transform duration-200',
-                    isSectionOpen && 'rotate-180'
-                  )}
-                />
-              </button>
+                {isSectionOpen && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 items-start pt-1 animate-in fade-in duration-150">
+                    {/* Facebook */}
+                    <FormField
+                      control={form.control}
+                      name="facebook_url"
+                      render={({ field }) => (
+                        <FormItem className="space-y-1">
+                          <FormLabel
+                            className={cn(
+                              'text-[11px] font-medium',
+                              formErrors.facebook_url ? 'text-destructive' : 'text-muted-foreground'
+                            )}
+                          >
+                            Facebook
+                          </FormLabel>
+                          <FormControl>
+                            <div className="relative flex items-center">
+                              <span className="absolute left-3 pointer-events-none">
+                                <Facebook size={14} className="text-[#1877F2]" />
+                              </span>
+                              <Input
+                                placeholder="https://facebook.com/quancafe"
+                                className="h-10 text-sm border-border bg-secondary/30 rounded-xl pl-9 focus-visible:ring-primary"
+                                disabled={updateProfileMutation.isPending}
+                                {...field}
+                                value={field.value || ''}
+                                onFocus={() => setFocusedField('facebook_url')}
+                                onBlur={() => {
+                                  field.onBlur();
+                                  setFocusedField(null);
+                                }}
+                              />
+                            </div>
+                          </FormControl>
+                          {focusedField === 'facebook_url' &&
+                            (!field.value || !field.value.trim()) &&
+                            !formErrors.facebook_url && (
+                              <p className="text-[10px] text-muted-foreground">
+                                Dán liên kết đầy đủ bắt đầu bằng https://
+                              </p>
+                            )}
+                          <FormMessage className="text-[11px] text-rose-500" />
+                        </FormItem>
+                      )}
+                    />
 
-              {isSectionOpen && (
-                <div className="space-y-3 pt-1 animate-in fade-in duration-150">
-                  {/* Facebook */}
-                  <FormField
-                    control={form.control}
-                    name="facebook_url"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <div className="relative flex items-center">
-                            <span className="absolute left-3 pointer-events-none">
-                              <Facebook size={14} className="text-[#1877F2]" />
-                            </span>
-                            <Input
-                              placeholder="https://facebook.com/username"
-                              className="h-10 text-xs border-border bg-secondary/30 rounded-xl pl-9 focus-visible:ring-primary"
-                              disabled={updateProfileMutation.isPending}
-                              {...field}
-                              value={field.value || ''}
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage className="text-[11px]" />
-                      </FormItem>
-                    )}
-                  />
+                    {/* Instagram */}
+                    <FormField
+                      control={form.control}
+                      name="instagram_url"
+                      render={({ field }) => (
+                        <FormItem className="space-y-1">
+                          <FormLabel
+                            className={cn(
+                              'text-[11px] font-medium',
+                              formErrors.instagram_url ? 'text-destructive' : 'text-muted-foreground'
+                            )}
+                          >
+                            Instagram
+                          </FormLabel>
+                          <FormControl>
+                            <div className="relative flex items-center">
+                              <span className="absolute left-3 pointer-events-none">
+                                <Instagram size={14} className="text-[#E4405F]" />
+                              </span>
+                              <Input
+                                placeholder="https://instagram.com/quancafe"
+                                className="h-10 text-sm border-border bg-secondary/30 rounded-xl pl-9 focus-visible:ring-primary"
+                                disabled={updateProfileMutation.isPending}
+                                {...field}
+                                value={field.value || ''}
+                                onFocus={() => setFocusedField('instagram_url')}
+                                onBlur={() => {
+                                  field.onBlur();
+                                  setFocusedField(null);
+                                }}
+                              />
+                            </div>
+                          </FormControl>
+                          {focusedField === 'instagram_url' &&
+                            (!field.value || !field.value.trim()) &&
+                            !formErrors.instagram_url && (
+                              <p className="text-[10px] text-muted-foreground">
+                                Dán liên kết đầy đủ bắt đầu bằng https://
+                              </p>
+                            )}
+                          <FormMessage className="text-[11px] text-rose-500" />
+                        </FormItem>
+                      )}
+                    />
 
-                  {/* Instagram */}
-                  <FormField
-                    control={form.control}
-                    name="instagram_url"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <div className="relative flex items-center">
-                            <span className="absolute left-3 pointer-events-none">
-                              <Instagram size={14} className="text-[#E4405F]" />
-                            </span>
-                            <Input
-                              placeholder="https://instagram.com/username"
-                              className="h-10 text-xs border-border bg-secondary/30 rounded-xl pl-9 focus-visible:ring-primary"
-                              disabled={updateProfileMutation.isPending}
-                              {...field}
-                              value={field.value || ''}
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage className="text-[11px]" />
-                      </FormItem>
-                    )}
-                  />
+                    {/* TikTok */}
+                    <FormField
+                      control={form.control}
+                      name="tiktok_url"
+                      render={({ field }) => (
+                        <FormItem className="space-y-1">
+                          <FormLabel
+                            className={cn(
+                              'text-[11px] font-medium',
+                              formErrors.tiktok_url ? 'text-destructive' : 'text-muted-foreground'
+                            )}
+                          >
+                            TikTok
+                          </FormLabel>
+                          <FormControl>
+                            <div className="relative flex items-center">
+                              <span className="absolute left-3 pointer-events-none text-foreground">
+                                <Music2 size={14} />
+                              </span>
+                              <Input
+                                placeholder="https://tiktok.com/@quancafe"
+                                className="h-10 text-sm border-border bg-secondary/30 rounded-xl pl-9 focus-visible:ring-primary"
+                                disabled={updateProfileMutation.isPending}
+                                {...field}
+                                value={field.value || ''}
+                                onFocus={() => setFocusedField('tiktok_url')}
+                                onBlur={() => {
+                                  field.onBlur();
+                                  setFocusedField(null);
+                                }}
+                              />
+                            </div>
+                          </FormControl>
+                          {focusedField === 'tiktok_url' &&
+                            (!field.value || !field.value.trim()) &&
+                            !formErrors.tiktok_url && (
+                              <p className="text-[10px] text-muted-foreground">
+                                Dán liên kết đầy đủ bắt đầu bằng https://
+                              </p>
+                            )}
+                          <FormMessage className="text-[11px] text-rose-500" />
+                        </FormItem>
+                      )}
+                    />
 
-                  {/* TikTok */}
-                  <FormField
-                    control={form.control}
-                    name="tiktok_url"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <div className="relative flex items-center">
-                            <span className="absolute left-3 pointer-events-none text-foreground">
-                              <Music2 size={14} />
-                            </span>
-                            <Input
-                              placeholder="https://tiktok.com/@username"
-                              className="h-10 text-xs border-border bg-secondary/30 rounded-xl pl-9 focus-visible:ring-primary"
-                              disabled={updateProfileMutation.isPending}
-                              {...field}
-                              value={field.value || ''}
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage className="text-[11px]" />
-                      </FormItem>
-                    )}
-                  />
-
-                  {/* Website */}
-                  <FormField
-                    control={form.control}
-                    name="website_url"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <div className="relative flex items-center">
-                            <span className="absolute left-3 pointer-events-none text-muted-foreground">
-                              <Globe size={14} className="text-primary" />
-                            </span>
-                            <Input
-                              placeholder="https://yourwebsite.com"
-                              className="h-10 text-xs border-border bg-secondary/30 rounded-xl pl-9 focus-visible:ring-primary"
-                              disabled={updateProfileMutation.isPending}
-                              {...field}
-                              value={field.value || ''}
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage className="text-[11px]" />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              )}
+                    {/* Website */}
+                    <FormField
+                      control={form.control}
+                      name="website_url"
+                      render={({ field }) => (
+                        <FormItem className="space-y-1">
+                          <FormLabel
+                            className={cn(
+                              'text-[11px] font-medium',
+                              formErrors.website_url ? 'text-destructive' : 'text-muted-foreground'
+                            )}
+                          >
+                            Website
+                          </FormLabel>
+                          <FormControl>
+                            <div className="relative flex items-center">
+                              <span className="absolute left-3 pointer-events-none text-muted-foreground">
+                                <Globe size={14} className="text-primary" />
+                              </span>
+                              <Input
+                                placeholder="https://yourwebsite.com"
+                                className="h-10 text-sm border-border bg-secondary/30 rounded-xl pl-9 focus-visible:ring-primary"
+                                disabled={updateProfileMutation.isPending}
+                                {...field}
+                                value={field.value || ''}
+                                onFocus={() => setFocusedField('website_url')}
+                                onBlur={() => {
+                                  field.onBlur();
+                                  setFocusedField(null);
+                                }}
+                              />
+                            </div>
+                          </FormControl>
+                          {focusedField === 'website_url' &&
+                            (!field.value || !field.value.trim()) &&
+                            !formErrors.website_url && (
+                              <p className="text-[10px] text-muted-foreground">
+                                Dán liên kết đầy đủ bắt đầu bằng https://
+                              </p>
+                            )}
+                          <FormMessage className="text-[11px] text-rose-500" />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                )}
+              </div>
             </div>
 
-            <DialogFooter className="flex-row gap-2 pt-2 sm:justify-end">
+            {/* Pinned Sticky Footer */}
+            <DialogFooter className="p-3 sm:p-4 border-t border-border/60 bg-card flex-row gap-2 sm:justify-end flex-shrink-0">
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
                 onClick={handleCancelEdit}
                 disabled={updateProfileMutation.isPending || isUploadingAvatar}
-                className="flex-1 sm:flex-initial rounded-xl border-border text-xs cursor-pointer"
+                className="flex-1 sm:flex-initial rounded-xl border-border text-xs cursor-pointer min-h-[44px] sm:min-h-[36px]"
               >
                 Hủy
               </Button>
@@ -537,7 +644,7 @@ export function EditProfileDialog({
                 type="submit"
                 size="sm"
                 disabled={updateProfileMutation.isPending || isUploadingAvatar}
-                className="flex-1 sm:flex-initial bg-primary hover:bg-primary-hover text-primary-foreground font-semibold rounded-xl text-xs cursor-pointer shadow-xs"
+                className="flex-1 sm:flex-initial bg-primary hover:bg-primary-hover text-primary-foreground font-semibold rounded-xl text-xs cursor-pointer shadow-xs min-h-[44px] sm:min-h-[36px]"
               >
                 {updateProfileMutation.isPending ? (
                   <>
