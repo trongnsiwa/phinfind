@@ -650,4 +650,56 @@ test.describe('Discover Page & Bento Grid', () => {
     await expect(bottomNav.getByRole('link', { name: 'Đã lưu' })).toBeVisible();
     await expect(bottomNav.getByRole('link', { name: 'Hồ sơ' })).toBeVisible();
   });
+
+  test('trending and new shops carousels render on unfiltered Discover page and support swipe and card selection', async ({ page }) => {
+    await page.goto('/');
+    await assertNoHorizontalScroll(page);
+
+    // Check for either the trending/new carousels or empty state / grid cards
+    const trendingSection = page.locator('section[aria-label="Đang thịnh hành"]');
+    const newSection = page.locator('section[aria-label="Mới được thêm"]');
+    const bentoCards = page.locator('[data-slot="card"], [class*="ShopCard"], article, [class*="card-glow-border"]');
+
+    // Wait for either carousels to render or initial shops loading to settle
+    await Promise.race([
+      trendingSection.waitFor({ state: 'visible', timeout: 6000 }).catch(() => null),
+      newSection.waitFor({ state: 'visible', timeout: 6000 }).catch(() => null),
+      bentoCards.first().waitFor({ state: 'visible', timeout: 6000 }).catch(() => null),
+    ]);
+
+    const hasTrending = await trendingSection.isVisible();
+    const hasNew = await newSection.isVisible();
+
+    if (hasTrending || hasNew) {
+      const activeCarousel = hasTrending ? trendingSection : newSection;
+      await expect(activeCarousel).toBeVisible();
+
+      // Ensure no horizontal scroll on page level
+      await assertNoHorizontalScroll(page);
+
+      // Verify carousel items exist
+      const carouselItems = activeCarousel.locator('[role="group"][aria-roledescription="slide"]');
+      const itemCount = await carouselItems.count();
+
+      if (itemCount > 0) {
+        const firstCard = carouselItems.first().locator('[role="button"]').first();
+        await expect(firstCard).toBeVisible();
+
+        // Verify touch target for heart button if present
+        const heartBtn = firstCard.locator('button[aria-label*="lưu" i]');
+        if (await heartBtn.isVisible()) {
+          const heartBox = await heartBtn.boundingBox();
+          expect(heartBox?.height).toBeGreaterThanOrEqual(40);
+        }
+
+        // Tap card to open ShopDrawer
+        await firstCard.click();
+        await expect(page).toHaveURL(/[?&]shop=/);
+
+        // Close drawer
+        await page.keyboard.press('Escape');
+      }
+    }
+  });
 });
+

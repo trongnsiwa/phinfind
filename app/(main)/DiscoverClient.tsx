@@ -1,7 +1,7 @@
 'use client';
 
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowUpDown, Coffee, Footprints, MapPin, Plus, RotateCcw, SlidersHorizontal, Star, X } from 'lucide-react';
+import { ArrowUpDown, Coffee, Footprints, MapPin, Plus, RotateCcw, SlidersHorizontal, Sparkles, Star, TrendingUp, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -38,6 +38,7 @@ import { BentoGrid } from '@/components/bento/BentoGrid';
 import { SearchBar } from '@/components/bento/SearchBar';
 import { FilterChips } from '@/components/bento/FilterChips';
 import { FloatingFilterBar } from '@/components/bento/FloatingFilterBar';
+import { TrendingCarousel } from '@/components/bento/TrendingCarousel';
 import { ShopCardSmall } from '@/components/bento/ShopCardSmall';
 import { ShopCardMedium } from '@/components/bento/ShopCardMedium';
 import { ShopCardLarge } from '@/components/bento/ShopCardLarge';
@@ -47,7 +48,7 @@ import { InfiniteScroll } from '@/components/bento/InfiniteScroll';
 import { ListSkeleton, SkeletonCard } from '@/components/common/LoadingSkeleton';
 
 import { useLocation } from '@/hooks/useLocation';
-import { useInfiniteShops, useToggleFavorite, useUserFavorites } from '@/hooks/useShops';
+import { useInfiniteShops, useToggleFavorite, useUserFavorites, useTrendingShops, useNewShops } from '@/hooks/useShops';
 import { useReverseGeocode } from '@/hooks/useReverseGeocode';
 import { useAuth } from '@/hooks/useAuth';
 import { useShopStore, closeActiveShop, clearShopQueryParam, isShopRecentlyDeleted } from '@/stores/useShopStore';
@@ -97,6 +98,43 @@ export function DiscoverClient() {
     isError,
     refetch,
   } = useInfiniteShops(lat, lng, 12, filters.radiusKm);
+
+  const {
+    data: trendingShops = [],
+    isLoading: trendingLoading,
+    isError: trendingError,
+  } = useTrendingShops(7, 10, lat, lng);
+
+  const {
+    data: newShops = [],
+    isLoading: newShopsLoading,
+    isError: newShopsError,
+  } = useNewShops(10, lat, lng);
+
+  const hasAnyCarousel =
+    trendingLoading ||
+    newShopsLoading ||
+    trendingShops.length > 0 ||
+    newShops.length > 0;
+
+  useEffect(() => {
+    if (trendingError) {
+      console.warn('[DiscoverClient] Failed to load trending shops');
+    }
+  }, [trendingError]);
+
+  useEffect(() => {
+    if (newShopsError) {
+      console.warn('[DiscoverClient] Failed to load new shops');
+    }
+  }, [newShopsError]);
+
+  const scrollToGrid = () => {
+    const gridElem = document.getElementById('bento-grid-container');
+    if (gridElem) {
+      gridElem.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   const rawShops = useMemo(() => {
     return data?.pages.flatMap((page) => page.shops) || [];
@@ -841,8 +879,36 @@ export function DiscoverClient() {
           </Button>
         </div>
       ) : (
-        <BentoGrid>
-          {displayedShops.map((shop, index) => {
+        <div className="space-y-6">
+          {!isFilterActive && hasAnyCarousel && (
+            <div className="mb-6 md:mb-8 border-b border-border/40 pb-6 md:pb-8 space-y-6 md:space-y-8">
+              <TrendingCarousel
+                title="Đang thịnh hành"
+                subtitle="Những quán được cộng đồng ghé nhiều nhất tuần này"
+                icon={<TrendingUp size={18} />}
+                shops={trendingShops}
+                isLoading={trendingLoading}
+                favorites={favorites}
+                onSelect={setSelectedShop}
+                onToggleFavorite={handleToggleFav}
+                onViewAll={scrollToGrid}
+              />
+              <TrendingCarousel
+                title="Mới được thêm"
+                subtitle="Những quán vừa được cập nhật gần đây"
+                icon={<Sparkles size={18} />}
+                shops={newShops}
+                isLoading={newShopsLoading}
+                favorites={favorites}
+                onSelect={setSelectedShop}
+                onToggleFavorite={handleToggleFav}
+                onViewAll={scrollToGrid}
+              />
+            </div>
+          )}
+
+          <BentoGrid id="bento-grid-container">
+            {displayedShops.map((shop, index) => {
             const isFav = favorites.includes(shop.place_id);
 
             // RESPONSIVE: On mobile (< md), render standard card or 1x2 featured hero card
@@ -952,7 +1018,8 @@ export function DiscoverClient() {
             />
           )}
         </BentoGrid>
-      )}
+      </div>
+    )}
 
       {/* Floating Sticky Quick Filter Bar - tablet and desktop only (mobile uses sticky header) */}
       {/* RESPONSIVE: Only render floating filter bar on tablet/desktop (md+) */}

@@ -5,6 +5,8 @@ import {
   mapDbShopToCoffeeShop,
   fetchCommunityCoverPhotos,
   fetchNearbyShopsRpc,
+  fetchTrendingShops,
+  fetchNewShops,
 } from '../shops';
 
 describe('Supabase Shops Helpers', () => {
@@ -342,6 +344,187 @@ describe('Supabase Shops Helpers', () => {
       expect(result.shops[0].facebook_url).toBe('https://facebook.com/cafemoi');
       expect(result.shops[0].instagram_url).toBe('https://instagram.com/cafemoi');
       expect(result.shops[0].tiktok_url).toBeNull();
+    });
+  });
+
+  describe('fetchTrendingShops', () => {
+    it('calls trending_shops RPC with correct arguments and maps results', async () => {
+      const mockRpc = vi.fn().mockResolvedValue({
+        data: [
+          {
+            place_id: 'trending-1',
+            name: 'Quán Trending',
+            lat: 21.03,
+            lon: 105.85,
+            photos: ['https://example.com/trend.jpg'],
+            review_count: 42,
+            hidden: false,
+          },
+        ],
+        error: null,
+      });
+
+      const mockSupabase = { rpc: mockRpc } as any;
+
+      const result = await fetchTrendingShops(mockSupabase, { daysBack: 14, limit: 5 });
+
+      expect(mockRpc).toHaveBeenCalledWith('trending_shops', {
+        days_back: 14,
+        result_limit: 5,
+      });
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe('trending-1');
+      expect(result[0].name).toBe('Quán Trending');
+      expect(result[0].cover_source).toBe('official');
+    });
+
+    it('resolves community cover photo for trending rows without official photos', async () => {
+      const mockRpc = vi.fn().mockResolvedValue({
+        data: [
+          {
+            place_id: 'trending-no-photo',
+            name: 'Quán No Photo',
+            lat: 21.03,
+            lon: 105.85,
+            photos: [],
+            review_count: 10,
+            hidden: false,
+          },
+        ],
+        error: null,
+      });
+
+      const mockFrom = vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          in: vi.fn().mockReturnValue({
+            gte: vi.fn().mockReturnValue({
+              not: vi.fn().mockReturnValue({
+                order: vi.fn().mockResolvedValue({
+                  data: [
+                    {
+                      id: 'rev-trend-1',
+                      shop_place_id: 'trending-no-photo',
+                      images: ['https://example.com/comm-cover.jpg'],
+                      rating: 5,
+                      created_at: '2026-09-01T00:00:00Z',
+                    },
+                  ],
+                  error: null,
+                }),
+              }),
+            }),
+          }),
+        }),
+      });
+
+      const mockSupabase = { rpc: mockRpc, from: mockFrom } as any;
+
+      const result = await fetchTrendingShops(mockSupabase);
+
+      expect(result[0].photos).toEqual(['https://example.com/comm-cover.jpg']);
+      expect(result[0].cover_source).toBe('community');
+      expect(result[0].cover_from_review_id).toBe('rev-trend-1');
+    });
+
+    it('returns empty array gracefully on RPC error without throwing', async () => {
+      const mockRpc = vi.fn().mockResolvedValue({
+        data: null,
+        error: { message: 'Database failure' },
+      });
+
+      const mockSupabase = { rpc: mockRpc } as any;
+
+      const result = await fetchTrendingShops(mockSupabase);
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('fetchNewShops', () => {
+    it('calls new_shops RPC with correct arguments and maps results', async () => {
+      const mockRpc = vi.fn().mockResolvedValue({
+        data: [
+          {
+            place_id: 'new-1',
+            name: 'Quán Mới',
+            lat: 21.03,
+            lon: 105.85,
+            photos: ['https://example.com/new.jpg'],
+            hidden: false,
+          },
+        ],
+        error: null,
+      });
+
+      const mockSupabase = { rpc: mockRpc } as any;
+
+      const result = await fetchNewShops(mockSupabase, { limit: 8 });
+
+      expect(mockRpc).toHaveBeenCalledWith('new_shops', {
+        result_limit: 8,
+      });
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe('new-1');
+      expect(result[0].name).toBe('Quán Mới');
+      expect(result[0].cover_source).toBe('official');
+    });
+
+    it('resolves community cover photo for new rows without official photos', async () => {
+      const mockRpc = vi.fn().mockResolvedValue({
+        data: [
+          {
+            place_id: 'new-no-photo',
+            name: 'Quán Mới Không Ảnh',
+            lat: 21.03,
+            lon: 105.85,
+            photos: [],
+            hidden: false,
+          },
+        ],
+        error: null,
+      });
+
+      const mockFrom = vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          in: vi.fn().mockReturnValue({
+            gte: vi.fn().mockReturnValue({
+              not: vi.fn().mockReturnValue({
+                order: vi.fn().mockResolvedValue({
+                  data: [
+                    {
+                      id: 'rev-new-1',
+                      shop_place_id: 'new-no-photo',
+                      images: ['https://example.com/comm-new.jpg'],
+                      rating: 4,
+                      created_at: '2026-09-02T00:00:00Z',
+                    },
+                  ],
+                  error: null,
+                }),
+              }),
+            }),
+          }),
+        }),
+      });
+
+      const mockSupabase = { rpc: mockRpc, from: mockFrom } as any;
+
+      const result = await fetchNewShops(mockSupabase);
+
+      expect(result[0].photos).toEqual(['https://example.com/comm-new.jpg']);
+      expect(result[0].cover_source).toBe('community');
+      expect(result[0].cover_from_review_id).toBe('rev-new-1');
+    });
+
+    it('returns empty array gracefully on RPC error without throwing', async () => {
+      const mockRpc = vi.fn().mockResolvedValue({
+        data: null,
+        error: { message: 'Database failure' },
+      });
+
+      const mockSupabase = { rpc: mockRpc } as any;
+
+      const result = await fetchNewShops(mockSupabase);
+      expect(result).toEqual([]);
     });
   });
 });

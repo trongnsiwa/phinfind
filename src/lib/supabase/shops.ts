@@ -248,3 +248,85 @@ export async function fetchNearbyShopsRpc(
   return { shops, total };
 }
 
+export interface FetchTrendingShopsParams {
+  daysBack?: number;
+  limit?: number;
+  userLat?: number;
+  userLng?: number;
+}
+
+export async function fetchTrendingShops(
+  supabase: SupabaseClient<any> | any,
+  params: FetchTrendingShopsParams = {}
+): Promise<CoffeeShop[]> {
+  const { daysBack = 7, limit = 10, userLat, userLng } = params;
+  try {
+    const { data, error } = await supabase.rpc('trending_shops', {
+      days_back: daysBack,
+      result_limit: limit,
+    });
+
+    if (error) {
+      console.warn('[fetchTrendingShops] Error calling trending_shops RPC:', error);
+      return [];
+    }
+
+    const rows: any[] = data || [];
+    if (!Array.isArray(rows) || rows.length === 0) {
+      return [];
+    }
+
+    const needsCover = rows
+      .filter((r) => !Array.isArray(r.photos) || r.photos.length === 0)
+      .map((r) => r.place_id);
+    const communityCovers = await fetchCommunityCoverPhotos(supabase, needsCover);
+
+    return rows.map((row) =>
+      mapDbShopToCoffeeShop(row, userLat, userLng, communityCovers[row.place_id] ?? null)
+    );
+  } catch (err) {
+    console.warn('[fetchTrendingShops] Unexpected error:', err);
+    return [];
+  }
+}
+
+export interface FetchNewShopsParams {
+  limit?: number;
+  userLat?: number;
+  userLng?: number;
+}
+
+export async function fetchNewShops(
+  supabase: SupabaseClient<any> | any,
+  params: FetchNewShopsParams = {}
+): Promise<CoffeeShop[]> {
+  const { limit = 10, userLat, userLng } = params;
+  try {
+    const { data, error } = await supabase.rpc('new_shops', {
+      result_limit: limit,
+    });
+
+    if (error) {
+      console.warn('[fetchNewShops] Error calling new_shops RPC:', error);
+      return [];
+    }
+
+    const rows: any[] = data || [];
+    if (!Array.isArray(rows) || rows.length === 0) {
+      return [];
+    }
+
+    const needsCover = rows
+      .filter((r) => !Array.isArray(r.photos) || r.photos.length === 0)
+      .map((r) => r.place_id);
+    const communityCovers = await fetchCommunityCoverPhotos(supabase, needsCover);
+
+    return rows.map((row) =>
+      mapDbShopToCoffeeShop(row, userLat, userLng, communityCovers[row.place_id] ?? null)
+    );
+  } catch (err) {
+    console.warn('[fetchNewShops] Unexpected error:', err);
+    return [];
+  }
+}
+

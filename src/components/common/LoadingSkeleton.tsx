@@ -419,4 +419,44 @@ export function ProfileSkeleton() {
   );
 }
 
+export function DiscoverCarouselSkeleton({ className }: { className?: string }) {
+  return (
+    <div className={cn('w-full py-1', className)}>
+      {/* Header bar skeleton */}
+      <div className="flex items-center justify-between mb-3 md:mb-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-5 w-5 rounded-md bg-muted/70" />
+            <Skeleton className="h-5 w-36 rounded-md bg-muted/70" />
+          </div>
+          <Skeleton className="h-3.5 w-60 rounded-md bg-muted/50" />
+        </div>
+        <Skeleton className="h-4 w-16 rounded-md bg-muted/60" />
+      </div>
+
+      {/* Horizontal row of card skeletons */}
+      <div className="flex gap-3 sm:gap-3.5 overflow-hidden -mx-1 px-1 py-2.5 no-scrollbar">
+        {[1, 2, 3, 4].map((i) => (
+          <div
+            key={i}
+            className="shrink-0 w-[70vw] sm:w-[45vw] md:w-[32vw] lg:w-[24vw] xl:w-[20vw] min-w-[220px] max-w-[320px] basis-[70vw] sm:basis-[45vw] md:basis-[32vw] lg:basis-[24vw] xl:basis-[20vw] bg-gradient-to-b from-card via-card to-secondary/30 rounded-2xl border border-border/80 p-2.5 sm:p-3 space-y-2.5 shadow-card"
+          >
+            {/* Image area */}
+            <Skeleton className="w-full aspect-[16/10] sm:aspect-[16/9] rounded-xl bg-muted/70 border border-border/60" />
+            {/* Title & metrics */}
+            <div className="space-y-1.5 pt-0.5">
+              <Skeleton className="h-4 w-3/4 rounded bg-muted/70" />
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-3 w-10 rounded bg-muted/60" />
+                <Skeleton className="h-3 w-14 rounded bg-muted/50" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export const SkeletonCard = CardSkeleton;
+

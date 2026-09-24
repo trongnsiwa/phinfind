@@ -12,11 +12,12 @@ export const GRID_CLASSES = BENTO_GRID_CLASSES;
 interface BentoGridProps {
   children: React.ReactNode;
   className?: string;
+  id?: string;
 }
 
-export function BentoGrid({ children, className }: BentoGridProps) {
+export function BentoGrid({ children, className, id }: BentoGridProps) {
   return (
-    <div className={cn(BENTO_GRID_CLASSES, className)}>
+    <div id={id} className={cn(BENTO_GRID_CLASSES, className)}>
       {children}
     </div>
   );

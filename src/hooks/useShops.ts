@@ -11,6 +11,8 @@ import { UserProfile } from '@/types/user';
 import { useShopStore } from '@/stores/useShopStore';
 import { useAuth } from '@/hooks/useAuth';
 import { enqueue } from '@/lib/offline/queue';
+import { createClient } from '@/lib/supabase/client';
+import { fetchTrendingShops, fetchNewShops } from '@/lib/supabase/shops';
 
 export function isOnline(): boolean {
   if (typeof navigator !== 'undefined' && typeof navigator.onLine === 'boolean') {
@@ -1008,6 +1010,47 @@ export function useUserSuggestions(shopPlaceId?: string) {
     },
     enabled: !isAuthLoading && isAuthenticated && Boolean(user?.id),
     staleTime: 60 * 1000,
+  });
+}
+
+export function useTrendingShops(
+  daysBack: number = 7,
+  limit: number = 10,
+  userLat?: number,
+  userLng?: number
+) {
+  const supabase = createClient();
+  const queryKey =
+    userLat !== undefined && userLng !== undefined
+      ? ['shops', 'trending', daysBack, limit, userLat, userLng]
+      : ['shops', 'trending', daysBack, limit];
+
+  return useQuery({
+    queryKey,
+    queryFn: () => fetchTrendingShops(supabase, { daysBack, limit, userLat, userLng }),
+    staleTime: 5 * 60 * 1000,
+    enabled: true,
+    refetchOnWindowFocus: false,
+  });
+}
+
+export function useNewShops(
+  limit: number = 10,
+  userLat?: number,
+  userLng?: number
+) {
+  const supabase = createClient();
+  const queryKey =
+    userLat !== undefined && userLng !== undefined
+      ? ['shops', 'new', limit, userLat, userLng]
+      : ['shops', 'new', limit];
+
+  return useQuery({
+    queryKey,
+    queryFn: () => fetchNewShops(supabase, { limit, userLat, userLng }),
+    staleTime: 5 * 60 * 1000,
+    enabled: true,
+    refetchOnWindowFocus: false,
   });
 }
 
