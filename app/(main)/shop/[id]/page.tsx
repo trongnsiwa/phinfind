@@ -173,10 +173,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const description = buildShopDescription(shop);
-  const primaryPhoto = shop.photos?.[0];
-  const ogImages = primaryPhoto
-    ? [{ url: primaryPhoto, width: 1200, height: 630, alt: shop.name }]
-    : [];
 
   return {
     title: `${shop.name} | PhinFind`,
@@ -184,16 +180,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     openGraph: {
       title: shop.name,
       description,
-      images: ogImages,
       type: 'website',
       siteName: 'PhinFind',
       locale: 'vi_VN',
     },
     twitter: {
-      card: primaryPhoto ? 'summary_large_image' : 'summary',
+      card: 'summary_large_image',
       title: shop.name,
       description,
-      images: primaryPhoto ? [primaryPhoto] : [],
     },
     alternates: {
       canonical: `/shop/${shop.place_id || id}`,

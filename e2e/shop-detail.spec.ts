@@ -321,4 +321,14 @@ test.describe('Shop Detail Flow', () => {
     const fbItem = page.getByRole('menuitem', { name: /Facebook/i });
     await expect(fbItem).not.toBeVisible();
   });
+
+  test('serves branded opengraph-image with correct headers and payload size', async ({ request }) => {
+    // Test fallback card response for nonexistent or cold ID
+    const response = await request.get('/shop/og-test-placeholder/opengraph-image');
+    expect(response.status()).toBe(200);
+    expect(response.headers()['content-type']).toContain('image/png');
+    const body = await response.body();
+    expect(body.byteLength).toBeGreaterThan(10240);
+  });
 });
+
