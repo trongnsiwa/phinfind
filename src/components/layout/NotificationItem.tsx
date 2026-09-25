@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { Heart, ShieldCheck, XCircle, Pencil, X, CheckCircle2 } from 'lucide-react';
+import { Heart, ShieldCheck, XCircle, Pencil, X, CheckCircle2, UserPlus } from 'lucide-react';
 import { NotificationItem as NotificationItemType } from '@/hooks/useNotifications';
 import { formatRelativeTime } from '@/lib/utils/formatTime';
 import { cn } from '@/lib/utils';
@@ -27,6 +27,8 @@ export function NotificationItem({
     switch (notification.type) {
       case 'review_liked':
         return <Heart className="w-4 h-4 text-red-500 fill-red-500/20 flex-shrink-0" />;
+      case 'new_follower':
+        return <UserPlus className="w-4 h-4 text-amber-gold flex-shrink-0" />;
       case 'shop_approved':
         return <ShieldCheck className="w-4 h-4 text-emerald-500 flex-shrink-0" />;
       case 'shop_rejected':
@@ -50,6 +52,8 @@ export function NotificationItem({
     switch (notification.type) {
       case 'review_liked':
         return `${actorName} đã thấy đánh giá của bạn hữu ích`;
+      case 'new_follower':
+        return `${actorName} đã bắt đầu theo dõi bạn`;
       case 'shop_approved':
         return shopName
           ? `Quán "${shopName}" của bạn đã được xác minh`
@@ -80,6 +84,14 @@ export function NotificationItem({
       onMarkRead(notification.id);
     }
     onCloseDropdown();
+
+    if (notification.type === 'new_follower') {
+      const username = notification.payload?.actor_username;
+      if (username) {
+        router.push(`/u/${username}`);
+      }
+      return;
+    }
 
     if (notification.shop_place_id) {
       const shopSlug = notification.shop_slug || notification.payload?.shop_slug;

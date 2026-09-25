@@ -149,4 +149,11 @@ test.describe('Authentication Flow', () => {
     );
     await expect(socialLinks).toHaveCount(2);
   });
+
+  test('guest visiting /feed redirects to login with redirect parameter', async ({ page }) => {
+    await page.goto('/feed');
+    await page.waitForURL(/\/login\?redirect=.*feed/, { timeout: 10000 });
+    expect(page.url()).toContain('/login');
+    expect(page.url()).toContain('redirect=');
+  });
 });

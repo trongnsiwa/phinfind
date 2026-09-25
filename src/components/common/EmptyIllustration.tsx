@@ -4,11 +4,24 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 
-export type IllustrationType = 'no-photos' | 'no-reviews' | 'add-photo' | 'no-hours' | 'no-videos';
+export type IllustrationType = 'no-photos' | 'no-reviews' | 'add-photo' | 'no-hours' | 'no-videos' | 'no-following';
 
 interface IllustrationProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   size?: number | string;
   className?: string;
+}
+
+export function NoFollowingIllustration({ size = 160, className, ...props }: IllustrationProps) {
+  return (
+    <img
+      src="/illustrations/no-following.svg"
+      alt="Chưa theo dõi ai"
+      width={size}
+      height={size}
+      className={cn('select-none pointer-events-none object-contain drop-shadow-md', className)}
+      {...props}
+    />
+  );
 }
 
 export function NoVideosIllustration({ size = 160, className, ...props }: IllustrationProps) {
@@ -98,6 +111,8 @@ export function EmptyIllustration({
       return <AddPhotoIllustration size={size} className={className} {...props} />;
     case 'no-hours':
       return <NoHoursIllustration size={size} className={className} {...props} />;
+    case 'no-following':
+      return <NoFollowingIllustration size={size} className={className} {...props} />;
     default:
       return <NoPhotosIllustration size={size} className={className} {...props} />;
   }

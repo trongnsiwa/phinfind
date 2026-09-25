@@ -18,6 +18,9 @@ export const APP_ROUTES = {
   ADMIN: '/admin',
   SHOP_DETAIL: (id: string) => `/shop/${id}`,
   PUBLIC_PROFILE: (username: string) => `/u/${encodeURIComponent(username)}`,
+  FOLLOWERS: (username: string) => `/u/${encodeURIComponent(username)}/followers`,
+  FOLLOWING: (username: string) => `/u/${encodeURIComponent(username)}/following`,
+  FEED: '/feed',
 };
 
 export const API_ENDPOINTS = {
@@ -34,6 +37,11 @@ export const API_ENDPOINTS = {
   PUBLIC_PROFILE: '/api/user/public-profile',
   SUGGEST_EDIT: '/api/shops/suggest-edit',
   ADMIN_SUGGESTIONS: '/api/admin/suggestions',
+  FOLLOW: '/api/user/follow',
+  FOLLOW_STATUS: '/api/user/follow-status',
+  FOLLOWERS: '/api/user/followers',
+  FOLLOWING: '/api/user/following',
+  FEED: '/api/feed',
 };
 
 export interface ReviewTagDefinition {

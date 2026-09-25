@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createPublicClient } from '@/lib/supabase/server';
+import { createClient, createPublicClient } from '@/lib/supabase/server';
 
 export async function GET(request: NextRequest) {
   try {
@@ -31,6 +31,45 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Check optional auth for is_following computation
+    let currentUserId: string | null = null;
+    try {
+      const authClient = await createClient();
+      const {
+        data: { user: currentUser },
+      } = await authClient.auth.getUser();
+      if (currentUser) {
+        currentUserId = currentUser.id;
+      }
+    } catch {
+      // Unauthenticated
+    }
+
+    const [followersRes, followingRes, isFollowingRes] = await Promise.all([
+      supabase
+        .from('follows')
+        .select('*', { count: 'exact', head: true })
+        .eq('followee_id', profile.id),
+      supabase
+        .from('follows')
+        .select('*', { count: 'exact', head: true })
+        .eq('follower_id', profile.id),
+      currentUserId && currentUserId !== profile.id
+        ? supabase
+            .from('follows')
+            .select('follower_id')
+            .eq('follower_id', currentUserId)
+            .eq('followee_id', profile.id)
+            .maybeSingle()
+        : Promise.resolve({ data: null }),
+    ]);
+
+    const social_stats = {
+      followers: followersRes.count || 0,
+      following: followingRes.count || 0,
+      is_following: Boolean(isFollowingRes?.data),
+    };
+
     // Exclude private fields: email, role, etc. are omitted from public display.
     const publicProfile = {
       id: profile.id,
@@ -43,6 +82,7 @@ export async function GET(request: NextRequest) {
       tiktok_url: profile.tiktok_url ?? null,
       website_url: profile.website_url ?? null,
       created_at: profile.created_at,
+      social_stats,
     };
 
     // Fetch user reviews joined with shops, matching /api/reviews?userId=X

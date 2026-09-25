@@ -111,4 +111,31 @@ test.describe('Header Search Takeover and Responsive Behavior', () => {
     await expect(searchInput).toBeHidden();
     await expect(searchTrigger).toBeVisible();
   });
+
+  test('desktop header navigation renders visible Bảng tin link on viewports >= 768px', async ({
+    page,
+  }) => {
+    const isMobileViewport = (page.viewportSize()?.width ?? 1000) < 768;
+    test.skip(isMobileViewport, 'Desktop/Tablet (>= 768px) only test');
+
+    await page.goto('/');
+    await page.waitForLoadState('domcontentloaded');
+
+    const feedLink = page.locator('header nav').getByRole('link', { name: 'Bảng tin' });
+    await expect(feedLink).toBeVisible();
+    await expect(feedLink).toHaveAttribute('href', '/feed');
+  });
+
+  test('mobile header hides desktop nav including Bảng tin on viewports < 768px', async ({
+    page,
+  }) => {
+    const isMobileViewport = (page.viewportSize()?.width ?? 1000) < 768;
+    test.skip(!isMobileViewport, 'Mobile (< 768px) only test');
+
+    await page.goto('/');
+    await page.waitForLoadState('domcontentloaded');
+
+    const feedHeaderLink = page.locator('header nav').getByRole('link', { name: 'Bảng tin' });
+    await expect(feedHeaderLink).toBeHidden();
+  });
 });

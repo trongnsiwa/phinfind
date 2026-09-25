@@ -13,6 +13,8 @@ export default function robots(): MetadataRoute.Robots {
           '/admin/',
           '/settings/',
           '/favorites/',
+          '/feed/',
+          '/feed',
           '/profile/',
           '/auth/',
           '/_next/',

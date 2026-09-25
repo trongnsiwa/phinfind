@@ -12,6 +12,13 @@ export interface UserProfile {
   role?: 'user' | 'admin';
   created_at: string;
   updated_at: string;
+  social_stats?: SocialStats;
+}
+
+export interface SocialStats {
+  followers: number;
+  following: number;
+  is_following: boolean;
 }
 
 export interface SavedShop {

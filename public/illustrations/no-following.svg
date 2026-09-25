@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%" fill="none">
+  <defs>
+    <filter id="soft-shadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#5A4A3A" flood-opacity="0.10" />
+    </filter>
+    <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4A328" />
+      <stop offset="100%" stop-color="#B8860B" />
+    </linearGradient>
+    <linearGradient id="bubble-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#F8F5F0" />
+    </linearGradient>
+  </defs>
+
+  <!-- Decorative Sparkles / Coffee Beans -->
+  <path d="M 38 46 L 40 52 L 46 54 L 40 56 L 38 62 L 36 56 L 30 54 L 36 52 Z" fill="url(#gold-grad)" />
+  <circle cx="168" cy="58" r="3" fill="#B8860B" opacity="0.5" />
+  <circle cx="34" cy="148" r="2.5" fill="#B8860B" opacity="0.4" />
+
+  <!-- Main Card / Frame -->
+  <g filter="url(#soft-shadow)">
+    <rect x="36" y="44" width="128" height="112" rx="16" fill="url(#bubble-grad)" stroke="#5A4A3A" stroke-width="3" />
+    
+    <!-- User Avatar Silhouette Left -->
+    <circle cx="82" cy="86" r="14" fill="#FAF6EE" stroke="#5A4A3A" stroke-width="2.5" />
+    <path d="M 64 122 C 64 108 72 104 82 104 C 92 104 100 108 100 122" fill="#FAF6EE" stroke="#5A4A3A" stroke-width="2.5" stroke-linecap="round" />
+
+    <!-- Plus / Connection Link between users -->
+    <circle cx="126" cy="74" r="11" fill="#FAF6EE" stroke="url(#gold-grad)" stroke-width="2.5" />
+    <path d="M 112 104 C 112 94 118 90 126 90 C 134 90 140 94 140 104" fill="#FAF6EE" stroke="url(#gold-grad)" stroke-width="2.5" stroke-linecap="round" />
+
+    <!-- Plus badge on right user -->
+    <circle cx="140" cy="62" r="8" fill="url(#gold-grad)" />
+    <path d="M 140 58 L 140 66 M 136 62 L 144 62" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" />
+
+    <!-- Coffee connection line -->
+    <path d="M 88 136 L 112 136" stroke="#D8CDBC" stroke-width="3" stroke-linecap="round" stroke-dasharray="4 4" />
+  </g>
+
+  <!-- Small floating coffee bean badge -->
+  <ellipse cx="162" cy="140" rx="5" ry="3.5" transform="rotate(-30 162 140)" fill="url(#gold-grad)" />
+</svg>

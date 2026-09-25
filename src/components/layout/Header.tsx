@@ -13,6 +13,7 @@ import {
   Sparkles,
   Star,
   Sun,
+  Rss,
   User,
   X
 } from 'lucide-react';
@@ -269,6 +270,33 @@ export function Header() {
                 />
                 <span>Bản đồ</span>
                 {pathname === APP_ROUTES.MAP && (
+                  <span className='absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-[2px] bg-primary rounded-full' />
+                )}
+              </Link>
+            </Button>
+
+            <Button
+              variant='ghost'
+              size='sm'
+              asChild
+              className={cn(
+                'relative group text-xs font-semibold px-3 h-8.5 rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary',
+                pathname === APP_ROUTES.FEED
+                  ? 'text-foreground bg-primary/20 font-bold'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+              )}
+            >
+              <Link href={APP_ROUTES.FEED} className='flex items-center gap-1.5'>
+                <Rss
+                  size={15}
+                  strokeWidth={2.2}
+                  className={cn(
+                    'transition-all duration-200 group-hover:scale-110',
+                    pathname === APP_ROUTES.FEED ? 'text-primary' : 'text-muted-foreground'
+                  )}
+                />
+                <span>Bảng tin</span>
+                {pathname === APP_ROUTES.FEED && (
                   <span className='absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-[2px] bg-primary rounded-full' />
                 )}
               </Link>

@@ -19,7 +19,8 @@ CREATE TABLE IF NOT EXISTS public.notifications (
     'shop_rejected',
     'edit_suggestion_pending',
     'edit_suggestion_approved',
-    'edit_suggestion_rejected'
+    'edit_suggestion_rejected',
+    'new_follower'
   )),
   actor_id UUID CONSTRAINT notifications_actor_id_fkey REFERENCES public.profiles(id) ON DELETE SET NULL,
   shop_place_id TEXT,

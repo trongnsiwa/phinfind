@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Compass, MapPin, Heart, User } from 'lucide-react';
+import { Compass, MapPin, Heart, Rss, User } from 'lucide-react';
 import { APP_ROUTES } from '@/lib/utils/constants';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -37,6 +37,11 @@ export function BottomNav() {
       label: 'Đã lưu',
       href: APP_ROUTES.FAVORITES,
       icon: Heart,
+    },
+    {
+      label: 'Bảng tin',
+      href: APP_ROUTES.FEED,
+      icon: Rss,
     },
     {
       label: 'Hồ sơ',

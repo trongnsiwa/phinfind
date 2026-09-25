@@ -1,5 +1,6 @@
 import { cache } from 'react';
 import { createPublicClient } from '@/lib/supabase/server';
+import type { SocialStats } from '@/types/user';
 
 export interface PublicProfileData {
   id: string;
@@ -12,6 +13,7 @@ export interface PublicProfileData {
   tiktok_url?: string | null;
   website_url?: string | null;
   created_at: string;
+  social_stats?: SocialStats;
 }
 
 export const fetchPublicProfileForServer = cache(

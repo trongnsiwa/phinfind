@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { API_ENDPOINTS, APP_ROUTES } from '@/lib/utils/constants';
 import { CoffeeShop } from '@/types/shop';
-import { UserProfile } from '@/types/user';
+import { UserProfile, SocialStats } from '@/types/user';
 import { useShopStore } from '@/stores/useShopStore';
 import { useAuth } from '@/hooks/useAuth';
 import { enqueue } from '@/lib/offline/queue';
@@ -818,6 +818,7 @@ export interface PublicProfileData {
   tiktok_url?: string | null;
   website_url?: string | null;
   created_at: string;
+  social_stats?: SocialStats;
 }
 
 export interface PublicProfileResponse {

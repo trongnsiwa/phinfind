@@ -12,7 +12,8 @@ export type NotificationType =
   | 'shop_rejected'
   | 'edit_suggestion_pending'
   | 'edit_suggestion_approved'
-  | 'edit_suggestion_rejected';
+  | 'edit_suggestion_rejected'
+  | 'new_follower';
 
 export interface NotificationItem {
   id: string;
