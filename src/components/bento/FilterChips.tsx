@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { RotateCcw, MapPin, Star, Tag, Sparkles, Navigation } from 'lucide-react';
+import { RotateCcw, MapPin, Star, Tag, Sparkles, Navigation, Hash } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -19,6 +19,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { POPULAR_CATEGORIES } from '@/components/shop/AddShopDialog/constants';
 import { RadiusSlider } from '@/components/shop/RadiusSlider';
 import { isFilterDefault } from '@/lib/utils/filters';
+import { REVIEW_TAGS } from '@/lib/utils/constants';
 import { useUIStore } from '@/stores/useUIStore';
 import { cn } from '@/lib/utils';
 
@@ -208,6 +209,56 @@ export function FilterChips({ variant = 'inline', className }: FilterChipsProps)
                   />
                   <Icon size={14} className="text-amber-gold flex-shrink-0" />
                   <span className="text-foreground text-xs truncate">{cat.label}</span>
+                </label>
+              );
+            })}
+          </div>
+        </PopoverContent>
+      </Popover>
+
+      {/* Review Tags Popover Chip */}
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            aria-label="Lọc theo thẻ đánh giá"
+            aria-pressed={filters.requiredTagIds.length > 0}
+            // RESPONSIVE: h-9 in sheet variant; h-9 md:h-7 in inline variant
+            className={cn(
+              isSheet
+                ? 'h-9 px-3 text-xs font-semibold rounded-full border transition-all duration-200 ease-out flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0 focus-visible:scale-[1.01]'
+                : 'h-9 md:h-7 px-3 md:px-2.5 [scroll-snap-align:start] text-xs md:text-[11px] font-semibold rounded-full border transition-all duration-200 ease-out flex-shrink-0 flex items-center gap-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0 focus-visible:scale-[1.01]',
+              filters.requiredTagIds.length > 0
+                ? 'bg-amber-gold text-primary-foreground border-amber-gold font-bold shadow-md hover:bg-amber-gold-hover hover:text-primary-foreground focus-visible:ring-amber-gold focus-visible:border-amber-gold'
+                : 'bg-input-bg text-foreground border-input hover:bg-accent hover:text-foreground hover:border-amber-gold/40 focus-visible:ring-primary/60 focus-visible:border-primary/60 focus-visible:bg-accent'
+            )}
+          >
+            <Hash size={12} className={cn('flex-shrink-0 transition-colors duration-200', filters.requiredTagIds.length > 0 ? 'text-primary-foreground' : 'text-amber-gold')} />
+            <span>{filters.requiredTagIds.length > 0 ? `Thẻ · ${filters.requiredTagIds.length}` : 'Thẻ'}</span>
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="z-[60] w-60 p-3 bg-popover border-input text-popover-foreground rounded-xl shadow-xl space-y-2">
+          <div className="text-xs font-bold text-foreground">Thẻ đánh giá</div>
+          <div className="space-y-1 max-h-60 overflow-y-auto pr-1">
+            {REVIEW_TAGS.map((tag) => {
+              const checked = filters.requiredTagIds.includes(tag.id);
+              return (
+                <label
+                  key={tag.id}
+                  className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-accent cursor-pointer text-xs select-none transition-colors"
+                >
+                  <Checkbox
+                    checked={checked}
+                    onCheckedChange={(isChecked) => {
+                      const next = isChecked
+                        ? [...filters.requiredTagIds, tag.id]
+                        : filters.requiredTagIds.filter((id) => id !== tag.id);
+                      setFilters({ requiredTagIds: next });
+                    }}
+                    className="data-[state=checked]:bg-amber-gold data-[state=checked]:border-amber-gold data-[state=checked]:text-primary-foreground"
+                  />
+                  <span className="text-foreground text-xs truncate">#{tag.label}</span>
                 </label>
               );
             })}

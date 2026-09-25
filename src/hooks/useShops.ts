@@ -141,6 +141,7 @@ export interface ReviewData {
   rating: number;
   comment: string;
   images?: string[];
+  tags?: string[];
   created_at: string;
   author: string;
   avatar?: string | null;
@@ -253,6 +254,7 @@ export interface EditReviewPayload {
   rating: number;
   comment: string;
   images?: string[];
+  tags?: string[];
   shop_place_id?: string;
 }
 

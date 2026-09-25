@@ -21,6 +21,7 @@ const mockShops: CoffeeShop[] = [
       { id: 'air_conditioned', name: 'Máy lạnh', type: 'predefined', description: '' },
       { id: 'high_speed_wifi', name: 'Wi-Fi tốc độ cao', type: 'predefined', description: '' },
     ],
+    review_tag_ids: ['wifi-manh', 'yen-tinh'],
   },
   {
     id: 'shop-2',
@@ -39,6 +40,7 @@ const mockShops: CoffeeShop[] = [
     amenities: [
       { id: 'air_conditioned', name: 'Máy lạnh', type: 'predefined', description: '' },
     ],
+    review_tag_ids: ['wifi-manh', 'do-xe'],
   },
   {
     id: 'shop-3',
@@ -57,6 +59,7 @@ const mockShops: CoffeeShop[] = [
     amenities: [
       { id: 'parking_available', name: 'Chỗ đỗ xe', type: 'predefined', description: '' },
     ],
+    review_tag_ids: ['view-dep'],
   },
 ];
 
@@ -66,6 +69,7 @@ const defaultFilters: ShopFilterState = {
   sortBy: 'distance',
   priceRanges: [],
   requiredAmenityIds: [],
+  requiredTagIds: [],
   radiusKm: null,
 };
 
@@ -108,6 +112,28 @@ describe('Filters Utility (FEAT-07)', () => {
     expect(bothAmenities[0].id).toBe('shop-1');
   });
 
+  it('requires ALL listed requiredTagIds to be present (intersection requirement)', () => {
+    const singleTag = applyShopFilters(mockShops, {
+      ...defaultFilters,
+      requiredTagIds: ['wifi-manh'],
+    });
+    expect(singleTag).toHaveLength(2);
+    expect(singleTag.map((s) => s.id)).toEqual(['shop-1', 'shop-2']);
+
+    const bothTags = applyShopFilters(mockShops, {
+      ...defaultFilters,
+      requiredTagIds: ['wifi-manh', 'yen-tinh'],
+    });
+    expect(bothTags).toHaveLength(1);
+    expect(bothTags[0].id).toBe('shop-1');
+
+    const noMatch = applyShopFilters(mockShops, {
+      ...defaultFilters,
+      requiredTagIds: ['wifi-manh', 'view-dep'],
+    });
+    expect(noMatch).toHaveLength(0);
+  });
+
   it('handles radiusKm correctly (skips when null, excludes beyond limit when set)', () => {
     const noRadius = applyShopFilters(mockShops, { ...defaultFilters, radiusKm: null });
     expect(noRadius).toHaveLength(3);
@@ -132,6 +158,7 @@ describe('Filters Utility (FEAT-07)', () => {
   it('counts active filters properly', () => {
     expect(countActiveFilters(defaultFilters, '')).toBe(0);
     expect(countActiveFilters({ ...defaultFilters, openNowOnly: true }, '')).toBe(1);
+    expect(countActiveFilters({ ...defaultFilters, requiredTagIds: ['wifi-manh'] }, '')).toBe(1);
     expect(
       countActiveFilters(
         {
@@ -140,11 +167,12 @@ describe('Filters Utility (FEAT-07)', () => {
           minRating: 4.0,
           priceRanges: ['₫', '₫₫'],
           requiredAmenityIds: ['air_conditioned'],
+          requiredTagIds: ['wifi-manh'],
           radiusKm: 2,
         },
         'cafe'
       )
-    ).toBe(6);
+    ).toBe(7);
   });
 
   it('identifies default filter state with isFilterDefault', () => {
@@ -152,5 +180,6 @@ describe('Filters Utility (FEAT-07)', () => {
     expect(isFilterDefault({ ...defaultFilters, openNowOnly: true })).toBe(false);
     expect(isFilterDefault({ ...defaultFilters, radiusKm: 5 })).toBe(false);
     expect(isFilterDefault({ ...defaultFilters, minRating: 4 })).toBe(false);
+    expect(isFilterDefault({ ...defaultFilters, requiredTagIds: ['wifi-manh'] })).toBe(false);
   });
 });

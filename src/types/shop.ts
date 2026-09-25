@@ -63,6 +63,7 @@ export interface CoffeeShop {
   created_at?: string;
   cover_source?: 'official' | 'community';
   cover_from_review_id?: string;
+  review_tag_ids?: string[];
 }
 
 export interface ShopFilterState {
@@ -71,6 +72,7 @@ export interface ShopFilterState {
   sortBy: 'distance' | 'rating' | 'name';
   priceRanges: Array<'₫' | '₫₫' | '₫₫₫' | '₫₫₫₫'>;
   requiredAmenityIds: string[];
+  requiredTagIds: string[];
   radiusKm: number | null;
 }
 

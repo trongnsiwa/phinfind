@@ -114,4 +114,39 @@ describe('ReviewCard', () => {
     fireEvent.click(nameLink);
     expect(parentClick).not.toHaveBeenCalled();
   });
+
+  it('renders review tag chips linking to /?tags=<tagId> with >=44px mobile touch target', () => {
+    const reviewWithTags: ReviewItem = {
+      ...mockReviewWithoutUsername,
+      tags: ['wifi-manh', 'Yên tĩnh'],
+    };
+
+    render(
+      <ReviewCard
+        review={reviewWithTags}
+        onOpenImage={vi.fn()}
+      />
+    );
+
+    const wifiLink = screen.getByRole('link', { name: '#Wi-Fi mạnh' });
+    expect(wifiLink).toBeInTheDocument();
+    expect(wifiLink).toHaveAttribute('href', '/?tags=wifi-manh');
+    expect(wifiLink.className).toContain('min-h-[44px]');
+
+    const yenTinhLink = screen.getByRole('link', { name: '#Yên tĩnh' });
+    expect(yenTinhLink).toBeInTheDocument();
+    expect(yenTinhLink).toHaveAttribute('href', '/?tags=yen-tinh');
+    expect(yenTinhLink.className).toContain('min-h-[44px]');
+  });
+
+  it('does not render review tags container when review has no tags', () => {
+    render(
+      <ReviewCard
+        review={mockReviewWithoutUsername}
+        onOpenImage={vi.fn()}
+      />
+    );
+
+    expect(screen.queryByTestId('review-tags')).not.toBeInTheDocument();
+  });
 });

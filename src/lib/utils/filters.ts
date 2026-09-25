@@ -42,13 +42,20 @@ export function applyShopFilters(
     );
   }
 
-  // 5. Radius filter (only when radiusKm !== null)
+  // 5. Required Tags filter
+  if (filters.requiredTagIds && filters.requiredTagIds.length > 0) {
+    result = result.filter((shop) =>
+      filters.requiredTagIds.every((tagId) => shop.review_tag_ids?.includes(tagId))
+    );
+  }
+
+  // 6. Radius filter (only when radiusKm !== null)
   if (typeof filters.radiusKm === 'number' && filters.radiusKm !== null) {
     const maxDistanceMeters = filters.radiusKm * 1000;
     result = result.filter((shop) => (shop.distance ?? Infinity) <= maxDistanceMeters);
   }
 
-  // 6. Sorting
+  // 7. Sorting
   if (filters.sortBy === 'rating') {
     result.sort((a, b) => (b.rating || 0) - (a.rating || 0));
   } else if (filters.sortBy === 'name') {
@@ -74,6 +81,7 @@ export function countActiveFilters(
   if (filters.minRating && filters.minRating > 0) count++;
   if (filters.priceRanges && filters.priceRanges.length > 0) count++;
   if (filters.requiredAmenityIds && filters.requiredAmenityIds.length > 0) count++;
+  if (filters.requiredTagIds && filters.requiredTagIds.length > 0) count++;
   if (filters.radiusKm !== null && typeof filters.radiusKm === 'number') count++;
   if (filters.sortBy && filters.sortBy !== 'distance') count++;
   if (searchQuery && searchQuery.trim().length > 0) count++;
@@ -89,6 +97,7 @@ export function isFilterDefault(filters: ShopFilterState): boolean {
   if (filters.minRating && filters.minRating > 0) return false;
   if (filters.priceRanges && filters.priceRanges.length > 0) return false;
   if (filters.requiredAmenityIds && filters.requiredAmenityIds.length > 0) return false;
+  if (filters.requiredTagIds && filters.requiredTagIds.length > 0) return false;
   if (filters.radiusKm !== null) return false;
   if (filters.sortBy && filters.sortBy !== 'distance') return false;
 

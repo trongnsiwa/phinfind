@@ -80,7 +80,8 @@ export function mapDbShopToCoffeeShop(
     created_by: row.created_by || null,
     verified: typeof row.verified === 'boolean' ? row.verified : (row.created_by ? false : true),
     hidden: typeof row.hidden === 'boolean' ? row.hidden : false,
-    created_at: row.created_at || undefined
+    created_at: row.created_at || undefined,
+    review_tag_ids: Array.isArray(row.review_tag_ids) ? row.review_tag_ids : (Array.isArray(row.tags) ? row.tags : undefined)
   };
 }
 

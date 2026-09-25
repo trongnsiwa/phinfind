@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ShopImage } from '@/components/common/ShopImage';
 import { ReviewerName, isValidUsername } from '@/components/common/ReviewerName';
 import { cn } from '@/lib/utils';
+import { getReviewTagLabel, normalizeReviewTag } from '@/lib/utils/constants';
 import type { ReviewItem } from '../ReviewModal';
 
 interface ReviewCardProps {
@@ -132,6 +133,26 @@ export function ReviewCard({
       <p className='text-xs text-secondary-foreground leading-relaxed break-words whitespace-normal'>
         {review.comment}
       </p>
+
+      {/* Review Tags */}
+      {review.tags && review.tags.length > 0 && (
+        <div className='flex flex-wrap items-center gap-1.5 pt-0.5' data-testid='review-tags'>
+          {review.tags.map((tag) => {
+            const tagId = normalizeReviewTag(tag) || tag;
+            const label = getReviewTagLabel(tag);
+            return (
+              <Link
+                key={tag}
+                href={`/?tags=${encodeURIComponent(tagId)}`}
+                onClick={(e) => e.stopPropagation()}
+                className='inline-flex items-center min-h-[44px] sm:min-h-[28px] px-2.5 py-1 rounded-full text-[11px] font-medium bg-secondary/80 hover:bg-amber-gold/15 text-muted-foreground hover:text-amber-gold border border-border/60 hover:border-amber-gold/40 transition-colors cursor-pointer select-none'
+              >
+                #{label}
+              </Link>
+            );
+          })}
+        </div>
+      )}
 
       {/* Review Attached Photos */}
       {review.images && review.images.length > 0 && (

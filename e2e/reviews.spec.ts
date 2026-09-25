@@ -70,11 +70,18 @@ test.describe('Shop Reviews Flow', () => {
         await expect(commentArea).toBeVisible();
         await commentArea.fill('Quán cà phê có không gian rất chill và wifi mạnh!');
 
+        // Select a quick tag chip in modal
+        const wifiTagBtn = page.getByRole('button', { name: 'Wi-Fi mạnh', exact: true });
+        if (await wifiTagBtn.isVisible()) {
+          await wifiTagBtn.click();
+        }
+
         const submitBtn = page.getByRole('button', { name: /gửi đánh giá/i });
         await submitBtn.click();
 
-        // 5. Verify review appears with comment text
+        // 5. Verify review appears with comment text and tag
         await expect(page.getByText('Quán cà phê có không gian rất chill và wifi mạnh!')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByRole('link', { name: '#Wi-Fi mạnh' })).toBeVisible({ timeout: 5000 });
       }
     } finally {
       if (testUser) {

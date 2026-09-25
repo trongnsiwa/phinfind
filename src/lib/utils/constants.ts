@@ -36,3 +36,40 @@ export const API_ENDPOINTS = {
   ADMIN_SUGGESTIONS: '/api/admin/suggestions',
 };
 
+export interface ReviewTagDefinition {
+  id: string;
+  label: string;
+}
+
+export const REVIEW_TAGS: readonly ReviewTagDefinition[] = [
+  { id: 'wifi-manh', label: 'Wi-Fi mạnh' },
+  { id: 'yen-tinh', label: 'Yên tĩnh' },
+  { id: 'view-dep', label: 'View đẹp' },
+  { id: 'mo-khuya', label: 'Mở khuya' },
+  { id: 'do-xe', label: 'Có chỗ đỗ xe' },
+  { id: 'thu-cung', label: 'Thú cưng' },
+  { id: 'lam-viec', label: 'Làm việc' },
+  { id: 'hen-ho', label: 'Hẹn hò' },
+] as const;
+
+export const REVIEW_TAG_IDS: readonly string[] = REVIEW_TAGS.map((t) => t.id);
+
+export function normalizeReviewTag(tag: string): string | null {
+  if (!tag || typeof tag !== 'string') return null;
+  const trimmed = tag.trim().toLowerCase();
+  const byId = REVIEW_TAGS.find((t) => t.id.toLowerCase() === trimmed);
+  if (byId) return byId.id;
+  const byLabel = REVIEW_TAGS.find((t) => t.label.toLowerCase() === trimmed);
+  if (byLabel) return byLabel.id;
+  if (trimmed === 'co-cho-do-xe' || trimmed === 'co cho do xe') return 'do-xe';
+  return null;
+}
+
+export function getReviewTagLabel(tagIdOrLabel: string): string {
+  const norm = normalizeReviewTag(tagIdOrLabel);
+  const found = REVIEW_TAGS.find(
+    (t) => t.id === norm || t.id === tagIdOrLabel || t.label.toLowerCase() === tagIdOrLabel.toLowerCase()
+  );
+  return found ? found.label : tagIdOrLabel;
+}
+

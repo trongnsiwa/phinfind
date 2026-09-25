@@ -1,6 +1,6 @@
 'use client';
 
-import { Edit3, Loader2, LogIn, Star } from 'lucide-react';
+import { Edit3, Loader2, LogIn, RotateCcw, Star } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
@@ -21,7 +21,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useDeleteReview, useInfiniteShopReviews, useToggleReviewLike } from '@/hooks/useShops';
-import { APP_ROUTES } from '@/lib/utils/constants';
+import { cn } from '@/lib/utils';
+import { APP_ROUTES, REVIEW_TAGS, normalizeReviewTag } from '@/lib/utils/constants';
 import { useUIStore } from '@/stores/useUIStore';
 import type { CoffeeShop } from '@/types/shop';
 import dynamic from 'next/dynamic';
@@ -86,11 +87,52 @@ export const ReviewsTab = memo(function ReviewsTab({
       highlight: 'Đánh giá từ cộng đồng',
       comment: r.comment,
       images: Array.isArray(r.images) ? r.images : [],
+      tags: Array.isArray(r.tags) ? r.tags : [],
       like_count: r.like_count || 0,
       liked_by_me: Boolean(r.liked_by_me),
       is_edited: Boolean(r.is_edited),
     }));
   }, [data?.pages]);
+
+  const [selectedFilterTags, setSelectedFilterTags] = useState<string[]>([]);
+
+  // Compute tag counts across all reviews
+  const tagCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const r of reviewsList) {
+      if (Array.isArray(r.tags)) {
+        for (const tag of r.tags) {
+          const norm = normalizeReviewTag(tag) || tag;
+          counts[norm] = (counts[norm] || 0) + 1;
+        }
+      }
+    }
+    return counts;
+  }, [reviewsList]);
+
+  // Find tags present in current reviews
+  const availableTags = useMemo(() => {
+    return REVIEW_TAGS.filter((t) => (tagCounts[t.id] || 0) > 0);
+  }, [tagCounts]);
+
+  const handleToggleFilterTag = (tagId: string) => {
+    setSelectedFilterTags((prev) =>
+      prev.includes(tagId) ? prev.filter((id) => id !== tagId) : [...prev, tagId]
+    );
+  };
+
+  const handleResetFilterTags = () => {
+    setSelectedFilterTags([]);
+  };
+
+  // Filter reviews by active tag intersection
+  const displayedReviews = useMemo(() => {
+    if (selectedFilterTags.length === 0) return reviewsList;
+    return reviewsList.filter((rev) => {
+      const revTagIds = (rev.tags || []).map((t) => normalizeReviewTag(t) || t);
+      return selectedFilterTags.every((filterId) => revTagIds.includes(filterId));
+    });
+  }, [reviewsList, selectedFilterTags]);
 
   const totalReviews = data?.pages?.[0]?.total ?? (shop.total_ratings || reviewsList.length);
 
@@ -241,11 +283,67 @@ export const ReviewsTab = memo(function ReviewsTab({
         )}
       </div>
 
+      {/* Tag Filter Row */}
+      {availableTags.length > 0 && (
+        <div className='flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 -mx-1 px-1' role='region' aria-label='Lọc đánh giá theo thẻ'>
+          {selectedFilterTags.length > 0 && (
+            <Button
+              type='button'
+              variant='ghost'
+              size='sm'
+              onClick={handleResetFilterTags}
+              className='min-h-[44px] sm:min-h-[32px] h-9 sm:h-8 px-2.5 rounded-full text-xs font-semibold border border-dashed border-border text-muted-foreground hover:text-foreground hover:bg-accent shrink-0'
+              aria-label='Đặt lại bộ lọc thẻ'
+            >
+              <RotateCcw size={12} className='mr-1' />
+              <span>Tất cả</span>
+            </Button>
+          )}
+          {availableTags.map((tag) => {
+            const count = tagCounts[tag.id] || 0;
+            const isSelected = selectedFilterTags.includes(tag.id);
+            return (
+              <button
+                key={tag.id}
+                type='button'
+                onClick={() => handleToggleFilterTag(tag.id)}
+                aria-pressed={isSelected}
+                className={cn(
+                  'inline-flex items-center justify-center min-h-[44px] sm:min-h-[32px] h-9 sm:h-8 px-3 rounded-full text-xs font-medium border transition-colors cursor-pointer select-none shrink-0',
+                  isSelected
+                    ? 'bg-amber-gold text-primary-foreground border-amber-gold font-semibold shadow-xs'
+                    : 'bg-secondary text-muted-foreground border-border/80 hover:text-foreground hover:bg-secondary/80'
+                )}
+              >
+                <span>{tag.label}</span>
+                <span
+                  className={cn(
+                    'ml-1.5 text-[10px] px-1.5 py-0.2 rounded-full font-bold',
+                    isSelected
+                      ? 'bg-primary-foreground/20 text-primary-foreground'
+                      : 'bg-muted text-muted-foreground'
+                  )}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* 2. Reviews List */}
       <div className='space-y-2.5'>
-        <span className='text-xs font-bold text-foreground block'>
-          Đánh giá &amp; Trải nghiệm cộng đồng ({totalReviews})
-        </span>
+        <div className='flex items-center justify-between'>
+          <span className='text-xs font-bold text-foreground block'>
+            Đánh giá &amp; Trải nghiệm cộng đồng ({totalReviews})
+          </span>
+          {selectedFilterTags.length > 0 && (
+            <span className='text-[11px] text-muted-foreground font-medium'>
+              Đang lọc: {displayedReviews.length}/{reviewsList.length}
+            </span>
+          )}
+        </div>
 
         {isLoadingReviews ? (
           <div className='space-y-2.5'>
@@ -296,10 +394,26 @@ export const ReviewsTab = memo(function ReviewsTab({
               </Link>
             )}
           </div>
+        ) : displayedReviews.length === 0 ? (
+          <div className='flex flex-col items-center justify-center py-8 px-4 text-center space-y-2.5 bg-secondary/20 rounded-2xl border border-dashed border-border'>
+            <p className='text-xs font-semibold text-foreground'>
+              Không có đánh giá nào phù hợp với các thẻ đã chọn.
+            </p>
+            <Button
+              type='button'
+              variant='outline'
+              size='sm'
+              onClick={handleResetFilterTags}
+              className='text-xs min-h-[44px] sm:min-h-[32px] h-9 rounded-xl border-border'
+            >
+              <RotateCcw size={12} className='mr-1.5' />
+              <span>Xóa bộ lọc thẻ</span>
+            </Button>
+          </div>
         ) : (
           <div className='grid grid-cols-1 gap-2.5'>
             <AnimatePresence initial={false}>
-              {reviewsList.map((rev, idx) => (
+              {displayedReviews.map((rev, idx) => (
                 <ReviewCard
                   key={rev.id || idx}
                   review={rev}

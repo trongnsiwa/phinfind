@@ -45,6 +45,7 @@ const defaultFilters: ShopFilterState = {
   sortBy: 'distance',
   priceRanges: [],
   requiredAmenityIds: [],
+  requiredTagIds: [],
   radiusKm: null,
 };
 

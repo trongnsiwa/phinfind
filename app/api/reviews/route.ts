@@ -1,6 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createPublicClient } from '@/lib/supabase/server';
 import { deleteStorageFilesFromUrls } from '@/lib/supabase/storage';
+import { normalizeReviewTag } from '@/lib/utils/constants';
+
+function validateReviewTags(tags: any):
+  | { error: string; validatedTags?: never }
+  | { error?: never; validatedTags: string[] } {
+  if (tags === undefined || tags === null) {
+    return { validatedTags: [] };
+  }
+  if (!Array.isArray(tags)) {
+    return { error: 'Danh sách thẻ không đúng định dạng.' };
+  }
+  if (tags.length > 3) {
+    return { error: 'Chỉ được chọn tối đa 3 thẻ cho mỗi đánh giá.' };
+  }
+  const normalized: string[] = [];
+  for (const rawTag of tags) {
+    if (typeof rawTag !== 'string' || !rawTag.trim()) {
+      return { error: 'Thẻ không hợp lệ.' };
+    }
+    const norm = normalizeReviewTag(rawTag);
+    if (!norm) {
+      return { error: `Thẻ "${rawTag}" không nằm trong danh sách thẻ hợp lệ.` };
+    }
+    if (!normalized.includes(norm)) {
+      normalized.push(norm);
+    }
+  }
+  if (normalized.length > 3) {
+    return { error: 'Chỉ được chọn tối đa 3 thẻ cho mỗi đánh giá.' };
+  }
+  return { validatedTags: normalized };
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -35,7 +67,7 @@ export async function GET(request: NextRequest) {
     let query = supabase
       .from('reviews')
       .select(
-        'id, shop_place_id, user_id, rating, comment, images, created_at, updated_at, profiles!reviews_user_id_fkey(full_name, avatar_url, username)'
+        'id, shop_place_id, user_id, rating, comment, images, tags, created_at, updated_at, profiles!reviews_user_id_fkey(full_name, avatar_url, username)'
       );
 
     if (placeId) {
@@ -140,6 +172,7 @@ export async function GET(request: NextRequest) {
       return {
         ...item,
         images: Array.isArray(item.images) ? item.images : [],
+        tags: Array.isArray(item.tags) ? item.tags : [],
         author: item.profiles?.full_name || item.profiles?.username || 'Tín đồ cà phê',
         avatar: item.profiles?.avatar_url || null,
         username: item.profiles?.username || null,
@@ -183,7 +216,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { shop_place_id, rating, comment, images } = body;
+    const { shop_place_id, rating, comment, images, tags } = body;
 
     if (!shop_place_id) {
       return NextResponse.json({ error: 'Thiếu mã định danh quán cà phê.' }, { status: 400 });
@@ -202,6 +235,11 @@ export async function POST(request: NextRequest) {
         { error: 'Nội dung cảm nhận phải có ít nhất 3 ký tự.' },
         { status: 400 }
       );
+    }
+
+    const { error: tagError, validatedTags } = validateReviewTags(tags);
+    if (tagError) {
+      return NextResponse.json({ error: tagError }, { status: 400 });
     }
 
     let validatedImages: string[] = [];
@@ -254,10 +292,11 @@ export async function POST(request: NextRequest) {
           rating: numericRating,
           comment: comment.trim(),
           images: validatedImages,
+          tags: validatedTags,
         },
       ])
       .select(
-        'id, shop_place_id, user_id, rating, comment, images, created_at, profiles!reviews_user_id_fkey(full_name, avatar_url, username)'
+        'id, shop_place_id, user_id, rating, comment, images, tags, created_at, profiles!reviews_user_id_fkey(full_name, avatar_url, username)'
       )
       .single();
 
@@ -287,6 +326,7 @@ export async function POST(request: NextRequest) {
     const returnReview = {
       ...data,
       images: Array.isArray((data as any)?.images) ? (data as any).images : validatedImages,
+      tags: Array.isArray((data as any)?.tags) ? (data as any).tags : validatedTags,
       author: authorName,
       avatar: authorAvatar,
       username: profileData?.username || null,
@@ -372,7 +412,7 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const { id, rating, comment, images } = await request.json();
+    const { id, rating, comment, images, tags } = await request.json();
 
     if (!id) {
       return NextResponse.json({ error: 'Thiếu mã đánh giá (id).' }, { status: 400 });
@@ -393,10 +433,19 @@ export async function PUT(request: NextRequest) {
       );
     }
 
+    let validatedTags: string[] | undefined;
+    if (tags !== undefined) {
+      const { error: tagError, validatedTags: valTags } = validateReviewTags(tags);
+      if (tagError) {
+        return NextResponse.json({ error: tagError }, { status: 400 });
+      }
+      validatedTags = valTags;
+    }
+
     // Fetch existing review to inspect current images before update
     const { data: existingReview } = await supabase
       .from('reviews')
-      .select('images')
+      .select('images, tags')
       .eq('id', id)
       .eq('user_id', user.id)
       .maybeSingle();
@@ -438,18 +487,23 @@ export async function PUT(request: NextRequest) {
     const oldImages: string[] = Array.isArray(existingReview.images) ? existingReview.images : [];
     const removedImages = oldImages.filter((img) => !validatedImages.includes(img));
 
+    const updatePayload: Record<string, any> = {
+      rating: numericRating,
+      comment: comment.trim(),
+      images: validatedImages,
+      updated_at: new Date().toISOString(),
+    };
+    if (validatedTags !== undefined) {
+      updatePayload.tags = validatedTags;
+    }
+
     const { data, error } = await supabase
       .from('reviews')
-      .update({
-        rating: numericRating,
-        comment: comment.trim(),
-        images: validatedImages,
-        updated_at: new Date().toISOString(),
-      })
+      .update(updatePayload)
       .eq('id', id)
       .eq('user_id', user.id)
       .select(
-        'id, shop_place_id, user_id, rating, comment, images, created_at, updated_at, profiles!reviews_user_id_fkey(full_name, avatar_url, username)'
+        'id, shop_place_id, user_id, rating, comment, images, tags, created_at, updated_at, profiles!reviews_user_id_fkey(full_name, avatar_url, username)'
       )
       .single();
 
@@ -502,6 +556,7 @@ export async function PUT(request: NextRequest) {
     const returnReview = {
       ...data,
       images: Array.isArray((data as any)?.images) ? (data as any).images : validatedImages,
+      tags: Array.isArray((data as any)?.tags) ? (data as any).tags : (validatedTags ?? existingReview.tags ?? []),
       author: authorName,
       avatar: profileData?.avatar_url || user.user_metadata?.avatar_url || null,
       username: profileData?.username || null,

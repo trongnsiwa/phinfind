@@ -1,7 +1,7 @@
 'use client';
 
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowUpDown, Coffee, Footprints, MapPin, Plus, RotateCcw, SlidersHorizontal, Sparkles, Star, TrendingUp, X } from 'lucide-react';
+import { ArrowUpDown, Coffee, Footprints, Hash, MapPin, Plus, RotateCcw, SlidersHorizontal, Sparkles, Star, TrendingUp, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -59,7 +59,7 @@ import type { CoffeeShop } from '@/types/shop';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
-import { APP_ROUTES, API_ENDPOINTS } from '@/lib/utils/constants';
+import { APP_ROUTES, API_ENDPOINTS, REVIEW_TAGS, normalizeReviewTag } from '@/lib/utils/constants';
 import { cn } from '@/lib/utils';
 
 const MOBILE_PRICE_OPTIONS: Array<{ key: '₫' | '₫₫' | '₫₫₫' | '₫₫₫₫'; label: string }> = [
@@ -170,6 +170,21 @@ export function DiscoverClient() {
     };
   }, [setMobileFilterSheetOpen]);
 
+  // Sync ?tags= URL parameter on mount
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const urlParams = new URLSearchParams(window.location.search);
+    const tagsParam = urlParams.get('tags');
+    if (tagsParam) {
+      const parsedTags = tagsParam
+        .split(',')
+        .map((t) => normalizeReviewTag(t.trim()))
+        .filter((t): t is string => Boolean(t));
+      if (parsedTags.length > 0) {
+        setFilters({ requiredTagIds: Array.from(new Set(parsedTags)) });
+      }
+    }
+  }, [setFilters]);
 
   const handleAddShopClick = () => {
     if (!isAuthenticated) {
@@ -232,6 +247,18 @@ export function DiscoverClient() {
         onRemove: () =>
           setFilters({
             requiredAmenityIds: filters.requiredAmenityIds.filter((id) => id !== amenityId),
+          }),
+      });
+    });
+
+    filters.requiredTagIds.forEach((tagId) => {
+      const tagDef = REVIEW_TAGS.find((t) => t.id === tagId);
+      items.push({
+        id: `tag-${tagId}`,
+        label: `#${tagDef?.label || tagId}`,
+        onRemove: () =>
+          setFilters({
+            requiredTagIds: filters.requiredTagIds.filter((id) => id !== tagId),
           }),
       });
     });
@@ -786,6 +813,47 @@ export function DiscoverClient() {
                         )}
                       />
                       <span>{cat.label}</span>
+                    </Button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Section: Thẻ đánh giá */}
+            <div className="space-y-2 border-t border-border/60 pt-4">
+              <div className="text-xs font-bold text-foreground uppercase tracking-wider">Thẻ đánh giá</div>
+              <div className="flex flex-wrap gap-2">
+                {REVIEW_TAGS.map((tag) => {
+                  const isChecked = filters.requiredTagIds.includes(tag.id);
+                  return (
+                    <Button
+                      key={tag.id}
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      aria-pressed={isChecked}
+                      aria-label={tag.label}
+                      onClick={() => {
+                        const next = isChecked
+                          ? filters.requiredTagIds.filter((id) => id !== tag.id)
+                          : [...filters.requiredTagIds, tag.id];
+                        setFilters({ requiredTagIds: next });
+                      }}
+                      className={cn(
+                        'h-9 min-h-[44px] px-3 text-xs font-semibold rounded-full border transition-all duration-200 ease-out flex items-center gap-1.5',
+                        isChecked
+                          ? 'bg-amber-gold text-primary-foreground border-amber-gold font-bold shadow-md hover:bg-amber-gold-hover hover:text-primary-foreground'
+                          : 'bg-input-bg text-foreground border-input hover:bg-accent hover:text-foreground hover:border-amber-gold/40'
+                      )}
+                    >
+                      <Hash
+                        size={13}
+                        className={cn(
+                          'flex-shrink-0 transition-colors duration-200',
+                          isChecked ? 'text-primary-foreground' : 'text-amber-gold'
+                        )}
+                      />
+                      <span>{tag.label}</span>
                     </Button>
                   );
                 })}

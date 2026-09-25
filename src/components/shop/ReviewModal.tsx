@@ -22,7 +22,7 @@ import { useEditReview } from '@/hooks/useShops';
 import { createClient } from '@/lib/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { APP_ROUTES } from '@/lib/utils/constants';
+import { APP_ROUTES, REVIEW_TAGS, normalizeReviewTag } from '@/lib/utils/constants';
 import { CoffeeShop } from '@/types/shop';
 
 export const RATING_DESCRIPTORS: Record<number, string> = {
@@ -33,16 +33,7 @@ export const RATING_DESCRIPTORS: Record<number, string> = {
   5: 'Xuất sắc',
 };
 
-export const PRESET_QUICK_TAGS = [
-  'Wi-Fi mạnh',
-  'Yên tĩnh',
-  'View đẹp',
-  'Mở khuya',
-  'Có chỗ đỗ xe',
-  'Thú cưng',
-  'Làm việc',
-  'Hẹn hò',
-] as const;
+export const PRESET_QUICK_TAGS = REVIEW_TAGS;
 
 export interface ReviewItem {
   id?: string;
@@ -102,7 +93,10 @@ export function ReviewModal({
         setRating(existingReview.rating || 5);
         setComment(existingReview.comment || '');
         setUploadedImages(existingReview.images || []);
-        setSelectedTags(existingReview.tags || []);
+        const normalizedTags = (existingReview.tags || [])
+          .map(normalizeReviewTag)
+          .filter((t): t is string => Boolean(t));
+        setSelectedTags(normalizedTags);
       } else {
         setRating(5);
         setComment('');
@@ -119,7 +113,9 @@ export function ReviewModal({
       const origComment = (existingReview.comment || '').trim();
       const origRating = existingReview.rating || 5;
       const origImages = existingReview.images || [];
-      const origTags = existingReview.tags || [];
+      const origTags = (existingReview.tags || [])
+        .map(normalizeReviewTag)
+        .filter((t): t is string => Boolean(t));
       const imagesChanged =
         uploadedImages.length !== origImages.length ||
         uploadedImages.some((img, i) => img !== origImages[i]);
@@ -156,7 +152,10 @@ export function ReviewModal({
       setRating(existingReview.rating || 5);
       setComment(existingReview.comment || '');
       setUploadedImages(existingReview.images || []);
-      setSelectedTags(existingReview.tags || []);
+      const normalizedTags = (existingReview.tags || [])
+        .map(normalizeReviewTag)
+        .filter((t): t is string => Boolean(t));
+      setSelectedTags(normalizedTags);
     } else {
       setRating(5);
       setComment('');
@@ -545,12 +544,12 @@ export function ReviewModal({
             </div>
             <div className='flex flex-wrap items-center gap-1.5'>
               {PRESET_QUICK_TAGS.map((tag) => {
-                const isSelected = selectedTags.includes(tag);
+                const isSelected = selectedTags.includes(tag.id);
                 return (
                   <button
-                    key={tag}
+                    key={tag.id}
                     type='button'
-                    onClick={() => handleToggleTag(tag)}
+                    onClick={() => handleToggleTag(tag.id)}
                     className={cn(
                       'inline-flex items-center justify-center px-3 py-1.5 min-h-[44px] sm:min-h-[32px] rounded-full border text-xs font-medium transition-colors cursor-pointer select-none',
                       isSelected
@@ -558,7 +557,7 @@ export function ReviewModal({
                         : 'bg-secondary text-muted-foreground border-border hover:text-foreground hover:bg-secondary/80'
                     )}
                   >
-                    {tag}
+                    {tag.label}
                   </button>
                 );
               })}
