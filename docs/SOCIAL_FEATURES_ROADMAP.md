@@ -951,6 +951,13 @@ distributes both). #4 depends on #1 to avoid a second "Contact" refactor.
 
 ## 8. Cross-Cutting Concerns
 
+### Review Uniqueness (Google Maps model)
+
+- `public.reviews` enforces a database-level uniqueness constraint `UNIQUE(shop_place_id, user_id)` (`uniq_reviews_user_shop`).
+- Each user may have at most one authoritative review per coffee shop. Multi-visit storytelling and repeat check-ins belong to `public.visits`.
+- Rating aggregates (`refresh_shop_rating`), reviewer badge tiers (`useUserBadges`), and trending algorithms rely on this 1:1 invariant. Future roadmap features (Tier 2.4 review tags, Tier 3.3 annual recap) must assume reviews are deduped per user per shop.
+- API `POST /api/reviews` pre-checks existing submissions and returns HTTP 409 prompting the user to edit their review; `PUT /api/reviews` is the exclusive update path.
+
 ### Security & moderation
 
 - Every user-supplied URL is validated by a **domain allow-list**, not just

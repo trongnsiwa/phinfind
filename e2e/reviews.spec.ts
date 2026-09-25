@@ -82,6 +82,32 @@ test.describe('Shop Reviews Flow', () => {
         // 5. Verify review appears with comment text and tag
         await expect(page.getByText('Quán cà phê có không gian rất chill và wifi mạnh!')).toBeVisible({ timeout: 10000 });
         await expect(page.getByRole('link', { name: '#Wi-Fi mạnh' })).toBeVisible({ timeout: 5000 });
+
+        // 6. Verify "Chỉnh sửa đánh giá của bạn" is shown instead of "Viết đánh giá" (Google Maps model)
+        const editReviewBtn = page.getByRole('button', { name: /chỉnh sửa đánh giá của bạn/i });
+        await expect(editReviewBtn).toBeVisible({ timeout: 5000 });
+        await expect(page.getByRole('button', { name: /^viết đánh giá$/i })).not.toBeVisible();
+        await expect(page.getByText('Bạn đã đánh giá quán này. Bạn có thể cập nhật bất cứ lúc nào.')).toBeVisible();
+
+        const viewport = page.viewportSize();
+        if (viewport && viewport.width < 768) {
+          await assertTapTarget(editReviewBtn, 44);
+        }
+
+        // 7. Click "Chỉnh sửa đánh giá của bạn" and update the review
+        await editReviewBtn.click();
+        const editCommentArea = page.locator('textarea');
+        await expect(editCommentArea).toBeVisible();
+        await expect(editCommentArea).toHaveValue('Quán cà phê có không gian rất chill và wifi mạnh!');
+
+        await editCommentArea.fill('Quán cà phê cực kỳ tuyệt vời và chill!');
+        const saveChangesBtn = page.getByRole('button', { name: /lưu thay đổi/i });
+        await saveChangesBtn.click();
+
+        // 8. Verify updated review content is visible and only 1 user review exists
+        await expect(page.getByText('Quán cà phê cực kỳ tuyệt vời và chill!')).toBeVisible({ timeout: 10000 });
+        const userReviewBadges = page.locator('span:has-text("Bạn")');
+        await expect(userReviewBadges).toHaveCount(1);
       }
     } finally {
       if (testUser) {

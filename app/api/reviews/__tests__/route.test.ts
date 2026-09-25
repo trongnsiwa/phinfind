@@ -159,10 +159,14 @@ describe('POST /api/reviews - tags', () => {
   const mockUser = { id: 'test-user-123', email: 'test@example.com', user_metadata: {} };
   let mockClient: any;
   let insertedPayload: any;
+  let mockExistingReviewCheck: any = null;
+  let mockInsertError: any = null;
 
   beforeEach(() => {
     vi.clearAllMocks();
     insertedPayload = null;
+    mockExistingReviewCheck = null;
+    mockInsertError = null;
 
     mockClient = {
       auth: {
@@ -179,23 +183,35 @@ describe('POST /api/reviews - tags', () => {
         }
         if (table === 'reviews') {
           return {
+            select: vi.fn(() => ({
+              eq: vi.fn(() => ({
+                eq: vi.fn(() => ({
+                  maybeSingle: vi.fn().mockResolvedValue({
+                    data: mockExistingReviewCheck,
+                    error: null,
+                  }),
+                })),
+              })),
+            })),
             insert: vi.fn((rows: any[]) => {
               insertedPayload = rows[0];
               return {
                 select: vi.fn(() => ({
                   single: vi.fn().mockResolvedValue({
-                    data: {
-                      id: 'rev-100',
-                      shop_place_id: insertedPayload.shop_place_id,
-                      user_id: insertedPayload.user_id,
-                      rating: insertedPayload.rating,
-                      comment: insertedPayload.comment,
-                      images: insertedPayload.images,
-                      tags: insertedPayload.tags,
-                      created_at: new Date().toISOString(),
-                      profiles: { full_name: 'Test User', avatar_url: null, username: 'testuser' },
-                    },
-                    error: null,
+                    data: mockInsertError
+                      ? null
+                      : {
+                          id: 'rev-100',
+                          shop_place_id: insertedPayload.shop_place_id,
+                          user_id: insertedPayload.user_id,
+                          rating: insertedPayload.rating,
+                          comment: insertedPayload.comment,
+                          images: insertedPayload.images,
+                          tags: insertedPayload.tags,
+                          created_at: new Date().toISOString(),
+                          profiles: { full_name: 'Test User', avatar_url: null, username: 'testuser' },
+                        },
+                    error: mockInsertError,
                   }),
                 })),
               };
@@ -207,6 +223,50 @@ describe('POST /api/reviews - tags', () => {
     };
 
     vi.mocked(createClient).mockResolvedValue(mockClient);
+  });
+
+  it('returns 409 and does not insert when user already reviewed the shop (pre-check)', async () => {
+    mockExistingReviewCheck = { id: 'existing-rev-99' };
+
+    const request = new NextRequest('http://localhost:3000/api/reviews', {
+      method: 'POST',
+      body: JSON.stringify({
+        shop_place_id: 'shop-123',
+        rating: 5,
+        comment: 'Bài đánh giá mới',
+      }),
+    });
+
+    const response = await POST(request);
+    const json = await response.json();
+
+    expect(response.status).toBe(409);
+    expect(json.error).toContain('Bạn đã đánh giá quán này rồi');
+    expect(json.error).toContain('chỉnh sửa bài đánh giá hiện có của bạn');
+    expect(insertedPayload).toBeNull();
+  });
+
+  it('returns 409 when insert throws 23505 unique constraint violation (race condition fallback)', async () => {
+    mockExistingReviewCheck = null;
+    mockInsertError = {
+      code: '23505',
+      message: 'duplicate key value violates unique constraint "uniq_reviews_user_shop"',
+    };
+
+    const request = new NextRequest('http://localhost:3000/api/reviews', {
+      method: 'POST',
+      body: JSON.stringify({
+        shop_place_id: 'shop-123',
+        rating: 5,
+        comment: 'Bài đánh giá race condition',
+      }),
+    });
+
+    const response = await POST(request);
+    const json = await response.json();
+
+    expect(response.status).toBe(409);
+    expect(json.error).toContain('Bạn đã đánh giá quán này rồi');
   });
 
   it('successfully persists and returns validated & normalized tags', async () => {
@@ -475,5 +535,81 @@ describe('GET /api/reviews - tags', () => {
     expect(response.status).toBe(200);
     expect(json.reviews).toHaveLength(1);
     expect(json.reviews[0].tags).toEqual(['wifi-manh', 'yen-tinh']);
+  });
+
+  it('enriches reviews with visitor_visit_count when visits exist', async () => {
+    const mockPublicClient = {
+      from: vi.fn((table: string) => {
+        if (table === 'reviews') {
+          return {
+            select: vi.fn((fields: string, opts?: any) => {
+              if (opts?.count === 'exact') {
+                return {
+                  eq: vi.fn().mockResolvedValue({ count: 1 }),
+                };
+              }
+              return {
+                eq: vi.fn(() => ({
+                  order: vi.fn(() => ({
+                    limit: vi.fn().mockResolvedValue({
+                      data: [
+                        {
+                          id: 'rev-1',
+                          shop_place_id: 'shop-1',
+                          user_id: 'user-1',
+                          rating: 5,
+                          comment: 'Tuyệt',
+                          images: [],
+                          tags: [],
+                          created_at: new Date().toISOString(),
+                          updated_at: new Date().toISOString(),
+                          profiles: { full_name: 'User 1', avatar_url: null, username: 'u1' },
+                        },
+                      ],
+                      error: null,
+                    }),
+                  })),
+                })),
+              };
+            }),
+          };
+        }
+        if (table === 'review_likes') {
+          return {
+            select: vi.fn(() => ({
+              in: vi.fn().mockResolvedValue({ data: [] }),
+            })),
+          };
+        }
+        if (table === 'visits') {
+          return {
+            select: vi.fn(() => ({
+              in: vi.fn(() => ({
+                eq: vi.fn().mockResolvedValue({
+                  data: [
+                    { user_id: 'user-1', shop_place_id: 'shop-1' },
+                    { user_id: 'user-1', shop_place_id: 'shop-1' },
+                  ],
+                }),
+              })),
+            })),
+          };
+        }
+        return {};
+      }),
+    };
+
+    vi.mocked(createPublicClient).mockResolvedValue(mockPublicClient as any);
+    vi.mocked(createClient).mockResolvedValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: null } }) },
+    } as any);
+
+    const request = new NextRequest('http://localhost:3000/api/reviews?placeId=shop-1');
+    const response = await GET(request);
+    const json = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(json.reviews).toHaveLength(1);
+    expect(json.reviews[0].visitor_visit_count).toBe(2);
   });
 });

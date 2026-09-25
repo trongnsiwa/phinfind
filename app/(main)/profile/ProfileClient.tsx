@@ -183,8 +183,18 @@ export function ProfileClient() {
     isLoading: isReviewsLoading,
     isFetching: isReviewsFetching,
   } = useUserReviews();
-  const userReviews = userReviewsData || [];
   const deleteReviewMutation = useDeleteReview();
+  const rawUserReviews = userReviewsData || [];
+  const userReviews = useMemo(() => {
+    const seen = new Set<string>();
+    return rawUserReviews.filter((r) => {
+      const key = r.shop_place_id || r.id;
+      if (!key) return true;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [rawUserReviews]);
   const [reviewToDelete, setReviewToDelete] = useState<ReviewData | null>(null);
   const [reviewToEdit, setReviewToEdit] = useState<ReviewData | null>(null);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);

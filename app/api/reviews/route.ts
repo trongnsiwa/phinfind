@@ -161,6 +161,39 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Query visit counts for reviewers at this shop (optional enrichment, fail silently)
+    const visitCountsMap: Record<string, number> = {};
+    if (data && data.length > 0) {
+      try {
+        const userIds = Array.from(new Set(data.map((r: any) => r.user_id).filter(Boolean)));
+        if (userIds.length > 0) {
+          let visitsQuery = supabase
+            .from('visits')
+            .select('user_id, shop_place_id')
+            .in('user_id', userIds);
+
+          if (placeId) {
+            visitsQuery = visitsQuery.eq('shop_place_id', placeId);
+          } else {
+            const placeIds = Array.from(new Set(data.map((r: any) => r.shop_place_id).filter(Boolean)));
+            if (placeIds.length > 0) {
+              visitsQuery = visitsQuery.in('shop_place_id', placeIds);
+            }
+          }
+
+          const { data: visitsData } = await visitsQuery;
+          if (visitsData) {
+            visitsData.forEach((v: any) => {
+              const key = `${v.user_id}:${v.shop_place_id}`;
+              visitCountsMap[key] = (visitCountsMap[key] || 0) + 1;
+            });
+          }
+        }
+      } catch {
+        // Optional enrichment: fail silently if visits query errors
+      }
+    }
+
     const formattedReviews = (data || []).map((item: any) => {
       const shopInfo = shopsMap[item.shop_place_id];
       const isEdited = Boolean(
@@ -183,6 +216,7 @@ export async function GET(request: NextRequest) {
         like_count: likeCountMap[item.id] || 0,
         liked_by_me: currentUserId ? userLikedSet.has(item.id) : false,
         is_edited: isEdited,
+        visitor_visit_count: visitCountsMap[`${item.user_id}:${item.shop_place_id}`] || 0,
       };
     });
 
@@ -268,6 +302,24 @@ export async function POST(request: NextRequest) {
       validatedImages = images.map((u: string) => u.trim());
     }
 
+    // Pre-check for existing review by this user for this shop (Google Maps model)
+    const { data: existingReview } = await supabase
+      .from('reviews')
+      .select('id')
+      .eq('shop_place_id', shop_place_id)
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (existingReview) {
+      return NextResponse.json(
+        {
+          error:
+            'Bạn đã đánh giá quán này rồi. Vui lòng chỉnh sửa bài đánh giá hiện có của bạn.',
+        },
+        { status: 409 }
+      );
+    }
+
     // Ensure profile row exists to satisfy foreign key constraint user_id -> profiles(id)
     await supabase.from('profiles').upsert(
       {
@@ -301,6 +353,15 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
+      if (error.code === '23505') {
+        return NextResponse.json(
+          {
+            error:
+              'Bạn đã đánh giá quán này rồi. Vui lòng chỉnh sửa bài đánh giá hiện có của bạn.',
+          },
+          { status: 409 }
+        );
+      }
       if (error.code === 'PGRST205') {
         return NextResponse.json(
           {

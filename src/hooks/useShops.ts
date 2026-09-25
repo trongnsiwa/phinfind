@@ -153,6 +153,7 @@ export interface ReviewData {
   like_count?: number;
   liked_by_me?: boolean;
   is_edited?: boolean;
+  visitor_visit_count?: number;
   profiles?: {
     full_name: string | null;
     avatar_url: string | null;

@@ -80,9 +80,17 @@ export function ReviewCard({
             />
           )}
           <div className='min-w-0 flex flex-col'>
-            <div className='flex items-center gap-1.5 min-w-0'>
+            <div className='flex items-center gap-1.5 min-w-0 flex-wrap'>
               <ReviewerName author={review.author} username={review.username} />
               <CheckCircle2 size={12} className='text-teal flex-shrink-0' />
+              {typeof review.visitor_visit_count === 'number' && review.visitor_visit_count > 1 ? (
+                <span
+                  data-testid='visitor-visit-badge'
+                  className='text-[9px] font-semibold bg-secondary text-muted-foreground border border-border/70 px-1.5 py-0.5 rounded-full flex-shrink-0'
+                >
+                  Đã ghé {review.visitor_visit_count} lần
+                </span>
+              ) : null}
               {review.isUserSubmission && (
                 <span className='text-[9px] bg-amber-gold text-primary-foreground font-extrabold px-1.5 py-0.2 rounded uppercase tracking-wider flex-shrink-0'>
                   Bạn

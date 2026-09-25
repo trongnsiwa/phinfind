@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
-import { useDeleteReview, useInfiniteShopReviews, useToggleReviewLike } from '@/hooks/useShops';
+import { useDeleteReview, useInfiniteShopReviews, useToggleReviewLike, useUserReviews } from '@/hooks/useShops';
 import { cn } from '@/lib/utils';
 import { APP_ROUTES, REVIEW_TAGS, normalizeReviewTag } from '@/lib/utils/constants';
 import { useUIStore } from '@/stores/useUIStore';
@@ -55,6 +55,7 @@ export const ReviewsTab = memo(function ReviewsTab({
     hasNextPage,
     fetchNextPage,
   } = useInfiniteShopReviews(placeId);
+  const { data: userReviewsData } = useUserReviews();
 
   const sentinelRef = useRef<HTMLDivElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -91,8 +92,47 @@ export const ReviewsTab = memo(function ReviewsTab({
       like_count: r.like_count || 0,
       liked_by_me: Boolean(r.liked_by_me),
       is_edited: Boolean(r.is_edited),
+      visitor_visit_count: r.visitor_visit_count,
     }));
   }, [data?.pages]);
+
+  // Derive whether current authenticated user already reviewed this shop (Google Maps model)
+  const existingUserReview = useMemo(() => {
+    if (!user) return null;
+    const fromList = reviewsList.find((r) => r.user_id === user.id);
+    if (fromList) return fromList;
+
+    const fromUserReviews = userReviewsData?.find((r) => r.shop_place_id === placeId);
+    if (fromUserReviews) {
+      return {
+        id: fromUserReviews.id,
+        user_id: fromUserReviews.user_id,
+        author:
+          fromUserReviews.author ||
+          fromUserReviews.profiles?.full_name ||
+          fromUserReviews.profiles?.username ||
+          'Tín đồ cà phê',
+        avatar: fromUserReviews.avatar || fromUserReviews.profiles?.avatar_url || undefined,
+        username: fromUserReviews.username || fromUserReviews.profiles?.username || undefined,
+        rating: fromUserReviews.rating,
+        date: new Date(fromUserReviews.created_at).toLocaleDateString('vi-VN', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+        }),
+        highlight: 'Đánh giá từ cộng đồng',
+        comment: fromUserReviews.comment,
+        images: Array.isArray(fromUserReviews.images) ? fromUserReviews.images : [],
+        tags: Array.isArray(fromUserReviews.tags) ? fromUserReviews.tags : [],
+        like_count: fromUserReviews.like_count || 0,
+        liked_by_me: Boolean(fromUserReviews.liked_by_me),
+        is_edited: Boolean(fromUserReviews.is_edited),
+        visitor_visit_count: fromUserReviews.visitor_visit_count,
+      };
+    }
+
+    return null;
+  }, [reviewsList, userReviewsData, user, placeId]);
 
   const [selectedFilterTags, setSelectedFilterTags] = useState<string[]>([]);
 
@@ -247,38 +287,59 @@ export const ReviewsTab = memo(function ReviewsTab({
             </Link>
           </div>
         ) : (
-          <div className='flex items-center justify-between bg-secondary/40 p-3 rounded-2xl border border-border/60 gap-3 shadow-xs'>
-            <div className='flex items-center gap-2.5 min-w-0 flex-1'>
-              <ShopImage
-                src={profile?.avatar_url || user?.user_metadata?.avatar_url}
-                alt='Ảnh đại diện của bạn'
-                fallback={
-                  <div className='w-full h-full bg-amber-gold/20 flex items-center justify-center text-amber-gold text-xs font-bold'>
-                    {(profile?.full_name || user?.user_metadata?.full_name || 'U')[0].toUpperCase()}
-                  </div>
-                }
-                sizes="32px"
-                className="w-8 h-8 rounded-full overflow-hidden border border-amber-gold/40 bg-muted flex-shrink-0"
-                imageClassName="object-cover"
-              />
-              <div className='min-w-0'>
-                <span className='text-xs font-bold text-foreground block truncate'>
-                  Đánh giá với tư cách {profile?.full_name || user?.user_metadata?.full_name || 'Tín đồ cà phê'}
-                </span>
-                <p className='text-[11px] text-muted-foreground truncate'>
-                  Chia sẻ cảm nhận của bạn cùng cộng đồng
-                </p>
+          <div className='flex flex-col gap-1.5 bg-secondary/40 p-3 rounded-2xl border border-border/60 shadow-xs'>
+            <div className='flex items-center justify-between gap-3'>
+              <div className='flex items-center gap-2.5 min-w-0 flex-1'>
+                <ShopImage
+                  src={profile?.avatar_url || user?.user_metadata?.avatar_url}
+                  alt='Ảnh đại diện của bạn'
+                  fallback={
+                    <div className='w-full h-full bg-amber-gold/20 flex items-center justify-center text-amber-gold text-xs font-bold'>
+                      {(profile?.full_name || user?.user_metadata?.full_name || 'U')[0].toUpperCase()}
+                    </div>
+                  }
+                  sizes="32px"
+                  className="w-8 h-8 rounded-full overflow-hidden border border-amber-gold/40 bg-muted flex-shrink-0"
+                  imageClassName="object-cover"
+                />
+                <div className='min-w-0'>
+                  <span className='text-xs font-bold text-foreground block truncate'>
+                    {existingUserReview
+                      ? 'Đánh giá của bạn'
+                      : `Đánh giá với tư cách ${profile?.full_name || user?.user_metadata?.full_name || 'Tín đồ cà phê'}`}
+                  </span>
+                  <p className='text-[11px] text-muted-foreground truncate'>
+                    {existingUserReview
+                      ? 'Bạn đã đánh giá quán này'
+                      : 'Chia sẻ cảm nhận của bạn cùng cộng đồng'}
+                  </p>
+                </div>
               </div>
+              {/* RESPONSIVE: h-9 on mobile for comfortable touch target, md:h-8.5 on desktop */}
+              <Button
+                type='button'
+                onClick={() => {
+                  if (existingUserReview) {
+                    setReviewToEdit(existingUserReview);
+                  } else {
+                    setReviewToEdit(null);
+                  }
+                  setIsModalOpen(true);
+                }}
+                className='bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground font-bold text-xs rounded-xl px-3.5 py-1.5 h-9 md:h-8.5 shadow-md flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer flex-shrink-0'
+              >
+                <Edit3 size={13} />
+                <span>{existingUserReview ? 'Chỉnh sửa đánh giá của bạn' : 'Viết đánh giá'}</span>
+              </Button>
             </div>
-            {/* RESPONSIVE: h-9 on mobile for comfortable touch target, md:h-8.5 on desktop */}
-            <Button
-              type='button'
-              onClick={() => setIsModalOpen(true)}
-              className='bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground font-bold text-xs rounded-xl px-3.5 py-1.5 h-9 md:h-8.5 shadow-md flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer flex-shrink-0'
-            >
-              <Edit3 size={13} />
-              <span>Viết đánh giá</span>
-            </Button>
+            {existingUserReview && (
+              <p
+                className='text-[11px] text-muted-foreground text-right'
+                aria-live='polite'
+              >
+                Bạn đã đánh giá quán này. Bạn có thể cập nhật bất cứ lúc nào.
+              </p>
+            )}
           </div>
         )}
       </div>
@@ -376,7 +437,10 @@ export const ReviewsTab = memo(function ReviewsTab({
             {isAuthenticated ? (
               <Button
                 type='button'
-                onClick={() => setIsModalOpen(true)}
+                onClick={() => {
+                  setReviewToEdit(null);
+                  setIsModalOpen(true);
+                }}
                 className='bg-amber-gold hover:bg-amber-gold-hover text-primary-foreground font-bold text-xs rounded-xl px-4 py-2 h-9 md:h-8.5 shadow-xs flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer'
               >
                 <Edit3 size={13} />

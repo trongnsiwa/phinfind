@@ -149,4 +149,48 @@ describe('ReviewCard', () => {
 
     expect(screen.queryByTestId('review-tags')).not.toBeInTheDocument();
   });
+
+  it('renders "Đã ghé N lần" badge when visitor_visit_count > 1', () => {
+    const reviewWithVisits: ReviewItem = {
+      ...mockReviewWithoutUsername,
+      visitor_visit_count: 3,
+    };
+
+    render(
+      <ReviewCard
+        review={reviewWithVisits}
+        onOpenImage={vi.fn()}
+      />
+    );
+
+    const badge = screen.getByTestId('visitor-visit-badge');
+    expect(badge).toBeInTheDocument();
+    expect(badge).toHaveTextContent('Đã ghé 3 lần');
+  });
+
+  it('does not render visitor_visit_count badge when count is 0, 1, or undefined', () => {
+    const { rerender } = render(
+      <ReviewCard
+        review={{ ...mockReviewWithoutUsername, visitor_visit_count: undefined }}
+        onOpenImage={vi.fn()}
+      />
+    );
+    expect(screen.queryByTestId('visitor-visit-badge')).not.toBeInTheDocument();
+
+    rerender(
+      <ReviewCard
+        review={{ ...mockReviewWithoutUsername, visitor_visit_count: 0 }}
+        onOpenImage={vi.fn()}
+      />
+    );
+    expect(screen.queryByTestId('visitor-visit-badge')).not.toBeInTheDocument();
+
+    rerender(
+      <ReviewCard
+        review={{ ...mockReviewWithoutUsername, visitor_visit_count: 1 }}
+        onOpenImage={vi.fn()}
+      />
+    );
+    expect(screen.queryByTestId('visitor-visit-badge')).not.toBeInTheDocument();
+  });
 });

@@ -26,11 +26,18 @@ CREATE TABLE IF NOT EXISTS public.reviews (
   comment TEXT NOT NULL,
   images TEXT[] DEFAULT '{}',
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  -- Google Maps model: Enforce one review per user per coffee shop.
+  -- Rationale: Matches dominant Vietnamese consumer expectations where a review represents
+  -- an authoritative verdict, preserves honest shop rating aggregates (refresh_shop_rating trigger),
+  -- and prevents skewed community badge tiers and trending rankings. Multi-visit history is
+  -- tracked separately in public.visits.
+  CONSTRAINT uniq_reviews_user_shop UNIQUE (shop_place_id, user_id)
 );
 
 -- Migration if table already exists
 ALTER TABLE public.reviews ADD COLUMN IF NOT EXISTS images TEXT[] DEFAULT '{}';
+ALTER TABLE public.reviews ADD CONSTRAINT uniq_reviews_user_shop UNIQUE (shop_place_id, user_id);
 
 -- 2. Indexes for Query Performance
 CREATE INDEX IF NOT EXISTS idx_reviews_shop_place_id ON public.reviews(shop_place_id);

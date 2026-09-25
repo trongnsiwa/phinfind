@@ -51,6 +51,7 @@ export interface ReviewItem {
   like_count?: number;
   liked_by_me?: boolean;
   is_edited?: boolean;
+  visitor_visit_count?: number;
 }
 
 interface ReviewModalProps {
