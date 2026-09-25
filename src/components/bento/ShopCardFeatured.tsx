@@ -22,7 +22,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { CardSize } from '@/lib/utils/bentoLayout';
-import { APP_ROUTES } from '@/lib/utils/constants';
+import { getShopPath } from '@/lib/utils/shopUrl';
 import { CoffeeShop } from '@/types/shop';
 
 import { ShopCardPlaceholder } from '@/components/common/ShopCardPlaceholder';
@@ -280,7 +280,7 @@ export const ShopCardFeatured = memo(function ShopCardFeatured({
             </Button>
           </a>
 
-          <Link href={APP_ROUTES.SHOP_DETAIL(shop.id)} onClick={(e) => e.stopPropagation()}>
+          <Link href={getShopPath(shop)} onClick={(e) => e.stopPropagation()}>
             <Button
               variant="default"
               size="sm"

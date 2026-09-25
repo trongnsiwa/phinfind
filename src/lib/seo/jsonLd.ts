@@ -1,4 +1,5 @@
 import type { CoffeeShop } from '@/types/shop';
+import { getShopPath } from '@/lib/utils/shopUrl';
 
 function mapDayToSchema(day: number): string {
   const map: Record<number, string> = {
@@ -14,7 +15,7 @@ function mapDayToSchema(day: number): string {
 }
 
 export function buildShopJsonLd(shop: CoffeeShop, baseUrl: string): Record<string, unknown> {
-  const url = `${baseUrl}/shop/${shop.place_id || shop.id}`;
+  const url = `${baseUrl}${getShopPath(shop)}`;
   const images = (shop.photos || []).slice(0, 5);
 
   const jsonLd: Record<string, unknown> = {

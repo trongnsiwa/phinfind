@@ -20,6 +20,7 @@ export interface NotificationItem {
   type: NotificationType;
   actor_id?: string | null;
   shop_place_id?: string | null;
+  shop_slug?: string | null;
   review_id?: string | null;
   payload?: Record<string, any>;
   read_at?: string | null;

@@ -20,7 +20,8 @@ import { Card } from '@/components/ui/card';
 import { ShopCardPlaceholder } from '@/components/common/ShopCardPlaceholder';
 import { ShopImage } from '@/components/common/ShopImage';
 import { cn } from '@/lib/utils';
-import { APP_ROUTES, DEFAULT_LOCATION } from '@/lib/utils/constants';
+import { DEFAULT_LOCATION } from '@/lib/utils/constants';
+import { getShopPath } from '@/lib/utils/shopUrl';
 import { CoffeeShop } from '@/types/shop';
 
 interface FavoriteShopCardProps {
@@ -259,7 +260,7 @@ export const FavoriteShopCard = memo(function FavoriteShopCard({
             asChild
             onClick={(e) => e.stopPropagation()}
           >
-            <Link href={APP_ROUTES.SHOP_DETAIL(shop.place_id || shop.id)}>
+            <Link href={getShopPath(shop)}>
               <span>Xem chi tiết</span>
               <ExternalLink size={11} className="opacity-80 shrink-0" />
             </Link>

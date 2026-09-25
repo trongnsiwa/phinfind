@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    let shopsMap: Record<string, { name: string; address?: string; photo?: string }> = {};
+    let shopsMap: Record<string, { name: string; address?: string; photo?: string; slug?: string | null }> = {};
     if (reviewsData && reviewsData.length > 0) {
       const placeIds = Array.from(
         new Set(reviewsData.map((r: any) => r.shop_place_id).filter(Boolean))
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
       if (placeIds.length > 0) {
         const { data: shopsData } = await supabase
           .from('shops')
-          .select('place_id, name, address, photos')
+          .select('place_id, name, address, photos, slug')
           .in('place_id', placeIds);
 
         if (shopsData) {
@@ -77,6 +77,7 @@ export async function GET(request: NextRequest) {
               name: s.name,
               address: s.address,
               photo: s.photos?.[0],
+              slug: s.slug || null,
             };
           });
         }
@@ -94,6 +95,7 @@ export async function GET(request: NextRequest) {
         shop_name: shopInfo?.name || 'Quán Cà Phê',
         shop_address: shopInfo?.address || null,
         shop_photo: shopInfo?.photo || null,
+        shop_slug: shopInfo?.slug || null,
         profiles: {
           full_name: publicProfile.full_name,
           avatar_url: publicProfile.avatar_url,

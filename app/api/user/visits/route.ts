@@ -28,7 +28,7 @@ export async function GET() {
   if (placeIds.length > 0) {
     const { data: shopsData } = await supabase
       .from('shops')
-      .select('place_id, name, address, photos, rating, total_ratings, categories, lat, lon')
+      .select('place_id, name, address, photos, rating, total_ratings, categories, lat, lon, slug')
       .in('place_id', placeIds);
 
     if (shopsData) {

@@ -43,7 +43,8 @@ import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useAuth } from '@/hooks/useAuth';
 import { useShopStore, closeActiveShop, clearShopQueryParam, isShopRecentlyDeleted } from '@/stores/useShopStore';
 import { useUIStore } from '@/stores/useUIStore';
-import { APP_ROUTES } from '@/lib/utils/constants';
+import axios from 'axios';
+import { APP_ROUTES, API_ENDPOINTS } from '@/lib/utils/constants';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { CoffeeShop } from '@/types/shop';
@@ -319,15 +320,36 @@ export function MapClient() {
 
     const found = apiShops.find(
       (s) =>
-        (s.id === targetId || s.place_id === targetId) &&
+        (s.slug === targetId || s.place_id === targetId || s.id === targetId) &&
         !isShopRecentlyDeleted(s.id) &&
-        !isShopRecentlyDeleted(s.place_id)
+        !isShopRecentlyDeleted(s.place_id) &&
+        !(s.slug && isShopRecentlyDeleted(s.slug))
     );
 
     if (found) {
       setSelectedShop(found);
     } else {
-      clearShopQueryParam();
+      const fetchShop = async () => {
+        try {
+          const res = await axios.get<{ shop: CoffeeShop }>(API_ENDPOINTS.SHOP_DETAILS, {
+            params: { placeId: targetId },
+          });
+          const shop = res.data?.shop;
+          if (
+            shop &&
+            !isShopRecentlyDeleted(shop.id) &&
+            !isShopRecentlyDeleted(shop.place_id) &&
+            !(shop.slug && isShopRecentlyDeleted(shop.slug))
+          ) {
+            setSelectedShop(shop);
+            return;
+          }
+        } catch {
+          // not found or error
+        }
+        clearShopQueryParam();
+      };
+      fetchShop();
     }
   }, [apiShops, setSelectedShop]);
 

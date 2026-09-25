@@ -34,7 +34,8 @@ const VisitNoteDialog = dynamic(
 import { useAuth } from '@/hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
 import { useShopStore } from '@/stores/useShopStore';
-import { APP_ROUTES, DEFAULT_LOCATION } from '@/lib/utils/constants';
+import { DEFAULT_LOCATION } from '@/lib/utils/constants';
+import { getShopPath } from '@/lib/utils/shopUrl';
 import { cn } from '@/lib/utils';
 import { ShareMenu } from '@/components/shop/ShareMenu';
 import type { CoffeeShop } from '@/types/shop';
@@ -119,7 +120,7 @@ export function ShopDetailClient({ shop: initialShop }: ShopDetailClientProps) {
 
   const canonicalShareUrl =
     shop && typeof window !== 'undefined'
-      ? `${window.location.origin}${APP_ROUTES.SHOP_DETAIL(shop.place_id || shop.id)}`
+      ? `${window.location.origin}${getShopPath(shop)}`
       : '';
 
   if (error || !shop) {

@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { invalidateShopQueries } from '@/hooks/useShops';
 
 export function ReactQueryProvider({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -16,6 +17,15 @@ export function ReactQueryProvider({ children }: { children: React.ReactNode }) 
         },
       })
   );
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const MIGRATION_KEY = 'phinfind_slug_migration_v1';
+    if (!localStorage.getItem(MIGRATION_KEY)) {
+      invalidateShopQueries(queryClient);
+      localStorage.setItem(MIGRATION_KEY, 'true');
+    }
+  }, [queryClient]);
 
   return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 }

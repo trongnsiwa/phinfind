@@ -56,14 +56,14 @@ export async function GET() {
       supabase
         .from('shop_edit_suggestions')
         .select(
-          '*, shop:shops(place_id, name, address), suggester:profiles!shop_edit_suggestions_suggested_by_fkey(id, full_name, username, avatar_url)'
+          '*, shop:shops(place_id, name, address, slug), suggester:profiles!shop_edit_suggestions_suggested_by_fkey(id, full_name, username, avatar_url)'
         )
         .eq('status', 'pending')
         .order('created_at', { ascending: false }),
       supabase
         .from('shop_edit_suggestions')
         .select(
-          '*, shop:shops(place_id, name, address), suggester:profiles!shop_edit_suggestions_suggested_by_fkey(id, full_name, username, avatar_url), reviewer:profiles!shop_edit_suggestions_reviewed_by_fkey(id, full_name, username, avatar_url)'
+          '*, shop:shops(place_id, name, address, slug), suggester:profiles!shop_edit_suggestions_suggested_by_fkey(id, full_name, username, avatar_url), reviewer:profiles!shop_edit_suggestions_reviewed_by_fkey(id, full_name, username, avatar_url)'
         )
         .neq('status', 'pending')
         .order('reviewed_at', { ascending: false })
@@ -282,7 +282,7 @@ export async function PATCH(request: NextRequest) {
         })
         .eq('id', id)
         .select(
-          '*, shop:shops(place_id, name, address), suggester:profiles!shop_edit_suggestions_suggested_by_fkey(id, full_name, username, avatar_url), reviewer:profiles!shop_edit_suggestions_reviewed_by_fkey(id, full_name, username, avatar_url)'
+          '*, shop:shops(place_id, name, address, slug), suggester:profiles!shop_edit_suggestions_suggested_by_fkey(id, full_name, username, avatar_url), reviewer:profiles!shop_edit_suggestions_reviewed_by_fkey(id, full_name, username, avatar_url)'
         )
         .single();
 
@@ -314,7 +314,7 @@ export async function PATCH(request: NextRequest) {
         })
         .eq('id', id)
         .select(
-          '*, shop:shops(place_id, name, address), suggester:profiles!shop_edit_suggestions_suggested_by_fkey(id, full_name, username, avatar_url), reviewer:profiles!shop_edit_suggestions_reviewed_by_fkey(id, full_name, username, avatar_url)'
+          '*, shop:shops(place_id, name, address, slug), suggester:profiles!shop_edit_suggestions_suggested_by_fkey(id, full_name, username, avatar_url), reviewer:profiles!shop_edit_suggestions_reviewed_by_fkey(id, full_name, username, avatar_url)'
         )
         .single();
 

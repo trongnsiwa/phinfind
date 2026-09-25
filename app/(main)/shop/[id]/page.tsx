@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, redirect, RedirectType } from 'next/navigation';
 import { fetchShopForServer } from '@/lib/supabase/shop-detail';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { buildShopJsonLd, buildBreadcrumbJsonLd } from '@/lib/seo/jsonLd';
 import { cleanCategoryLabel } from '@/lib/utils/placeholders';
+import { getShopPath } from '@/lib/utils/shopUrl';
 import { ShopDetailClient } from './ShopDetailClient';
 import type { CoffeeShop } from '@/types/shop';
 
@@ -190,7 +191,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description,
     },
     alternates: {
-      canonical: `/shop/${shop.place_id || id}`,
+      canonical: getShopPath(shop),
     },
   };
 }
@@ -201,6 +202,12 @@ export default async function ShopDetailPage({ params }: PageProps) {
 
   if (!shop) {
     notFound();
+    return null;
+  }
+
+  // Canonical redirect: If accessed via place_id or internal ID instead of slug, redirect to canonical slug URL
+  if (shop.slug && id !== shop.slug) {
+    redirect(getShopPath(shop), RedirectType.replace);
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://phinfind.com';
@@ -208,7 +215,7 @@ export default async function ShopDetailPage({ params }: PageProps) {
   const breadcrumbJsonLd = buildBreadcrumbJsonLd([
     { name: 'Trang chủ', url: baseUrl },
     { name: 'Bản đồ', url: `${baseUrl}/map` },
-    { name: shop.name, url: `${baseUrl}/shop/${shop.place_id || id}` },
+    { name: shop.name, url: `${baseUrl}${getShopPath(shop)}` },
   ]);
 
   return (

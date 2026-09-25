@@ -1,5 +1,23 @@
 import { describe, it, expect, vi } from 'vitest';
-import {
+
+const { mockRedirect, mockNotFound } = vi.hoisted(() => ({
+  mockRedirect: vi.fn(),
+  mockNotFound: vi.fn(),
+}));
+
+vi.mock('next/navigation', () => ({
+  notFound: () => {
+    mockNotFound();
+    throw new Error('NEXT_NOT_FOUND');
+  },
+  redirect: (url: string, type?: any) => {
+    mockRedirect(url, type);
+    throw new Error('NEXT_REDIRECT');
+  },
+  RedirectType: { replace: 'replace', push: 'push' },
+}));
+
+import ShopDetailPage, {
   cleanAddress,
   cleanCategories,
   truncateToLimit,
@@ -305,6 +323,76 @@ describe('Shop Detail Metadata & SEO', () => {
       expect(meta.twitter?.description).toBe(meta.description);
       expect(meta.openGraph?.title).toBe('Aroma Cafe');
       expect(meta.twitter?.title).toBe('Aroma Cafe');
+    });
+  });
+
+  describe('ShopDetailPage', () => {
+    it('redirects to canonical slug URL when accessed via place_id', async () => {
+      mockRedirect.mockClear();
+      const mockShop: CoffeeShop = {
+        id: 'custom_123',
+        place_id: 'custom_123',
+        slug: 'so-siph-old-bar',
+        name: 'SỞ SIPH OLD BAR',
+        address: '192 Hẻm 6',
+        rating: 5,
+        total_ratings: 1,
+        lat: 10.8,
+        lon: 106.9,
+        distance: 0,
+        distance_text: '0 m',
+        categories: [],
+      };
+
+      vi.spyOn(shopDetailModule, 'fetchShopForServer').mockResolvedValue(mockShop);
+
+      await expect(
+        ShopDetailPage({
+          params: Promise.resolve({ id: 'custom_123' }),
+        })
+      ).rejects.toThrow('NEXT_REDIRECT');
+
+      expect(mockRedirect).toHaveBeenCalledWith('/shop/so-siph-old-bar', 'replace');
+    });
+
+    it('renders without redirecting when accessed via canonical slug', async () => {
+      mockRedirect.mockClear();
+      const mockShop: CoffeeShop = {
+        id: 'custom_123',
+        place_id: 'custom_123',
+        slug: 'so-siph-old-bar',
+        name: 'SỞ SIPH OLD BAR',
+        address: '192 Hẻm 6',
+        rating: 5,
+        total_ratings: 1,
+        lat: 10.8,
+        lon: 106.9,
+        distance: 0,
+        distance_text: '0 m',
+        categories: [],
+      };
+
+      vi.spyOn(shopDetailModule, 'fetchShopForServer').mockResolvedValue(mockShop);
+
+      const result = await ShopDetailPage({
+        params: Promise.resolve({ id: 'so-siph-old-bar' }),
+      });
+
+      expect(mockRedirect).not.toHaveBeenCalled();
+      expect(result).toBeDefined();
+    });
+
+    it('calls notFound when shop does not exist', async () => {
+      mockNotFound.mockClear();
+      vi.spyOn(shopDetailModule, 'fetchShopForServer').mockResolvedValue(null);
+
+      await expect(
+        ShopDetailPage({
+          params: Promise.resolve({ id: 'non-existent' }),
+        })
+      ).rejects.toThrow('NEXT_NOT_FOUND');
+
+      expect(mockNotFound).toHaveBeenCalled();
     });
   });
 });

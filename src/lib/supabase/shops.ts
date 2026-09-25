@@ -52,6 +52,7 @@ export function mapDbShopToCoffeeShop(
   return {
     id: row.place_id || row.id,
     place_id: row.place_id || row.id,
+    slug: row.slug || null,
     name: row.name || 'Coffee Shop',
     address: row.address || '',
     lat: Number(row.lat),
@@ -161,6 +162,67 @@ export interface FetchNearbyShopsParams {
   offset: number;
 }
 
+export async function enrichMissingShopColumns(
+  supabase: any,
+  rows: any[]
+): Promise<void> {
+  if (!rows || rows.length === 0 || typeof supabase?.from !== 'function') return;
+
+  const missingSlug = rows.some((r) => !('slug' in r) || !r.slug);
+  const missingSocial = rows.some((r) => !('facebook_url' in r));
+
+  if (!missingSlug && !missingSocial) return;
+
+  try {
+    const selectFields = ['place_id'];
+    if (missingSlug) selectFields.push('slug');
+    if (missingSocial) {
+      selectFields.push('facebook_url', 'instagram_url', 'tiktok_url', 'youtube_url', 'zalo_url', 'videos');
+    }
+
+    const res = await supabase
+      .from('shops')
+      .select(selectFields.join(', '))
+      .in(
+        'place_id',
+        rows.map((r: any) => r.place_id)
+      );
+
+    if (res?.error) {
+      console.warn(
+        '[enrichMissingShopColumns] Error enriching missing columns:',
+        res.error.message || res.error
+      );
+    }
+
+    const extraData = res?.data;
+    if (Array.isArray(extraData)) {
+      const extraMap = new Map(extraData.map((s: any) => [s.place_id, s]));
+      for (const row of rows) {
+        const extra = extraMap.get(row.place_id);
+        if (extra) {
+          if ((!('slug' in row) || !row.slug) && extra.slug) {
+            row.slug = extra.slug;
+          }
+          if (!('facebook_url' in row)) {
+            row.facebook_url = extra.facebook_url;
+            row.instagram_url = extra.instagram_url;
+            row.tiktok_url = extra.tiktok_url;
+            row.youtube_url = extra.youtube_url;
+            row.zalo_url = extra.zalo_url;
+            row.videos = extra.videos;
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.warn(
+      '[enrichMissingShopColumns] Failed to enrich missing columns:',
+      err instanceof Error ? err.message : err
+    );
+  }
+}
+
 export async function fetchNearbyShopsRpc(
   supabase: SupabaseClient<any>,
   params: FetchNearbyShopsParams
@@ -194,39 +256,8 @@ export async function fetchNearbyShopsRpc(
     return { shops: [], total };
   }
 
-  // Gracefully enrich social media links if the SQL RPC does not return them
-  if (
-    rows.length > 0 &&
-    !('facebook_url' in rows[0]) &&
-    typeof (supabase as any).from === 'function'
-  ) {
-    try {
-      const { data: socialData } = await supabase
-        .from('shops')
-        .select('place_id, facebook_url, instagram_url, tiktok_url, youtube_url, zalo_url, videos')
-        .in(
-          'place_id',
-          rows.map((r: any) => r.place_id)
-        );
-
-      if (socialData) {
-        const socialMap = new Map(socialData.map((s: any) => [s.place_id, s]));
-        for (const row of rows) {
-          const social = socialMap.get(row.place_id);
-          if (social) {
-            row.facebook_url = social.facebook_url;
-            row.instagram_url = social.instagram_url;
-            row.tiktok_url = social.tiktok_url;
-            row.youtube_url = social.youtube_url;
-            row.zalo_url = social.zalo_url;
-            row.videos = social.videos;
-          }
-        }
-      }
-    } catch (err) {
-      console.warn('[fetchNearbyShopsRpc] Failed to enrich social links:', err);
-    }
-  }
+  // Gracefully enrich missing columns (slug, social media links) if the SQL RPC does not return them
+  await enrichMissingShopColumns(supabase, rows);
 
   const needsCover = rows
     .filter((r) => !Array.isArray(r.photos) || r.photos.length === 0)
@@ -276,6 +307,8 @@ export async function fetchTrendingShops(
       return [];
     }
 
+    await enrichMissingShopColumns(supabase, rows);
+
     const needsCover = rows
       .filter((r) => !Array.isArray(r.photos) || r.photos.length === 0)
       .map((r) => r.place_id);
@@ -315,6 +348,8 @@ export async function fetchNewShops(
     if (!Array.isArray(rows) || rows.length === 0) {
       return [];
     }
+
+    await enrichMissingShopColumns(supabase, rows);
 
     const needsCover = rows
       .filter((r) => !Array.isArray(r.photos) || r.photos.length === 0)

@@ -6,7 +6,7 @@ import { Heart, ShieldCheck, XCircle, Pencil, X, CheckCircle2 } from 'lucide-rea
 import { NotificationItem as NotificationItemType } from '@/hooks/useNotifications';
 import { formatRelativeTime } from '@/lib/utils/formatTime';
 import { cn } from '@/lib/utils';
-import { APP_ROUTES } from '@/lib/utils/constants';
+import { getShopPath } from '@/lib/utils/shopUrl';
 
 interface NotificationItemProps {
   notification: NotificationItemType;
@@ -82,10 +82,12 @@ export function NotificationItem({
     onCloseDropdown();
 
     if (notification.shop_place_id) {
+      const shopSlug = notification.shop_slug || notification.payload?.shop_slug;
+      const shopPath = getShopPath({ slug: shopSlug, place_id: notification.shop_place_id });
       if (notification.type === 'review_liked') {
-        router.push(`${APP_ROUTES.SHOP_DETAIL(notification.shop_place_id)}?tab=reviews`);
+        router.push(`${shopPath}?tab=reviews`);
       } else {
-        router.push(APP_ROUTES.SHOP_DETAIL(notification.shop_place_id));
+        router.push(shopPath);
       }
     }
   };

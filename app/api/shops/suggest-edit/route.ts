@@ -230,7 +230,7 @@ export async function GET(request: NextRequest) {
     // Otherwise fetch all suggestions submitted by current user
     const { data: suggestions, error } = await supabase
       .from('shop_edit_suggestions')
-      .select('*, shop:shops(place_id, name, address)')
+      .select('*, shop:shops(place_id, name, address, slug)')
       .eq('suggested_by', user.id)
       .order('created_at', { ascending: false });
 

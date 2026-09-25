@@ -6,20 +6,25 @@ import { Card } from '@/components/ui/card';
 import { Star, MapPin, Calendar, ExternalLink } from 'lucide-react';
 import { ReviewData } from '@/hooks/useShops';
 import { useUIStore } from '@/stores/useUIStore';
-import { APP_ROUTES } from '@/lib/utils/constants';
+import { getShopPath } from '@/lib/utils/shopUrl';
 import { ShopImage } from '@/components/common/ShopImage';
 import { ReviewerName } from '@/components/common/ReviewerName';
 
 interface PublicReviewCardProps {
   review: ReviewData;
+  slug?: string | null;
+  shop?: { slug?: string | null; place_id?: string | null; id?: string | null } | null;
   action?: React.ReactNode;
 }
 
-export function PublicReviewCard({ review, action }: PublicReviewCardProps) {
+export function PublicReviewCard({ review, slug, shop, action }: PublicReviewCardProps) {
   const openImagePreview = useUIStore((state) => state.openImagePreview);
 
-  const shopHref = review.shop_place_id
-    ? APP_ROUTES.SHOP_DETAIL(review.shop_place_id)
+  const targetSlug = slug ?? shop?.slug ?? review.shop_slug;
+  const targetPlaceId = shop?.place_id ?? shop?.id ?? review.shop_place_id;
+
+  const shopHref = targetPlaceId || targetSlug
+    ? getShopPath({ slug: targetSlug, place_id: targetPlaceId })
     : '#';
 
   return (

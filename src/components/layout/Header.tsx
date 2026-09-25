@@ -39,6 +39,7 @@ import { useLocation } from '@/hooks/useLocation';
 import { useSearchShops } from '@/hooks/useShops';
 import { cn } from '@/lib/utils';
 import { APP_ROUTES } from '@/lib/utils/constants';
+import { getShopPath } from '@/lib/utils/shopUrl';
 import { NotificationBell } from '@/components/layout/NotificationBell';
 import { useUserBadges } from '@/hooks/useUserBadges';
 import { useShopStore } from '@/stores/useShopStore';
@@ -148,7 +149,7 @@ export function Header() {
   const handleSelectShop = (shop: CoffeeShop) => {
     setSelectedShop(shop);
     setIsSearchOpen(false);
-    router.push(APP_ROUTES.SHOP_DETAIL(shop.id));
+    router.push(getShopPath(shop));
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {

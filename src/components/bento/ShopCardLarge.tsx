@@ -6,7 +6,7 @@ import { Heart, MapPin, Navigation, Star, Footprints, ExternalLink, Quote, Coffe
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { APP_ROUTES } from '@/lib/utils/constants';
+import { getShopPath } from '@/lib/utils/shopUrl';
 import { CoffeeShop } from '@/types/shop';
 import { CardSize } from '@/lib/utils/bentoLayout';
 import { cn } from '@/lib/utils';
@@ -249,7 +249,7 @@ export const ShopCardLarge = memo(function ShopCardLarge({
             </Button>
           </a>
 
-          <Link href={APP_ROUTES.SHOP_DETAIL(shop.id)} onClick={(e) => e.stopPropagation()}>
+          <Link href={getShopPath(shop)} onClick={(e) => e.stopPropagation()}>
             <Button
               variant="default"
               size="sm"

@@ -95,7 +95,7 @@ export function PublicProfileClient() {
         ) : (
           <div className="space-y-3.5">
             {reviews.map((review) => (
-              <PublicReviewCard key={review.id} review={review} />
+              <PublicReviewCard key={review.id} review={review} slug={review.shop_slug} />
             ))}
           </div>
         )}

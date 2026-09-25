@@ -330,5 +330,142 @@ test.describe('Shop Detail Flow', () => {
     const body = await response.body();
     expect(body.byteLength).toBeGreaterThan(10240);
   });
+
+  test('resolves shop detail page via slug and falls back to legacy place_id', async ({ page }) => {
+    test.skip(!hasSupabaseCredentials, 'Skipping live shop seed test: Supabase test credentials not configured');
+
+    const admin = getTestSupabaseAdmin();
+    test.skip(!admin, 'Supabase admin client unavailable');
+
+    const testPlaceId = `test_slug_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+    const testSlug = `quan-cafe-slug-test-${Date.now()}`;
+    const shopName = 'Quán Cà Phê Slug Test';
+
+    const { error: insertError } = await admin!.from('shops').insert({
+      place_id: testPlaceId,
+      name: shopName,
+      slug: testSlug,
+      address: '123 Đường Test, Quận 1, TP.HCM',
+      lat: 10.7769,
+      lon: 106.7009,
+      rating: 4.7,
+      total_ratings: 5,
+      hidden: false,
+    });
+
+    if (insertError) {
+      test.skip(true, `Failed to insert test shop: ${insertError.message}`);
+      return;
+    }
+
+    try {
+      // 1. Visit via slug URL
+      await page.goto(`/shop/${testSlug}`);
+      await expect(page).toHaveURL(new RegExp(`/shop/${testSlug}`));
+      await expect(page.getByRole('heading', { level: 1 })).toContainText(shopName);
+
+      // 2. Visit via legacy place_id URL -> redirects to canonical slug
+      await page.goto(`/shop/${testPlaceId}`);
+      await expect(page).toHaveURL(new RegExp(`/shop/${testSlug}`));
+      await expect(page.getByRole('heading', { level: 1 })).toContainText(shopName);
+    } finally {
+      await admin!.from('shops').delete().eq('place_id', testPlaceId);
+    }
+  });
+
+  test('drawer URL query parameter uses shop slug instead of internal place_id', async ({ page }) => {
+    await page.goto('/');
+    await assertNoHorizontalScroll(page);
+
+    const firstCard = page.locator('article, [class*="ShopCard"]').first();
+    const hasCards = await firstCard.waitFor({ state: 'visible', timeout: 8000 }).then(() => true).catch(() => false);
+
+    if (!hasCards) {
+      test.skip(true, 'No coffee shops available in database to open detail drawer');
+      return;
+    }
+
+    await firstCard.click();
+    await expect(page).toHaveURL(/[?&]shop=/);
+
+    const currentUrl = new URL(page.url());
+    const shopParam = currentUrl.searchParams.get('shop');
+    expect(shopParam).toBeTruthy();
+
+    // Skip assertion for legacy shops without a generated slug
+    const isLegacyIdentifier = shopParam?.startsWith('custom_') || (shopParam && /^[a-f0-9]{20,}$/.test(shopParam));
+    if (isLegacyIdentifier) {
+      test.skip(true, 'Shop clicked does not have a generated slug in current database');
+      return;
+    }
+
+    // Assert that ?shop param is the readable slug (not an internal custom_ ID or hex hash)
+    expect(shopParam).not.toMatch(/^custom_/);
+    expect(shopParam).toMatch(/^[a-z0-9-]+$/);
+  });
+
+  test('opens shop drawer when navigating directly to URL with slug or legacy place_id in ?shop parameter', async ({ page }) => {
+    test.skip(!hasSupabaseCredentials, 'Skipping live shop seed test: Supabase test credentials not configured');
+
+    const admin = getTestSupabaseAdmin();
+    test.skip(!admin, 'Supabase admin client unavailable');
+
+    const testPlaceId = `test_query_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+    const testSlug = `quan-cafe-drawer-test-${Date.now()}`;
+    const shopName = 'Quán Cà Phê Drawer Test';
+
+    const { error: insertError } = await admin!.from('shops').insert({
+      place_id: testPlaceId,
+      name: shopName,
+      slug: testSlug,
+      address: '456 Đường Test Drawer, Quận 1, TP.HCM',
+      lat: 10.7769,
+      lon: 106.7009,
+      rating: 4.8,
+      total_ratings: 8,
+      hidden: false,
+    });
+
+    if (insertError) {
+      test.skip(true, `Failed to insert test shop: ${insertError.message}`);
+      return;
+    }
+
+    try {
+      // 1. Visit Discover with ?shop=<slug>
+      await page.goto(`/?shop=${testSlug}`);
+      await expect(page.getByRole('heading', { level: 2, name: shopName })).toBeVisible({ timeout: 10000 });
+      expect(new URL(page.url()).searchParams.get('shop')).toBe(testSlug);
+
+      // 2. Visit Discover with legacy ?shop=<place_id>
+      await page.goto(`/?shop=${testPlaceId}`);
+      await expect(page.getByRole('heading', { level: 2, name: shopName })).toBeVisible({ timeout: 10000 });
+      // URL sync upgrades query param to slug
+      await expect(page).toHaveURL(new RegExp(`[?&]shop=${testSlug}`));
+    } finally {
+      await admin!.from('shops').delete().eq('place_id', testPlaceId);
+    }
+  });
+
+  test('card CTA links navigate to shop detail page via slug', async ({ page }) => {
+    await page.goto('/');
+    await assertNoHorizontalScroll(page);
+
+    const ctaLink = page.getByRole('link', { name: /xem chi tiết/i }).first();
+    const hasCta = await ctaLink.waitFor({ state: 'visible', timeout: 8000 }).then(() => true).catch(() => false);
+
+    if (!hasCta) {
+      test.skip(true, 'No featured or large shop cards with direct detail links on page');
+      return;
+    }
+
+    const href = await ctaLink.getAttribute('href');
+    expect(href).toMatch(/^\/shop\//);
+
+    // If card shop has a slug, verify href uses slug instead of custom_ or hex hash
+    if (href && !href.startsWith('/shop/custom_') && !/^\/shop\/[a-f0-9]{20,}$/.test(href)) {
+      expect(href).toMatch(/^\/shop\/[a-z0-9-]+$/);
+    }
+  });
 });
 

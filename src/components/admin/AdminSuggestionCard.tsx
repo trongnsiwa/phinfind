@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ShopEditSuggestion } from '@/hooks/useShops';
 import { cn } from '@/lib/utils';
+import { getShopPath } from '@/lib/utils/shopUrl';
 
 interface AdminSuggestionCardProps {
   suggestion: ShopEditSuggestion;
@@ -143,7 +144,7 @@ export function AdminSuggestionCard({
         </div>
 
         <Link
-          href={`/shop/${suggestion.shop_place_id}`}
+          href={getShopPath({ slug: suggestion.shop?.slug, place_id: suggestion.shop_place_id })}
           target="_blank"
           rel="noopener noreferrer"
           className="text-xs text-muted-foreground hover:text-foreground hover:underline inline-flex items-center gap-1 flex-shrink-0 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold rounded"

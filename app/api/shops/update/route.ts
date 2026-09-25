@@ -47,7 +47,7 @@ export async function PUT(request: NextRequest) {
     // Verify ownership
     const { data: existingShop, error: fetchError } = await supabase
       .from('shops')
-      .select('place_id, created_by')
+      .select('place_id, created_by, slug')
       .eq('place_id', data.place_id)
       .single();
 
@@ -63,6 +63,22 @@ export async function PUT(request: NextRequest) {
         { error: 'Bạn không có quyền chỉnh sửa quán cà phê này.' },
         { status: 403 }
       );
+    }
+
+    // Preserve existing slug; compute one only if legacy shop has no slug
+    let existingSlug = existingShop.slug;
+    if (!existingSlug) {
+      try {
+        const { data: computedSlug, error: slugRpcError } = await supabase.rpc('generate_shop_slug', {
+          p_name: data.name,
+          p_place_id: data.place_id
+        });
+        if (!slugRpcError && computedSlug) {
+          existingSlug = computedSlug;
+        }
+      } catch (slugErr) {
+        console.warn('[API /api/shops/update] Slug computation warning:', slugErr);
+      }
     }
 
     // Derive amenities if only categories or custom_amenities are sent
@@ -99,7 +115,8 @@ export async function PUT(request: NextRequest) {
             .map((a) => ({ name: a.name, description: a.description }));
 
     // Never allow client to change place_id, created_by, rating, total_ratings, created_at, or verified
-    const updatePayload = {
+    const updatePayload: Record<string, any> = {
+      slug: existingSlug,
       name: data.name,
       address: data.address,
       lat: data.lat,

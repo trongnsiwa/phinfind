@@ -82,13 +82,13 @@ export async function GET(request: NextRequest) {
     }
 
     // If userId was queried, also fetch shop details for each review
-    let shopsMap: Record<string, { name: string; address?: string; photo?: string }> = {};
+    let shopsMap: Record<string, { name: string; address?: string; photo?: string; slug?: string | null }> = {};
     if (userId && data && data.length > 0) {
       const placeIds = Array.from(new Set(data.map((r: any) => r.shop_place_id).filter(Boolean)));
       if (placeIds.length > 0) {
         const { data: shopsData } = await supabase
           .from('shops')
-          .select('place_id, name, address, photos')
+          .select('place_id, name, address, photos, slug')
           .in('place_id', placeIds);
 
         if (shopsData) {
@@ -97,6 +97,7 @@ export async function GET(request: NextRequest) {
               name: s.name,
               address: s.address,
               photo: s.photos?.[0],
+              slug: s.slug || null,
             };
           });
         }
@@ -145,6 +146,7 @@ export async function GET(request: NextRequest) {
         shop_name: shopInfo?.name || 'Quán Cà Phê',
         shop_address: shopInfo?.address || null,
         shop_photo: shopInfo?.photo || null,
+        shop_slug: shopInfo?.slug || null,
         like_count: likeCountMap[item.id] || 0,
         liked_by_me: currentUserId ? userLikedSet.has(item.id) : false,
         is_edited: isEdited,

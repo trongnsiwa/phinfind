@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect } from 'react';
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { QueryClient, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -116,17 +116,21 @@ export function useNearbyShops(
   });
 }
 
-export function useShopDetails(placeId: string) {
+export function useShopDetails(identifier: string, options?: { isSlug?: boolean }) {
+  const isSlug = options?.isSlug;
   return useQuery({
-    queryKey: ['shops', 'details', placeId],
+    queryKey: ['shops', 'details', identifier, isSlug],
     queryFn: async () => {
+      const params: Record<string, string> = isSlug
+        ? { slug: identifier }
+        : { placeId: identifier };
       const response = await axios.get<{ shop: CoffeeShop }>(API_ENDPOINTS.SHOP_DETAILS, {
-        params: { placeId },
+        params,
       });
       return response.data.shop;
     },
     staleTime: 5 * 60 * 1000,
-    enabled: Boolean(placeId),
+    enabled: Boolean(identifier),
   });
 }
 
@@ -144,6 +148,7 @@ export interface ReviewData {
   shop_name?: string;
   shop_address?: string | null;
   shop_photo?: string | null;
+  shop_slug?: string | null;
   like_count?: number;
   liked_by_me?: boolean;
   is_edited?: boolean;
@@ -866,6 +871,7 @@ export interface ShopEditSuggestion {
     place_id: string;
     name: string;
     address?: string | null;
+    slug?: string | null;
   } | null;
   suggester?: {
     id: string;
@@ -1052,5 +1058,20 @@ export function useNewShops(
     enabled: true,
     refetchOnWindowFocus: false,
   });
+}
+
+/**
+ * Invalidates all shop-related React Query keys to discard stale data without slugs.
+ */
+export function invalidateShopQueries(queryClient: QueryClient): Promise<unknown[]> {
+  const queryKeys = [
+    ['shops'],
+    ['shops', 'infinite'],
+    ['shops', 'nearby'],
+    ['shops', 'trending'],
+    ['shops', 'new'],
+    ['shops', 'details'],
+  ];
+  return Promise.all(queryKeys.map((queryKey) => queryClient.invalidateQueries({ queryKey })));
 }
 

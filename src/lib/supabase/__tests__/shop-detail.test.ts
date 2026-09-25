@@ -124,4 +124,92 @@ describe('fetchShopForServer', () => {
     const result = await fetchShopForServer('place-error');
     expect(result).toBeNull();
   });
+
+  it('fetches shop by slug when matching slug exists without querying place_id', async () => {
+    const shopData = {
+      place_id: 'place-1',
+      slug: 'workshop-coffee',
+      name: 'Workshop Coffee',
+      lat: 10.7,
+      lon: 106.7,
+      hidden: false,
+      photos: ['https://example.com/p.jpg'],
+    };
+
+    const maybeSingleSlug = vi.fn().mockResolvedValue({ data: shopData, error: null });
+    const maybeSinglePlaceId = vi.fn().mockResolvedValue({ data: null, error: null });
+
+    const mockSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockImplementation((field: string) => ({
+        neq: vi.fn().mockReturnValue({
+          maybeSingle: field === 'slug' ? maybeSingleSlug : maybeSinglePlaceId,
+        }),
+      })),
+    });
+
+    vi.spyOn(serverModule, 'createPublicClient').mockResolvedValue({
+      from: vi.fn().mockReturnValue({ select: mockSelect }),
+    } as any);
+
+    const result = await fetchShopForServer('workshop-coffee');
+    expect(result?.slug).toBe('workshop-coffee');
+    expect(result?.name).toBe('Workshop Coffee');
+    expect(maybeSingleSlug).toHaveBeenCalled();
+    expect(maybeSinglePlaceId).not.toHaveBeenCalled();
+  });
+
+  it('falls back to place_id when slug lookup yields no shop', async () => {
+    const shopData = {
+      place_id: 'place-legacy',
+      slug: null,
+      name: 'Legacy Shop',
+      lat: 10.7,
+      lon: 106.7,
+      hidden: false,
+      photos: ['https://example.com/p.jpg'],
+    };
+
+    const maybeSingleSlug = vi.fn().mockResolvedValue({ data: null, error: null });
+    const maybeSinglePlaceId = vi.fn().mockResolvedValue({ data: shopData, error: null });
+
+    const mockSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockImplementation((field: string) => ({
+        neq: vi.fn().mockReturnValue({
+          maybeSingle: field === 'slug' ? maybeSingleSlug : maybeSinglePlaceId,
+        }),
+      })),
+    });
+
+    vi.spyOn(serverModule, 'createPublicClient').mockResolvedValue({
+      from: vi.fn().mockReturnValue({ select: mockSelect }),
+    } as any);
+
+    const result = await fetchShopForServer('place-legacy');
+    expect(result?.place_id).toBe('place-legacy');
+    expect(result?.name).toBe('Legacy Shop');
+    expect(maybeSingleSlug).toHaveBeenCalled();
+    expect(maybeSinglePlaceId).toHaveBeenCalled();
+  });
+
+  it('returns null when neither slug nor place_id matches', async () => {
+    const maybeSingleSlug = vi.fn().mockResolvedValue({ data: null, error: null });
+    const maybeSinglePlaceId = vi.fn().mockResolvedValue({ data: null, error: null });
+
+    const mockSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockImplementation((field: string) => ({
+        neq: vi.fn().mockReturnValue({
+          maybeSingle: field === 'slug' ? maybeSingleSlug : maybeSinglePlaceId,
+        }),
+      })),
+    });
+
+    vi.spyOn(serverModule, 'createPublicClient').mockResolvedValue({
+      from: vi.fn().mockReturnValue({ select: mockSelect }),
+    } as any);
+
+    const result = await fetchShopForServer('not-found');
+    expect(result).toBeNull();
+    expect(maybeSingleSlug).toHaveBeenCalled();
+    expect(maybeSinglePlaceId).toHaveBeenCalled();
+  });
 });

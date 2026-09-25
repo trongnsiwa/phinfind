@@ -140,4 +140,40 @@ describe('PublicReviewCard', () => {
     expect(screen.queryByRole('link', { name: /trong nguyen/i })).toBeNull();
     expect(screen.getByText('(chưa có hồ sơ)')).toBeInTheDocument();
   });
+
+  it('links to /shop/<slug> when slug prop or review.shop_slug is provided, falling back to place_id', () => {
+    const { rerender } = render(
+      <PublicReviewCard review={mockReview} slug="phin-xanh-coffee" />
+    );
+    const shopLink = screen.getByRole('link', { name: /Phin Xanh Coffee/i });
+    expect(shopLink).toHaveAttribute('href', '/shop/phin-xanh-coffee');
+
+    // Test with review.shop_slug
+    rerender(
+      <PublicReviewCard review={{ ...mockReview, shop_slug: 'from-review-slug' }} />
+    );
+    expect(screen.getByRole('link', { name: /Phin Xanh Coffee/i })).toHaveAttribute(
+      'href',
+      '/shop/from-review-slug'
+    );
+
+    // Test with shop prop
+    rerender(
+      <PublicReviewCard
+        review={mockReview}
+        shop={{ place_id: 'place-123', slug: 'from-shop-prop' }}
+      />
+    );
+    expect(screen.getByRole('link', { name: /Phin Xanh Coffee/i })).toHaveAttribute(
+      'href',
+      '/shop/from-shop-prop'
+    );
+
+    // Test fallback to place_id
+    rerender(<PublicReviewCard review={mockReview} />);
+    expect(screen.getByRole('link', { name: /Phin Xanh Coffee/i })).toHaveAttribute(
+      'href',
+      '/shop/place-123'
+    );
+  });
 });

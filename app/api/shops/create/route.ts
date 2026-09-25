@@ -53,6 +53,20 @@ export async function POST(request: NextRequest) {
     const data = validationResult.data;
     const placeId = generateUniquePlaceId();
 
+    // Generate readable slug
+    let slug: string | null = null;
+    try {
+      const { data: slugData, error: slugRpcError } = await supabase.rpc('generate_shop_slug', {
+        p_name: data.name,
+        p_place_id: placeId
+      });
+      if (!slugRpcError && slugData) {
+        slug = slugData;
+      }
+    } catch (slugErr) {
+      console.warn('[API /api/shops/create] Slug generation warning:', slugErr);
+    }
+
     // Derive amenities if only categories or custom_amenities are sent (backward compatibility)
     let finalAmenities = data.amenities || [];
     let finalCategories = data.categories || [];
@@ -86,8 +100,9 @@ export async function POST(request: NextRequest) {
             .filter((a) => a.type === 'custom')
             .map((a) => ({ name: a.name, description: a.description }));
 
-    const insertPayload = {
+    const insertPayload: Record<string, any> = {
       place_id: placeId,
+      slug,
       name: data.name,
       address: data.address,
       lat: data.lat,
@@ -115,11 +130,34 @@ export async function POST(request: NextRequest) {
     };
 
 
-    const { data: createdRow, error: insertError } = await supabase
+    let { data: createdRow, error: insertError } = await supabase
       .from('shops')
       .insert([insertPayload])
       .select('*')
       .single();
+
+    // On unique violation (error code 23505) for the slug column, retry the RPC once
+    if (
+      insertError &&
+      insertError.code === '23505' &&
+      (insertError.message?.includes('slug') || insertError.details?.includes('slug'))
+    ) {
+      console.warn('[API /api/shops/create] Slug collision encountered, retrying once...');
+      const { data: retrySlugData } = await supabase.rpc('generate_shop_slug', {
+        p_name: data.name,
+        p_place_id: placeId
+      });
+      if (retrySlugData) {
+        insertPayload.slug = retrySlugData;
+        const retryResult = await supabase
+          .from('shops')
+          .insert([insertPayload])
+          .select('*')
+          .single();
+        createdRow = retryResult.data;
+        insertError = retryResult.error;
+      }
+    }
 
     if (insertError) {
       console.error('[API /api/shops/create] Supabase insert error:', insertError);

@@ -4,20 +4,62 @@ import { fetchCommunityCoverPhotos, mapDbShopToCoffeeShop } from '@/lib/supabase
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const placeId = searchParams.get('placeId') || searchParams.get('id');
+  let placeId = searchParams.get('placeId') || searchParams.get('id');
+  const slug = searchParams.get('slug');
 
-  if (!placeId) {
-    return NextResponse.json({ error: 'placeId is required' }, { status: 400 });
+  if (!placeId && !slug) {
+    return NextResponse.json({ error: 'placeId or slug is required' }, { status: 400 });
   }
 
   try {
     const supabase = await createPublicClient();
-    const { data, error } = await supabase
+
+    // When slug is provided, resolve it to a place_id first via a single SELECT
+    if (slug) {
+      const { data: slugRow, error: slugError } = await supabase
+        .from('shops')
+        .select('place_id')
+        .eq('slug', slug)
+        .neq('hidden', true)
+        .maybeSingle();
+
+      if (slugError) {
+        console.error('Supabase query error resolving slug in /api/shops/details:', slugError);
+        return NextResponse.json({ error: 'Database error' }, { status: 500 });
+      }
+
+      if (!slugRow?.place_id) {
+        return NextResponse.json({ error: 'Shop not found' }, { status: 404 });
+      }
+
+      placeId = slugRow.place_id;
+    }
+
+    if (!placeId) {
+      return NextResponse.json({ error: 'Shop not found' }, { status: 404 });
+    }
+
+    let { data, error } = await supabase
       .from('shops')
       .select('*')
       .eq('place_id', placeId)
       .neq('hidden', true)
       .maybeSingle();
+
+    // Fallback: If placeId was provided directly without slug but didn't match place_id,
+    // check if it was a slug for backward compatibility
+    if (!data && !slug && placeId) {
+      const { data: fallbackRow, error: fallbackError } = await supabase
+        .from('shops')
+        .select('*')
+        .eq('slug', placeId)
+        .neq('hidden', true)
+        .maybeSingle();
+
+      if (!fallbackError && fallbackRow) {
+        data = fallbackRow;
+      }
+    }
 
     if (error) {
       console.error('Supabase query error in /api/shops/details:', error);

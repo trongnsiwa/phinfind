@@ -192,7 +192,7 @@ export const ReviewsTab = memo(function ReviewsTab({
               </div>
             </div>
             <Link
-              href={`/login?redirect=${encodeURIComponent(`/?shop=${shop.id}`)}`}
+              href={`/login?redirect=${encodeURIComponent(`/?shop=${shop.slug || shop.place_id || shop.id}`)}`}
               className='flex-shrink-0'
             >
               <Button
@@ -285,7 +285,7 @@ export const ReviewsTab = memo(function ReviewsTab({
                 <span>Viết đánh giá đầu tiên</span>
               </Button>
             ) : (
-              <Link href={`/login?redirect=${encodeURIComponent(`/?shop=${shop.id}`)}`}>
+              <Link href={`/login?redirect=${encodeURIComponent(`/?shop=${shop.slug || shop.place_id || shop.id}`)}`}>
                 <Button
                   type='button'
                   className='bg-primary hover:bg-primary-hover text-primary-foreground font-bold text-xs rounded-xl px-4 py-2 h-9 md:h-8.5 shadow-xs flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer'

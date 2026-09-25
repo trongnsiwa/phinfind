@@ -27,7 +27,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const supabase = await createPublicClient();
     const { data: shops, error } = await supabase
       .from('shops')
-      .select('place_id, updated_at, created_at')
+      .select('place_id, slug, updated_at, created_at')
       .neq('hidden', true)
       .order('updated_at', { ascending: false })
       .limit(50000);
@@ -38,7 +38,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       shopRoutes = shops
         .filter((shop): shop is typeof shop & { place_id: string } => Boolean(shop.place_id))
         .map((shop) => ({
-          url: `${BASE_URL}/shop/${shop.place_id}`,
+          url: `${BASE_URL}/shop/${shop.slug || shop.place_id}`,
           lastModified: new Date(shop.updated_at || shop.created_at || Date.now()),
           changeFrequency: 'weekly' as const,
           priority: 0.8

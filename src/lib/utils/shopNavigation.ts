@@ -62,3 +62,6 @@ export function closeActiveShop({ clearUrl = true }: { clearUrl?: boolean } = {}
     clearShopQueryParam();
   }
 }
+
+export { getShopPath } from './shopUrl';
+

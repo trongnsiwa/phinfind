@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { APP_ROUTES } from '@/lib/utils/constants';
+import { getShopPath } from '@/lib/utils/shopUrl';
 import { CoffeeShop } from '@/types/shop';
 import { useShopStore, closeActiveShop } from '@/stores/useShopStore';
 import { useToggleVisit, useShopDetails, VisitedShopItem } from '@/hooks/useShops';
@@ -80,16 +80,33 @@ export function ShopSidebar({
   useEffect(() => {
     if (!shop || !isOpen || typeof window === 'undefined') return;
 
+    const currentShop = activeShop || shop;
     const url = new URL(window.location.href);
     const currentShopParam = url.searchParams.get('shop');
+    const shopIdentifier = currentShop.slug || currentShop.place_id || currentShop.id;
 
-    if (currentShopParam !== shop.id) {
-      url.searchParams.set('shop', shop.id);
-      window.history.pushState(
-        { shopSidebar: true, shopId: shop.id },
-        '',
-        url.pathname + url.search
+    if (currentShopParam !== shopIdentifier) {
+      const isUpgradingToSlug = Boolean(
+        currentShopParam &&
+          (currentShopParam === currentShop.place_id || currentShopParam === currentShop.id) &&
+          currentShop.slug &&
+          shopIdentifier === currentShop.slug
       );
+
+      url.searchParams.set('shop', shopIdentifier);
+      if (isUpgradingToSlug) {
+        window.history.replaceState(
+          { shopSidebar: true, shopId: shopIdentifier },
+          '',
+          url.pathname + url.search
+        );
+      } else {
+        window.history.pushState(
+          { shopSidebar: true, shopId: shopIdentifier },
+          '',
+          url.pathname + url.search
+        );
+      }
     }
 
     const handlePopState = () => {
@@ -104,7 +121,7 @@ export function ShopSidebar({
     return () => {
       window.removeEventListener('popstate', handlePopState);
     };
-  }, [shop, isOpen, onClose]);
+  }, [shop, activeShop, isOpen, onClose]);
 
   // Clean URL when closing
   const handleClose = () => {
@@ -148,7 +165,7 @@ export function ShopSidebar({
 
   const canonicalShareUrl =
     activeShop && typeof window !== 'undefined'
-      ? `${window.location.origin}${APP_ROUTES.SHOP_DETAIL(activeShop.place_id || activeShop.id)}`
+      ? `${window.location.origin}${getShopPath(activeShop)}`
       : '';
 
   const getDirectionsUrl = () => {

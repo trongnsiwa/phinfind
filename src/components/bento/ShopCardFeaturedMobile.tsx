@@ -11,6 +11,8 @@ import { ShopImage } from '@/components/common/ShopImage';
 import { cn } from '@/lib/utils';
 import { formatShopCategoryTagline } from '@/lib/utils/placeholders';
 import { CoffeeShop } from '@/types/shop';
+import Link from 'next/link';
+import { getShopPath } from '@/lib/utils/shopUrl';
 
 interface ShopCardFeaturedMobileProps {
   shop: CoffeeShop;
@@ -215,19 +217,21 @@ export const ShopCardFeaturedMobile = memo(function ShopCardFeaturedMobile({
             </Button>
           </a>
 
-          <Button
-            type="button"
-            variant="default"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelect?.(shop);
-            }}
-            className="flex-1 h-9 min-h-[44px] text-xs font-bold rounded-xl text-primary-foreground bg-gradient-to-r from-amber-gold to-amber-gold-hover hover:opacity-95 shadow-sm active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+          <Link
+            href={getShopPath(shop)}
+            onClick={(e) => e.stopPropagation()}
+            className="flex-1 min-h-[44px] flex items-center"
           >
-            <span>Xem chi tiết</span>
-            <ExternalLink size={12} className="shrink-0" />
-          </Button>
+            <Button
+              type="button"
+              variant="default"
+              size="sm"
+              className="w-full h-9 min-h-[44px] text-xs font-bold rounded-xl text-primary-foreground bg-gradient-to-r from-amber-gold to-amber-gold-hover hover:opacity-95 shadow-sm active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+            >
+              <span>Xem chi tiết</span>
+              <ExternalLink size={12} className="shrink-0" />
+            </Button>
+          </Link>
         </div>
       </div>
     </Card>

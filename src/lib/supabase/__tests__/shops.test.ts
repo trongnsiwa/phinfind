@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
+import { getShopPath } from '@/lib/utils/shopUrl';
 import {
   calculateDistanceMeters,
   formatDistanceText,
@@ -7,6 +8,7 @@ import {
   fetchNearbyShopsRpc,
   fetchTrendingShops,
   fetchNewShops,
+  enrichMissingShopColumns,
 } from '../shops';
 
 describe('Supabase Shops Helpers', () => {
@@ -100,6 +102,35 @@ describe('Supabase Shops Helpers', () => {
       expect(result.cover_source).toBeUndefined();
       expect(result.verified).toBe(true); // created_by is falsy -> true
       expect(result.hidden).toBe(false);
+    });
+
+    it('surfaces slug when present and getShopPath returns /shop/<slug>', () => {
+      const rowWithSlug = {
+        id: 'shop-123',
+        place_id: 'place-abc',
+        slug: 'ca-phe-sua-da',
+        name: 'Cà Phê Sữa Đá',
+        lat: 21.03,
+        lon: 105.85,
+      };
+
+      const shop = mapDbShopToCoffeeShop(rowWithSlug);
+      expect(shop.slug).toBe('ca-phe-sua-da');
+      expect(getShopPath(shop)).toBe('/shop/ca-phe-sua-da');
+    });
+
+    it('sets slug to null when absent and getShopPath falls back to place_id or id', () => {
+      const rowWithoutSlug = {
+        id: 'shop-123',
+        place_id: 'place-abc',
+        name: 'Cà Phê Sữa Đá',
+        lat: 21.03,
+        lon: 105.85,
+      };
+
+      const shop = mapDbShopToCoffeeShop(rowWithoutSlug);
+      expect(shop.slug).toBeNull();
+      expect(getShopPath(shop)).toBe('/shop/place-abc');
     });
 
     it('merges community cover photo when official photos are empty (SHOP-COVER-REVIEW-FALLBACK)', () => {
@@ -229,6 +260,90 @@ describe('Supabase Shops Helpers', () => {
       expect(result.total).toBe(42);
       expect(result.shops).toHaveLength(1);
       expect(result.shops[0].name).toBe('Cà Phê Phố Cổ');
+    });
+
+    it('surfaces slug from nearby_shops RPC and generates canonical getShopPath', async () => {
+      const mockRpc = vi.fn().mockImplementation((fnName: string) => {
+        if (fnName === 'nearby_shops') {
+          return Promise.resolve({
+            data: [
+              {
+                place_id: 'shop-with-slug',
+                slug: 'pho-co-coffee',
+                name: 'Phố Cổ Coffee',
+                lat: 21.03,
+                lon: 105.85,
+                photos: ['https://example.com/p.jpg'],
+                distance_meters: 100,
+                hidden: false,
+              },
+            ],
+            error: null,
+          });
+        }
+        if (fnName === 'nearby_shops_count') {
+          return Promise.resolve({ data: 1, error: null });
+        }
+        return Promise.resolve({ data: null, error: null });
+      });
+
+      const mockSupabase = { rpc: mockRpc } as any;
+
+      const result = await fetchNearbyShopsRpc(mockSupabase, {
+        lat: 21.0285,
+        lng: 105.8542,
+        radiusKm: 5,
+        limit: 10,
+        offset: 0,
+      });
+
+      expect(result.shops[0].slug).toBe('pho-co-coffee');
+      expect(getShopPath(result.shops[0])).toBe('/shop/pho-co-coffee');
+    });
+
+    it('falls back to place_id in getShopPath when nearby_shops RPC row has no slug', async () => {
+      const mockRpc = vi.fn().mockImplementation((fnName: string) => {
+        if (fnName === 'nearby_shops') {
+          return Promise.resolve({
+            data: [
+              {
+                place_id: 'shop-without-slug',
+                name: 'Legacy Shop',
+                lat: 21.03,
+                lon: 105.85,
+                photos: ['https://example.com/p.jpg'],
+                distance_meters: 100,
+                hidden: false,
+              },
+            ],
+            error: null,
+          });
+        }
+        if (fnName === 'nearby_shops_count') {
+          return Promise.resolve({ data: 1, error: null });
+        }
+        return Promise.resolve({ data: null, error: null });
+      });
+
+      const mockSupabase = {
+        rpc: mockRpc,
+        from: vi.fn().mockReturnValue({
+          select: vi.fn().mockReturnValue({
+            in: vi.fn().mockResolvedValue({ data: [], error: null }),
+          }),
+        }),
+      } as any;
+
+      const result = await fetchNearbyShopsRpc(mockSupabase, {
+        lat: 21.0285,
+        lng: 105.8542,
+        radiusKm: 5,
+        limit: 10,
+        offset: 0,
+      });
+
+      expect(result.shops[0].slug).toBeNull();
+      expect(getShopPath(result.shops[0])).toBe('/shop/shop-without-slug');
     });
 
     it('overrides distance with SQL distance_meters when divergence exceeds 1m', async () => {
@@ -527,4 +642,120 @@ describe('Supabase Shops Helpers', () => {
       expect(result).toEqual([]);
     });
   });
+
+  describe('enrichMissingShopColumns', () => {
+    it('enriches slug and social media fields when missing from RPC output', async () => {
+      const rows = [
+        { place_id: 'shop-1', name: 'Quán 1' },
+        { place_id: 'shop-2', name: 'Quán 2' },
+      ];
+
+      const mockFrom = vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          in: vi.fn().mockResolvedValue({
+            data: [
+              {
+                place_id: 'shop-1',
+                slug: 'quan-1',
+                facebook_url: 'https://fb.com/quan1',
+                instagram_url: null,
+                tiktok_url: null,
+                youtube_url: null,
+                zalo_url: null,
+                videos: [],
+              },
+              {
+                place_id: 'shop-2',
+                slug: 'quan-2',
+                facebook_url: null,
+                instagram_url: 'https://instagr.am/quan2',
+                tiktok_url: null,
+                youtube_url: null,
+                zalo_url: null,
+                videos: [],
+              },
+            ],
+            error: null,
+          }),
+        }),
+      });
+
+      const mockSupabase = { from: mockFrom } as any;
+
+      await enrichMissingShopColumns(mockSupabase, rows);
+
+      expect((rows[0] as any).slug).toBe('quan-1');
+      expect((rows[0] as any).facebook_url).toBe('https://fb.com/quan1');
+      expect((rows[1] as any).slug).toBe('quan-2');
+      expect((rows[1] as any).instagram_url).toBe('https://instagr.am/quan2');
+    });
+
+    it('skips database query when slug and social media fields are already present', async () => {
+      const rows = [
+        {
+          place_id: 'shop-1',
+          slug: 'quan-1',
+          facebook_url: 'https://fb.com/quan1',
+        },
+      ];
+
+      const mockFrom = vi.fn();
+      const mockSupabase = { from: mockFrom } as any;
+
+      await enrichMissingShopColumns(mockSupabase, rows);
+
+      expect(mockFrom).not.toHaveBeenCalled();
+    });
+
+    it('handles empty rows or missing supabase.from gracefully without throwing', async () => {
+      await expect(enrichMissingShopColumns(null, [])).resolves.not.toThrow();
+      await expect(enrichMissingShopColumns({} as any, [{ place_id: '1' }])).resolves.not.toThrow();
+    });
+
+    it('logs warning at warn level with error message when PostgREST returns schema cache error', async () => {
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const rows = [{ place_id: 'shop-1' }];
+
+      const mockFrom = vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          in: vi.fn().mockResolvedValue({
+            data: null,
+            error: { message: 'Could not find the "slug" column in schema cache' },
+          }),
+        }),
+      });
+
+      const mockSupabase = { from: mockFrom } as any;
+
+      await enrichMissingShopColumns(mockSupabase, rows);
+
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('[enrichMissingShopColumns] Error enriching missing columns:'),
+        'Could not find the "slug" column in schema cache'
+      );
+      consoleWarnSpy.mockRestore();
+    });
+
+    it('logs warning at warn level when query throws an unexpected error', async () => {
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const rows = [{ place_id: 'shop-1' }];
+
+      const mockFrom = vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          in: vi.fn().mockRejectedValue(new Error('Network offline')),
+        }),
+      });
+
+      const mockSupabase = { from: mockFrom } as any;
+
+      await enrichMissingShopColumns(mockSupabase, rows);
+
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('[enrichMissingShopColumns] Failed to enrich missing columns:'),
+        'Network offline'
+      );
+      consoleWarnSpy.mockRestore();
+    });
+  });
 });
+

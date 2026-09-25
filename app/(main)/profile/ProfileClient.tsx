@@ -74,6 +74,7 @@ import {
 } from '@/hooks/useShops';
 import { useShopStore } from '@/stores/useShopStore';
 import { API_ENDPOINTS, APP_ROUTES, DEFAULT_LOCATION } from '@/lib/utils/constants';
+import { getShopPath } from '@/lib/utils/shopUrl';
 import { CoffeeShop } from '@/types/shop';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -485,6 +486,7 @@ export function ProfileClient() {
                 <PublicReviewCard
                   key={review.id}
                   review={review}
+                  slug={review.shop_slug}
                   action={
                     <>
                       {/* Mobile (< md): Kebab dropdown menu */}
@@ -665,7 +667,7 @@ export function ProfileClient() {
                       {/* Info */}
                       <div className="space-y-1">
                         <Link
-                          href={APP_ROUTES.SHOP_DETAIL(visit.shop_place_id)}
+                          href={getShopPath({ slug: visit.shop?.slug || (visit as any).shop_slug, place_id: visit.shop_place_id })}
                           className="font-sans font-bold text-sm sm:text-base text-foreground hover:text-primary transition-colors block line-clamp-1"
                         >
                           {visit.shop_name}

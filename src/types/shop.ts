@@ -34,6 +34,7 @@ export interface ShopVideo {
 export interface CoffeeShop {
   id: string;
   place_id: string;
+  slug?: string | null;
   name: string;
   address: string;
   lat: number;

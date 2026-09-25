@@ -45,16 +45,52 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: listError.message }, { status: 500 });
     }
 
+    // Query shop slugs for notifications that reference a shop
+    const shopPlaceIds = Array.from(
+      new Set(
+        (rawNotifications || [])
+          .map((n: any) => n.shop_place_id || n.payload?.shop_place_id)
+          .filter(Boolean)
+      )
+    );
+
+    let shopSlugMap: Record<string, string> = {};
+    if (shopPlaceIds.length > 0) {
+      const { data: shopsData } = await supabase
+        .from('shops')
+        .select('place_id, slug')
+        .in('place_id', shopPlaceIds);
+
+      if (shopsData) {
+        shopsData.forEach((s: any) => {
+          if (s.slug) {
+            shopSlugMap[s.place_id] = s.slug;
+          }
+        });
+      }
+    }
+
     const formattedNotifications = (rawNotifications || []).map((item: any) => {
       const actor = Array.isArray(item.actor) ? item.actor[0] : item.actor;
+      const resolvedSlug =
+        shopSlugMap[item.shop_place_id] ||
+        shopSlugMap[item.payload?.shop_place_id] ||
+        item.payload?.shop_slug ||
+        null;
+      const updatedPayload = {
+        ...(item.payload || {}),
+        shop_slug: resolvedSlug,
+      };
+
       return {
         id: item.id,
         user_id: item.user_id,
         type: item.type,
         actor_id: item.actor_id,
         shop_place_id: item.shop_place_id,
+        shop_slug: resolvedSlug,
         review_id: item.review_id,
-        payload: item.payload || {},
+        payload: updatedPayload,
         read_at: item.read_at,
         created_at: item.created_at,
         is_read: item.read_at !== null,

@@ -261,7 +261,7 @@ export default async function Image({ params }: Props) {
   const subtitle = buildOgSubtitle(shop);
   const pills = buildOgPills(shop);
   const coverPhotoDataUri = await fetchCoverPhotoBase64(shop.photos?.[0]);
-  const canonicalPath = `phinfind.com/shop/${shop.place_id || id}`;
+  const canonicalPath = `phinfind.com/shop/${shop.slug || shop.place_id || id}`;
 
   return new ImageResponse(
     (

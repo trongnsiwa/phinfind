@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { ShopCardPlaceholder } from '@/components/common/ShopCardPlaceholder';
 import { ShopImage } from '@/components/common/ShopImage';
 import { cleanCategoryLabel } from '@/lib/utils/placeholders';
+import { getShopPath } from '@/lib/utils/shopUrl';
 import { CoffeeShop } from '@/types/shop';
 
 export interface AdminShopItem extends CoffeeShop {
@@ -136,7 +137,7 @@ export function AdminShopCard({
       {/* RESPONSIVE: flex-wrap ensures actions wrap cleanly below details link on 320px viewports */}
       <div className="pt-3 mt-3 border-t border-border/60 flex flex-wrap items-center justify-between gap-2">
         <Link
-          href={`/shop/${shop.place_id || shop.id}`}
+          href={getShopPath(shop)}
           target="_blank"
           rel="noopener noreferrer"
           className="text-xs text-muted-foreground hover:text-foreground hover:underline inline-flex items-center gap-1 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-gold focus-visible:ring-offset-0 rounded"
