@@ -19,6 +19,8 @@ import {
   Compass,
   Loader2,
   MoreVertical,
+  Sparkles,
+  ChevronRight,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -251,6 +253,21 @@ export function ProfileClient() {
     }
   };
 
+  const currentYear = useMemo(() => new Date().getFullYear(), []);
+  const hasCurrentYearActivity = useMemo(() => {
+    const hasVisit = userVisits.some((v) => {
+      const d = new Date(v.visited_at || v.created_at);
+      return !isNaN(d.getTime()) && d.getFullYear() === currentYear;
+    });
+    if (hasVisit) return true;
+    const hasReview = rawUserReviews.some((r) => {
+      const d = new Date(r.created_at);
+      return !isNaN(d.getTime()) && d.getFullYear() === currentYear;
+    });
+    if (hasReview) return true;
+    return false;
+  }, [userVisits, rawUserReviews, currentYear]);
+
   const displayName =
     profile?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Tín Đồ Cà Phê';
   const userEmail = profile?.email || user?.email;
@@ -418,6 +435,38 @@ export function ProfileClient() {
             categoryBadges={badgeData.categoryBadges}
           />
         ))}
+
+      {/* Recap Banner Callout (Tier 3.3) */}
+      {hasCurrentYearActivity && (
+        <Link
+          href="/recap"
+          className="group relative flex items-center justify-between p-4 sm:p-5 rounded-2xl bg-amber-gold/10 dark:bg-amber-gold/15 border border-amber-gold/30 dark:border-amber-gold/40 ring-1 ring-inset ring-amber-gold/20 dark:ring-0 shadow-sm hover:shadow-md transition-all min-h-[44px]"
+        >
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-amber-gold text-primary-foreground dark:bg-amber-gold/15 dark:text-amber-gold border border-amber-gold/40 flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 shadow-xs">
+              <Sparkles size={20} />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[11px] font-bold tracking-widest uppercase text-amber-gold-hover dark:text-amber-gold">
+                  PhinFind Recap
+                </span>
+                <span className="flex h-1.5 w-1.5 rounded-full bg-amber-gold animate-pulse" />
+              </div>
+              <h4 className="text-base sm:text-lg font-bold text-foreground truncate">
+                Hành trình {currentYear} của bạn đã sẵn sàng!
+              </h4>
+              <p className="text-xs text-muted-foreground hidden sm:block">
+                Xem tổng kết các quán cà phê, thành tích và kỷ lục check-in của bạn
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1 text-xs font-semibold text-amber-gold-hover hover:text-amber-gold dark:text-amber-gold dark:hover:text-amber-gold-hover group-hover:underline transition-colors shrink-0 ml-2">
+            <span>Xem ngay</span>
+            <ChevronRight size={16} />
+          </div>
+        </Link>
+      )}
 
       {/* 3. TABBED CONTENT (Reviews First) */}
       <Tabs

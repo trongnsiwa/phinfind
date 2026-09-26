@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@custom-variant dark (&:where(.dark, .dark *));
 @import 'leaflet/dist/leaflet.css';
 
 :root {
@@ -39,7 +40,7 @@
   --theme-secondary-text: #2C1810;
   --theme-muted-text: #5C4D3C;
   --theme-amber-gold: #B8860B;
-  --theme-amber-gold-hover: #C98B3B;
+  --theme-amber-gold-hover: #8A5800;
   --theme-amber-gold-muted: rgba(184, 134, 11, 0.2);
 
   /* High-Contrast Text Color Tokens */
@@ -1117,5 +1118,8 @@ nextjs-portal,
 [data-radix-dialog-content][data-state='closed'].data-\[state\=closed\]\:slide-out-to-top {
   animation: sheet-slide-out-top 200ms ease-out forwards;
 }
+
+
+
 
 

@@ -460,3 +460,4 @@ export function DiscoverCarouselSkeleton({ className }: { className?: string }) 
 
 export const SkeletonCard = CardSkeleton;
 
+export { RecapSkeleton } from '@/components/recap/RecapSkeleton';

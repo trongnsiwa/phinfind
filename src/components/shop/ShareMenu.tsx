@@ -23,6 +23,7 @@ export interface ShareMenuProps {
   title: string;
   triggerClassName?: string;
   labelClassName?: string;
+  iconClassName?: string;
   align?: 'start' | 'center' | 'end';
   side?: 'top' | 'bottom';
   open?: boolean;
@@ -34,6 +35,7 @@ export function ShareMenu({
   title,
   triggerClassName,
   labelClassName = 'truncate',
+  iconClassName,
   align = 'end',
   side = 'top',
   open: openProp,
@@ -157,7 +159,7 @@ export function ShareMenu({
             triggerClassName
           )}
         >
-          <Share2 size={15} className='text-amber-gold flex-shrink-0' />
+          <Share2 size={15} className={cn('text-amber-gold flex-shrink-0', iconClassName)} />
           <span className={labelClassName}>Chia sẻ</span>
         </button>
       </DropdownMenuTrigger>
